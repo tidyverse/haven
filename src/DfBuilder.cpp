@@ -41,8 +41,8 @@ List sas7bdat_df(std::string filename) {
 
   int result = parse_sas7bdat(
     filename.c_str(),
-    &builder,
-    &dfbuilder_info,
+    builder,
+    dfbuilder_info,
     NULL,
     NULL
   );
