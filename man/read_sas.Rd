@@ -12,4 +12,7 @@ read_sas(path)
 \description{
 Read a SAS7BDAT file in R.
 }
+\examples{
+read_sas("http://crn.cancer.gov/resources/ctcodes-procedures.sas7bdat")
+}
 
