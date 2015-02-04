@@ -1,6 +1,8 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 #include "readstat.h"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 class DfBuilder {
   int nrows_, ncols_;
@@ -117,21 +119,27 @@ int dfbuilder_value(int obs_index, int var_index, void *value,
   return ((DfBuilder*) ctx)->value(obs_index, var_index, value, type);
 }
 
-// [[Rcpp::export]]
-List sas7bdat_df(std::string filename) {
-  DfBuilder builder;
 
-  readstat_error_t result = parse_sas7bdat(
-    filename.c_str(),
-    &builder,
-    dfbuilder_info,
-    dfbuilder_variable,
-    dfbuilder_value
-  );
+// Parser wrappers -------------------------------------------------------------
+
+typedef boost::function<readstat_error_t(const char*, DfBuilder*)> Parser;
+
+List parseDf(std::string filename, Parser parser) {
+  DfBuilder builder;
+  readstat_error_t result = parser(filename.c_str(), &builder);
 
   if (result != 0) {
     stop("Failed to parse %s: %s.", filename, readstat_error_message(result));
   }
 
   return builder.output();
+}
+
+// [[Rcpp::export]]
+List sas7bdat_df(std::string filename) {
+  parseDf(filename, boost::bind(parse_sas7bdat,
+    _1, _2,
+    dfbuilder_info,
+    dfbuilder_variable,
+    dfbuilder_value));
 }
