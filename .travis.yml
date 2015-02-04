@@ -13,6 +13,7 @@ install:
 script: ./travis-tool.sh run_tests
 
 after_failure:
+  - cat 00install.out
   - ./travis-tool.sh dump_logs
 
 env:
