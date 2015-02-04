@@ -107,7 +107,7 @@ int dfbuilder_value(int obs_index, int var_index, void *value,
 List sas7bdat_df(std::string filename) {
   DfBuilder builder;
 
-  int result = parse_sas7bdat(
+  readstat_error_t result = parse_sas7bdat(
     filename.c_str(),
     &builder,
     dfbuilder_info,
@@ -116,8 +116,7 @@ List sas7bdat_df(std::string filename) {
   );
 
   if (result != 0) {
-    stop("Failed to parse %s: %s.", filename,
-      readstat_error_message((readstat_error_t) result));
+    stop("Failed to parse %s: %s.", filename, readstat_error_message(result));
   }
 
   return builder.output();
