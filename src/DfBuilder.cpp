@@ -51,6 +51,7 @@ public:
             readstat_types_t type) {
 
     if (type == READSTAT_TYPE_LONG_STRING || type == READSTAT_TYPE_STRING) {
+      // Missing strings and "" are identical in other systems
       CharacterVector col = output_[var_index];
       col[obs_index] = readstat_string_value(value);
     } else if (type == READSTAT_TYPE_CHAR) {
@@ -58,16 +59,32 @@ public:
       col[obs_index] = readstat_char_value(value);
     } else if (type == READSTAT_TYPE_INT16) {
       IntegerVector col = output_[var_index];
-      col[obs_index] = readstat_int16_value(value);
+      if (readstat_value_is_missing(value)) {
+        col[obs_index] = NA_INTEGER;
+      } else {
+        col[obs_index] = readstat_int16_value(value);
+      }
     } else if (type == READSTAT_TYPE_INT32) {
       IntegerVector col = output_[var_index];
-      col[obs_index] = readstat_int32_value(value);
+      if (readstat_value_is_missing(value)) {
+        col[obs_index] = NA_INTEGER;
+      } else {
+        col[obs_index] = readstat_int32_value(value);
+      }
     } else if (type == READSTAT_TYPE_FLOAT) {
       NumericVector col = output_[var_index];
-      col[obs_index] = readstat_float_value(value);
+      if (readstat_value_is_missing(value)) {
+        col[obs_index] = NA_REAL;
+      } else {
+        col[obs_index] = readstat_float_value(value);
+      }
     } else if (type == READSTAT_TYPE_DOUBLE) {
       NumericVector col = output_[var_index];
-      col[obs_index] = readstat_double_value(value);
+      if (readstat_value_is_missing(value)) {
+        col[obs_index] = NA_REAL;
+      } else {
+        col[obs_index] = readstat_double_value(value);
+      }
     }
 
     return 0;
