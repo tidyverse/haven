@@ -1,9 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
-
-extern "C" {
-  #include "readstat.h"
-}
+#include "readstat.h"
 
 class DfBuilder {
   int nrows_, ncols_;

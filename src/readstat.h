@@ -9,6 +9,10 @@
 #ifndef INCLUDE_READSTAT_H
 #define INCLUDE_READSTAT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <sys/types.h>
 #include <string.h>
@@ -103,5 +107,9 @@ readstat_error_t parse_rdata(const char *filename, void *user_ctx,
         readstat_handle_text_value_callback handle_value_label);
 
 const char *readstat_error_message(readstat_error_t error_code);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
