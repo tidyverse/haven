@@ -55,22 +55,22 @@ public:
 
     if (type == READSTAT_TYPE_LONG_STRING || type == READSTAT_TYPE_STRING) {
       CharacterVector col = output_[var_index];
-      col[obs_index] = (char *) value;
+      col[obs_index] = readstat_string_value(value);
     } else if (type == READSTAT_TYPE_CHAR) {
       CharacterVector col = output_[var_index];
-      col[obs_index] = *(char *) value;
+      col[obs_index] = readstat_char_value(value);
     } else if (type == READSTAT_TYPE_INT16) {
       IntegerVector col = output_[var_index];
-      col[obs_index] = *(short *) value;
+      col[obs_index] = readstat_int16_value(value);
     } else if (type == READSTAT_TYPE_INT32) {
       IntegerVector col = output_[var_index];
-      col[obs_index] = *(int *) value;
+      col[obs_index] = readstat_int32_value(value);
     } else if (type == READSTAT_TYPE_FLOAT) {
       NumericVector col = output_[var_index];
-      col[obs_index] = *(float *) value;
+      col[obs_index] = readstat_float_value(value);
     } else if (type == READSTAT_TYPE_DOUBLE) {
       NumericVector col = output_[var_index];
-      col[obs_index] = *(double *) value;
+      col[obs_index] = readstat_double_value(value);
     }
 
     return 0;
