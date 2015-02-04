@@ -18,8 +18,6 @@ public:
     nrows_ = obs_count;
     ncols_ = var_count;
 
-    Rcout << nrows_ << "/" << ncols_ << "\n";
-
     output_ = List(ncols_);
     names_ = CharacterVector(ncols_);
     return 0;
