@@ -1,5 +1,5 @@
 Package: haven
-Title: What the Package Does (one line, title case)
+Title: Import SPSS, Stata and SAS files into R.
 Version: 0.0.0.9000
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
@@ -7,10 +7,13 @@ Authors@R: c(
       comment = "Author of ReadStat"),
     person("RStudio", role = "cph")
   )
-Description: What the package does (one paragraph)
+Description: Import foreign statistical formats into R via the ReadStat C
+    library.
 Depends: R (>= 3.1.2)
 Suggests: dplyr
 License: MIT + file LICENSE
 LazyData: true
 LinkingTo: Rcpp (>= 0.11.4)
 Imports: Rcpp
+URL: https://github.com/hadley/haven, https://github.com/WizardMac/ReadStat
+BugReports: https://github.com/hadley/haven/issues
