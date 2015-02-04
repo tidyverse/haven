@@ -9,6 +9,7 @@ Authors@R: c(
   )
 Description: What the package does (one paragraph)
 Depends: R (>= 3.1.2)
+Suggests: dplyr
 License: MIT + file LICENSE
 LazyData: true
 LinkingTo: Rcpp (>= 0.11.4)
