@@ -3,7 +3,8 @@ Title: What the Package Does (one line, title case)
 Version: 0.0.0.9000
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
-    person("Evan", "Miller", , role = c("aut", "cph")),
+    person("Evan", "Miller", , role = c("aut", "cph"),
+      comment = "Author of ReadStat"),
     person("RStudio", role = "cph")
   )
 Description: What the package does (one paragraph)
