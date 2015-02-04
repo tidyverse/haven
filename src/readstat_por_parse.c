@@ -27,10 +27,10 @@ int readstat_por_parse_double(const char *data, size_t len, double *result) {
     long temp_val = 0;
     long frac_len = 0;
     
-    const u_char *val_start = NULL;
+    const unsigned char *val_start = NULL;
     
-    const u_char *p = (u_char *)data;
-    const u_char *eof = (u_char *)p + len;
+    const unsigned char *p = (const unsigned char *)data;
+    const unsigned char *eof = p + len;
     
     int cs;
     int is_negative = 0, exp_is_negative = 0;
@@ -380,14 +380,14 @@ case 11:
     
     if (!success) {
         retval = -1;
-        dprintf(STDERR_FILENO, "Read bytes: %ld Ending state: %d\n", (p - (u_char *)data), cs);
+        dprintf(STDERR_FILENO, "Read bytes: %ld Ending state: %d\n", (p - (const unsigned char *)data), cs);
     }
     
     if (retval == 0) {
         if (result)
             *result = val;
         
-        retval = (p - (u_char *)data);
+        retval = (p - (const unsigned char *)data);
     }
     
     return retval;
