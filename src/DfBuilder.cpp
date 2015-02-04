@@ -122,11 +122,15 @@ int dfbuilder_value(int obs_index, int var_index, void *value,
 
 // Parser wrappers -------------------------------------------------------------
 
-typedef boost::function<readstat_error_t(const char*, DfBuilder*)> Parser;
+template<typename ParseFunction>
+List parseDf(std::string filename, ParseFunction parser) {
 
-List parseDf(std::string filename, Parser parser) {
   DfBuilder builder;
-  readstat_error_t result = parser(filename.c_str(), &builder);
+  readstat_error_t result = parser(filename.c_str(),
+                                   &builder,
+                                   dfbuilder_info,
+                                   dfbuilder_variable,
+                                   dfbuilder_value);
 
   if (result != 0) {
     stop("Failed to parse %s: %s.", filename, readstat_error_message(result));
@@ -137,9 +141,5 @@ List parseDf(std::string filename, Parser parser) {
 
 // [[Rcpp::export]]
 List sas7bdat_df(std::string filename) {
-  return parseDf(filename, boost::bind(parse_sas7bdat,
-    _1, _2,
-    dfbuilder_info,
-    dfbuilder_variable,
-    dfbuilder_value));
+  return parseDf(filename, parse_sas7bdat);
 }
