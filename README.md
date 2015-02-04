@@ -1,3 +1,3 @@
-# Alien
+# Haven
 
-Load alien data formats (SAS, Spss and Stata) in to R. This is a binding to [ReadStat](https://github.com/WizardMac/ReadStat).
+Load foreign data formats (SAS, Spss and Stata) in to R. This is a binding to [ReadStat](https://github.com/WizardMac/ReadStat).

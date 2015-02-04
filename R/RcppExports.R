@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 sas7bdat_df <- function(filename) {
-    .Call('alien_sas7bdat_df', PACKAGE = 'alien', filename)
+    .Call('haven_sas7bdat_df', PACKAGE = 'haven', filename)
 }
 

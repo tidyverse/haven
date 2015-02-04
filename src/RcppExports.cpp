@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // sas7bdat_df
 List sas7bdat_df(std::string filename);
-RcppExport SEXP alien_sas7bdat_df(SEXP filenameSEXP) {
+RcppExport SEXP haven_sas7bdat_df(SEXP filenameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;

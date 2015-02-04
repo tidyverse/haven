@@ -1,3 +1,3 @@
-#' @useDynLib alien
+#' @useDynLib haven
 #' @importFrom Rcpp sourceCpp
 NULL

@@ -51,7 +51,7 @@ List sas7bdat_df(std::string filename) {
   delete builder;
 
   if (result != 0) {
-    stop("Failed to parse %s (%i)", filename, result);
+    stop("Failed to parse %s (%s)", filename, readstat_error_message((readstat_error_t) result));
   }
 
   return output;
