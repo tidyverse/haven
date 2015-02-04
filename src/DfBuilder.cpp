@@ -8,10 +8,10 @@ extern "C" {
 class DfBuilder {
   int nrows_, ncols_;
   List output_;
+  CharacterVector names_;
 
 public:
   DfBuilder(): nrows_(0), ncols_(0) {
-    output_ = List::create();
   }
 
   int info(int obs_count, int var_count) {
@@ -21,6 +21,7 @@ public:
     Rcout << nrows_ << "/" << ncols_ << "\n";
 
     output_ = List(ncols_);
+    names_ = CharacterVector(ncols_);
     return 0;
   }
 
@@ -29,6 +30,25 @@ public:
                const char *var_label,
                const char *val_labels,
                readstat_types_t type, size_t max_len) {
+
+    names_[index] = var_name;
+
+    switch(type) {
+    case READSTAT_TYPE_LONG_STRING:
+    case READSTAT_TYPE_STRING:
+    case READSTAT_TYPE_CHAR:
+      output_[index] = CharacterVector(nrows_);
+      break;
+    case READSTAT_TYPE_INT16:
+    case READSTAT_TYPE_INT32:
+      output_[index] = IntegerVector(nrows_);
+      break;
+    case READSTAT_TYPE_FLOAT:
+    case READSTAT_TYPE_DOUBLE:
+      output_[index] = NumericVector(nrows_);
+      break;
+    }
+
     return 0;
   }
 
@@ -39,6 +59,10 @@ public:
   }
 
   List output() {
+    output_.attr("names") = names_;
+    output_.attr("class") = CharacterVector::create("tbl_df", "data.frame");
+    output_.attr("row.names") = IntegerVector::create(NA_INTEGER, -nrows_);
+
     return output_;
   }
 
