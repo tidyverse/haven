@@ -366,7 +366,7 @@ tr233:
             if (found) {
                 memcpy(ctx->varinfo[found->index].longname, temp_val, str_len);
             } else {
-                dprintf(STDERR_FILENO, "Failed to find %s\n", temp_key);
+                fprintf(stderr, "Failed to find %s\n", temp_key);
             }
         }
 	goto st228;
@@ -3425,7 +3425,7 @@ case 226:
             if (found) {
                 memcpy(ctx->varinfo[found->index].longname, temp_val, str_len);
             } else {
-                dprintf(STDERR_FILENO, "Failed to find %s\n", temp_key);
+                fprintf(stderr, "Failed to find %s\n", temp_key);
             }
         }
 	break;
@@ -3440,7 +3440,7 @@ case 226:
 
 
     if (cs < 227|| p != pe) {
-        dprintf(STDERR_FILENO, "Error parsing string \"%s\" around byte #%ld/%d, character %c\n", 
+        fprintf(stderr, "Error parsing string \"%s\" around byte #%ld/%d, character %c\n", 
                 (char *)data, p - c_data, count, *p);
         retval = READSTAT_ERROR_PARSE;
     }
@@ -4042,8 +4042,8 @@ case 35:
 
     
     if (cs < 36 || p != pe) {
-        dprintf(STDERR_FILENO, "Parsed %ld of %ld bytes\n", p - c_data, pe - c_data);
-        dprintf(STDERR_FILENO, "Remaining bytes: %s\n", p);
+        fprintf(stderr, "Parsed %ld of %ld bytes\n", p - c_data, pe - c_data);
+        fprintf(stderr, "Remaining bytes: %s\n", p);
         retval = READSTAT_ERROR_PARSE;
     }
     

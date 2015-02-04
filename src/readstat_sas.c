@@ -753,7 +753,7 @@ static readstat_error_t submit_columns(sas_ctx_t *ctx) {
                 stata_format = "%ts";
             } else if (format_buf[0] != '\0') {
                 label_set = format_buf;
-                // dprintf(STDERR_FILENO,  "Unknown format: %s\n", format_buf);
+                // fprintf(stderr,  "Unknown format: %s\n", format_buf);
             }
             int cb_retval = ctx->variable_cb(i, name_buf, stata_format, label_buf, label_set, ctx->col_info[i].type,
                     ctx->col_info[i].type == READSTAT_TYPE_DOUBLE ? 8 : ctx->col_info[i].width, 
@@ -1029,7 +1029,7 @@ readstat_error_t parse_sas7bdat(const char *filename, void *user_ctx,
 
     if (ctx->value_cb && ctx->parsed_row_count != ctx->total_row_count) {
         retval = READSTAT_ERROR_ROW_COUNT_MISMATCH;
-        dprintf(STDERR_FILENO, "ReadStat: Expected %d rows in file, found %d\n",
+        fprintf(stderr, "ReadStat: Expected %d rows in file, found %d\n",
                 ctx->total_row_count, ctx->parsed_row_count);
         goto cleanup;
     }

@@ -688,7 +688,7 @@ static readstat_error_t sav_parse_machine_integer_info_record(void *data, size_t
             }
         }
         if (src_charset == NULL) {
-            dprintf(STDERR_FILENO, "Unsupported character set: %d\n", character_code);
+            fprintf(stderr, "Unsupported character set: %d\n", character_code);
             return READSTAT_ERROR_UNSUPPORTED_CHARSET;
         }
     }

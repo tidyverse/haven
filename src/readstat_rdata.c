@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <lzma.h>
+#include <zlib.h>
 
 #include "readstat_io.h"
 #include "readstat_rdata.h"
@@ -35,7 +36,8 @@ typedef struct rdata_ctx_s {
     readstat_handle_text_value_callback  handle_text_value;
     readstat_handle_text_value_callback  handle_value_label;
     void                                *user_ctx;
-    lzma_stream                         *strm;
+    lzma_stream                         *lzma_strm;
+    z_stream                            *z_strm;
     unsigned char                       *strm_buffer;
     int                                  fd;
     
@@ -70,32 +72,29 @@ static char *atom_table_lookup(rdata_atom_table_t *table, int index) {
     return &table->data[(index-1)*RDATA_ATOM_LEN];
 }
 
-static int read_st(rdata_ctx_t *ctx, void *buffer, size_t len) {
-    if (!ctx->strm)
-        return read(ctx->fd, buffer, len);
-
+static int read_st_z(rdata_ctx_t *ctx, void *buffer, size_t len) {
     int bytes_written = 0;
     int error = 0;
-    int result = LZMA_OK;
+    int result = Z_OK;
     while (1) {
-        long start_out = ctx->strm->total_out;
+        long start_out = ctx->z_strm->total_out;
 
-        ctx->strm->next_out = buffer + bytes_written;
-        ctx->strm->avail_out = len - bytes_written;
+        ctx->z_strm->next_out = buffer + bytes_written;
+        ctx->z_strm->avail_out = len - bytes_written;
 
-        result = lzma_code(ctx->strm, LZMA_RUN);
+        result = inflate(ctx->z_strm, Z_SYNC_FLUSH);
 
-        if (result != LZMA_OK && result != LZMA_STREAM_END) {
+        if (result != Z_OK && result != Z_STREAM_END) {
             error = -1;
             break;
         }
 
-        bytes_written += ctx->strm->total_out - start_out;
+        bytes_written += ctx->z_strm->total_out - start_out;
         
-        if (result == LZMA_STREAM_END)
+        if (result == Z_STREAM_END)
             break;
 
-        if (ctx->strm->avail_in == 0) {
+        if (ctx->z_strm->avail_in == 0) {
             int bytes_read = 0;
             bytes_read = read(ctx->fd, ctx->strm_buffer, STREAM_BUFFER_SIZE);
             if (bytes_read < 0) {
@@ -105,8 +104,8 @@ static int read_st(rdata_ctx_t *ctx, void *buffer, size_t len) {
             if (bytes_read == 0)
                 break;
 
-            ctx->strm->next_in = ctx->strm_buffer;
-            ctx->strm->avail_in = bytes_read;
+            ctx->z_strm->next_in = ctx->strm_buffer;
+            ctx->z_strm->avail_in = bytes_read;
         }
         if (bytes_written == len)
             break;
@@ -118,15 +117,112 @@ static int read_st(rdata_ctx_t *ctx, void *buffer, size_t len) {
     return bytes_written;
 }
 
-static int lseek_st(rdata_ctx_t *ctx, size_t len) {
-    if (!ctx->strm)
-        return lseek(ctx->fd, len, SEEK_CUR);
+static int read_st_lzma(rdata_ctx_t *ctx, void *buffer, size_t len) {
+    int bytes_written = 0;
+    int error = 0;
+    int result = LZMA_OK;
+    while (1) {
+        long start_out = ctx->lzma_strm->total_out;
 
-    int retval = 0;
-    char *buf = malloc(len);
-    if (read_st(ctx, buf, len) != len)
-        retval = -1;
-    free(buf);
+        ctx->lzma_strm->next_out = buffer + bytes_written;
+        ctx->lzma_strm->avail_out = len - bytes_written;
+
+        result = lzma_code(ctx->lzma_strm, LZMA_RUN);
+
+        if (result != LZMA_OK && result != LZMA_STREAM_END) {
+            error = -1;
+            break;
+        }
+
+        bytes_written += ctx->lzma_strm->total_out - start_out;
+        
+        if (result == LZMA_STREAM_END)
+            break;
+
+        if (ctx->lzma_strm->avail_in == 0) {
+            int bytes_read = 0;
+            bytes_read = read(ctx->fd, ctx->strm_buffer, STREAM_BUFFER_SIZE);
+            if (bytes_read < 0) {
+                error = bytes_read;
+                break;
+            }
+            if (bytes_read == 0)
+                break;
+
+            ctx->lzma_strm->next_in = ctx->strm_buffer;
+            ctx->lzma_strm->avail_in = bytes_read;
+        }
+        if (bytes_written == len)
+            break;
+    }
+
+    if (error != 0)
+        return error;
+
+    return bytes_written;
+}
+
+static int read_st(rdata_ctx_t *ctx, void *buffer, size_t len) {
+    if (ctx->lzma_strm)
+        return read_st_lzma(ctx, buffer, len);
+
+    if (ctx->z_strm)
+        return read_st_z(ctx, buffer, len);
+
+    return read(ctx->fd, buffer, len);
+}
+
+static int lseek_st(rdata_ctx_t *ctx, size_t len) {
+    if (ctx->lzma_strm || ctx->z_strm) {
+        int retval = 0;
+        char *buf = malloc(len);
+        if (read_st(ctx, buf, len) != len)
+            retval = -1;
+        free(buf);
+        return retval;
+    }
+
+    return lseek(ctx->fd, len, SEEK_CUR);
+}
+
+static readstat_error_t init_z_stream(rdata_ctx_t *ctx) {
+    readstat_error_t retval = READSTAT_OK;
+    ctx->z_strm = calloc(1, sizeof(z_stream));
+    ctx->strm_buffer = malloc(STREAM_BUFFER_SIZE);
+    int bytes_read = read(ctx->fd, ctx->strm_buffer, STREAM_BUFFER_SIZE);
+    if (bytes_read <= 0) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+
+    ctx->z_strm->next_in = ctx->strm_buffer;
+    ctx->z_strm->avail_in = bytes_read;
+
+    if (inflateInit(ctx->z_strm) != Z_OK) {
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
+    }
+cleanup:
+    return retval;
+}
+
+static readstat_error_t init_lzma_stream(rdata_ctx_t *ctx) {
+    readstat_error_t retval = READSTAT_OK;
+    ctx->lzma_strm = calloc(1, sizeof(lzma_stream));
+    ctx->strm_buffer = malloc(STREAM_BUFFER_SIZE);
+    if (lzma_stream_decoder(ctx->lzma_strm, UINT64_MAX, 0) != LZMA_OK) {
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
+    }
+    int bytes_read = read(ctx->fd, ctx->strm_buffer, STREAM_BUFFER_SIZE);
+    if (bytes_read <= 0) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+
+    ctx->lzma_strm->next_in = ctx->strm_buffer;
+    ctx->lzma_strm->avail_in = bytes_read;
+cleanup:
     return retval;
 }
 
@@ -139,24 +235,13 @@ static readstat_error_t init_stream(rdata_ctx_t *ctx) {
         goto cleanup;
     }
 
-    if (strncmp("\xFD" "7zXZ", header, sizeof(header)) == 0) {
-        ctx->strm = calloc(1, sizeof(lzma_stream));
-        ctx->strm_buffer = malloc(STREAM_BUFFER_SIZE);
-        if (lzma_stream_decoder(ctx->strm, UINT64_MAX, 0) != LZMA_OK) {
-            retval = READSTAT_ERROR_MALLOC;
-            goto cleanup;
-        }
-        lseek(ctx->fd, 0, SEEK_SET);
-        int bytes_read = read(ctx->fd, ctx->strm_buffer, STREAM_BUFFER_SIZE);
-        if (bytes_read <= 0) {
-            retval = READSTAT_ERROR_READ;
-            goto cleanup;
-        }
+    lseek(ctx->fd, 0, SEEK_SET);
 
-        ctx->strm->next_in = ctx->strm_buffer;
-        ctx->strm->avail_in = bytes_read;
-    } else {
-        lseek(ctx->fd, 0, SEEK_SET);
+    if (header[0] == '\x1f' && header[1] == '\x8b') {
+        return init_z_stream(ctx);
+    }
+    if (strncmp("\xFD" "7zXZ", header, sizeof(header)) == 0) {
+        return init_lzma_stream(ctx);
     }
 
 cleanup:
@@ -189,9 +274,15 @@ rdata_ctx_t *init_rdata_ctx(const char *filename) {
 void free_rdata_ctx(rdata_ctx_t *ctx) {
     readstat_close(ctx->fd);
     free(ctx->atom_table);
-    if (ctx->strm) {
-        lzma_end(ctx->strm);
-        free(ctx->strm);
+    if (ctx->lzma_strm) {
+        lzma_end(ctx->lzma_strm);
+        free(ctx->lzma_strm);
+    }
+    if (ctx->z_strm) {
+        inflateEnd(ctx->z_strm);
+        free(ctx->z_strm);
+    }
+    if (ctx->strm_buffer) {
         free(ctx->strm_buffer);
     }
     free(ctx);
@@ -785,7 +876,7 @@ static readstat_error_t discard_vector(rdata_sexptype_header_t sexptype_header, 
             return READSTAT_ERROR_READ;
         }
     } else {
-        dprintf(STDERR_FILENO, "Vector with non-positive length: %d\n", length);
+        fprintf(stderr, "Vector with non-positive length: %d\n", length);
     }
     
     if (sexptype_header.attributes) {

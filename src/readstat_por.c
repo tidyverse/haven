@@ -546,7 +546,7 @@ static int read_por_file_data(readstat_por_ctx_t *ctx, readstat_handle_value_cal
                 if (i == 0 && retval == 1) {
                     return 0;
                 } else if (retval == -1) {
-                    dprintf(STDERR_FILENO, "Error in %s\n", info->name);
+                    fprintf(stderr, "Error in %s\n", info->name);
                     return READSTAT_ERROR_PARSE;
                 }
 //                printf("String value: %s\n", string);
@@ -556,7 +556,7 @@ static int read_por_file_data(readstat_por_ctx_t *ctx, readstat_handle_value_cal
                 if (i == 0 && retval == 1) {
                     return 0;
                 } else if (retval != 0) {
-                    dprintf(STDERR_FILENO, "Error in %s\n", info->name);
+                    fprintf(stderr, "Error in %s\n", info->name);
                     return READSTAT_ERROR_PARSE;
                 }
                 value = handle_missing_double(value, info);
