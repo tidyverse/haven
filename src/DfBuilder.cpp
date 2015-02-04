@@ -24,6 +24,20 @@ public:
     return 0;
   }
 
+  int variable(int index, const char *var_name,
+               const char *var_format,
+               const char *var_label,
+               const char *val_labels,
+               readstat_types_t type, size_t max_len) {
+    return 0;
+  }
+
+  int value(int obs_index, int var_index, void *value,
+            readstat_types_t type) {
+
+    return 0;
+  }
+
   List output() {
     return output_;
   }
@@ -33,7 +47,19 @@ public:
 int dfbuilder_info(int obs_count, int var_count, void *ctx) {
   return ((DfBuilder*) ctx)->info(obs_count, var_count);
 }
+int dfbuilder_variable(int index, const char *var_name, const char *var_format,
+                       const char *var_label, const char *val_labels,
+                       readstat_types_t type, size_t max_len,
+                       void *ctx) {
 
+  return ((DfBuilder*) ctx)->variable(index, var_name, var_format, var_label,
+    val_labels, type, max_len);
+}
+int dfbuilder_value(int obs_index, int var_index, void *value,
+                    readstat_types_t type, void *ctx) {
+
+  return ((DfBuilder*) ctx)->value(obs_index, var_index, value, type);
+}
 
 // [[Rcpp::export]]
 List sas7bdat_df(std::string filename) {
@@ -43,8 +69,8 @@ List sas7bdat_df(std::string filename) {
     filename.c_str(),
     builder,
     dfbuilder_info,
-    NULL,
-    NULL
+    dfbuilder_variable,
+    dfbuilder_value
   );
 
   List output = builder->output();
