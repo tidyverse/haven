@@ -3,11 +3,12 @@ Title: What the Package Does (one line, title case)
 Version: 0.0.0.9000
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
+    person("Evan", "Miller", , role = c("aut", "cph")),
     person("RStudio", role = "cph")
   )
 Description: What the package does (one paragraph)
 Depends: R (>= 3.1.2)
-License: GPL-3
+License: MIT + file LICENSE
 LazyData: true
 LinkingTo: Rcpp
 Imports: Rcpp
