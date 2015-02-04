@@ -55,6 +55,26 @@ public:
   int value(int obs_index, int var_index, void *value,
             readstat_types_t type) {
 
+    if (type == READSTAT_TYPE_LONG_STRING || type == READSTAT_TYPE_STRING) {
+      CharacterVector col = output_[var_index];
+      col[obs_index] = (char *) value;
+    } else if (type == READSTAT_TYPE_CHAR) {
+      CharacterVector col = output_[var_index];
+      col[obs_index] = *(char *) value;
+    } else if (type == READSTAT_TYPE_INT16) {
+      IntegerVector col = output_[var_index];
+      col[obs_index] = *(short *) value;
+    } else if (type == READSTAT_TYPE_INT32) {
+      IntegerVector col = output_[var_index];
+      col[obs_index] = *(int *) value;
+    } else if (type == READSTAT_TYPE_FLOAT) {
+      NumericVector col = output_[var_index];
+      col[obs_index] = *(float *) value;
+    } else if (type == READSTAT_TYPE_DOUBLE) {
+      NumericVector col = output_[var_index];
+      col[obs_index] = *(double *) value;
+    }
+
     return 0;
   }
 
