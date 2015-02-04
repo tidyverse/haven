@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include <boost/scoped_ptr.hpp>
 using namespace Rcpp;
 
 extern "C" {
@@ -105,18 +106,17 @@ int dfbuilder_value(int obs_index, int var_index, void *value,
 
 // [[Rcpp::export]]
 List sas7bdat_df(std::string filename) {
-  DfBuilder* builder = new DfBuilder();
+  boost::scoped_ptr<DfBuilder> builder(new DfBuilder());
 
   int result = parse_sas7bdat(
     filename.c_str(),
-    builder,
+    builder.get(),
     dfbuilder_info,
     dfbuilder_variable,
     dfbuilder_value
   );
 
   List output = builder->output();
-  delete builder;
 
   if (result != 0) {
     stop("Failed to parse %s (%i)", filename, result);

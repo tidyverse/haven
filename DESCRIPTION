@@ -10,5 +10,5 @@ Description: What the package does (one paragraph)
 Depends: R (>= 3.1.2)
 License: MIT + file LICENSE
 LazyData: true
-LinkingTo: Rcpp
+LinkingTo: Rcpp, BH
 Imports: Rcpp
