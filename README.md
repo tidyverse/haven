@@ -12,3 +12,17 @@ Haven is not yet available on CRAN. You can install the development version dire
 # install.packages("devtools")
 devtools::install_github("hadley/haven")
 ```
+
+
+## Updating readstat
+
+To get the latest version of readstat into the repo, run this code:
+
+```R
+tmp <- tempfile()
+download.file("https://github.com/WizardMac/ReadStat/archive/master.zip", tmp, 
+  method = "wget")
+unzip(tmp, exdir = tempdir())
+
+src <- dir(file.path(tempdir(), "ReadStat-master", "src"), "\\.[ch]$", full.name = TRUE)
+file.copy(src, "src/", overwrite = TRUE)

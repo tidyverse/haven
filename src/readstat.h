@@ -38,6 +38,7 @@ typedef enum readstat_error_e {
     READSTAT_ERROR_ROW_WIDTH_MISMATCH
 } readstat_error_t;
 
+/* Callbacks should return 0 on success and non-zero to abort */
 typedef int (*readstat_handle_info_callback)(int obs_count, int var_count, void *ctx);
 typedef int (*readstat_handle_variable_callback)(int index, const char *var_name, 
         const char *var_format, const char *var_label, const char *val_labels, 
