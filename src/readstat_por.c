@@ -560,7 +560,7 @@ static int read_por_file_data(readstat_por_ctx_t *ctx, readstat_handle_value_cal
                     return READSTAT_ERROR_PARSE;
                 }
                 value = handle_missing_double(value, info);
-                value_cb(ctx->obs_count, i, &value, READSTAT_TYPE_DOUBLE, user_ctx);
+                value_cb(ctx->obs_count, i, isnan(value) ? NULL : &value, READSTAT_TYPE_DOUBLE, user_ctx);
             }
         }
         ctx->obs_count++;
@@ -568,7 +568,7 @@ static int read_por_file_data(readstat_por_ctx_t *ctx, readstat_handle_value_cal
     return 0;
 }
 
-int parse_por(const char *filename, void *user_ctx,
+readstat_error_t parse_por(const char *filename, void *user_ctx,
               readstat_handle_info_callback info_cb, readstat_handle_variable_callback variable_cb,
               readstat_handle_value_callback value_cb, readstat_handle_value_label_callback value_label_cb) {
     readstat_por_ctx_t *ctx = calloc(1, sizeof(readstat_por_ctx_t));

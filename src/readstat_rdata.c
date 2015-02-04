@@ -270,7 +270,7 @@ cleanup:
     return retval;
 }
 
-int parse_rds(const char *filename, void *user_ctx,
+readstat_error_t parse_rds(const char *filename, void *user_ctx,
         readstat_handle_column_callback handle_column,
         readstat_handle_column_name_callback handle_column_name,
         readstat_handle_text_value_callback handle_text_value,
@@ -279,7 +279,7 @@ int parse_rds(const char *filename, void *user_ctx,
             handle_text_value, handle_value_label);
 }
 
-int parse_rdata(const char *filename, void *user_ctx,
+readstat_error_t parse_rdata(const char *filename, void *user_ctx,
                 readstat_handle_table_callback handle_table,
                 readstat_handle_column_callback handle_column,
                 readstat_handle_column_name_callback handle_column_name,

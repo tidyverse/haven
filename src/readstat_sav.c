@@ -291,6 +291,14 @@ cleanup:
     return retval;
 }
 
+static int sav_varinfo_compare(const void *elem1, const void *elem2) {
+    int offset = *(int *)elem1;
+    const sav_varinfo_t *v = (const sav_varinfo_t *)elem2;
+    if (offset < v->offset)
+        return -1;
+    return (offset > v->offset);
+}
+
 static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx, readstat_handle_value_label_callback value_label_cb, void *user_ctx) {
     int32_t label_count;
     readstat_error_t retval = READSTAT_OK;
@@ -366,13 +374,8 @@ static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx, read
     }
     for (i=0; i<var_count; i++) {
         int var_offset = vars[i]-1; // Why subtract 1????
-        sav_varinfo_t *var = bsearch_b(&var_offset, ctx->varinfo, ctx->var_index, sizeof(sav_varinfo_t), ^(const void *elem1, const void *elem2) {
-            int offset = *(int *)elem1;
-            const sav_varinfo_t *v = (const sav_varinfo_t *)elem2;
-            if (offset < v->offset)
-                return -1;
-            return (offset > v->offset);
-        });
+        sav_varinfo_t *var = bsearch(&var_offset, ctx->varinfo, ctx->var_index, sizeof(sav_varinfo_t),
+                &sav_varinfo_compare);
         if (var) {
             value_type = var->type;
             var->labels_index = ctx->value_labels_count;
@@ -638,7 +641,7 @@ static readstat_error_t sav_read_data(int fd, sav_ctx_t *ctx, readstat_handle_va
                     fp_value = byteswap_double(fp_value);
                 }
                 fp_value = handle_missing_double(fp_value, var_info);
-                if (value_cb(row, var_info->index, &fp_value, READSTAT_TYPE_DOUBLE, user_ctx)) {
+                if (value_cb(row, var_info->index, isnan(fp_value) ? NULL : &fp_value, READSTAT_TYPE_DOUBLE, user_ctx)) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto done;
                 }
@@ -706,7 +709,7 @@ static readstat_error_t sav_parse_variable_display_parameter_record(void *data, 
     return READSTAT_OK;
 }
 
-int parse_sav(const char *filename, void *user_ctx,
+readstat_error_t parse_sav(const char *filename, void *user_ctx,
               readstat_handle_info_callback info_cb, readstat_handle_variable_callback variable_cb,
               readstat_handle_value_callback value_cb, readstat_handle_value_label_callback value_label_cb) {
     int fd;

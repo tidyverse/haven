@@ -489,6 +489,7 @@ static readstat_error_t handle_data_value(const char *col_data, col_info_t *col_
                 ctx->scratch_buffer, READSTAT_TYPE_STRING, ctx->user_ctx);
     } else if (col_info->type == READSTAT_TYPE_DOUBLE) {
         uint64_t  val = 0;
+        double dval = NAN;
         if (ctx->little_endian) {
             int k;
             for (k=0; k<col_info->width; k++) {
@@ -502,8 +503,10 @@ static readstat_error_t handle_data_value(const char *col_data, col_info_t *col_
         }
         val <<= (8-col_info->width)*8;
 
+        memcpy(&dval, &val, 8);
+
         cb_retval = ctx->value_cb(ctx->parsed_row_count, col_info->index, 
-                (double *)&val, READSTAT_TYPE_DOUBLE, ctx->user_ctx);
+                isnan(dval) ? NULL : &dval, READSTAT_TYPE_DOUBLE, ctx->user_ctx);
     }
 
     if (cb_retval)
@@ -940,7 +943,7 @@ cleanup:
     return retval;
 }
 
-int parse_sas7bdat(const char *filename, void *user_ctx,
+readstat_error_t parse_sas7bdat(const char *filename, void *user_ctx,
         readstat_handle_info_callback info_cb, 
         readstat_handle_variable_callback variable_cb,
         readstat_handle_value_callback value_cb) {
@@ -1024,7 +1027,7 @@ int parse_sas7bdat(const char *filename, void *user_ctx,
         ctx->did_submit_columns = 1;
     }
 
-    if (ctx->parsed_row_count != ctx->total_row_count) {
+    if (ctx->value_cb && ctx->parsed_row_count != ctx->total_row_count) {
         retval = READSTAT_ERROR_ROW_COUNT_MISMATCH;
         dprintf(STDERR_FILENO, "ReadStat: Expected %d rows in file, found %d\n",
                 ctx->total_row_count, ctx->parsed_row_count);
@@ -1048,7 +1051,7 @@ cleanup:
     return retval;
 }
 
-int parse_sas7bcat(const char *filename, void *user_ctx,
+readstat_error_t parse_sas7bcat(const char *filename, void *user_ctx,
         readstat_handle_value_label_callback value_label_cb) {
     int fd = -1;
     readstat_error_t retval = READSTAT_OK;

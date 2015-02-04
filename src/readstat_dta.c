@@ -489,10 +489,10 @@ cleanup:
     return retval;
 }
 
-int parse_dta(const char *filename, void *user_ctx,
+readstat_error_t parse_dta(const char *filename, void *user_ctx,
               readstat_handle_info_callback info_cb, readstat_handle_variable_callback variable_cb,
               readstat_handle_value_callback value_cb, readstat_handle_value_label_callback value_label_cb) {
-    int retval = READSTAT_OK;
+    readstat_error_t retval = READSTAT_OK;
     int i;
     size_t  record_len = 0;
     int fd = -1;
