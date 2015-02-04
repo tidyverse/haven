@@ -137,7 +137,7 @@ List parseDf(std::string filename, Parser parser) {
 
 // [[Rcpp::export]]
 List sas7bdat_df(std::string filename) {
-  parseDf(filename, boost::bind(parse_sas7bdat,
+  return parseDf(filename, boost::bind(parse_sas7bdat,
     _1, _2,
     dfbuilder_info,
     dfbuilder_variable,
