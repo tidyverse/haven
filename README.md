@@ -16,6 +16,8 @@ Haven allows you to load foreign data formats (SAS, Spss and Stata) in to R by w
 * Can only read the data from the most common statistical packages (SAS, 
   Stata and SPSS).
 
+* You always get a data frame, and factors are used where appropriate.
+
 * Uses underscores ;)
 
 Haven is still a work in progress so please [file an issue](https://github.com/hadley/haven/issues) if it fails to correctly load a file that you're interested in.
