@@ -2,9 +2,23 @@
 
 [![Travis-CI Build Status](https://travis-ci.org/hadley/haven.png?branch=master)](https://travis-ci.org/hadley/haven)
 
-Haven allows you to load foreign data formats (SAS, Spss and Stata) in to R by wrapping the [ReadStat](https://github.com/WizardMac/ReadStat) C library. 
+Haven allows you to load foreign data formats (SAS, Spss and Stata) in to R by wrapping the [ReadStat](https://github.com/WizardMac/ReadStat) C library. Haven offers similar functionaity to the base foreign package but:
 
-The main driver of haven was to make it easy to read SAS's binary format without SAS installed. There is only one other package on CRAN that does that, [sas7bdat](http://cran.r-project.org/web/packages/sas7bdat), but it's implemented in R (not C) so is rather slow compared to haven. Once the SAS binding was complete, it only took a few minutes to add support for Stata and SPSS. You can also load these file types with the foreign package.
+* Can read SAS's binary format (SAS7BDAT). There one other package on CRAN that 
+  does that, [sas7bdat](http://cran.r-project.org/web/packages/sas7bdat), but 
+  it's implemented in R (not C) so is rather slow compared to haven.
+
+* Is considerably faster. For example, casual benchmarks suggest that 
+  `haven::read_spss()` is about 4x faster than `foregin::read.spss()`.
+
+* Works with Stata 13 files (foreign only works up to Stata 12).
+
+* Can only read the data from the most common statistical packages (SAS, 
+  Stata and SPSS).
+
+* Uses underscores ;)
+
+Haven is still a work in progress so please [file an issue](https://github.com/hadley/haven/issues) if it fails to correctly load a file that you're interested in.
 
 ## Installation
 
