@@ -1,6 +1,6 @@
 
-#include <iconv.h>
 #include "readstat.h"
+#include "readstat_iconv.h"
 #include "readstat_convert.h"
 
 static void unpad(char *string, size_t len) {
@@ -20,7 +20,7 @@ readstat_error_t readstat_convert(char *dst, size_t dst_len, const char *src, si
     if (converter) {
         size_t dst_left = dst_len;
         char *dst_end = dst;
-        size_t status = iconv(converter, (char **)&src, &src_len, &dst_end, &dst_left);
+        size_t status = iconv(converter, (readstat_iconv_inbuf_t)&src, &src_len, &dst_end, &dst_left);
         if (status == (size_t)-1) {
             return READSTAT_ERROR_PARSE;
         }

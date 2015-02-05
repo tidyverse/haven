@@ -13,7 +13,6 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <math.h>
-#include <iconv.h>
 
 #include "readstat_io.h"
 #include "readstat_sav.h"
@@ -384,7 +383,8 @@ static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx, read
     for (i=0; i<label_count; i++) {
         value_label_t *vlabel = &value_labels[i];
         if (value_type == READSTAT_TYPE_DOUBLE) {
-            double val_d = *(double *)vlabel->value;
+            double val_d = 0.0;
+            memcpy(&val_d, vlabel->value, 8);
             if (ctx->machine_needs_byte_swap)
                 val_d = byteswap_double(val_d);
             value_label_cb(label_name_buf, &val_d, value_type, vlabel->label, user_ctx);
@@ -448,11 +448,13 @@ double handle_missing_double(double fp_value, sav_varinfo_t *info) {
     if (info->n_missing_values == 3 && fp_value == info->missing_values[2]) {
         return NAN;
     }
-    if (*(uint64_t *)&fp_value == SAV_MISSING_DOUBLE)
+    uint64_t long_value = 0;
+    memcpy(&long_value, &fp_value, 8);
+    if (long_value == SAV_MISSING_DOUBLE)
         return NAN;
-    if (*(uint64_t *)&fp_value == SAV_LOWEST_DOUBLE)
+    if (long_value == SAV_LOWEST_DOUBLE)
         return NAN;
-    if (*(uint64_t *)&fp_value == SAV_HIGHEST_DOUBLE)
+    if (long_value == SAV_HIGHEST_DOUBLE)
         return NAN;
     
     return fp_value;
@@ -537,7 +539,7 @@ static readstat_error_t sav_read_data(int fd, sav_ctx_t *ctx, readstat_handle_va
                                 col++;
                             }
                         } else if (var_info->type == READSTAT_TYPE_DOUBLE) {
-                            fp_value = *(double *)uncompressed_value;
+                            memcpy(&fp_value, uncompressed_value, 8);
                             if (ctx->machine_needs_byte_swap) {
                                 fp_value = byteswap_double(fp_value);
                             }
@@ -636,7 +638,7 @@ static readstat_error_t sav_read_data(int fd, sav_ctx_t *ctx, readstat_handle_va
                     col++;
                 }
             } else if (var_info->type == READSTAT_TYPE_DOUBLE) {
-                fp_value = *(double *)value;
+                memcpy(&fp_value, value, 8);
                 if (ctx->machine_needs_byte_swap) {
                     fp_value = byteswap_double(fp_value);
                 }

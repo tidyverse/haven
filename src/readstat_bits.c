@@ -8,6 +8,7 @@
 
 #include <sys/types.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "readstat_bits.h"
 
@@ -56,11 +57,17 @@ uint64_t byteswap8(uint64_t num) {
 }
 
 float byteswap_float(float num) {
-    uint32_t answer = byteswap4(*(uint32_t *)&num);
-    return *(float *)&answer;
+    uint32_t answer = 0;
+    memcpy(&answer, &num, 4);
+    answer = byteswap4(answer);
+    memcpy(&num, &answer, 4);
+    return num;
 }
 
 double byteswap_double(double num) {
-    uint64_t answer = byteswap8(*(uint64_t *)&num);
-    return *(double *)&answer;
+    uint64_t answer = 0;
+    memcpy(&answer, &num, 8);
+    answer = byteswap8(answer);
+    memcpy(&num, &answer, 8);
+    return num;
 }

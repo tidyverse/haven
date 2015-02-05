@@ -5,9 +5,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <math.h>
-#include <iconv.h>
 #include "readstat_io.h"
 #include "readstat_sas.h"
+#include "readstat_iconv.h"
 #include "readstat_convert.h"
 
 #define SAS_STRING_ENCODING "WINDOWS-1252"
@@ -48,14 +48,14 @@
 #define SAS_RLE_COMMAND_INSERT_BLANK2  14
 #define SAS_RLE_COMMAND_INSERT_ZERO2   15
 
-static char sas7bdat_magic_number[32] = {
+static unsigned char sas7bdat_magic_number[32] = {
     0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00,   0xc2, 0xea, 0x81, 0x60,
     0xb3, 0x14, 0x11, 0xcf,   0xbd, 0x92, 0x08, 0x00,
     0x09, 0xc7, 0x31, 0x8c,   0x18, 0x1f, 0x10, 0x11
 };
 
-static char sas7bcat_magic_number[32] = {
+static unsigned char sas7bcat_magic_number[32] = {
     0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00,   0xc2, 0xea, 0x81, 0x63,
     0xb3, 0x14, 0x11, 0xcf,   0xbd, 0x92, 0x08, 0x00,
@@ -201,7 +201,7 @@ static readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx) {
     sas_header_start_t  header_start;
     sas_header_end_t    header_end;
     int retval = READSTAT_OK;
-    size_t a1 = 0, a2 = 0;
+    size_t a1 = 0;
     if (read(fd, &header_start, sizeof(sas_header_start_t)) < sizeof(sas_header_start_t)) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
@@ -216,7 +216,6 @@ static readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx) {
     }
     if (header_start.a2 == SAS_ALIGNMENT_OFFSET_4) {
         ctx->u64 = 1;
-        a2 = 4;
     }
     int bswap = 0;
     if (header_start.endian == SAS_ENDIAN_BIG) {
@@ -770,15 +769,11 @@ cleanup:
 
 /* First, extract column text */
 static readstat_error_t sas_parse_page_pass1(const char *page, size_t page_size, sas_ctx_t *ctx) {
-    uint16_t page_type;
-
     readstat_error_t retval = READSTAT_OK;
 
     off_t off = 0;
     if (ctx->u64)
         off = 16;
-
-    page_type = read2(&page[off+16], ctx->bswap);
 
     uint16_t subheader_count = read2(&page[off+20], ctx->bswap);
 
@@ -788,19 +783,16 @@ static readstat_error_t sas_parse_page_pass1(const char *page, size_t page_size,
         uint64_t offset = 0, len = 0;
         uint32_t signature = 0;
         unsigned char compression = 0;
-        unsigned char subheader_type = 0;
         int lshp = 0;
         if (ctx->u64) {
             offset = read8(&shp[0], ctx->bswap);
             len = read8(&shp[8], ctx->bswap);
             compression = shp[16];
-            subheader_type = shp[17];
             lshp = 24;
         } else {
             offset = read4(&shp[0], ctx->bswap);
             len = read4(&shp[4], ctx->bswap);
             compression = shp[8];
-            subheader_type = shp[9];
             lshp = 12;
         }
 
@@ -861,19 +853,16 @@ static readstat_error_t sas_parse_page_pass2(const char *page, size_t page_size,
             uint64_t offset = 0, len = 0;
             uint32_t signature = 0;
             unsigned char compression = 0;
-            unsigned char subheader_type = 0;
             int lshp = 0;
             if (ctx->u64) {
                 offset = read8(&shp[0], ctx->bswap);
                 len = read8(&shp[8], ctx->bswap);
                 compression = shp[16];
-                subheader_type = shp[17];
                 lshp = 24;
             } else {
                 offset = read4(&shp[0], ctx->bswap);
                 len = read4(&shp[4], ctx->bswap);
                 compression = shp[8];
-                subheader_type = shp[9];
                 lshp = 12;
             }
 

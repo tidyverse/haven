@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-#include <iconv.h>
 #include "readstat_sav.h"
 #include "readstat_sav_parse.h"
 
@@ -25,7 +24,7 @@ static int compare_varlookups(const void *elem1, const void *elem2) {
 }
 
 
-#line 29 "src/readstat_sav_parse.c"
+#line 28 "src/readstat_sav_parse.c"
 static const int sav_long_variable_parse_start = 1;
 static const int sav_long_variable_parse_first_final = 227;
 static const int sav_long_variable_parse_error = 0;
@@ -33,7 +32,7 @@ static const int sav_long_variable_parse_error = 0;
 static const int sav_long_variable_parse_en_main = 1;
 
 
-#line 29 "src/readstat_sav_parse.rl"
+#line 28 "src/readstat_sav_parse.rl"
 
 
 readstat_error_t sav_parse_long_variable_names_record(void *data, int count, sav_ctx_t *ctx) {
@@ -60,7 +59,8 @@ readstat_error_t sav_parse_long_variable_names_record(void *data, int count, sav
         size_t input_len = count;
         size_t output_len = input_len * 4;
         pe = p = output_buffer = malloc(output_len);
-        size_t status = iconv(ctx->converter, (char **)&data, &input_len,
+        size_t status = iconv(ctx->converter, 
+                (readstat_iconv_inbuf_t)&data, &input_len,
                 (char **)&pe, &output_len);
         if (status == (size_t)-1) {
             free(output_buffer);
@@ -3441,7 +3441,7 @@ case 226:
 
     if (cs < 227|| p != pe) {
         fprintf(stderr, "Error parsing string \"%s\" around byte #%ld/%d, character %c\n", 
-                (char *)data, p - c_data, count, *p);
+                (char *)data, (long)(p - c_data), count, *p);
         retval = READSTAT_ERROR_PARSE;
     }
     
@@ -3491,7 +3491,8 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
 
         pe = p = output_buffer = malloc(output_len);
 
-        size_t status = iconv(ctx->converter, (char **)&data, &input_len,
+        size_t status = iconv(ctx->converter, 
+                (readstat_iconv_inbuf_t)&data, &input_len,
                 (char **)&pe, &output_len);
         if (status == (size_t)-1) {
             free(output_buffer);
@@ -3505,12 +3506,12 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
     int cs;
     
     
-#line 3509 "src/readstat_sav_parse.c"
+#line 3510 "src/readstat_sav_parse.c"
 	{
 	cs = sav_very_long_string_parse_start;
 	}
 
-#line 3514 "src/readstat_sav_parse.c"
+#line 3515 "src/readstat_sav_parse.c"
 	{
 	if ( p == pe )
 		goto _test_eof;
@@ -3533,14 +3534,14 @@ st0:
 cs = 0;
 	goto _out;
 tr0:
-#line 191 "src/readstat_sav_parse.rl"
+#line 192 "src/readstat_sav_parse.rl"
 	{ str_start = p; }
 	goto st2;
 st2:
 	if ( ++p == pe )
 		goto _test_eof2;
 case 2:
-#line 3544 "src/readstat_sav_parse.c"
+#line 3545 "src/readstat_sav_parse.c"
 	switch( (*p) ) {
 		case 46u: goto st3;
 		case 61u: goto tr6;
@@ -3734,9 +3735,9 @@ case 9:
 		goto tr6;
 	goto st0;
 tr6:
-#line 191 "src/readstat_sav_parse.rl"
+#line 192 "src/readstat_sav_parse.rl"
 	{ str_len = p - str_start; }
-#line 174 "src/readstat_sav_parse.rl"
+#line 175 "src/readstat_sav_parse.rl"
 	{
             memcpy(temp_key, str_start, str_len);
             temp_key[str_len] = '\0';
@@ -3746,14 +3747,14 @@ st10:
 	if ( ++p == pe )
 		goto _test_eof10;
 case 10:
-#line 3750 "src/readstat_sav_parse.c"
+#line 3751 "src/readstat_sav_parse.c"
 	if ( 48u <= (*p) && (*p) <= 57u )
 		goto tr34;
 	goto st0;
 tr34:
-#line 193 "src/readstat_sav_parse.rl"
+#line 194 "src/readstat_sav_parse.rl"
 	{ temp_val = 0; }
-#line 179 "src/readstat_sav_parse.rl"
+#line 180 "src/readstat_sav_parse.rl"
 	{
             if ((*p) != '\0') { 
                 temp_val = 10 * temp_val + ((*p) - '0'); 
@@ -3761,7 +3762,7 @@ tr34:
         }
 	goto st11;
 tr36:
-#line 179 "src/readstat_sav_parse.rl"
+#line 180 "src/readstat_sav_parse.rl"
 	{
             if ((*p) != '\0') { 
                 temp_val = 10 * temp_val + ((*p) - '0'); 
@@ -3772,14 +3773,14 @@ st11:
 	if ( ++p == pe )
 		goto _test_eof11;
 case 11:
-#line 3776 "src/readstat_sav_parse.c"
+#line 3777 "src/readstat_sav_parse.c"
 	if ( (*p) == 0u )
 		goto tr35;
 	if ( 48u <= (*p) && (*p) <= 57u )
 		goto tr36;
 	goto st0;
 tr35:
-#line 167 "src/readstat_sav_parse.rl"
+#line 168 "src/readstat_sav_parse.rl"
 	{
             varlookup_t *found = bsearch(temp_key, table, var_count, sizeof(varlookup_t), &compare_key_varlookup);
             if (found) {
@@ -3791,7 +3792,7 @@ st36:
 	if ( ++p == pe )
 		goto _test_eof36;
 case 36:
-#line 3795 "src/readstat_sav_parse.c"
+#line 3796 "src/readstat_sav_parse.c"
 	switch( (*p) ) {
 		case 0u: goto st36;
 		case 9u: goto st37;
@@ -3814,38 +3815,38 @@ case 37:
 		goto tr2;
 	goto st0;
 tr2:
-#line 191 "src/readstat_sav_parse.rl"
+#line 192 "src/readstat_sav_parse.rl"
 	{ str_start = p; }
 	goto st12;
 st12:
 	if ( ++p == pe )
 		goto _test_eof12;
 case 12:
-#line 3825 "src/readstat_sav_parse.c"
+#line 3826 "src/readstat_sav_parse.c"
 	if ( 128u <= (*p) && (*p) <= 191u )
 		goto st2;
 	goto st0;
 tr3:
-#line 191 "src/readstat_sav_parse.rl"
+#line 192 "src/readstat_sav_parse.rl"
 	{ str_start = p; }
 	goto st13;
 st13:
 	if ( ++p == pe )
 		goto _test_eof13;
 case 13:
-#line 3837 "src/readstat_sav_parse.c"
+#line 3838 "src/readstat_sav_parse.c"
 	if ( 128u <= (*p) && (*p) <= 191u )
 		goto st12;
 	goto st0;
 tr4:
-#line 191 "src/readstat_sav_parse.rl"
+#line 192 "src/readstat_sav_parse.rl"
 	{ str_start = p; }
 	goto st14;
 st14:
 	if ( ++p == pe )
 		goto _test_eof14;
 case 14:
-#line 3849 "src/readstat_sav_parse.c"
+#line 3850 "src/readstat_sav_parse.c"
 	if ( 128u <= (*p) && (*p) <= 191u )
 		goto st13;
 	goto st0;
@@ -4038,11 +4039,11 @@ case 35:
 	_out: {}
 	}
 
-#line 201 "src/readstat_sav_parse.rl"
+#line 202 "src/readstat_sav_parse.rl"
 
     
     if (cs < 36 || p != pe) {
-        fprintf(stderr, "Parsed %ld of %ld bytes\n", p - c_data, pe - c_data);
+        fprintf(stderr, "Parsed %ld of %ld bytes\n", (long)(p - c_data), (long)(pe - c_data));
         fprintf(stderr, "Remaining bytes: %s\n", p);
         retval = READSTAT_ERROR_PARSE;
     }

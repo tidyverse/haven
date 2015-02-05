@@ -17,13 +17,11 @@ typedef struct dta_header_s {
 typedef struct dta_expansion_field_s {
     unsigned char    data_type;
     int32_t          len;
-    unsigned char    contents[0];
 } dta_expansion_field_t;
 
 typedef struct dta_short_expansion_field_s {
     unsigned char    data_type;
     int16_t          len;
-    unsigned char    contents[0];
 } dta_short_expansion_field_t;
 
 typedef struct dta_short_value_label_table_header_s {
@@ -79,9 +77,9 @@ typedef struct dta_ctx_s {
 
     int            nvar;
     int            nobs;
-    int            machine_needs_byte_swap:1;
-    int            machine_is_twos_complement:1;
-    int            file_is_xmlish:1;
+    int            machine_needs_byte_swap;
+    int            machine_is_twos_complement;
+    int            file_is_xmlish;
 } dta_ctx_t;
 
 #define DTA_HILO  0x01

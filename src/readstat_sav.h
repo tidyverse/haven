@@ -7,6 +7,7 @@
 //
 
 #include "readstat.h"
+#include "readstat_iconv.h"
 #include "readstat_bits.h"
 
 #pragma pack(push, 1)

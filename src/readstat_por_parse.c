@@ -380,7 +380,7 @@ case 11:
     
     if (!success) {
         retval = -1;
-        fprintf(stderr, "Read bytes: %ld Ending state: %d\n", (p - (const unsigned char *)data), cs);
+        fprintf(stderr, "Read bytes: %ld Ending state: %d\n", (long)(p - (const unsigned char *)data), cs);
     }
     
     if (retval == 0) {

@@ -137,7 +137,7 @@ static int read_bytes(readstat_por_ctx_t *ctx, void *dst, size_t len) {
         if (skip_newline(ctx->fd) == -1)
             return -1;
         
-        memcpy(dst + offset, buf, line_len);
+        memcpy((char *)dst + offset, buf, line_len);
         
         ctx->pos = 0;
         
@@ -163,7 +163,7 @@ static int read_bytes(readstat_por_ctx_t *ctx, void *dst, size_t len) {
             if (lseek(ctx->fd, -1, SEEK_CUR) == -1)
                 return -1;
         }
-        memcpy(dst + offset, buf, bytes_left);
+        memcpy((char *)dst + offset, buf, bytes_left);
         
         offset += bytes_left;
         
@@ -297,7 +297,7 @@ static int utf8_encode(const unsigned char *input, size_t input_len,
                 if (offset + 3 > output_len)
                     return offset;
             }
-            int printed = sprintf(output + offset, "%C", codepoint);
+            int printed = sprintf(output + offset, "%lc", codepoint);
             if (printed > 0) {
                 offset += printed;
             } else {
