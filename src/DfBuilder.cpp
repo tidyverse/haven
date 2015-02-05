@@ -3,12 +3,38 @@ using namespace Rcpp;
 #include "readstat.h"
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
+// typedef int (*readstat_handle_value_label_callback)(const char *val_labels,
+//   readstat_value_t value, readstat_types_t type, const char *label, void *ctx);
+
+class LabelSet {
+  std::vector<std::string> labels;
+  std::vector<std::string> values;
+
+public:
+  LabelSet() {}
+
+  void add(std::string label, std::string value) {
+    labels.push_back(label);
+    values.push_back(value);
+  }
+
+  int find_label(std::string label) {
+    std::vector<std::string>::iterator it =
+      find(labels.begin(), labels.end(), label);
+
+    return (it == labels.end()) ? -1 : (it - labels.begin());
+  }
+
+};
+typedef boost::shared_ptr<LabelSet> LabelSetPtr;
 
 class DfBuilder {
   int nrows_, ncols_;
   List output_;
   CharacterVector names_, labels_, val_labels_;
+  std::map<std::string, LabelSetPtr> label_sets_;
 
 public:
   DfBuilder(): nrows_(0), ncols_(0) {
@@ -105,6 +131,12 @@ public:
     return 0;
   }
 
+  int value_label(const char *val_labels, readstat_value_t value,
+                  readstat_types_t type, const char *label) {
+
+    return 0;
+  }
+
   List output() {
     output_.attr("names") = names_;
     output_.attr("class") = CharacterVector::create("tbl_df", "tbl", "data.frame");
@@ -122,20 +154,17 @@ int dfbuilder_variable(int index, const char *var_name, const char *var_format,
                        const char *var_label, const char *val_labels,
                        readstat_types_t type, size_t max_len,
                        void *ctx) {
-
   return ((DfBuilder*) ctx)->variable(index, var_name, var_format, var_label,
     val_labels, type, max_len);
 }
 int dfbuilder_value(int obs_index, int var_index, void *value,
                     readstat_types_t type, void *ctx) {
-
   return ((DfBuilder*) ctx)->value(obs_index, var_index, value, type);
 }
 int dfbuilder_value_label(const char *val_labels, readstat_value_t value,
                           readstat_types_t type, const char *label, void *ctx) {
-  return 0;
+  return ((DfBuilder*) ctx)->value_label(val_labels, value, type, label);
 }
-
 
 // Parser wrappers -------------------------------------------------------------
 

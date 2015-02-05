@@ -17,6 +17,8 @@ read_sas <- function(path) {
 
 #' Read SPSS (POR and SAV) files.
 #'
+#' Variable labels are stored in the "label" attribute in each column.
+#'
 #' @inheritParams read_sas
 #' @return A data frame with additional "tbl_df" and "tbl" classes, which
 #'   improve printing if dplyr is loaded.
