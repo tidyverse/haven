@@ -8,8 +8,9 @@ Haven allows you to load foreign data formats (SAS, Spss and Stata) in to R by w
   does that, [sas7bdat](http://cran.r-project.org/web/packages/sas7bdat), but 
   it's implemented in R (not C) so is rather slow compared to haven.
 
-* Is considerably faster. For example, casual benchmarks suggest that 
-  `haven::read_spss()` is about 4x faster than `foregin::read.spss()`.
+* It can be faster. Some spss files seem to load about 4x faster, but 
+  others load slower. If you have a lot of SPSS files to import, you might
+  want to benchmark both and pick the fastest.
 
 * Works with Stata 13 files (foreign only works up to Stata 12).
 
