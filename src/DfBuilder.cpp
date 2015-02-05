@@ -4,10 +4,11 @@ using namespace Rcpp;
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
+
 class DfBuilder {
   int nrows_, ncols_;
   List output_;
-  CharacterVector names_;
+  CharacterVector names_, labels_, val_labels_;
 
 public:
   DfBuilder(): nrows_(0), ncols_(0) {
@@ -19,6 +20,8 @@ public:
 
     output_ = List(ncols_);
     names_ = CharacterVector(ncols_);
+    labels_ = CharacterVector(ncols_);
+    val_labels_ = CharacterVector(ncols_);
     return 0;
   }
 
@@ -45,6 +48,16 @@ public:
       output_[index] = NumericVector(nrows_);
       break;
     }
+
+    if (var_label != NULL) {
+      labels_[index] = var_label;
+
+      RObject col = output_[index];
+      col.attr("label") = var_label;
+    }
+
+    if (val_labels != NULL)
+      val_labels_[index] = val_labels;
 
     return 0;
   }
