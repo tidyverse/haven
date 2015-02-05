@@ -25,4 +25,5 @@ unzip(tmp, exdir = tempdir())
 
 src <- dir(file.path(tempdir(), "ReadStat-master", "src"), "\\.[ch]$", full.name = TRUE)
 file.copy(src, "src/", overwrite = TRUE)
+unlink(c("src/readstat_rdata.c", "src/readstat_rdata.h"))
 ```
