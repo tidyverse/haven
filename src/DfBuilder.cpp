@@ -165,6 +165,10 @@ int dfbuilder_value_label(const char *val_labels, readstat_value_t value,
   return ((DfBuilder*) ctx)->value_label(val_labels, value, type, label);
 }
 
+void print_error(const char* error_message) {
+  Rcout << error_message << "\n";
+}
+
 // Parser wrappers -------------------------------------------------------------
 
 template<typename ParseFunction>
@@ -176,6 +180,7 @@ List df_parse(std::string filename, ParseFunction parse_f) {
   readstat_set_variable_handler(parser, dfbuilder_variable);
   readstat_set_value_handler(parser, dfbuilder_value);
   readstat_set_value_label_handler(parser, dfbuilder_value_label);
+  readstat_set_error_handler(parser, print_error);
 
   readstat_error_t result = parse_f(parser, filename.c_str(), &builder);
   readstat_parser_free(parser);
