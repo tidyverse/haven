@@ -2,7 +2,7 @@
 % Please edit documentation in R/haven.R
 \name{read_sas}
 \alias{read_sas}
-\title{Read a SAS7BDAT file in R.}
+\title{Read SAS7BDAT files.}
 \usage{
 read_sas(path)
 }
@@ -10,7 +10,7 @@ read_sas(path)
 \item{path}{Path to file}
 }
 \description{
-Read a SAS7BDAT file in R.
+Read SAS7BDAT files.
 }
 \examples{
 read_sas("http://crn.cancer.gov/resources/ctcodes-procedures.sas7bdat")

@@ -13,6 +13,12 @@ Haven is not yet available on CRAN. You can install the development version dire
 devtools::install_github("hadley/haven")
 ```
 
+## Usage
+
+* SAS: `read_sas("path/to/file")`
+* SPSS: `read_por("path/to/file")`, `read_sav("path/to/file")`
+* SAS: `read_dta("path/to/file")`
+
 ## Updating readstat
 
 To get the latest version of readstat into the repo, run this code:

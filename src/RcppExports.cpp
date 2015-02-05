@@ -5,14 +5,47 @@
 
 using namespace Rcpp;
 
-// sas7bdat_df
-List sas7bdat_df(std::string filename);
-RcppExport SEXP haven_sas7bdat_df(SEXP filenameSEXP) {
+// df_parse_sas
+List df_parse_sas(std::string filename);
+RcppExport SEXP haven_df_parse_sas(SEXP filenameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
-    __result = Rcpp::wrap(sas7bdat_df(filename));
+    __result = Rcpp::wrap(df_parse_sas(filename));
+    return __result;
+END_RCPP
+}
+// df_parse_dta
+List df_parse_dta(std::string filename);
+RcppExport SEXP haven_df_parse_dta(SEXP filenameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
+    __result = Rcpp::wrap(df_parse_dta(filename));
+    return __result;
+END_RCPP
+}
+// df_parse_por
+List df_parse_por(std::string filename);
+RcppExport SEXP haven_df_parse_por(SEXP filenameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
+    __result = Rcpp::wrap(df_parse_por(filename));
+    return __result;
+END_RCPP
+}
+// df_parse_sav
+List df_parse_sav(std::string filename);
+RcppExport SEXP haven_df_parse_sav(SEXP filenameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
+    __result = Rcpp::wrap(df_parse_sav(filename));
     return __result;
 END_RCPP
 }
