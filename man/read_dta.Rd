@@ -10,6 +10,10 @@ read_dta(path)
 \item{path}{Path to file. If the path is a URL, the file will be
 first download to a temporary location before reading.}
 }
+\value{
+A data frame with additional "tbl_df" and "tbl" classes, which
+  improve printing if dplyr is loaded.
+}
 \description{
 Read Stata DTA files.
 }
