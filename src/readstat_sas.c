@@ -102,7 +102,7 @@ typedef struct sas_header_info_s {
 } sas_header_info_t;
 
 typedef struct sas_catalog_ctx_s {
-    readstat_handle_value_label_callback  value_label_cb;
+    readstat_value_label_handler   value_label_handler;
     void         *user_ctx;
     int           u64;
     int           bswap;
@@ -110,9 +110,10 @@ typedef struct sas_catalog_ctx_s {
 } sas_catalog_ctx_t;
 
 typedef struct sas_ctx_s {
-    readstat_handle_info_callback      info_cb;
-    readstat_handle_variable_callback  variable_cb;
-    readstat_handle_value_callback    value_cb;
+    readstat_info_handler       info_handler;
+    readstat_variable_handler   variable_handler;
+    readstat_value_handler      value_handler;
+    readstat_error_handler      error_handler;
     int           little_endian;
     int           u64;
     int           vendor;
@@ -143,7 +144,7 @@ typedef struct sas_ctx_s {
 } sas_ctx_t;
 
 typedef struct cat_ctx_s {
-    readstat_handle_value_label_callback  value_label_cb;
+    readstat_value_label_handler   value_label_handler;
     int        u64;
     void      *user_ctx;
     int32_t    header_size;
@@ -484,7 +485,7 @@ static readstat_error_t handle_data_value(const char *col_data, col_info_t *col_
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        cb_retval = ctx->value_cb(ctx->parsed_row_count, col_info->index, 
+        cb_retval = ctx->value_handler(ctx->parsed_row_count, col_info->index, 
                 ctx->scratch_buffer, READSTAT_TYPE_STRING, ctx->user_ctx);
     } else if (col_info->type == READSTAT_TYPE_DOUBLE) {
         uint64_t  val = 0;
@@ -504,7 +505,7 @@ static readstat_error_t handle_data_value(const char *col_data, col_info_t *col_
 
         memcpy(&dval, &val, 8);
 
-        cb_retval = ctx->value_cb(ctx->parsed_row_count, col_info->index, 
+        cb_retval = ctx->value_handler(ctx->parsed_row_count, col_info->index, 
                 isnan(dval) ? NULL : &dval, READSTAT_TYPE_DOUBLE, ctx->user_ctx);
     }
 
@@ -699,15 +700,15 @@ static readstat_error_t sas_parse_catalog_page(const char *page, size_t page_siz
                 if (retval != READSTAT_OK)
                     goto cleanup;
 
-                if (ctx->value_label_cb)
-                    ctx->value_label_cb(name, val, READSTAT_TYPE_STRING, label, ctx->user_ctx);
+                if (ctx->value_label_handler)
+                    ctx->value_label_handler(name, val, READSTAT_TYPE_STRING, label, ctx->user_ctx);
             } else {
                 uint64_t val = read8(&lbp1[22], 1);
                 double dval;
                 memcpy(&dval, &val, 8);
                 dval *= -1.0;
-                if (ctx->value_label_cb)
-                    ctx->value_label_cb(name, &val, READSTAT_TYPE_DOUBLE, label, ctx->user_ctx);
+                if (ctx->value_label_handler)
+                    ctx->value_label_handler(name, &val, READSTAT_TYPE_DOUBLE, label, ctx->user_ctx);
             }
 
             lbp1 += md_len;
@@ -723,13 +724,13 @@ cleanup:
 
 static readstat_error_t submit_columns(sas_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
-    if (ctx->info_cb) {
-        if (ctx->info_cb(ctx->total_row_count, ctx->column_count, ctx->user_ctx)) {
+    if (ctx->info_handler) {
+        if (ctx->info_handler(ctx->total_row_count, ctx->column_count, ctx->user_ctx)) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
     }
-    if (ctx->variable_cb) {
+    if (ctx->variable_handler) {
         int i;
         char name_buf[1024];
         char format_buf[1024];
@@ -754,8 +755,7 @@ static readstat_error_t submit_columns(sas_ctx_t *ctx) {
                 label_set = format_buf;
                 // fprintf(stderr,  "Unknown format: %s\n", format_buf);
             }
-            int cb_retval = ctx->variable_cb(i, name_buf, stata_format, label_buf, label_set, ctx->col_info[i].type,
-                    ctx->col_info[i].type == READSTAT_TYPE_DOUBLE ? 8 : ctx->col_info[i].width, 
+            int cb_retval = ctx->variable_handler(i, name_buf, stata_format, label_buf, label_set, ctx->col_info[i].type,
                     ctx->user_ctx);
             if (cb_retval) {
                 retval = READSTAT_ERROR_USER_ABORT;
@@ -923,7 +923,7 @@ static readstat_error_t sas_parse_page_pass2(const char *page, size_t page_size,
             }
             ctx->did_submit_columns = 1;
         }
-        if (ctx->value_cb) {
+        if (ctx->value_handler) {
             retval = sas_parse_rows(data, ctx);
         }
     } 
@@ -932,19 +932,17 @@ cleanup:
     return retval;
 }
 
-readstat_error_t parse_sas7bdat(const char *filename, void *user_ctx,
-        readstat_handle_info_callback info_cb, 
-        readstat_handle_variable_callback variable_cb,
-        readstat_handle_value_callback value_cb) {
+readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *filename, void *user_ctx) {
     int fd = -1;
     readstat_error_t retval = READSTAT_OK;
 
     sas_ctx_t  *ctx = calloc(1, sizeof(sas_ctx_t));
     sas_header_info_t  *hinfo = calloc(1, sizeof(sas_header_info_t));
 
-    ctx->info_cb = info_cb;
-    ctx->variable_cb = variable_cb;
-    ctx->value_cb = value_cb;
+    ctx->info_handler = parser->info_handler;
+    ctx->variable_handler = parser->variable_handler;
+    ctx->value_handler = parser->value_handler;
+    ctx->error_handler = parser->error_handler;
     ctx->user_ctx = user_ctx;
 
     if ((fd = readstat_open(filename)) == -1) {
@@ -1016,10 +1014,14 @@ readstat_error_t parse_sas7bdat(const char *filename, void *user_ctx,
         ctx->did_submit_columns = 1;
     }
 
-    if (ctx->value_cb && ctx->parsed_row_count != ctx->total_row_count) {
+    if (ctx->value_handler && ctx->parsed_row_count != ctx->total_row_count) {
         retval = READSTAT_ERROR_ROW_COUNT_MISMATCH;
-        fprintf(stderr, "ReadStat: Expected %d rows in file, found %d\n",
-                ctx->total_row_count, ctx->parsed_row_count);
+        if (ctx->error_handler) {
+            char error_buf[1024];
+            sprintf(error_buf, "ReadStat: Expected %d rows in file, found %d\n",
+                    ctx->total_row_count, ctx->parsed_row_count);
+            ctx->error_handler(error_buf);
+        }
         goto cleanup;
     }
 
@@ -1040,15 +1042,14 @@ cleanup:
     return retval;
 }
 
-readstat_error_t parse_sas7bcat(const char *filename, void *user_ctx,
-        readstat_handle_value_label_callback value_label_cb) {
+readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *filename, void *user_ctx) {
     int fd = -1;
     readstat_error_t retval = READSTAT_OK;
 
     sas_catalog_ctx_t *ctx = calloc(1, sizeof(sas_catalog_ctx_t));
     sas_header_info_t *hinfo = calloc(1, sizeof(sas_header_info_t));
 
-    ctx->value_label_cb = value_label_cb;
+    ctx->value_label_handler = parser->value_label_handler;
     ctx->user_ctx = user_ctx;
     ctx->converter = iconv_open("UTF-8", SAS_STRING_ENCODING);
 

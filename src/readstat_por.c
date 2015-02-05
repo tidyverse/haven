@@ -72,6 +72,11 @@ typedef struct por_varinfo_s {
 } por_varinfo_t;
 
 typedef struct readstat_por_ctx_s {
+    readstat_info_handler           info_handler;
+    readstat_variable_handler       variable_handler;
+    readstat_value_handler          value_handler;
+    readstat_value_label_handler    value_label_handler;
+    readstat_error_handler          error_handler;
     int            pos;
     int            fd;
     unsigned char  buf[100];
@@ -219,7 +224,7 @@ static int read_double(readstat_por_ctx_t *ctx, double *out_double) {
         return 1;
     
     double value;
-    bytes_read = readstat_por_parse_double(utf8_buffer, len, &value);
+    bytes_read = readstat_por_parse_double(utf8_buffer, len, &value, ctx->error_handler);
     if (bytes_read == -1) {
         return -1;
     }
@@ -463,14 +468,14 @@ static int read_document_record(readstat_por_ctx_t *ctx) {
     return 0;
 }
 
-static int read_value_label_record(readstat_por_ctx_t *ctx, readstat_handle_value_label_callback value_label_cb, void *user_ctx) {
+static int read_value_label_record(readstat_por_ctx_t *ctx, void *user_ctx) {
     double value;
     int i;
     char string[256];
     int count = 0, label_count = 0;
     char label_name_buf[256];
     char label_buf[256];
-    sprintf(label_name_buf, POR_LABEL_NAME_PREFIX "%d", ctx->labels_offset);
+    snprintf(label_name_buf, sizeof(label_name_buf), POR_LABEL_NAME_PREFIX "%d", ctx->labels_offset);
     readstat_types_t value_type = READSTAT_TYPE_DOUBLE;
     if (read_double(ctx, &value) == -1) {
         return READSTAT_ERROR_PARSE;
@@ -498,7 +503,7 @@ static int read_value_label_record(readstat_por_ctx_t *ctx, readstat_handle_valu
             if (read_string(ctx, label_buf, sizeof(label_buf)) == -1) {
                 return READSTAT_ERROR_PARSE;
             }
-            value_label_cb(label_name_buf, string, value_type, label_buf, user_ctx);
+            ctx->value_label_handler(label_name_buf, string, value_type, label_buf, user_ctx);
         } else {
             if (read_double(ctx, &value) == -1) {
                 return READSTAT_ERROR_PARSE;
@@ -506,7 +511,7 @@ static int read_value_label_record(readstat_por_ctx_t *ctx, readstat_handle_valu
             if (read_string(ctx, label_buf, sizeof(label_buf)) == -1) {
                 return READSTAT_ERROR_PARSE;
             }
-            value_label_cb(label_name_buf, &value, value_type, label_buf, user_ctx);
+            ctx->value_label_handler(label_name_buf, &value, value_type, label_buf, user_ctx);
         }
     }
     ctx->labels_offset++;
@@ -532,10 +537,11 @@ static double handle_missing_double(double input, por_varinfo_t *info) {
     return input;
 }
 
-static int read_por_file_data(readstat_por_ctx_t *ctx, readstat_handle_value_callback value_cb, void *user_ctx) {
+static int read_por_file_data(readstat_por_ctx_t *ctx, void *user_ctx) {
     int i;
     double value;
     char string[256];
+    char error_buf[1024];
     int retval = 0;
 
     while (1) {
@@ -546,21 +552,27 @@ static int read_por_file_data(readstat_por_ctx_t *ctx, readstat_handle_value_cal
                 if (i == 0 && retval == 1) {
                     return 0;
                 } else if (retval == -1) {
-                    fprintf(stderr, "Error in %s\n", info->name);
+                    if (ctx->error_handler) {
+                        snprintf(error_buf, sizeof(error_buf), "Error in %s\n", info->name);
+                        ctx->error_handler(error_buf);
+                    }
                     return READSTAT_ERROR_PARSE;
                 }
 //                printf("String value: %s\n", string);
-                value_cb(ctx->obs_count, i, string, READSTAT_TYPE_STRING, user_ctx);
+                ctx->value_handler(ctx->obs_count, i, string, READSTAT_TYPE_STRING, user_ctx);
             } else if (info->type == READSTAT_TYPE_DOUBLE) {
                 retval = read_double(ctx, &value);
                 if (i == 0 && retval == 1) {
                     return 0;
                 } else if (retval != 0) {
-                    fprintf(stderr, "Error in %s\n", info->name);
+                    if (ctx->error_handler) {
+                        snprintf(error_buf, sizeof(error_buf), "Error in %s\n", info->name);
+                        ctx->error_handler(error_buf);
+                    }
                     return READSTAT_ERROR_PARSE;
                 }
                 value = handle_missing_double(value, info);
-                value_cb(ctx->obs_count, i, isnan(value) ? NULL : &value, READSTAT_TYPE_DOUBLE, user_ctx);
+                ctx->value_handler(ctx->obs_count, i, isnan(value) ? NULL : &value, READSTAT_TYPE_DOUBLE, user_ctx);
             }
         }
         ctx->obs_count++;
@@ -568,12 +580,16 @@ static int read_por_file_data(readstat_por_ctx_t *ctx, readstat_handle_value_cal
     return 0;
 }
 
-readstat_error_t parse_por(const char *filename, void *user_ctx,
-              readstat_handle_info_callback info_cb, readstat_handle_variable_callback variable_cb,
-              readstat_handle_value_callback value_cb, readstat_handle_value_label_callback value_label_cb) {
+readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filename, void *user_ctx) {
     readstat_por_ctx_t *ctx = calloc(1, sizeof(readstat_por_ctx_t));
     ctx->space = ' ';
     ctx->var_dict = ck_hash_table_init(1024);
+    ctx->info_handler = parser->info_handler;
+    ctx->variable_handler = parser->variable_handler;
+    ctx->value_handler = parser->value_handler;
+    ctx->value_label_handler = parser->value_label_handler;
+    ctx->error_handler = parser->error_handler;
+
     readstat_error_t retval = READSTAT_OK;
     
     if ((ctx->fd = readstat_open(filename)) == -1) {
@@ -690,7 +706,7 @@ readstat_error_t parse_por(const char *filename, void *user_ctx,
                 }
                 break;
             case 'D': /* value label */
-                retval = read_value_label_record(ctx, value_label_cb, user_ctx);
+                retval = read_value_label_record(ctx, user_ctx);
                 if (retval != 0)
                     goto cleanup;
                 break;
@@ -707,31 +723,31 @@ readstat_error_t parse_por(const char *filename, void *user_ctx,
                 for (i=0; i<ctx->var_count; i++) {
                     char label_name_buf[256];
                     por_varinfo_t *info = &ctx->varinfo[i];
-                    sprintf(label_name_buf, POR_LABEL_NAME_PREFIX "%d", info->labels_index);
+                    snprintf(label_name_buf, sizeof(label_name_buf), POR_LABEL_NAME_PREFIX "%d", info->labels_index);
 
                     char *format = NULL;
                     char buf[80];
                     if (spss_format_is_date(info->print_format.type)) {
                         const char *fmt = spss_format(info->print_format.type);
-                        sprintf(buf, "%%ts%s", fmt ? fmt : "");
+                        snprintf(buf, sizeof(buf), "%%ts%s", fmt ? fmt : "");
                         format = buf;
                     }
 
-                    int cb_retval = variable_cb(i, info->name, format,
+                    int cb_retval = ctx->variable_handler(i, info->name, format,
                             info->label[0] == '\0' ? NULL : info->label,
                             info->labels_index == -1 ? NULL : label_name_buf,
-                            info->type, 0, user_ctx);
+                            info->type, user_ctx);
                     if (cb_retval) {
                         retval = READSTAT_ERROR_USER_ABORT;
                         goto cleanup;
                     }
                 }
-                retval = read_por_file_data(ctx, value_cb, user_ctx);
+                retval = read_por_file_data(ctx, user_ctx);
                 if (retval != 0)
                     goto cleanup;
                 
-                if (info_cb) {
-                    if (info_cb(ctx->obs_count, ctx->var_count, user_ctx)) {
+                if (parser->info_handler) {
+                    if (parser->info_handler(ctx->obs_count, ctx->var_count, user_ctx)) {
                         retval = READSTAT_ERROR_USER_ABORT;
                     }
                 }

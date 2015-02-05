@@ -488,9 +488,7 @@ cleanup:
     return retval;
 }
 
-readstat_error_t parse_dta(const char *filename, void *user_ctx,
-              readstat_handle_info_callback info_cb, readstat_handle_variable_callback variable_cb,
-              readstat_handle_value_callback value_cb, readstat_handle_value_label_callback value_label_cb) {
+readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filename, void *user_ctx) {
     readstat_error_t retval = READSTAT_OK;
     int i;
     size_t  record_len = 0;
@@ -528,8 +526,8 @@ readstat_error_t parse_dta(const char *filename, void *user_ctx,
         goto cleanup;
     }
     
-    if (info_cb) {
-        if (info_cb(ctx->nobs, ctx->nvar, user_ctx)) {
+    if (parser->info_handler) {
+        if (parser->info_handler(ctx->nobs, ctx->nvar, user_ctx)) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -622,9 +620,9 @@ readstat_error_t parse_dta(const char *filename, void *user_ctx,
         if (ctx->fmtlist[ctx->fmtlist_entry_len*i])
             variable_format = &ctx->fmtlist[ctx->fmtlist_entry_len*i];
 
-        if (variable_cb) {
-            if (variable_cb(i, variable_name, variable_format, variable_label, 
-                        value_labels, type, max_len, user_ctx)) {
+        if (parser->variable_handler) {
+            if (parser->variable_handler(i, variable_name, variable_format, variable_label, 
+                        value_labels, type, user_ctx)) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
             }
@@ -739,8 +737,8 @@ readstat_error_t parse_dta(const char *filename, void *user_ctx,
                 value = num <= DTA_MAX_DOUBLE ? &num : NULL;
             }
 
-            if (value_cb) {
-                if (value_cb(i, j, value, type, user_ctx)) {
+            if (parser->value_handler) {
+                if (parser->value_handler(i, j, value, type, user_ctx)) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -769,7 +767,7 @@ readstat_error_t parse_dta(const char *filename, void *user_ctx,
         }
     }
     
-    if (value_label_cb) {
+    if (parser->value_label_handler) {
         while (1) {
             size_t len = 0;
             char *table_buffer;
@@ -797,7 +795,7 @@ readstat_error_t parse_dta(const char *filename, void *user_ctx,
                 
                 int32_t l;
                 for (l=0; l<len; l++) {
-                    if (value_label_cb(table_header.labname, &l, READSTAT_TYPE_INT32, table_buffer + 8 * l, user_ctx)) {
+                    if (parser->value_label_handler(table_header.labname, &l, READSTAT_TYPE_INT32, table_buffer + 8 * l, user_ctx)) {
                         retval = READSTAT_ERROR_USER_ABORT;
                         free(table_buffer);
                         goto cleanup;
@@ -864,7 +862,7 @@ readstat_error_t parse_dta(const char *filename, void *user_ctx,
                 
                 for (i=0; i<n; i++) {
                     if (off[i] < txtlen) {
-                        if (value_label_cb(table_header.labname, &val[i], READSTAT_TYPE_INT32, &txt[off[i]], user_ctx)) {
+                        if (parser->value_label_handler(table_header.labname, &val[i], READSTAT_TYPE_INT32, &txt[off[i]], user_ctx)) {
                             retval = READSTAT_ERROR_USER_ABORT;
                             free(table_buffer);
                             goto cleanup;

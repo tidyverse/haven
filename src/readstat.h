@@ -42,6 +42,8 @@ typedef enum readstat_error_e {
     READSTAT_ERROR_ROW_WIDTH_MISMATCH
 } readstat_error_t;
 
+const char *readstat_error_message(readstat_error_t error_code);
+
 typedef void * readstat_value_t;
 
 int readstat_value_is_missing(readstat_value_t value);
@@ -53,60 +55,67 @@ double readstat_double_value(readstat_value_t value);
 char *readstat_string_value(readstat_value_t value);
 
 /* Callbacks should return 0 on success and non-zero to abort */
-typedef int (*readstat_handle_info_callback)(int obs_count, int var_count, void *ctx);
-typedef int (*readstat_handle_variable_callback)(int index, const char *var_name, 
+typedef int (*readstat_info_handler)(int obs_count, int var_count, void *ctx);
+typedef int (*readstat_variable_handler)(int index, const char *var_name, 
         const char *var_format, const char *var_label, const char *val_labels, 
-        readstat_types_t type, size_t max_len, void *ctx);
-typedef int (*readstat_handle_value_callback)(int obs_index, int var_index, 
+        readstat_types_t type, void *ctx);
+typedef int (*readstat_value_handler)(int obs_index, int var_index, 
         readstat_value_t value, readstat_types_t type, void *ctx);
-typedef int (*readstat_handle_value_label_callback)(const char *val_labels, 
+typedef int (*readstat_value_label_handler)(const char *val_labels, 
         readstat_value_t value, readstat_types_t type, const char *label, void *ctx);
+typedef void (*readstat_error_handler)(const char *error_message);
 
-readstat_error_t parse_dta(const char *filename, void *user_ctx, 
-        readstat_handle_info_callback info_cb, 
-        readstat_handle_variable_callback variable_cb,
-        readstat_handle_value_callback value_cb, 
-        readstat_handle_value_label_callback value_label_cb);
+typedef struct readstat_parser_s {
+    readstat_info_handler           info_handler;
+    readstat_variable_handler       variable_handler;
+    readstat_value_handler         value_handler;
+    readstat_value_label_handler   value_label_handler;
+    readstat_error_handler         error_handler;
+} readstat_parser_t;
 
-readstat_error_t parse_por(const char *filename, void *user_ctx,
-        readstat_handle_info_callback info_cb, 
-        readstat_handle_variable_callback variable_cb,
-        readstat_handle_value_callback value_cb, 
-        readstat_handle_value_label_callback value_label_cb);
+readstat_parser_t *readstat_parser_init();
+void readstat_parser_free(readstat_parser_t *parser);
 
-readstat_error_t parse_sav(const char *filename, void *user_ctx,
-        readstat_handle_info_callback info_cb, 
-        readstat_handle_variable_callback variable_cb,
-        readstat_handle_value_callback value_cb, 
-        readstat_handle_value_label_callback value_label_cb);
+readstat_error_t readstat_set_info_handler(readstat_parser_t *parser, readstat_info_handler info_handler);
+readstat_error_t readstat_set_variable_handler(readstat_parser_t *parser, readstat_variable_handler variable_handler);
+readstat_error_t readstat_set_value_handler(readstat_parser_t *parser, readstat_value_handler value_handler);
+readstat_error_t readstat_set_value_label_handler(readstat_parser_t *parser, readstat_value_label_handler value_label_handler);
+readstat_error_t readstat_set_error_handler(readstat_parser_t *parser, readstat_error_handler error_handler);
 
-readstat_error_t parse_sas7bdat(const char *filename, void *user_ctx, 
-        readstat_handle_info_callback info_cb, 
-        readstat_handle_variable_callback variable_cb,
-        readstat_handle_value_callback value_cb);
+readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filename, void *user_ctx);
+readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filename, void *user_ctx);
+readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filename, void *user_ctx);
+readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *filename, void *user_ctx);
+readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *filename, void *user_ctx);
 
-readstat_error_t parse_sas7bcat(const char *filename, void *user_ctx,
-        readstat_handle_value_label_callback value_label_cb);
 
-typedef int (*readstat_handle_column_callback)(const char *name, readstat_types_t type, char *format, 
+typedef int (*rdata_column_handler)(const char *name, readstat_types_t type, char *format, 
         void *data, long count, void *ctx);
-typedef int (*readstat_handle_table_callback)(const char *name, void *ctx);
-typedef int (*readstat_handle_text_value_callback)(const char *value, int index, void *ctx);
-typedef readstat_handle_text_value_callback readstat_handle_column_name_callback;
+typedef int (*rdata_table_handler)(const char *name, void *ctx);
+typedef int (*rdata_text_value_handler)(const char *value, int index, void *ctx);
+typedef int (*rdata_column_name_handler)(const char *value, int index, void *ctx);
 
-readstat_error_t parse_rds(const char *filename, void *user_ctx,
-        readstat_handle_column_callback handle_column,
-        readstat_handle_column_name_callback handle_column_name,
-        readstat_handle_text_value_callback handle_text_value,
-        readstat_handle_text_value_callback handle_value_label);
-readstat_error_t parse_rdata(const char *filename, void *user_ctx, 
-        readstat_handle_table_callback handle_table,
-        readstat_handle_column_callback handle_column,
-        readstat_handle_column_name_callback handle_column_name,
-        readstat_handle_text_value_callback handle_text_value,
-        readstat_handle_text_value_callback handle_value_label);
+typedef struct rdata_parser_s {
+    rdata_table_handler         table_handler;
+    rdata_column_handler        column_handler;
+    rdata_column_name_handler   column_name_handler;
+    rdata_text_value_handler    text_value_handler;
+    rdata_text_value_handler    value_label_handler;
+    readstat_error_handler      error_handler;
+} rdata_parser_t;
 
-const char *readstat_error_message(readstat_error_t error_code);
+rdata_parser_t *rdata_parser_init();
+void rdata_parser_free(rdata_parser_t *parser);
+
+readstat_error_t rdata_set_table_handler(rdata_parser_t *parser, rdata_table_handler table_handler);
+readstat_error_t rdata_set_column_handler(rdata_parser_t *parser, rdata_column_handler column_handler);
+readstat_error_t rdata_set_column_name_handler(rdata_parser_t *parser, rdata_column_name_handler column_name_handler);
+readstat_error_t rdata_set_text_value_handler(rdata_parser_t *parser, rdata_text_value_handler text_value_handler);
+readstat_error_t rdata_set_value_label_handler(rdata_parser_t *parser, rdata_text_value_handler value_label_handler);
+readstat_error_t rdata_set_error_handler(rdata_parser_t *parser, readstat_error_handler error_handler);
+/* rdata_parse works on RData and RDS. The table handler will be called once
+ * per data frame in RData files, and zero times on RDS files. */
+readstat_error_t rdata_parse(rdata_parser_t *parser, const char *filename, void *user_ctx);
 
 #ifdef __cplusplus
 }

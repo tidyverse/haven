@@ -55,7 +55,7 @@ public:
                const char *var_format,
                const char *var_label,
                const char *val_labels,
-               readstat_types_t type, size_t max_len) {
+               readstat_types_t type) {
 
     names_[index] = var_name;
 
@@ -152,10 +152,9 @@ int dfbuilder_info(int obs_count, int var_count, void *ctx) {
 }
 int dfbuilder_variable(int index, const char *var_name, const char *var_format,
                        const char *var_label, const char *val_labels,
-                       readstat_types_t type, size_t max_len,
-                       void *ctx) {
+                       readstat_types_t type, void *ctx) {
   return ((DfBuilder*) ctx)->variable(index, var_name, var_format, var_label,
-    val_labels, type, max_len);
+    val_labels, type);
 }
 int dfbuilder_value(int obs_index, int var_index, void *value,
                     readstat_types_t type, void *ctx) {
@@ -168,11 +167,18 @@ int dfbuilder_value_label(const char *val_labels, readstat_value_t value,
 
 // Parser wrappers -------------------------------------------------------------
 
-typedef boost::function<readstat_error_t(const char*, DfBuilder*)> Parser;
-
-List df_parse(std::string filename, Parser parser) {
+template<typename ParseFunction>
+List df_parse(std::string filename, ParseFunction parse_f) {
   DfBuilder builder;
-  readstat_error_t result = parser(filename.c_str(), &builder);
+
+  readstat_parser_t* parser = readstat_parser_init();
+  readstat_set_info_handler(parser, dfbuilder_info);
+  readstat_set_variable_handler(parser, dfbuilder_variable);
+  readstat_set_value_handler(parser, dfbuilder_value);
+  readstat_set_value_label_handler(parser, dfbuilder_value_label);
+
+  readstat_error_t result = parse_f(parser, filename.c_str(), &builder);
+  readstat_parser_free(parser);
 
   if (result != 0) {
     stop("Failed to parse %s: %s.", filename, readstat_error_message(result));
@@ -183,40 +189,20 @@ List df_parse(std::string filename, Parser parser) {
 
 // [[Rcpp::export]]
 List df_parse_sas(std::string filename) {
-  return df_parse(filename, boost::bind(parse_sas7bdat,
-    _1, _2,
-    dfbuilder_info,
-    dfbuilder_variable,
-    dfbuilder_value));
+  return df_parse(filename, readstat_parse_sas7bdat);
 }
-
 
 // [[Rcpp::export]]
 List df_parse_dta(std::string filename) {
-  return df_parse(filename, boost::bind(parse_dta,
-    _1, _2,
-    dfbuilder_info,
-    dfbuilder_variable,
-    dfbuilder_value,
-    dfbuilder_value_label));
+  return df_parse(filename, readstat_parse_dta);
 }
 
 // [[Rcpp::export]]
 List df_parse_por(std::string filename) {
-  return df_parse(filename, boost::bind(parse_por,
-    _1, _2,
-    dfbuilder_info,
-    dfbuilder_variable,
-    dfbuilder_value,
-    dfbuilder_value_label));
+  return df_parse(filename, readstat_parse_por);
 }
 
 // [[Rcpp::export]]
 List df_parse_sav(std::string filename) {
-  return df_parse(filename, boost::bind(parse_sav,
-    _1, _2,
-    dfbuilder_info,
-    dfbuilder_variable,
-    dfbuilder_value,
-    dfbuilder_value_label));
+  return df_parse(filename, readstat_parse_sav);
 }

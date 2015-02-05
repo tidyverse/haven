@@ -17,7 +17,7 @@ static const int por_field_parse_en_main = 1;
 #line 9 "src/readstat_por_parse.rl"
 
 
-int readstat_por_parse_double(const char *data, size_t len, double *result) {
+int readstat_por_parse_double(const char *data, size_t len, double *result, readstat_error_handler error_cb) {
     int retval = 0;
     double val = 0.0;
     long num = 0;
@@ -380,7 +380,11 @@ case 11:
     
     if (!success) {
         retval = -1;
-        fprintf(stderr, "Read bytes: %ld Ending state: %d\n", (long)(p - (const unsigned char *)data), cs);
+        if (error_cb) {
+            char error_buf[1024];
+            snprintf(error_buf, sizeof(error_buf), "Read bytes: %ld Ending state: %d\n", (long)(p - (const unsigned char *)data), cs);
+            error_cb(error_buf);
+        }
     }
     
     if (retval == 0) {
