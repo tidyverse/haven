@@ -91,6 +91,10 @@ public:
   int value(int obs_index, int var_index, void *value,
             readstat_types_t type) {
 
+    // Check for user interrupts every 1000 rows or cols
+    if (obs_index % 1000 == 0 || var_index % 1000 == 0)
+      checkUserInterrupt();
+
     if (type == READSTAT_TYPE_LONG_STRING || type == READSTAT_TYPE_STRING) {
       // Missing strings and "" are identical in other systems
       CharacterVector col = output_[var_index];
