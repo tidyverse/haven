@@ -11,7 +11,8 @@ read_por(path)
 read_sav(path)
 }
 \arguments{
-\item{path}{Path to file}
+\item{path}{Path to file. If the path is a URL, the file will be
+first download to a temporary location before reading.}
 }
 \description{
 Read SPSS (POR and SAV) files.

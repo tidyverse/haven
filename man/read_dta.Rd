@@ -7,7 +7,8 @@
 read_dta(path)
 }
 \arguments{
-\item{path}{Path to file}
+\item{path}{Path to file. If the path is a URL, the file will be
+first download to a temporary location before reading.}
 }
 \description{
 Read Stata DTA files.
