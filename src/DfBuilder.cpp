@@ -1,40 +1,70 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 #include "readstat.h"
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
-
-// typedef int (*readstat_handle_value_label_callback)(const char *val_labels,
-//   readstat_value_t value, readstat_types_t type, const char *label, void *ctx);
 
 class LabelSet {
-  std::vector<std::string> labels;
-  std::vector<std::string> values;
+  std::vector<std::string> labels_;
+  std::vector<std::string> values_s_;
+  std::vector<double> values_d_;
 
 public:
   LabelSet() {}
 
-  void add(std::string label, std::string value) {
-    labels.push_back(label);
-    values.push_back(value);
+  void add(std::string value, std::string label) {
+    if (values_d_.size() > 0)
+      stop("Can't add string to integer labelset");
+
+    values_s_.push_back(value);
+    labels_.push_back(label);
   }
 
-  int find_label(std::string label) {
-    std::vector<std::string>::iterator it =
-      find(labels.begin(), labels.end(), label);
+  void add(double value, std::string label) {
+    if (values_s_.size() > 0)
+      stop("Can't add integer to string labelset");
 
-    return (it == labels.end()) ? -1 : (it - labels.begin());
+    values_d_.push_back(value);
+    labels_.push_back(label);
   }
 
+  RObject labels() {
+    RObject out;
+
+    if (values_d_.size() > 0) {
+      int n = values_d_.size();
+      IntegerVector values(n);
+      CharacterVector labels(n);
+
+      for (int i = 0; i < n; ++i) {
+        values[i] = values_d_[i];
+        labels[i] = labels_[i];
+      }
+
+      values.attr("names") = labels;
+      out = values;
+    } else {
+      int n = values_s_.size();
+      CharacterVector values(n), labels(n);
+
+      for (int i = 0; i < n; ++i) {
+        values[i] = values_s_[i];
+        labels[i] = labels_[i];
+      }
+
+      values.attr("names") = labels;
+      out = values;
+    }
+
+    return out;
+  }
 };
-typedef boost::shared_ptr<LabelSet> LabelSetPtr;
 
 class DfBuilder {
   int nrows_, ncols_;
   List output_;
-  CharacterVector names_, labels_, val_labels_;
-  std::map<std::string, LabelSetPtr> label_sets_;
+  CharacterVector names_;
+
+  std::vector<std::string> val_labels_;
+  std::map<std::string, LabelSet> label_sets_;
 
 public:
   DfBuilder(): nrows_(0), ncols_(0) {
@@ -46,8 +76,7 @@ public:
 
     output_ = List(ncols_);
     names_ = CharacterVector(ncols_);
-    labels_ = CharacterVector(ncols_);
-    val_labels_ = CharacterVector(ncols_);
+    val_labels_.resize(ncols_);
     return 0;
   }
 
@@ -76,8 +105,6 @@ public:
     }
 
     if (var_label != NULL) {
-      labels_[index] = var_label;
-
       RObject col = output_[index];
       col.attr("label") = var_label;
     }
@@ -137,11 +164,45 @@ public:
 
   int value_label(const char *val_labels, readstat_value_t value,
                   readstat_types_t type, const char *label) {
+    LabelSet& label_set = label_sets_[val_labels];
+    std::string label_s(label);
+
+    switch(type) {
+    case READSTAT_TYPE_STRING:
+      label_set.add(readstat_string_value(value), label_s);
+      break;
+    case READSTAT_TYPE_CHAR:
+      label_set.add(readstat_char_value(value), label_s);
+      break;
+    case READSTAT_TYPE_INT16:
+      label_set.add(readstat_int32_value(value), label_s);
+      break;
+    case READSTAT_TYPE_INT32:
+      label_set.add(readstat_int16_value(value), label_s);
+      break;
+    case READSTAT_TYPE_DOUBLE:
+      label_set.add(readstat_double_value(value), label_s);
+      break;
+    default:
+      warning("Unsupported label type: %s", type);
+    }
 
     return 0;
   }
 
   List output() {
+    for (int i = 0; i < output_.size(); ++i) {
+      std::string label = val_labels_[i];
+      if (label == "")
+        continue;
+      if (label_sets_.count(label) == 0)
+        continue;
+
+      RObject col = output_[i];
+      col.attr("class") = "labelled";
+      col.attr("labels") = label_sets_[label].labels();
+    }
+
     output_.attr("names") = names_;
     output_.attr("class") = CharacterVector::create("tbl_df", "tbl", "data.frame");
     output_.attr("row.names") = IntegerVector::create(NA_INTEGER, -nrows_);
