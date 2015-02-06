@@ -1,6 +1,8 @@
 
 clean_path <- function(path) {
-  if (grepl("^(http|ftp|https)://", path)) {
+  if (is.null(path)) {
+    ""
+  } else if (grepl("^(http|ftp|https)://", path)) {
     tmp <- tempfile()
     download.file(path, tmp, quiet = TRUE, mode = "wb")
     tmp

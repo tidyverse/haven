@@ -2,20 +2,20 @@
 % Please edit documentation in R/haven.R
 \name{read_sas}
 \alias{read_sas}
-\title{Read SAS7BDAT files.}
+\title{Read SAS files.}
 \usage{
-read_sas(path)
+read_sas(b7dat, b7cat = NULL)
 }
 \arguments{
-\item{path}{Path to file. If the path is a URL, the file will be
-first download to a temporary location before reading.}
+\item{b7dat,b7cat}{Path to data and catalog files. If the path is a URL, the
+file will be first download to a temporary location before reading.}
 }
 \value{
 A data frame with additional "tbl_df" and "tbl" classes, which
   improve printing if dplyr is loaded.
 }
 \description{
-Read SAS7BDAT files.
+Read SAS files.
 }
 \examples{
 read_sas("http://crn.cancer.gov/resources/ctcodes-procedures.sas7bdat")

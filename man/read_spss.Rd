@@ -11,8 +11,8 @@ read_por(path)
 read_sav(path)
 }
 \arguments{
-\item{path}{Path to file. If the path is a URL, the file will be
-first download to a temporary location before reading.}
+\item{path}{Path to data If the path is a URL, the file will be first
+downloaded to a temporary location before reading.}
 }
 \value{
 A data frame with additional "tbl_df" and "tbl" classes, which

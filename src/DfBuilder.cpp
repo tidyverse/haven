@@ -259,8 +259,31 @@ List df_parse(std::string filename, ParseFunction parse_f) {
 }
 
 // [[Rcpp::export]]
-List df_parse_sas(std::string filename) {
-  return df_parse(filename, readstat_parse_sas7bdat);
+List df_parse_sas(const std::string& b7dat, const std::string& b7cat) {
+  DfBuilder builder;
+
+  readstat_parser_t* parser = readstat_parser_init();
+  readstat_set_info_handler(parser, dfbuilder_info);
+  readstat_set_variable_handler(parser, dfbuilder_variable);
+  readstat_set_value_handler(parser, dfbuilder_value);
+  readstat_set_value_label_handler(parser, dfbuilder_value_label);
+  readstat_set_error_handler(parser, print_error);
+
+  readstat_error_t result = readstat_parse_sas7bdat(parser, b7dat.c_str(), &builder);
+  if (result != 0) {
+    stop("Failed to parse %s: %s.", b7dat.c_str(), readstat_error_message(result));
+  }
+
+  if (b7cat != "") {
+    readstat_error_t result = readstat_parse_sas7bcat(parser, b7cat.c_str(), &builder);
+    if (result != 0) {
+      stop("Failed to parse %s: %s.", b7cat.c_str(), readstat_error_message(result));
+    }
+  }
+
+  readstat_parser_free(parser);
+
+  return builder.output();
 }
 
 // [[Rcpp::export]]

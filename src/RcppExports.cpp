@@ -6,13 +6,14 @@
 using namespace Rcpp;
 
 // df_parse_sas
-List df_parse_sas(std::string filename);
-RcppExport SEXP haven_df_parse_sas(SEXP filenameSEXP) {
+List df_parse_sas(const std::string& b7dat, const std::string& b7cat);
+RcppExport SEXP haven_df_parse_sas(SEXP b7datSEXP, SEXP b7catSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
-    __result = Rcpp::wrap(df_parse_sas(filename));
+    Rcpp::traits::input_parameter< const std::string& >::type b7dat(b7datSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type b7cat(b7catSEXP);
+    __result = Rcpp::wrap(df_parse_sas(b7dat, b7cat));
     return __result;
 END_RCPP
 }
