@@ -87,6 +87,8 @@ public:
                readstat_types_t type) {
 
     names_[index] = var_name;
+    if (var_format != NULL)
+      Rcout << var_name << ": " << var_format << "\n";
 
     switch(type) {
     case READSTAT_TYPE_LONG_STRING:
@@ -156,7 +158,7 @@ public:
         col[obs_index] = NA_REAL;
       } else {
         double val = readstat_double_value(value);
-        col[obs_index] = isnan(val) ? NA_REAL : val;
+        col[obs_index] = std::isnan(val) ? NA_REAL : val;
       }
     }
 
