@@ -185,7 +185,7 @@ public:
       label_set.add(readstat_double_value(value), label_s);
       break;
     default:
-      warning("Unsupported label type: %s", type);
+      Rf_warning("Unsupported label type: %s", type);
     }
 
     return 0;
