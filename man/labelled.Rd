@@ -3,12 +3,15 @@
 \name{labelled}
 \alias{as_factor.labelled}
 \alias{labelled}
+\alias{zap_labels}
 \title{Create a labelled vector.}
 \usage{
 labelled(x, labels)
 
 \method{as_factor}{labelled}(x, levels = c("labels", "values"),
   ordered = FALSE, ...)
+
+zap_labels(x)
 }
 \arguments{
 \item{x}{A vector to label. Must be either numeric (integer or double) or
@@ -42,5 +45,11 @@ s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
 as_factor(s1)
 as_factor(s1, labels = "values")
 as_factor(s2)
+
+# Often when you have a partially labelled numeric vector, labelled values
+# are special types of missing. Use XXX to replace labels with missing
+# values
+x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
+zap_labels(x)
 }
 

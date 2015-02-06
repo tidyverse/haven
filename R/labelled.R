@@ -26,6 +26,12 @@
 #' as_factor(s1)
 #' as_factor(s1, labels = "values")
 #' as_factor(s2)
+#'
+#' # Often when you have a partially labelled numeric vector, labelled values
+#' # are special types of missing. Use XXX to replace labels with missing
+#' # values
+#' x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
+#' zap_labels(x)
 labelled <- function(x, labels) {
   if (!is.numeric(x) && !is.character(x)) {
     stop("`x` must be either numeric or a character vector", call. = FALSE)
@@ -42,6 +48,8 @@ labelled <- function(x, labels) {
     class = "labelled"
   )
 }
+
+is.labelled <- function(x) inherits(x, "labelled")
 
 #' @export
 `[.labelled` <- function(x, ...) {
@@ -80,4 +88,17 @@ as_factor.labelled <- function(x, levels = c("labels", "values"),
     factor(match(x, attr(x, "labels")), labels = names(attr(x, "labels")))
   }
 
+}
+
+#' @export
+#' @rdname labelled
+zap_labels <- function(x) {
+  stopifnot(is.labelled(x))
+
+  labelled <- x %in% attr(x, "labels")
+  attr(x, "labels") <- NULL
+  class(x) <- NULL
+
+  x[labelled] <- NA
+  x
 }
