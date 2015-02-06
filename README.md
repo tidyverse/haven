@@ -20,9 +20,10 @@ Haven allows you to load foreign data formats (SAS, Spss and Stata) in to R by w
 
 * You always get a data frame, and labelled vectors are returned as new
   `labelled` class. You can easily coerce to factors or replace labelled values
-  with missings as appropriate.
+  with missings as appropriate. If you also use dplyr, you'll notice that
+  large data frames are printed in a convenient way.
 
-* Uses underscores ;)
+* Uses underscores instead of dots ;)
 
 Haven is still a work in progress so please [file an issue](https://github.com/hadley/haven/issues) if it fails to correctly load a file that you're interested in.
 
