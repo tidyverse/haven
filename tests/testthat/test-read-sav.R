@@ -12,3 +12,9 @@ test_that("value labels stored as labelled class", {
   expect_equal(num[[1]], labelled(1, c("This is one" = 1)))
   expect_equal(str[[1]], labelled(c("M", "F"), c(Female = "F", Male = "M")))
 })
+
+test_that("missing values encoded as NA", {
+  num <- read_sav("labelled-num-na.sav")[[1]]
+
+  expect_equal(num[[2]], NA_real_)
+})

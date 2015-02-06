@@ -155,7 +155,8 @@ public:
       if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_REAL;
       } else {
-        col[obs_index] = readstat_double_value(value);
+        double val = readstat_double_value(value);
+        col[obs_index] = isnan(val) ? NA_REAL : val;
       }
     }
 
