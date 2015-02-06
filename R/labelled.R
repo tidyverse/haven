@@ -11,9 +11,21 @@
 #' @param labels A named vector. The vector should be the same type as
 #'   x. Unlike factors, labels don't need to be exhaustive: only a fraction
 #'   of the values might be labelled.
+#' @param levels When coercing a labelled character vector to a factor, you
+#'   can choose whether to use the labels or the values as the factor levels.
+#' @param ordered If \code{TRUE} for ordinal factors, \code{FALSE} (the default)
+#'   for nominal factors.
+#' @param ... Ignored
 #' @export
 #' @examples
-#' sex <- labelled(c("M", "M", "F"), c(M = "Male", F = "Female"))
+#' s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
+#' s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
+#'
+#' # Unfortunately it's not possible to make as.factor work for labelled objects
+#' # so instead use as_factor
+#' as_factor(s1)
+#' as_factor(s1, labels = "values")
+#' as_factor(s2)
 labelled <- function(x, labels) {
   if (!is.numeric(x) && !is.character(x)) {
     stop("`x` must be either numeric or a character vector", call. = FALSE)
@@ -48,4 +60,24 @@ print.labelled <- function(x, ...) {
   print(attr(x, "labels"))
 
   invisible()
+}
+
+#' @rdname labelled
+#' @export
+as_factor.labelled <- function(x, levels = c("labels", "values"),
+                               ordered = FALSE, ...) {
+  levels <- match.arg(levels)
+
+  if (is.character(x)) {
+    levs <- unname(attr(x, "labels"))
+    if (levels == "labels") {
+      labs <- names(attr(x, "labels"))
+    } else {
+      labs <- levs
+    }
+    factor(x, levs, labels = labs, ordered = ordered)
+  } else {
+    factor(match(x, attr(x, "labels")), labels = names(attr(x, "labels")))
+  }
+
 }
