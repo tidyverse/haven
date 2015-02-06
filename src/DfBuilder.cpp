@@ -249,12 +249,13 @@ List df_parse(std::string filename, ParseFunction parse_f) {
   readstat_set_error_handler(parser, print_error);
 
   readstat_error_t result = parse_f(parser, filename.c_str(), &builder);
-  readstat_parser_free(parser);
 
   if (result != 0) {
+    readstat_parser_free(parser);
     stop("Failed to parse %s: %s.", filename, readstat_error_message(result));
   }
 
+  readstat_parser_free(parser);
   return builder.output();
 }
 
@@ -271,18 +272,19 @@ List df_parse_sas(const std::string& b7dat, const std::string& b7cat) {
 
   readstat_error_t result = readstat_parse_sas7bdat(parser, b7dat.c_str(), &builder);
   if (result != 0) {
+    readstat_parser_free(parser);
     stop("Failed to parse %s: %s.", b7dat.c_str(), readstat_error_message(result));
   }
 
   if (b7cat != "") {
     readstat_error_t result = readstat_parse_sas7bcat(parser, b7cat.c_str(), &builder);
     if (result != 0) {
+      readstat_parser_free(parser);
       stop("Failed to parse %s: %s.", b7cat.c_str(), readstat_error_message(result));
     }
   }
 
   readstat_parser_free(parser);
-
   return builder.output();
 }
 
