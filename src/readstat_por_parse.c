@@ -8,8 +8,6 @@
 
 #line 10 "src/readstat_por_parse.c"
 static const int por_field_parse_start = 1;
-static const int por_field_parse_first_final = 12;
-static const int por_field_parse_error = 0;
 
 static const int por_field_parse_en_main = 1;
 
@@ -37,12 +35,12 @@ int readstat_por_parse_double(const char *data, size_t len, double *result, read
     int success = 0;
     
     
-#line 41 "src/readstat_por_parse.c"
+#line 39 "src/readstat_por_parse.c"
 	{
 	cs = por_field_parse_start;
 	}
 
-#line 46 "src/readstat_por_parse.c"
+#line 44 "src/readstat_por_parse.c"
 	{
 	switch ( cs )
 	{
@@ -77,7 +75,7 @@ tr6:
 st12:
 	p += 1;
 case 12:
-#line 81 "src/readstat_por_parse.c"
+#line 79 "src/readstat_por_parse.c"
 	goto st0;
 st3:
 	p += 1;
@@ -97,7 +95,7 @@ tr7:
 st4:
 	p += 1;
 case 4:
-#line 101 "src/readstat_por_parse.c"
+#line 99 "src/readstat_por_parse.c"
 	if ( (*p) > 57 ) {
 		if ( 65 <= (*p) && (*p) <= 84 )
 			goto tr9;
@@ -129,7 +127,7 @@ tr11:
 st5:
 	p += 1;
 case 5:
-#line 133 "src/readstat_por_parse.c"
+#line 131 "src/readstat_por_parse.c"
 	if ( (*p) == 47 )
 		goto tr10;
 	if ( (*p) > 57 ) {
@@ -159,7 +157,7 @@ tr18:
 st13:
 	p += 1;
 case 13:
-#line 163 "src/readstat_por_parse.c"
+#line 161 "src/readstat_por_parse.c"
 	goto st0;
 tr5:
 #line 39 "src/readstat_por_parse.rl"
@@ -200,7 +198,7 @@ tr16:
 st6:
 	p += 1;
 case 6:
-#line 204 "src/readstat_por_parse.c"
+#line 202 "src/readstat_por_parse.c"
 	switch( (*p) ) {
 		case 43: goto tr12;
 		case 45: goto tr13;
@@ -224,7 +222,7 @@ tr22:
 st7:
 	p += 1;
 case 7:
-#line 228 "src/readstat_por_parse.c"
+#line 226 "src/readstat_por_parse.c"
 	if ( (*p) > 57 ) {
 		if ( 65 <= (*p) && (*p) <= 84 )
 			goto tr17;
@@ -270,7 +268,7 @@ tr20:
 st8:
 	p += 1;
 case 8:
-#line 274 "src/readstat_por_parse.c"
+#line 272 "src/readstat_por_parse.c"
 	if ( (*p) == 47 )
 		goto tr18;
 	if ( (*p) > 57 ) {
@@ -290,7 +288,7 @@ tr23:
 st9:
 	p += 1;
 case 9:
-#line 294 "src/readstat_por_parse.c"
+#line 292 "src/readstat_por_parse.c"
 	if ( (*p) > 57 ) {
 		if ( 65 <= (*p) && (*p) <= 84 )
 			goto tr20;
@@ -304,7 +302,7 @@ tr14:
 st10:
 	p += 1;
 case 10:
-#line 308 "src/readstat_por_parse.c"
+#line 306 "src/readstat_por_parse.c"
 	if ( (*p) > 57 ) {
 		if ( 65 <= (*p) && (*p) <= 84 )
 			goto tr21;
@@ -336,7 +334,7 @@ tr24:
 st11:
 	p += 1;
 case 11:
-#line 340 "src/readstat_por_parse.c"
+#line 338 "src/readstat_por_parse.c"
 	switch( (*p) ) {
 		case 43: goto tr22;
 		case 45: goto tr23;
@@ -357,7 +355,7 @@ case 11:
 #line 48 "src/readstat_por_parse.rl"
 	{ val = NAN; }
 	break;
-#line 361 "src/readstat_por_parse.c"
+#line 359 "src/readstat_por_parse.c"
 	}
 	}
 
@@ -393,6 +391,9 @@ case 11:
         
         retval = (p - (const unsigned char *)data);
     }
-    
+
+    /* suppress warning */
+    (void)por_field_parse_en_main;
+
     return retval;
 }

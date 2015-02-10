@@ -46,4 +46,10 @@
      type == SPSS_FORMAT_TYPE_MOYR || \
      type == SPSS_FORMAT_TYPE_WKYR)
 
-const char *spss_format(int type);
+typedef struct spss_format_s {
+    int          type;
+    int          width;
+    int          decimal_places;
+} spss_format_t;
+
+int spss_format(char *buffer, size_t len, spss_format_t *format);

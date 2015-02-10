@@ -745,18 +745,8 @@ static readstat_error_t submit_columns(sas_ctx_t *ctx) {
             if ((retval = copy_text_ref(label_buf, sizeof(label_buf), ctx->col_info[i].label_ref, ctx)) != 0) {
                 goto cleanup;
             }
-            char *stata_format = NULL;
-            char *label_set = NULL;
-            if (strcmp(format_buf, "DATE") == 0) {
-                stata_format = "%td";
-            } else if (strcmp(format_buf, "DATETIME") == 0) {
-                stata_format = "%ts";
-            } else if (format_buf[0] != '\0') {
-                label_set = format_buf;
-                // fprintf(stderr,  "Unknown format: %s\n", format_buf);
-            }
-            int cb_retval = ctx->variable_handler(i, name_buf, stata_format, label_buf, label_set, ctx->col_info[i].type,
-                    ctx->user_ctx);
+            int cb_retval = ctx->variable_handler(i, name_buf, format_buf, label_buf, format_buf, 
+                    ctx->col_info[i].type, ctx->user_ctx);
             if (cb_retval) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;

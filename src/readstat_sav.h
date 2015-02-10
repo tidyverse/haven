@@ -7,6 +7,7 @@
 //
 
 #include "readstat.h"
+#include "readstat_spss.h"
 #include "readstat_iconv.h"
 #include "readstat_bits.h"
 
@@ -69,12 +70,6 @@ typedef struct sav_dictionary_termination_record_s {
 
 #pragma pack(pop)
 
-typedef struct sav_format_s {
-    int    type;
-    int    width;
-    int    decimal_places;
-} sav_format_t;
-
 typedef struct sav_varinfo_s {
     readstat_types_t type;
     int              labels_index;
@@ -82,8 +77,8 @@ typedef struct sav_varinfo_s {
     int              offset;
     int              width;
     int              string_length;
-    sav_format_t     print_format;
-    sav_format_t     write_format;
+    spss_format_t    print_format;
+    spss_format_t    write_format;
     int              n_segments;
     int              n_missing_values;
     int              missing_range;

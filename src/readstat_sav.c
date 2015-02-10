@@ -17,7 +17,6 @@
 #include "readstat_io.h"
 #include "readstat_sav.h"
 #include "readstat_sav_parse.h"
-#include "readstat_spss.h"
 #include "readstat_convert.h"
 
 #define DATA_BUFFER_SIZE              65536
@@ -36,7 +35,9 @@ typedef struct sav_charset_entry_s {
 
 /* See http://msdn.microsoft.com/en-us/library/dd317756(VS.85).aspx */
 static sav_charset_entry_t _charset_table[] = { 
-    { .code = 2,     .name = "ASCII" },
+    { .code = 1,     .name = "EBCDIC-US" },
+    { .code = 2,     .name = "US-ASCII" },
+    { .code = 3,     .name = "WINDOWS-1252" },
     { .code = 4,     .name = "DEC-KANJI" },
     { .code = 437,   .name = "CP437" },
     { .code = 708,   .name = "ASMO-708" },
@@ -962,9 +963,8 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filen
 
             char *format = NULL;
             char buf[80];
-            if (spss_format_is_date(info->print_format.type)) {
-                const char *fmt = spss_format(info->print_format.type);
-                snprintf(buf, sizeof(buf), "%%ts%s", fmt ? fmt : "");
+
+            if (spss_format(buf, sizeof(buf), &info->print_format)) {
                 format = buf;
             }
 

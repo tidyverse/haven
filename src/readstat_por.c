@@ -52,12 +52,6 @@ static uint16_t unicode_lookup[256] = {
     '0', '0', '0', '0', '0', '0' };
 
 
-typedef struct por_format_s {
-    int          type;
-    int          width;
-    int          decimal_places;
-} por_format_t;
-
 typedef struct por_varinfo_s {
     readstat_types_t type;
     int              labels_index;
@@ -67,8 +61,8 @@ typedef struct por_varinfo_s {
     double           missing_values[3];
     char             name[9];
     char             label[256];
-    por_format_t     print_format;
-    por_format_t     write_format;
+    spss_format_t     print_format;
+    spss_format_t     write_format;
 } por_varinfo_t;
 
 typedef struct readstat_por_ctx_s {
@@ -332,7 +326,7 @@ static int read_variable_record(readstat_por_ctx_t *ctx) {
     ctx->var_offset++;
 
     por_varinfo_t *varinfo = &ctx->varinfo[ctx->var_offset];
-    por_format_t *formats[2] = { &varinfo->print_format, &varinfo->write_format };
+    spss_format_t *formats[2] = { &varinfo->print_format, &varinfo->write_format };
 
     if (read_double(ctx, &value) == -1) {
         return READSTAT_ERROR_PARSE;
@@ -349,8 +343,8 @@ static int read_variable_record(readstat_por_ctx_t *ctx) {
     }
     ck_str_hash_insert(varinfo->name, varinfo, ctx->var_dict);
 
-    for (i=0; i<sizeof(formats)/sizeof(por_format_t *); i++) {
-        por_format_t *format = formats[i];
+    for (i=0; i<sizeof(formats)/sizeof(spss_format_t *); i++) {
+        spss_format_t *format = formats[i];
         if (read_double(ctx, &value) == -1) {
             return READSTAT_ERROR_PARSE;
         }
@@ -727,9 +721,8 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
 
                     char *format = NULL;
                     char buf[80];
-                    if (spss_format_is_date(info->print_format.type)) {
-                        const char *fmt = spss_format(info->print_format.type);
-                        snprintf(buf, sizeof(buf), "%%ts%s", fmt ? fmt : "");
+
+                    if (spss_format(buf, sizeof(buf), &info->print_format)) {
                         format = buf;
                     }
 
