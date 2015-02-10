@@ -726,7 +726,7 @@ static readstat_error_t sas_parse_catalog_page(const char *page, size_t page_siz
                 memcpy(&dval, &val, 8);
                 dval *= -1.0;
                 if (ctx->value_label_handler)
-                    ctx->value_label_handler(name, &val, READSTAT_TYPE_DOUBLE, label, ctx->user_ctx);
+                    ctx->value_label_handler(name, &dval, READSTAT_TYPE_DOUBLE, label, ctx->user_ctx);
             }
 
             lbp1 += value_entry_len;

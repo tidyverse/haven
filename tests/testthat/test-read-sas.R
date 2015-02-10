@@ -11,4 +11,5 @@ test_that("value labels parsed from bcat file", {
 
   expect_is(df$gender, "labelled")
   expect_equal(attr(df$gender, "labels"), c(Female = "f", Male = "m"))
+  expect_equal(attr(df$workshop, "labels"), c(R = 1, SAS = 2))
 })
