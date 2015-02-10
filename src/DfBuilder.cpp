@@ -10,11 +10,12 @@ class LabelSet {
 public:
   LabelSet() {}
 
-  void add(std::string value, std::string label) {
+  void add(char* value, std::string label) {
     if (values_d_.size() > 0)
       stop("Can't add string to integer labelset");
 
-    values_s_.push_back(value);
+    std::string string(value);
+    values_s_.push_back(string);
     labels_.push_back(label);
   }
 
@@ -26,7 +27,7 @@ public:
     labels_.push_back(label);
   }
 
-  RObject labels() {
+  RObject labels() const {
     RObject out;
 
     if (values_d_.size() > 0) {
@@ -87,8 +88,6 @@ public:
                readstat_types_t type) {
 
     names_[index] = var_name;
-    if (var_format != NULL)
-      Rcout << var_name << ": " << var_format << "\n";
 
     switch(type) {
     case READSTAT_TYPE_LONG_STRING:
@@ -106,7 +105,7 @@ public:
       break;
     }
 
-    if (var_label != NULL) {
+    if (var_label != NULL && strcmp(var_label, "") != 0) {
       RObject col = output_[index];
       col.attr("label") = var_label;
     }
@@ -178,10 +177,10 @@ public:
       label_set.add(readstat_char_value(value), label_s);
       break;
     case READSTAT_TYPE_INT16:
-      label_set.add(readstat_int32_value(value), label_s);
+      label_set.add(readstat_int16_value(value), label_s);
       break;
     case READSTAT_TYPE_INT32:
-      label_set.add(readstat_int16_value(value), label_s);
+      label_set.add(readstat_int32_value(value), label_s);
       break;
     case READSTAT_TYPE_DOUBLE:
       label_set.add(readstat_double_value(value), label_s);
@@ -272,12 +271,6 @@ List df_parse_sas(const std::string& b7dat, const std::string& b7cat) {
   readstat_set_value_label_handler(parser, dfbuilder_value_label);
   readstat_set_error_handler(parser, print_error);
 
-  readstat_error_t result = readstat_parse_sas7bdat(parser, b7dat.c_str(), &builder);
-  if (result != 0) {
-    readstat_parser_free(parser);
-    stop("Failed to parse %s: %s.", b7dat.c_str(), readstat_error_message(result));
-  }
-
   if (b7cat != "") {
     readstat_error_t result = readstat_parse_sas7bcat(parser, b7cat.c_str(), &builder);
     if (result != 0) {
@@ -285,6 +278,13 @@ List df_parse_sas(const std::string& b7dat, const std::string& b7cat) {
       stop("Failed to parse %s: %s.", b7cat.c_str(), readstat_error_message(result));
     }
   }
+
+  readstat_error_t result = readstat_parse_sas7bdat(parser, b7dat.c_str(), &builder);
+  if (result != 0) {
+    readstat_parser_free(parser);
+    stop("Failed to parse %s: %s.", b7dat.c_str(), readstat_error_message(result));
+  }
+
 
   readstat_parser_free(parser);
   return builder.output();
