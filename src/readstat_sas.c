@@ -673,35 +673,48 @@ static readstat_error_t sas_parse_catalog_page(const char *page, size_t page_siz
 
     while (lsp < page + page_size) {
         size_t block_size = 255 * (1+lsp[9]);
-        int label_count1 = read4(&lsp[48], ctx->bswap);
-        int label_count2 = read4(&lsp[52], ctx->bswap);
+        size_t pad = (lsp[12] & 0x08) ? 4 : 0; // might be 0x10, not sure
+        // int label_count1 = read4(&lsp[48+pad], ctx->bswap);
+        int label_count2 = read4(&lsp[52+pad], ctx->bswap);
         char name[4*8+1];
 
         retval = readstat_convert(name, sizeof(name), &lsp[18], 8, ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
+
+        if (pad) {
+            pad += 12;
+        }
         
-        int is_string = 0;
-        size_t md_len = 46;
-        if (name[0] == '$') {
-            md_len = 30;
-            is_string = 1;
+        int is_string = (name[0] == '$');
+
+        if (pad) {
+            pad += 4;
         }
 
-        const char *lbp1 = &lsp[116];
-        const char *lbp2 = &lsp[116+label_count1*md_len];
+        const char *lbp1 = &lsp[116+pad];
 
+        /* Pass 1 -- find out the offset of the labels */
+        for (i=0; i<label_count2; i++) {
+            lbp1 += 6 + lbp1[2];
+        }
+
+        const char *lbp2 = lbp1;
+        lbp1 = &lsp[116+pad];
+
+        /* Pass 2 -- parse pairs of values & labels */
         for (i=0; i<label_count2; i++) {
             if (&lbp1[30] - lsp > block_size ||
                     &lbp2[10] - lsp > block_size) {
                 retval = READSTAT_ERROR_PARSE;
                 goto cleanup;
             }
-            size_t len = read2(&lbp2[8], ctx->bswap);
+            size_t label_len = read2(&lbp2[8], ctx->bswap);
+            size_t value_entry_len = 6 + lbp1[2];
             const char *label = &lbp2[10];
             if (is_string) {
                 char val[4*16+1];
-                retval = readstat_convert(val, sizeof(val), &lbp1[14], 16, ctx->converter);
+                retval = readstat_convert(val, sizeof(val), &lbp1[value_entry_len-16], 16, ctx->converter);
                 if (retval != READSTAT_OK)
                     goto cleanup;
 
@@ -716,8 +729,8 @@ static readstat_error_t sas_parse_catalog_page(const char *page, size_t page_siz
                     ctx->value_label_handler(name, &val, READSTAT_TYPE_DOUBLE, label, ctx->user_ctx);
             }
 
-            lbp1 += md_len;
-            lbp2 += 8 + 2 + len + 1;
+            lbp1 += value_entry_len;
+            lbp2 += 8 + 2 + label_len + 1;
         }
 
         lsp += block_size;
