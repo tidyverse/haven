@@ -44,7 +44,7 @@ devtools::install_github("hadley/haven")
 
 ## Updating readstat
 
-To get the latest version of readstat into the repo, run this code:
+If you're working on the development version of haven, and you'd like to update the embedded ReadStat library, you can run the following code. It is not necessary if you're just using the package.
 
 ```R
 tmp <- tempfile()
