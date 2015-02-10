@@ -692,6 +692,11 @@ static readstat_error_t sas_parse_catalog_page(const char *page, size_t page_siz
         const char *lbp2 = &lsp[116+label_count1*md_len];
 
         for (i=0; i<label_count2; i++) {
+            if (&lbp1[30] - lsp > block_size ||
+                    &lbp2[10] - lsp > block_size) {
+                retval = READSTAT_ERROR_PARSE;
+                goto cleanup;
+            }
             size_t len = read2(&lbp2[8], ctx->bswap);
             const char *label = &lbp2[10];
             if (is_string) {
