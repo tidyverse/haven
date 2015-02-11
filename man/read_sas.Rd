@@ -15,7 +15,8 @@ A data frame with additional "tbl_df" and "tbl" classes, which
   improve printing if dplyr is loaded.
 }
 \description{
-Read SAS files.
+This supports both b7dat files and the accompanying b7cat files
+that are SAS's equivalent of factor labels.
 }
 \examples{
 read_sas("http://crn.cancer.gov/resources/ctcodes-procedures.sas7bdat")

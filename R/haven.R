@@ -4,6 +4,9 @@ NULL
 
 #' Read SAS files.
 #'
+#' This supports both b7dat files and the accompanying b7cat files
+#' that are SAS's equivalent of factor labels.
+#'
 #' @param b7dat,b7cat Path to data and catalog files. If the path is a URL, the
 #'   file will be first download to a temporary location before reading.
 #' @return A data frame with additional "tbl_df" and "tbl" classes, which
