@@ -28,13 +28,8 @@
 #define SAV_CHARSET_UTF8              65001
 /* Others defined in table below */
 
-typedef struct sav_charset_entry_s {
-    int     code;
-    char    name[32];
-} sav_charset_entry_t;
-
 /* See http://msdn.microsoft.com/en-us/library/dd317756(VS.85).aspx */
-static sav_charset_entry_t _charset_table[] = { 
+static readstat_charset_entry_t _charset_table[] = { 
     { .code = 1,     .name = "EBCDIC-US" },
     { .code = 2,     .name = "US-ASCII" },
     { .code = 3,     .name = "WINDOWS-1252" },

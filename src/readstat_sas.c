@@ -10,7 +10,7 @@
 #include "readstat_iconv.h"
 #include "readstat_convert.h"
 
-#define SAS_STRING_ENCODING "WINDOWS-1252"
+#define SAS_DEFAULT_STRING_ENCODING "WINDOWS-1252"
 
 #define SAS_ALIGNMENT_OFFSET_4  0x33
 
@@ -62,6 +62,19 @@ static unsigned char sas7bcat_magic_number[32] = {
     0x09, 0xc7, 0x31, 0x8c,   0x18, 0x1f, 0x10, 0x11
 };
 
+static readstat_charset_entry_t _charset_table[] = { 
+    { .code = 0,     .name = SAS_DEFAULT_STRING_ENCODING },
+    { .code = 20,    .name = "UTF-8" },
+    { .code = 28,    .name = "US-ASCII" },
+    { .code = 29,    .name = "ISO-8859-1" },
+    { .code = 30,    .name = "ISO-8859-2" },
+    { .code = 31,    .name = "ISO-8859-3" },
+    { .code = 40,    .name = "ISO-8859-9" },
+    { .code = 60,    .name = "WINDOWS-1250" },
+    { .code = 62,    .name = "WINDOWS-1252" },
+    { .code = 125,   .name = "GB18030" }
+};
+
 #define SAS_SUBHEADER_SIGNATURE_ROW_SIZE       0xF7F7F7F7
 #define SAS_SUBHEADER_SIGNATURE_COLUMN_SIZE    0xF6F6F6F6
 #define SAS_SUBHEADER_SIGNATURE_COUNTS         0xFFFFFC00
@@ -99,6 +112,7 @@ typedef struct sas_header_info_s {
     int      vendor;
     int      page_size;
     int      page_count;
+    char    *encoding;
 } sas_header_info_t;
 
 typedef struct sas_catalog_ctx_s {
@@ -227,6 +241,17 @@ static readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx) {
         ctx->little_endian = 1;
     } else {
         retval = READSTAT_ERROR_PARSE;
+        goto cleanup;
+    }
+    int i;
+    for (i=0; i<sizeof(_charset_table)/sizeof(_charset_table[0]); i++) {
+        if (header_start.encoding == _charset_table[i].code) {
+            ctx->encoding = _charset_table[i].name;
+            break;
+        }
+    }
+    if (ctx->encoding == NULL) {
+        retval = READSTAT_ERROR_UNSUPPORTED_CHARSET;
         goto cleanup;
     }
     if (lseek(fd, 196 + a1, SEEK_SET) == -1) {
@@ -966,7 +991,10 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
     ctx->little_endian = hinfo->little_endian;
     ctx->vendor = hinfo->vendor;
     ctx->bswap = machine_is_little_endian() ^ hinfo->little_endian;
-    ctx->converter = iconv_open("UTF-8", SAS_STRING_ENCODING);
+    if (!strcmp(hinfo->encoding, "UTF-8") == 0 &&
+            !strcmp(hinfo->encoding, "US-ASCII") == 0) {
+        ctx->converter = iconv_open("UTF-8", hinfo->encoding);
+    }
 
     int i;
     char *page = malloc(hinfo->page_size);
@@ -1059,7 +1087,6 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
 
     ctx->value_label_handler = parser->value_label_handler;
     ctx->user_ctx = user_ctx;
-    ctx->converter = iconv_open("UTF-8", SAS_STRING_ENCODING);
 
     if ((fd = readstat_open(filename)) == -1) {
         retval = READSTAT_ERROR_OPEN;
@@ -1072,6 +1099,10 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
 
     ctx->u64 = hinfo->u64;
     ctx->bswap = machine_is_little_endian() ^ hinfo->little_endian;
+    if (!strcmp(hinfo->encoding, "UTF-8") == 0 &&
+            !strcmp(hinfo->encoding, "US-ASCII") == 0) {
+        ctx->converter = iconv_open("UTF-8", hinfo->encoding);
+    }
 
     int i;
     char *page = malloc(hinfo->page_size);
