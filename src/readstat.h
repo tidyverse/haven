@@ -39,7 +39,10 @@ typedef enum readstat_error_e {
     READSTAT_ERROR_UNSUPPORTED_COMPRESSION,
     READSTAT_ERROR_UNSUPPORTED_CHARSET,
     READSTAT_ERROR_ROW_COUNT_MISMATCH,
-    READSTAT_ERROR_ROW_WIDTH_MISMATCH
+    READSTAT_ERROR_ROW_WIDTH_MISMATCH,
+    READSTAT_ERROR_BAD_FORMAT_STRING,
+    READSTAT_ERROR_VALUE_TYPE_MISMATCH,
+    READSTAT_ERROR_WRITE
 } readstat_error_t;
 
 const char *readstat_error_message(readstat_error_t error_code);
@@ -66,8 +69,8 @@ typedef int (*readstat_value_label_handler)(const char *val_labels,
 typedef void (*readstat_error_handler)(const char *error_message);
 
 typedef struct readstat_parser_s {
-    readstat_info_handler           info_handler;
-    readstat_variable_handler       variable_handler;
+    readstat_info_handler          info_handler;
+    readstat_variable_handler      variable_handler;
     readstat_value_handler         value_handler;
     readstat_value_label_handler   value_label_handler;
     readstat_error_handler         error_handler;
@@ -88,6 +91,137 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
 readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *filename, void *user_ctx);
 readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *filename, void *user_ctx);
 
+
+/* Internal data structures & module callbacks */
+typedef struct readstat_value_label_s {
+    double      double_key;
+    int32_t     int32_key;
+    char        string_key[16];
+
+    char        label[256];
+} readstat_value_label_t;
+
+typedef struct readstat_label_set_s {
+    readstat_types_t            type;
+    char                        name[256];
+
+    readstat_value_label_t     *value_labels;
+    long                        value_labels_count;
+    long                        value_labels_capacity;
+
+    void                       *variables;
+    long                        variables_count;
+    long                        variables_capacity;
+} readstat_label_set_t;
+
+typedef struct readstat_variable_s {
+    readstat_types_t        type;
+    char                    name[256];
+    char                    format[256];
+    char                    label[1024];
+    readstat_label_set_t   *label_set;
+    off_t                   offset;
+    size_t                  width;
+    size_t                  user_width;
+} readstat_variable_t;
+
+typedef size_t (*readstat_variable_width_callback)(readstat_types_t type, size_t user_width);
+
+typedef readstat_error_t (*readstat_write_char_callback)(void *row_data, readstat_variable_t *variable, char value);
+typedef readstat_error_t (*readstat_write_int16_callback)(void *row_data, readstat_variable_t *variable, int16_t value);
+typedef readstat_error_t (*readstat_write_int32_callback)(void *row_data, readstat_variable_t *variable, int32_t value);
+typedef readstat_error_t (*readstat_write_float_callback)(void *row_data, readstat_variable_t *variable, float value);
+typedef readstat_error_t (*readstat_write_double_callback)(void *row_data, readstat_variable_t *variable, double value);
+typedef readstat_error_t (*readstat_write_string_callback)(void *row_data, readstat_variable_t *variable, const char *value);
+typedef readstat_error_t (*readstat_write_missing_callback)(void *row_data, readstat_variable_t *variable);
+
+typedef readstat_error_t (*readstat_begin_data_callback)(void *writer);
+typedef readstat_error_t (*readstat_end_data_callback)(void *writer);
+
+typedef struct readstat_writer_callbacks_s {
+    readstat_variable_width_callback   variable_width;
+    readstat_write_char_callback    write_char;
+    readstat_write_int16_callback   write_int16;
+    readstat_write_int32_callback   write_int32;
+    readstat_write_float_callback   write_float;
+    readstat_write_double_callback  write_double;
+    readstat_write_string_callback  write_string;
+    readstat_write_missing_callback write_missing;
+    readstat_begin_data_callback    begin_data;
+    readstat_end_data_callback      end_data;
+} readstat_writer_callbacks_t;
+
+/* You'll need to define one of these to get going. Should return # bytes written,
+ * or -1 on error, a la write(2) */
+typedef ssize_t (*readstat_data_writer)(const void *data, size_t len, void *ctx);
+
+typedef struct readstat_writer_s {
+    readstat_data_writer        data_writer;
+
+    readstat_variable_t       **variables;
+    long                        variables_count;
+    long                        variables_capacity;
+
+    readstat_label_set_t      **label_sets;
+    long                        label_sets_count;
+    long                        label_sets_capacity;
+
+    unsigned char              *row;
+    size_t                      row_len;
+
+    int                         row_count;
+    int                         current_row;
+    char                        file_label[80];
+    readstat_writer_callbacks_t callbacks;
+    void                       *module_ctx;
+    void                       *user_ctx;
+} readstat_writer_t;
+
+/* Writer API */
+
+
+// First call this...
+readstat_writer_t *readstat_writer_init();
+
+// Then specify a function that will handle the output bytes...
+readstat_error_t readstat_set_data_writer(readstat_writer_t *writer, readstat_data_writer data_writer);
+
+// Next define your value labels, if any. Create as many named sets as you'd like.
+readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat_types_t type, const char *name);
+void readstat_label_double_value(readstat_label_set_t *label_set, double value, const char *label);
+void readstat_label_int32_value(readstat_label_set_t *label_set, int32_t value, const char *label);
+void readstat_label_string_value(readstat_label_set_t *label_set, const char *value, const char *label);
+
+// Now define your variables. Note that `width' is only used for READSTAT_TYPE_STRING variables.
+readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, readstat_types_t type, size_t width,
+        const char *name, const char *label, const char *format, readstat_label_set_t *label_set);
+readstat_variable_t *readstat_get_variable(readstat_writer_t *writer, int index);
+
+// Call one of these at any time before the first invocation of readstat_begin_row
+readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *user_ctx,
+        const char *file_label, long row_count);
+
+readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *user_ctx,
+        const char *file_label, long row_count);
+
+// Start a row of data (that is, a case or observation)
+readstat_error_t readstat_begin_row(readstat_writer_t *writer);
+
+// Then call one of these for each variable
+readstat_error_t readstat_insert_char_value(readstat_writer_t *writer, readstat_variable_t *variable, char value);
+readstat_error_t readstat_insert_int16_value(readstat_writer_t *writer, readstat_variable_t *variable, int16_t value);
+readstat_error_t readstat_insert_int32_value(readstat_writer_t *writer, readstat_variable_t *variable, int32_t value);
+readstat_error_t readstat_insert_float_value(readstat_writer_t *writer, readstat_variable_t *variable, float value);
+readstat_error_t readstat_insert_double_value(readstat_writer_t *writer, readstat_variable_t *variable, double value);
+readstat_error_t readstat_insert_string_value(readstat_writer_t *writer, readstat_variable_t *variable, const char *value);
+readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, readstat_variable_t *variable);
+
+// Finally, close out the row
+readstat_error_t readstat_end_row(readstat_writer_t *writer);
+
+// Once you've written all the rows, clean up after yourself
+readstat_error_t readstat_end_writing(readstat_writer_t *writer);
+void readstat_writer_free(readstat_writer_t *writer);
 
 typedef int (*rdata_column_handler)(const char *name, readstat_types_t type, char *format, 
         void *data, long count, void *ctx);

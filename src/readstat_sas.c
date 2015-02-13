@@ -212,7 +212,7 @@ static void sas_catalog_ctx_free(sas_catalog_ctx_t *ctx) {
     free(ctx);
 }
 
-static readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx) {
+static readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx, readstat_error_handler error_handler) {
     sas_header_start_t  header_start;
     sas_header_end_t    header_end;
     int retval = READSTAT_OK;
@@ -251,6 +251,11 @@ static readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx) {
         }
     }
     if (ctx->encoding == NULL) {
+        if (error_handler) {
+            char buf[1024];
+            snprintf(buf, sizeof(buf), "Unsupported character set code: %d\n", header_start.encoding);
+            error_handler(buf);
+        }
         retval = READSTAT_ERROR_UNSUPPORTED_CHARSET;
         goto cleanup;
     }
@@ -564,7 +569,7 @@ static readstat_error_t sas_parse_rows(const char *data, sas_ctx_t *ctx) {
     int i;
     size_t row_offset=0;
     for (i=0; i<ctx->page_row_count && ctx->parsed_row_count < ctx->total_row_count; i++) {
-        if ((retval = sas_parse_single_row(&data[row_offset], ctx)) != 0)
+        if ((retval = sas_parse_single_row(&data[row_offset], ctx)) != READSTAT_OK)
             goto cleanup;
 
         row_offset += ctx->row_length;
@@ -686,6 +691,8 @@ static readstat_error_t sas_parse_catalog_page(const char *page, size_t page_siz
     if (ctx->u64)
         retval = READSTAT_ERROR_PARSE;
 
+    /* Doubles appear to be stored as big-endian, always */
+    int bswap_doubles = machine_is_little_endian();
     int i;
     for (i=16; i<22; i++) {
         if (page[i]) {
@@ -699,28 +706,28 @@ static readstat_error_t sas_parse_catalog_page(const char *page, size_t page_siz
     while (lsp < page + page_size) {
         size_t block_size = 255 * (1+lsp[9]);
         size_t pad = (lsp[12] & 0x08) ? 4 : 0; // might be 0x10, not sure
-        // int label_count1 = read4(&lsp[48+pad], ctx->bswap);
-        int label_count2 = read4(&lsp[52+pad], ctx->bswap);
+        int label_count_capacity = read4(&lsp[48+pad], ctx->bswap);
+        int label_count_used = read4(&lsp[52+pad], ctx->bswap);
         char name[4*8+1];
 
         retval = readstat_convert(name, sizeof(name), &lsp[18], 8, ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        if (pad) {
-            pad += 12;
-        }
-        
         int is_string = (name[0] == '$');
 
         if (pad) {
-            pad += 4;
+            pad += 16;
         }
 
         const char *lbp1 = &lsp[116+pad];
 
         /* Pass 1 -- find out the offset of the labels */
-        for (i=0; i<label_count2; i++) {
+        for (i=0; i<label_count_capacity; i++) {
+            if (&lbp1[2] - lsp > block_size) {
+                retval = READSTAT_ERROR_PARSE;
+                goto cleanup;
+            }
             lbp1 += 6 + lbp1[2];
         }
 
@@ -728,7 +735,7 @@ static readstat_error_t sas_parse_catalog_page(const char *page, size_t page_siz
         lbp1 = &lsp[116+pad];
 
         /* Pass 2 -- parse pairs of values & labels */
-        for (i=0; i<label_count2; i++) {
+        for (i=0; i<label_count_used; i++) {
             if (&lbp1[30] - lsp > block_size ||
                     &lbp2[10] - lsp > block_size) {
                 retval = READSTAT_ERROR_PARSE;
@@ -746,7 +753,7 @@ static readstat_error_t sas_parse_catalog_page(const char *page, size_t page_siz
                 if (ctx->value_label_handler)
                     ctx->value_label_handler(name, val, READSTAT_TYPE_STRING, label, ctx->user_ctx);
             } else {
-                uint64_t val = read8(&lbp1[22], 1);
+                uint64_t val = read8(&lbp1[22], bswap_doubles);
                 double dval;
                 memcpy(&dval, &val, 8);
                 dval *= -1.0;
@@ -779,17 +786,20 @@ static readstat_error_t submit_columns(sas_ctx_t *ctx) {
         char format_buf[1024];
         char label_buf[1024];
         for (i=0; i<ctx->column_count; i++) {
-            if ((retval = copy_text_ref(name_buf, sizeof(name_buf), ctx->col_info[i].name_ref, ctx)) != 0) {
+            if ((retval = copy_text_ref(name_buf, sizeof(name_buf), 
+                            ctx->col_info[i].name_ref, ctx)) != READSTAT_OK) {
                 goto cleanup;
             }
-            if ((retval = copy_text_ref(format_buf, sizeof(format_buf), ctx->col_info[i].format_ref, ctx)) != 0) {
+            if ((retval = copy_text_ref(format_buf, sizeof(format_buf), 
+                            ctx->col_info[i].format_ref, ctx)) != READSTAT_OK) {
                 goto cleanup;
             }
-            if ((retval = copy_text_ref(label_buf, sizeof(label_buf), ctx->col_info[i].label_ref, ctx)) != 0) {
+            if ((retval = copy_text_ref(label_buf, sizeof(label_buf), 
+                            ctx->col_info[i].label_ref, ctx)) != READSTAT_OK) {
                 goto cleanup;
             }
-            int cb_retval = ctx->variable_handler(i, name_buf, format_buf, label_buf, format_buf, 
-                    ctx->col_info[i].type, ctx->user_ctx);
+            int cb_retval = ctx->variable_handler(i, name_buf, format_buf, 
+                    label_buf, format_buf, ctx->col_info[i].type, ctx->user_ctx);
             if (cb_retval) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
@@ -841,7 +851,7 @@ static readstat_error_t sas_parse_page_pass1(const char *page, size_t page_size,
                     signature = read4(page + offset + 4, ctx->bswap);
                 }
                 if (signature == SAS_SUBHEADER_SIGNATURE_COLUMN_TEXT) {
-                    if ((retval = sas_parse_subheader(signature, page + offset, len, ctx)) != 0) {
+                    if ((retval = sas_parse_subheader(signature, page + offset, len, ctx)) != READSTAT_OK) {
                         goto cleanup;
                     }
                 }
@@ -911,18 +921,18 @@ static readstat_error_t sas_parse_page_pass2(const char *page, size_t page_size,
                         signature = read4(page + offset + 4, ctx->bswap);
                     }
                     if (signature != SAS_SUBHEADER_SIGNATURE_COLUMN_TEXT) {
-                        if ((retval = sas_parse_subheader(signature, page + offset, len, ctx)) != 0) {
+                        if ((retval = sas_parse_subheader(signature, page + offset, len, ctx)) != READSTAT_OK) {
                             goto cleanup;
                         }
                     }
                 } else if (compression == SAS_COMPRESSION_RLE) {
                     if (!ctx->did_submit_columns) {
-                        if ((retval = submit_columns(ctx)) != 0) {
+                        if ((retval = submit_columns(ctx)) != READSTAT_OK) {
                             goto cleanup;
                         }
                         ctx->did_submit_columns = 1;
                     }
-                    if ((retval = sas_parse_subheader_rle(page + offset, len, ctx)) != 0) {
+                    if ((retval = sas_parse_subheader_rle(page + offset, len, ctx)) != READSTAT_OK) {
                         goto cleanup;
                     }
                 } else {
@@ -951,7 +961,7 @@ static readstat_error_t sas_parse_page_pass2(const char *page, size_t page_size,
     }
     if (data) {
         if (!ctx->did_submit_columns) {
-            if ((retval = submit_columns(ctx)) != 0) {
+            if ((retval = submit_columns(ctx)) != READSTAT_OK) {
                 goto cleanup;
             }
             ctx->did_submit_columns = 1;
@@ -983,7 +993,7 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
         goto cleanup;
     }
 
-    if ((retval = sas_read_header(fd, hinfo)) != 0) {
+    if ((retval = sas_read_header(fd, hinfo, parser->error_handler)) != READSTAT_OK) {
         goto cleanup;
     }
 
@@ -993,7 +1003,12 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
     ctx->bswap = machine_is_little_endian() ^ hinfo->little_endian;
     if (!strcmp(hinfo->encoding, "UTF-8") == 0 &&
             !strcmp(hinfo->encoding, "US-ASCII") == 0) {
-        ctx->converter = iconv_open("UTF-8", hinfo->encoding);
+        iconv_t converter = iconv_open("UTF-8", hinfo->encoding);
+        if (converter == (iconv_t)-1) {
+            retval = READSTAT_ERROR_UNSUPPORTED_CHARSET;
+            goto cleanup;
+        }
+        ctx->converter = converter;
     }
 
     int i;
@@ -1026,7 +1041,7 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
             goto cleanup;
         }
 
-        if ((retval = sas_parse_page_pass1(page, hinfo->page_size, ctx)) != 0) {
+        if ((retval = sas_parse_page_pass1(page, hinfo->page_size, ctx)) != READSTAT_OK) {
             goto cleanup;
         }
     }
@@ -1037,14 +1052,14 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
             goto cleanup;
         }
 
-        if ((retval = sas_parse_page_pass2(page, hinfo->page_size, ctx)) != 0) {
+        if ((retval = sas_parse_page_pass2(page, hinfo->page_size, ctx)) != READSTAT_OK) {
             goto cleanup;
         }
     }
     free(page);
     
     if (!ctx->did_submit_columns) {
-        if ((retval = submit_columns(ctx)) != 0) {
+        if ((retval = submit_columns(ctx)) != READSTAT_OK) {
             goto cleanup;
         }
         ctx->did_submit_columns = 1;
@@ -1093,7 +1108,7 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
         goto cleanup;
     }
 
-    if ((retval = sas_read_header(fd, hinfo)) != 0) {
+    if ((retval = sas_read_header(fd, hinfo, parser->error_handler)) != READSTAT_OK) {
         goto cleanup;
     }
 
@@ -1101,7 +1116,12 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
     ctx->bswap = machine_is_little_endian() ^ hinfo->little_endian;
     if (!strcmp(hinfo->encoding, "UTF-8") == 0 &&
             !strcmp(hinfo->encoding, "US-ASCII") == 0) {
-        ctx->converter = iconv_open("UTF-8", hinfo->encoding);
+        iconv_t converter = iconv_open("UTF-8", hinfo->encoding);
+        if (converter == (iconv_t)-1) {
+            retval = READSTAT_ERROR_UNSUPPORTED_CHARSET;
+            goto cleanup;
+        }
+        ctx->converter = converter;
     }
 
     int i;
@@ -1116,7 +1136,7 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
         if (i < 3)
             continue;
 
-        if ((retval = sas_parse_catalog_page(page, hinfo->page_size, ctx)) != 0) {
+        if ((retval = sas_parse_catalog_page(page, hinfo->page_size, ctx)) != READSTAT_OK) {
             goto cleanup;
         }
     }

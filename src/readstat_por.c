@@ -307,7 +307,7 @@ static int utf8_encode(const unsigned char *input, size_t input_len,
     return offset;
 }
 
-static int read_variable_count_record(readstat_por_ctx_t *ctx) {
+static readstat_error_t read_variable_count_record(readstat_por_ctx_t *ctx) {
     double value;
     if (read_double(ctx, &value) == -1) {
         return READSTAT_ERROR_PARSE;
@@ -317,10 +317,10 @@ static int read_variable_count_record(readstat_por_ctx_t *ctx) {
     if (read_double(ctx, NULL) == -1) {
         return READSTAT_ERROR_PARSE;
     }
-    return 0;
+    return READSTAT_OK;
 }
 
-static int read_variable_record(readstat_por_ctx_t *ctx) {
+static readstat_error_t read_variable_record(readstat_por_ctx_t *ctx) {
     double value;
     int i;
     ctx->var_offset++;
@@ -361,10 +361,10 @@ static int read_variable_record(readstat_por_ctx_t *ctx) {
         format->decimal_places = (int)value;
     }
 
-    return 0;
+    return READSTAT_OK;
 }
 
-static int read_missing_value_record(readstat_por_ctx_t *ctx) {
+static readstat_error_t read_missing_value_record(readstat_por_ctx_t *ctx) {
     double value;
     char string[256];
     if (ctx->varinfo[ctx->var_offset].type == READSTAT_TYPE_DOUBLE) {
@@ -380,10 +380,10 @@ static int read_missing_value_record(readstat_por_ctx_t *ctx) {
             return READSTAT_ERROR_PARSE;
         }
     }
-    return 0;
+    return READSTAT_OK;
 }
 
-static int read_missing_value_range_record(readstat_por_ctx_t *ctx) {
+static readstat_error_t read_missing_value_range_record(readstat_por_ctx_t *ctx) {
     double value;
     char string[256];
     if (ctx->varinfo[ctx->var_offset].type == READSTAT_TYPE_DOUBLE) {
@@ -405,10 +405,10 @@ static int read_missing_value_range_record(readstat_por_ctx_t *ctx) {
             return READSTAT_ERROR_PARSE;
         }
     }
-    return 0;
+    return READSTAT_OK;
 }
 
-static int read_missing_value_lo_range_record(readstat_por_ctx_t *ctx) {
+static readstat_error_t read_missing_value_lo_range_record(readstat_por_ctx_t *ctx) {
     double value;
     char string[256];
     if (ctx->varinfo[ctx->var_offset].type == READSTAT_TYPE_DOUBLE) {
@@ -424,10 +424,10 @@ static int read_missing_value_lo_range_record(readstat_por_ctx_t *ctx) {
             return READSTAT_ERROR_PARSE;
         }
     }
-    return 0;
+    return READSTAT_OK;
 }
 
-static int read_missing_value_hi_range_record(readstat_por_ctx_t *ctx) {
+static readstat_error_t read_missing_value_hi_range_record(readstat_por_ctx_t *ctx) {
     double value;
     char string[256];
     if (ctx->varinfo[ctx->var_offset].type == READSTAT_TYPE_DOUBLE) {
@@ -442,10 +442,10 @@ static int read_missing_value_hi_range_record(readstat_por_ctx_t *ctx) {
             return READSTAT_ERROR_PARSE;
         }
     }
-    return 0;
+    return READSTAT_OK;
 }
 
-static int read_document_record(readstat_por_ctx_t *ctx) {
+static readstat_error_t read_document_record(readstat_por_ctx_t *ctx) {
     double value;
     char string[256];
     int i;
@@ -459,10 +459,10 @@ static int read_document_record(readstat_por_ctx_t *ctx) {
             return READSTAT_ERROR_PARSE;
         }
     }
-    return 0;
+    return READSTAT_OK;
 }
 
-static int read_value_label_record(readstat_por_ctx_t *ctx, void *user_ctx) {
+static readstat_error_t read_value_label_record(readstat_por_ctx_t *ctx, void *user_ctx) {
     double value;
     int i;
     char string[256];
@@ -509,7 +509,7 @@ static int read_value_label_record(readstat_por_ctx_t *ctx, void *user_ctx) {
         }
     }
     ctx->labels_offset++;
-    return 0;
+    return READSTAT_OK;
 }
 
 static double handle_missing_double(double input, por_varinfo_t *info) {
@@ -531,7 +531,7 @@ static double handle_missing_double(double input, por_varinfo_t *info) {
     return input;
 }
 
-static int read_por_file_data(readstat_por_ctx_t *ctx, void *user_ctx) {
+static readstat_error_t read_por_file_data(readstat_por_ctx_t *ctx, void *user_ctx) {
     int i;
     double value;
     char string[256];
@@ -557,7 +557,7 @@ static int read_por_file_data(readstat_por_ctx_t *ctx, void *user_ctx) {
             } else if (info->type == READSTAT_TYPE_DOUBLE) {
                 retval = read_double(ctx, &value);
                 if (i == 0 && retval == 1) {
-                    return 0;
+                    return READSTAT_OK;
                 } else if (retval != 0) {
                     if (ctx->error_handler) {
                         snprintf(error_buf, sizeof(error_buf), "Error in %s\n", info->name);
@@ -571,7 +571,7 @@ static int read_por_file_data(readstat_por_ctx_t *ctx, void *user_ctx) {
         }
         ctx->obs_count++;
     }
-    return 0;
+    return READSTAT_OK;
 }
 
 readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filename, void *user_ctx) {
@@ -659,7 +659,7 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
                 break;
             case '4': /* variable count */
                 retval = read_variable_count_record(ctx);
-                if (retval != 0)
+                if (retval != READSTAT_OK)
                     goto cleanup;
                 break;
             case '6': /* case weight */
@@ -670,27 +670,27 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
                 break;
             case '7': /* variable */
                 retval = read_variable_record(ctx);
-                if (retval != 0)
+                if (retval != READSTAT_OK)
                     goto cleanup;
                 break;
             case '8': /* missing value */
                 retval = read_missing_value_record(ctx);
-                if (retval != 0)
+                if (retval != READSTAT_OK)
                     goto cleanup;
                 break;
             case 'B': /* missing value range */
                 retval = read_missing_value_range_record(ctx);
-                if (retval != 0)
+                if (retval != READSTAT_OK)
                     goto cleanup;
                 break;
             case '9': /* LO THRU x */
                 retval = read_missing_value_lo_range_record(ctx);
-                if (retval != 0)
+                if (retval != READSTAT_OK)
                     goto cleanup;
                 break;
             case 'A': /* x THRU HI */
                 retval = read_missing_value_hi_range_record(ctx);
-                if (retval != 0)
+                if (retval != READSTAT_OK)
                     goto cleanup;
                 break;
             case 'C': /* variable label */
@@ -701,12 +701,12 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
                 break;
             case 'D': /* value label */
                 retval = read_value_label_record(ctx, user_ctx);
-                if (retval != 0)
+                if (retval != READSTAT_OK)
                     goto cleanup;
                 break;
             case 'E': /* document record */
                 retval = read_document_record(ctx);
-                if (retval != 0)
+                if (retval != READSTAT_OK)
                     goto cleanup;
                 break;
             case 'F': /* file data */
@@ -736,7 +736,7 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
                     }
                 }
                 retval = read_por_file_data(ctx, user_ctx);
-                if (retval != 0)
+                if (retval != READSTAT_OK)
                     goto cleanup;
                 
                 if (parser->info_handler) {

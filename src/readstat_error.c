@@ -32,5 +32,14 @@ const char *readstat_error_message(readstat_error_t error_code) {
     if (error_code == READSTAT_ERROR_ROW_WIDTH_MISMATCH)
         return "A row in the file was not the expected length";
 
+    if (error_code == READSTAT_ERROR_BAD_FORMAT_STRING)
+        return "A provided format string could not be understood";
+
+    if (error_code == READSTAT_ERROR_VALUE_TYPE_MISMATCH)
+        return "A provided value was incompatible with the variable's declared type";
+
+    if (error_code == READSTAT_ERROR_WRITE)
+        return "Unable to write data";
+
     return "Unknown error";
 }

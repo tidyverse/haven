@@ -104,11 +104,12 @@ typedef struct sav_ctx_s {
     int            machine_needs_byte_swap:1;
 } sav_ctx_t;
 
-#define SAV_RECORD_TYPE_VARIABLE         2
-#define SAV_RECORD_TYPE_VALUE_LABEL      3
-#define SAV_RECORD_TYPE_DOCUMENT         6
-#define SAV_RECORD_TYPE_HAS_DATA         7
-#define SAV_RECORD_TYPE_DICT_TERMINATION 999
+#define SAV_RECORD_TYPE_VARIABLE                2
+#define SAV_RECORD_TYPE_VALUE_LABEL             3
+#define SAV_RECORD_TYPE_VALUE_LABEL_VARIABLES   4
+#define SAV_RECORD_TYPE_DOCUMENT                6
+#define SAV_RECORD_TYPE_HAS_DATA                7
+#define SAV_RECORD_TYPE_DICT_TERMINATION        999
 
 #define SAV_RECORD_SUBTYPE_INTEGER_INFO  3
 #define SAV_RECORD_SUBTYPE_FP_INFO       4
@@ -126,3 +127,13 @@ typedef struct sav_ctx_s {
 #define SAV_HIGHEST_DOUBLE   0x7FEFFFFFFFFFFFFFUL
 #define SAV_MISSING_DOUBLE   0xFFEFFFFFFFFFFFFFUL
 #define SAV_LOWEST_DOUBLE    0xFFEFFFFFFFFFFFFEUL
+
+#define SAV_CHARSET_EBCDIC                1
+#define SAV_CHARSET_7_BIT_ASCII           2
+#define SAV_CHARSET_8_BIT_ASCII           3
+#define SAV_CHARSET_DEC_KANJI             4
+#define SAV_CHARSET_UTF8              65001
+
+sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header);
+void sav_ctx_free(sav_ctx_t *ctx);
+
