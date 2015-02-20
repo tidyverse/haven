@@ -47,3 +47,22 @@ test_that("labels are preserved", {
   expect_equal(attr(roundtrip_var(x), "label"), "abc")
 })
 
+test_that("labelleds are round tripped", {
+  int <- labelled(c(1L, 2L), c(a = 1L, b = 3L))
+  num <- labelled(c(1, 2), c(a = 1, b = 3))
+  chr <- labelled(c("a", "b"), c(a = "b", b = "a"))
+
+  expect_equal(roundtrip_var(int), int)
+  expect_equal(roundtrip_var(num), num)
+  expect_equal(roundtrip_var(chr), chr)
+})
+
+
+test_that("factors become labelleds", {
+  f <- factor(c("a", "b"), levels = letters[1:3])
+  rt <- roundtrip_var(f)
+
+  expect_is(rt, "labelled")
+  expect_equal(as.vector(rt), 1:2)
+  expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
+})
