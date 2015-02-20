@@ -50,3 +50,14 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// write_sav
+void write_sav(List data, std::string path);
+RcppExport SEXP haven_write_sav(SEXP dataSEXP, SEXP pathSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
+    write_sav(data, path);
+    return R_NilValue;
+END_RCPP
+}

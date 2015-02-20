@@ -17,3 +17,7 @@ df_parse_sav <- function(filename) {
     .Call('haven_df_parse_sav', PACKAGE = 'haven', filename)
 }
 
+write_sav <- function(data, path) {
+    invisible(.Call('haven_write_sav', PACKAGE = 'haven', data, path))
+}
+
