@@ -57,7 +57,6 @@ test_that("labelleds are round tripped", {
   expect_equal(roundtrip_var(chr), chr)
 })
 
-
 test_that("factors become labelleds", {
   f <- factor(c("a", "b"), levels = letters[1:3])
   rt <- roundtrip_var(f)

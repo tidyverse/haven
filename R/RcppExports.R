@@ -17,7 +17,15 @@ df_parse_sav <- function(filename) {
     .Call('haven_df_parse_sav', PACKAGE = 'haven', filename)
 }
 
+#' @export
+#' @rdname read_spss
 write_sav <- function(data, path) {
     invisible(.Call('haven_write_sav', PACKAGE = 'haven', data, path))
+}
+
+#' @export
+#' @rdname read_dta
+write_dta <- function(data, path) {
+    invisible(.Call('haven_write_dta', PACKAGE = 'haven', data, path))
 }
 

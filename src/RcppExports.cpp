@@ -61,3 +61,14 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// write_dta
+void write_dta(List data, std::string path);
+RcppExport SEXP haven_write_dta(SEXP dataSEXP, SEXP pathSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
+    write_dta(data, path);
+    return R_NilValue;
+END_RCPP
+}

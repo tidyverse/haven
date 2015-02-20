@@ -15,6 +15,9 @@ Haven allows you to load foreign data formats (SAS, Spss and Stata) in to R by w
 
 * Works with Stata 13 files (foreign only works up to Stata 12).
 
+* Can also write SPSS and Stata files (This is hard to test so if you
+  run into any problems, please let me know).
+
 * Can only read the data from the most common statistical packages (SAS, 
   Stata and SPSS).
 

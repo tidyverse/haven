@@ -11,6 +11,9 @@ NULL
 #'   file will be first download to a temporary location before reading.
 #' @return A data frame with additional "tbl_df" and "tbl" classes, which
 #'   improve printing if dplyr is loaded.
+#'
+#'   Variable labels are stored in the "label" attribute of each variable.
+#'   It is not printed on the console, but the RStudio viewer will show it.
 #' @export
 #' @examples
 #' read_sas("http://crn.cancer.gov/resources/ctcodes-procedures.sas7bdat")
@@ -18,15 +21,25 @@ read_sas <- function(b7dat, b7cat = NULL) {
   df_parse_sas(clean_path(b7dat), clean_path(b7cat))
 }
 
-#' Read SPSS (POR and SAV) files.
+#' Read SPSS (POR and SAV) files. Write SAV files.
 #'
-#' Variable labels are stored in the "label" attribute in each column.
+#' Currently haven can read and write logical, integer, numeric, character
+#' and factors. See \code{\link{labelled}} for how labelled variables in
+#' Stata are handled in R.
 #'
-#' @param path Path to data If the path is a URL, the file will be first
-#'   downloaded to a temporary location before reading.
+#' @param path Path to data. When reading data, if the path is a URL, the file
+#'   will be first downloaded to a temporary location before reading.
+#' @param data Data frame to write.
 #' @return A data frame with additional "tbl_df" and "tbl" classes, which
 #'   improve printing if dplyr is loaded.
+#'
+#'   Variable labels are stored in the "label" attribute of each variable.
+#'   It is not printed on the console, but the RStudio viewer will show it.
 #' @name read_spss
+#' @examples
+#' tmp <- tempfile(fileext = ".sav")
+#' write_sav(mtcars, tmp)
+#' read_sav(tmp)
 NULL
 
 #' @export
@@ -41,12 +54,23 @@ read_sav <- function(path) {
   df_parse_sav(clean_path(path))
 }
 
-#' Read Stata DTA files.
+#' Read and write Stata DTA files.
+#'
+#' Currently haven can read and write logical, integer, numeric, character
+#' and factors. See \code{\link{labelled}} for how labelled variables in
+#' Stata are handled in R.
 #'
 #' @inheritParams read_spss
 #' @return A data frame with additional "tbl_df" and "tbl" classes, which
 #'   improve printing if dplyr is loaded.
+#'
+#'   Variable labels are stored in the "label" attribute of each variable.
+#'   It is not printed on the console, but the RStudio viewer will show it.
 #' @export
+#' @examples
+#' tmp <- tempfile(fileext = ".sav")
+#' write_dta(mtcars, tmp)
+#' read_dta(tmp)
 read_dta <- function(path) {
   df_parse_dta(clean_path(path))
 }

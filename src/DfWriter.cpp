@@ -5,13 +5,19 @@ using namespace Rcpp;
 ssize_t data_writer(const void *data, size_t len, void *ctx);
 std::string rClass(RObject x);
 
+enum FileType {
+  HAVEN_SAV,
+  HAVEN_DTA
+};
+
 class Writer {
   List x_;
   readstat_writer_t* writer_;
+  FileType type_;
   FILE* pOut_;
 
 public:
-  Writer(List x, std::string path_): x_(x) {
+  Writer(List x, std::string path_, FileType type): x_(x), type_(type) {
     pOut_ = fopen(path_.c_str(), "wb");
     writer_ = readstat_writer_init();
     checkStatus(readstat_set_data_writer(writer_, data_writer));
@@ -55,7 +61,14 @@ public:
     }
 
     int n = Rf_length(x_[0]);
-    readstat_begin_writing_sav(writer_, this, "", n);
+    switch (type_) {
+    case HAVEN_DTA:
+      readstat_begin_writing_dta(writer_, this, "", n);
+      break;
+    case HAVEN_SAV:
+      readstat_begin_writing_sav(writer_, this, "", n);
+      break;
+    }
 
     // Write data
     for (int i = 0; i < n; ++i) {
@@ -211,9 +224,16 @@ std::string rClass(RObject x) {
   return std::string(klassv[0]);
 }
 
-
+//' @export
+//' @rdname read_spss
 // [[Rcpp::export]]
 void write_sav(List data, std::string path) {
-  Writer(data, path).write_sav();
+  Writer(data, path, HAVEN_SAV).write_sav();
 }
 
+//' @export
+//' @rdname read_dta
+// [[Rcpp::export]]
+void write_dta(List data, std::string path) {
+  Writer(data, path, HAVEN_DTA).write_sav();
+}

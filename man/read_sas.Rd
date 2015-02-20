@@ -13,6 +13,9 @@ file will be first download to a temporary location before reading.}
 \value{
 A data frame with additional "tbl_df" and "tbl" classes, which
   improve printing if dplyr is loaded.
+
+  Variable labels are stored in the "label" attribute of each variable.
+  It is not printed on the console, but the RStudio viewer will show it.
 }
 \description{
 This supports both b7dat files and the accompanying b7cat files
