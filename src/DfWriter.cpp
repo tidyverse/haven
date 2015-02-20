@@ -133,31 +133,8 @@ void write_sav(List data, std::string path) {
   Writer(data, path).write_sav();
 }
 
-
 // // Next define your value labels, if any. Create as many named sets as you'd like.
 // readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat_types_t type, const char *name);
 // void readstat_label_double_value(readstat_label_set_t *label_set, double value, const char *label);
 // void readstat_label_int32_value(readstat_label_set_t *label_set, int32_t value, const char *label);
 // void readstat_label_string_value(readstat_label_set_t *label_set, const char *value, const char *label);
-//
-// // Call one of these at any time before the first invocation of readstat_begin_row
-// readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *user_ctx,
-//   const char *file_label, long row_count);
-//
-// readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *user_ctx,
-//   const char *file_label, long row_count);
-//
-// // Start a row of data (that is, a case or observation)
-// readstat_error_t readstat_begin_row(readstat_writer_t *writer);
-//
-// // Then call one of these for each variable
-// readstat_error_t readstat_insert_char_value(readstat_writer_t *writer, readstat_variable_t *variable, char value);
-// readstat_error_t readstat_insert_int16_value(readstat_writer_t *writer, readstat_variable_t *variable, int16_t value);
-// readstat_error_t readstat_insert_int32_value(readstat_writer_t *writer, readstat_variable_t *variable, int32_t value);
-// readstat_error_t readstat_insert_float_value(readstat_writer_t *writer, readstat_variable_t *variable, float value);
-// readstat_error_t readstat_insert_double_value(readstat_writer_t *writer, readstat_variable_t *variable, double value);
-// readstat_error_t readstat_insert_string_value(readstat_writer_t *writer, readstat_variable_t *variable, const char *value);
-// readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, readstat_variable_t *variable);
-//
-// // Finally, close out the row
-// readstat_error_t readstat_end_row(readstat_writer_t *writer);
