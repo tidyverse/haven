@@ -24,3 +24,10 @@ test_that("can roundtrip basic types", {
   expect_equal(roundtrip_var(letters), letters)
 })
 
+test_that("can roundtrip missing values (as much as possible)", {
+  expect_equal(roundtrip_var(NA), NA_integer_)
+  expect_equal(roundtrip_var(NA_real_), NA_real_)
+  expect_equal(roundtrip_var(NA_integer_), NA_integer_)
+  expect_equal(roundtrip_var(NA_character_), "")
+})
+

@@ -66,17 +66,42 @@ public:
         readstat_variable_t* var = readstat_get_variable(writer_, j);
 
         switch (TYPEOF(col)) {
-        case LGLSXP:
-          readstat_insert_int32_value(writer_, var, LOGICAL(col)[i]);
+        case LGLSXP: {
+          int val = LOGICAL(col)[i];
+          if (val == NA_LOGICAL) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_int32_value(writer_, var, val);
+          }
           break;
-        case INTSXP:
-          readstat_insert_int32_value(writer_, var, INTEGER(col)[i]);
+        }
+        case INTSXP: {
+          int val = INTEGER(col)[i];
+          if (val == NA_INTEGER) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_int32_value(writer_, var, val);
+          }
           break;
-        case REALSXP:
-          readstat_insert_double_value(writer_, var, REAL(col)[i]);
+        }
+        case REALSXP: {
+          double val = REAL(col)[i];
+          if (val == NA_REAL) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_double_value(writer_, var, val);
+          }
           break;
-        case STRSXP:
-          readstat_insert_string_value(writer_, var, CHAR(STRING_ELT(col, i)));
+        }
+        case STRSXP: {
+          SEXP val = STRING_ELT(col, i);
+          if (val == NA_STRING) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_string_value(writer_, var, CHAR(val));
+          }
+          break;
+        }
           break;
         default:
           break;
