@@ -121,10 +121,8 @@ public:
       labels = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name.c_str());
 
       CharacterVector levels = as<CharacterVector>(x.attr("levels"));
-      for (int i = 0; i < levels.size(); ++i) {
-        Rcout << i << ": " << levels[i] << "\n";
-        readstat_label_int32_value(labels, i, std::string(levels[i]).c_str());
-      }
+      for (int i = 0; i < levels.size(); ++i)
+        readstat_label_int32_value(labels, i + 1, std::string(levels[i]).c_str());
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name.c_str(),

@@ -31,3 +31,12 @@ test_that("can roundtrip missing values (as much as possible)", {
   expect_equal(roundtrip_var(NA_character_), "")
 })
 
+test_that("factors become labelleds", {
+  f <- factor(c("a", "b"), levels = letters[1:3])
+  rt <- roundtrip_var(f)
+
+  expect_is(rt, "labelled")
+  expect_equal(as.vector(rt), 1:2)
+  expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
+})
+
