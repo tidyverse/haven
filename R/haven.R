@@ -41,7 +41,6 @@ read_sav <- function(path) {
   df_parse_sav(clean_path(path))
 }
 
-
 #' Read Stata DTA files.
 #'
 #' @inheritParams read_spss

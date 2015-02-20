@@ -56,15 +56,12 @@ public:
     }
 
     int n = Rf_length(x_[0]);
-    readstat_begin_writing_sav(writer_, this, "This is a label", n);
+    readstat_begin_writing_sav(writer_, this, "", n);
 
-    Rcout << "Writing data\n";
     // Write data
     for (int i = 0; i < n; ++i) {
-      Rcout << "row " << i << "\n";
       readstat_begin_row(writer_);
       for (int j = 0; j < p; ++j) {
-        Rcout << "col " << j << "\n";
         RObject col = x_[j];
         readstat_variable_t* var = readstat_get_variable(writer_, j);
 
@@ -76,10 +73,10 @@ public:
           readstat_insert_int32_value(writer_, var, INTEGER(col)[i]);
           break;
         case REALSXP:
-          readstat_insert_int32_value(writer_, var, REAL(col)[i]);
+          readstat_insert_double_value(writer_, var, REAL(col)[i]);
           break;
         case STRSXP:
-          readstat_insert_int32_value(writer_, var, LOGICAL(col)[i]);
+          readstat_insert_string_value(writer_, var, CHAR(STRING_ELT(col, i)));
           break;
         default:
           break;
@@ -107,11 +104,10 @@ public:
   void defineVariable(CharacterVector x, std::string name) {
     int max_length = 0;
     for (int i = 0; i < x.size(); ++i) {
-      int length = LENGTH(x[i]);
+      int length = std::string(x[i]).size();
       if (length > max_length)
-        length = max_length;
+        max_length = length;
     }
-    Rcout << "Max length: " << max_length;
 
     readstat_add_variable(writer_, READSTAT_TYPE_STRING, max_length,
       name.c_str(), NULL, NULL, NULL);
