@@ -71,7 +71,7 @@ readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat
         writer->label_sets = realloc(writer->label_sets, 
                 writer->label_sets_capacity * sizeof(readstat_label_set_t *));
     }
-    readstat_label_set_t *new_label_set = malloc(sizeof(readstat_label_set_t));
+    readstat_label_set_t *new_label_set = calloc(1, sizeof(readstat_label_set_t));
     
     writer->label_sets[writer->label_sets_count++] = new_label_set;
 
@@ -148,11 +148,9 @@ readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, readstat_t
         writer->variables = realloc(writer->variables,
                 writer->variables_capacity * sizeof(readstat_variable_t *));
     }
-    readstat_variable_t *new_variable = malloc(sizeof(readstat_variable_t));
+    readstat_variable_t *new_variable = calloc(1, sizeof(readstat_variable_t));
     
     writer->variables[writer->variables_count++] = new_variable;
-
-    memset(new_variable, 0, sizeof(readstat_variable_t));
 
     new_variable->user_width = width;
     new_variable->type = type;
@@ -209,31 +207,31 @@ readstat_error_t readstat_begin_row(readstat_writer_t *writer) {
 }
 
 // Then call one of these for each variable
-readstat_error_t readstat_insert_char_value(readstat_writer_t *writer, readstat_variable_t *variable, char value) {
+readstat_error_t readstat_insert_char_value(readstat_writer_t *writer, const readstat_variable_t *variable, char value) {
     return writer->callbacks.write_char(&writer->row[variable->offset], variable, value);
 }
 
-readstat_error_t readstat_insert_int16_value(readstat_writer_t *writer, readstat_variable_t *variable, int16_t value) {
+readstat_error_t readstat_insert_int16_value(readstat_writer_t *writer, const readstat_variable_t *variable, int16_t value) {
     return writer->callbacks.write_int16(&writer->row[variable->offset], variable, value);
 }
 
-readstat_error_t readstat_insert_int32_value(readstat_writer_t *writer, readstat_variable_t *variable, int32_t value) {
+readstat_error_t readstat_insert_int32_value(readstat_writer_t *writer, const readstat_variable_t *variable, int32_t value) {
     return writer->callbacks.write_int32(&writer->row[variable->offset], variable, value);
 }
 
-readstat_error_t readstat_insert_float_value(readstat_writer_t *writer, readstat_variable_t *variable, float value) {
+readstat_error_t readstat_insert_float_value(readstat_writer_t *writer, const readstat_variable_t *variable, float value) {
     return writer->callbacks.write_float(&writer->row[variable->offset], variable, value);
 }
 
-readstat_error_t readstat_insert_double_value(readstat_writer_t *writer, readstat_variable_t *variable, double value) {
+readstat_error_t readstat_insert_double_value(readstat_writer_t *writer, const readstat_variable_t *variable, double value) {
     return writer->callbacks.write_double(&writer->row[variable->offset], variable, value);
 }
 
-readstat_error_t readstat_insert_string_value(readstat_writer_t *writer, readstat_variable_t *variable, const char *value) {
+readstat_error_t readstat_insert_string_value(readstat_writer_t *writer, const readstat_variable_t *variable, const char *value) {
     return writer->callbacks.write_string(&writer->row[variable->offset], variable, value);
 }
 
-readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, readstat_variable_t *variable) {
+readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable) {
     return writer->callbacks.write_missing(&writer->row[variable->offset], variable);
 }
 

@@ -308,7 +308,7 @@ cleanup:
     return error;
 }
 
-static readstat_error_t dta_write_char(void *row, readstat_variable_t *var, char value) {
+static readstat_error_t dta_write_char(void *row, const readstat_variable_t *var, char value) {
     if (var->type != READSTAT_TYPE_CHAR) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -316,7 +316,7 @@ static readstat_error_t dta_write_char(void *row, readstat_variable_t *var, char
     return READSTAT_OK;
 }
 
-static readstat_error_t dta_write_int16(void *row, readstat_variable_t *var, int16_t value) {
+static readstat_error_t dta_write_int16(void *row, const readstat_variable_t *var, int16_t value) {
     if (var->type != READSTAT_TYPE_INT16) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -324,7 +324,7 @@ static readstat_error_t dta_write_int16(void *row, readstat_variable_t *var, int
     return READSTAT_OK;
 }
 
-static readstat_error_t dta_write_int32(void *row, readstat_variable_t *var, int32_t value) {
+static readstat_error_t dta_write_int32(void *row, const readstat_variable_t *var, int32_t value) {
     if (var->type != READSTAT_TYPE_INT32) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -332,7 +332,7 @@ static readstat_error_t dta_write_int32(void *row, readstat_variable_t *var, int
     return READSTAT_OK;
 }
 
-static readstat_error_t dta_write_float(void *row, readstat_variable_t *var, float value) {
+static readstat_error_t dta_write_float(void *row, const readstat_variable_t *var, float value) {
     if (var->type != READSTAT_TYPE_FLOAT) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -340,7 +340,7 @@ static readstat_error_t dta_write_float(void *row, readstat_variable_t *var, flo
     return READSTAT_OK;
 }
 
-static readstat_error_t dta_write_double(void *row, readstat_variable_t *var, double value) {
+static readstat_error_t dta_write_double(void *row, const readstat_variable_t *var, double value) {
     if (var->type != READSTAT_TYPE_DOUBLE) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -348,7 +348,7 @@ static readstat_error_t dta_write_double(void *row, readstat_variable_t *var, do
     return READSTAT_OK;
 }
 
-static readstat_error_t dta_write_string(void *row, readstat_variable_t *var, const char *value) {
+static readstat_error_t dta_write_string(void *row, const readstat_variable_t *var, const char *value) {
     if (var->type != READSTAT_TYPE_STRING) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -363,7 +363,7 @@ static readstat_error_t dta_write_string(void *row, readstat_variable_t *var, co
     return READSTAT_OK;
 }
 
-static readstat_error_t dta_write_missing(void *row, readstat_variable_t *var) {
+static readstat_error_t dta_write_missing(void *row, const readstat_variable_t *var) {
     readstat_error_t retval = READSTAT_OK;
     if (var->type == READSTAT_TYPE_CHAR) {
         retval = dta_write_char(row, var, DTA_MISSING_CHAR);

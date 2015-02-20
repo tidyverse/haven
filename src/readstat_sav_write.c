@@ -368,7 +368,7 @@ static readstat_error_t sav_emit_termination_record(readstat_writer_t *writer) {
     return readstat_write_bytes(writer, &termination_record, sizeof(termination_record));
 }
 
-static readstat_error_t sav_write_char(void *row, readstat_variable_t *var, char value) {
+static readstat_error_t sav_write_char(void *row, const readstat_variable_t *var, char value) {
     if (var->type != READSTAT_TYPE_CHAR) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -377,7 +377,7 @@ static readstat_error_t sav_write_char(void *row, readstat_variable_t *var, char
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_write_int16(void *row, readstat_variable_t *var, int16_t value) {
+static readstat_error_t sav_write_int16(void *row, const readstat_variable_t *var, int16_t value) {
     if (var->type != READSTAT_TYPE_INT16) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -386,7 +386,7 @@ static readstat_error_t sav_write_int16(void *row, readstat_variable_t *var, int
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_write_int32(void *row, readstat_variable_t *var, int32_t value) {
+static readstat_error_t sav_write_int32(void *row, const readstat_variable_t *var, int32_t value) {
     if (var->type != READSTAT_TYPE_INT32) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -395,7 +395,7 @@ static readstat_error_t sav_write_int32(void *row, readstat_variable_t *var, int
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_write_float(void *row, readstat_variable_t *var, float value) {
+static readstat_error_t sav_write_float(void *row, const readstat_variable_t *var, float value) {
     if (var->type != READSTAT_TYPE_FLOAT) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -404,7 +404,7 @@ static readstat_error_t sav_write_float(void *row, readstat_variable_t *var, flo
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_write_double(void *row, readstat_variable_t *var, double value) {
+static readstat_error_t sav_write_double(void *row, const readstat_variable_t *var, double value) {
     if (var->type != READSTAT_TYPE_DOUBLE) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -413,7 +413,7 @@ static readstat_error_t sav_write_double(void *row, readstat_variable_t *var, do
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_write_string(void *row, readstat_variable_t *var, const char *value) {
+static readstat_error_t sav_write_string(void *row, const readstat_variable_t *var, const char *value) {
     if (var->type != READSTAT_TYPE_STRING) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
@@ -424,7 +424,7 @@ static readstat_error_t sav_write_string(void *row, readstat_variable_t *var, co
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_write_missing(void *row, readstat_variable_t *var) {
+static readstat_error_t sav_write_missing(void *row, const readstat_variable_t *var) {
     if (var->type == READSTAT_TYPE_STRING) {
         memset(row, ' ', var->width);
     } else {
