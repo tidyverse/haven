@@ -3,6 +3,7 @@ using namespace Rcpp;
 #include "readstat.h"
 
 ssize_t data_writer(const void *data, size_t len, void *ctx);
+std::string rClass(RObject x);
 
 class Writer {
   List x_;
@@ -24,8 +25,6 @@ public:
   }
 
   void write_sav() {
-    // No value sets for now
-
     CharacterVector names = as<CharacterVector>(x_.attr("names"));
 
     int p = x_.size();
@@ -117,8 +116,19 @@ public:
   // Define variables ----------------------------------------------------------
 
   void defineVariable(IntegerVector x, std::string name) {
+    readstat_label_set_t* labels = NULL;
+    if (rClass(x) == "factor") {
+      labels = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name.c_str());
+
+      CharacterVector levels = as<CharacterVector>(x.attr("levels"));
+      for (int i = 0; i < levels.size(); ++i) {
+        Rcout << i << ": " << levels[i] << "\n";
+        readstat_label_int32_value(labels, i, std::string(levels[i]).c_str());
+      }
+    }
+
     readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name.c_str(),
-      NULL, NULL, NULL);
+      NULL, NULL, labels);
   }
 
   void defineVariable(NumericVector x, std::string name) {
@@ -153,13 +163,19 @@ ssize_t data_writer(const void *data, size_t len, void *ctx) {
   return ((Writer*) ctx)->write(data, len);
 }
 
+std::string rClass(RObject x) {
+  RObject klass_ = x.attr("class");
+  std::string klass;
+  if (klass_ == R_NilValue)
+    return "";
+
+  CharacterVector klassv = as<Rcpp::CharacterVector>(klass_);
+  return std::string(klassv[0]);
+}
+
+
 // [[Rcpp::export]]
 void write_sav(List data, std::string path) {
   Writer(data, path).write_sav();
 }
 
-// // Next define your value labels, if any. Create as many named sets as you'd like.
-// readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat_types_t type, const char *name);
-// void readstat_label_double_value(readstat_label_set_t *label_set, double value, const char *label);
-// void readstat_label_int32_value(readstat_label_set_t *label_set, int32_t value, const char *label);
-// void readstat_label_string_value(readstat_label_set_t *label_set, const char *value, const char *label);
