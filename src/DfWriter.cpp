@@ -115,6 +115,15 @@ public:
 
   // Define variables ----------------------------------------------------------
 
+  const char* var_label(RObject x) {
+    RObject label = x.attr("label");
+
+    if (label == R_NilValue)
+      return NULL;
+
+    return CHAR(STRING_ELT(label, 0));
+  }
+
   void defineVariable(IntegerVector x, std::string name) {
     readstat_label_set_t* labels = NULL;
     if (rClass(x) == "factor") {
@@ -125,13 +134,14 @@ public:
         readstat_label_int32_value(labels, i + 1, std::string(levels[i]).c_str());
     }
 
+
     readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name.c_str(),
-      NULL, NULL, labels);
+      var_label(x), NULL, labels);
   }
 
   void defineVariable(NumericVector x, std::string name) {
     readstat_add_variable(writer_, READSTAT_TYPE_DOUBLE, 0, name.c_str(),
-      NULL, NULL, NULL);
+      var_label(x), NULL, NULL);
   }
 
   void defineVariable(CharacterVector x, std::string name) {
@@ -143,7 +153,7 @@ public:
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_STRING, max_length,
-      name.c_str(), NULL, NULL, NULL);
+      name.c_str(), var_label(x), NULL, NULL);
   }
 
   void checkStatus(readstat_error_t err) {

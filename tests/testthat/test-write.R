@@ -40,3 +40,10 @@ test_that("factors become labelleds", {
   expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
 })
 
+test_that("labels are preserved", {
+  x <- 1:10
+  attr(x, "label") <- "abc"
+
+  expect_equal(attr(roundtrip_var(x), "label"), "abc")
+})
+
