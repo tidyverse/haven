@@ -4,7 +4,7 @@
 
 Haven allows you to load foreign data formats (SAS, Spss and Stata) in to R by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). Haven offers similar functionality to the base foreign package but:
 
-* Can read SAS's binary format (SAS7BDAT). There one other package on CRAN that 
+* Can read SAS's binary format (SAS7BDAT). There is one other package on CRAN that 
   does that, [sas7bdat](http://cran.r-project.org/web/packages/sas7bdat), but 
   it's implemented in R (not C) so is rather slow compared to haven. Haven
   should also support a wider range of SAS files, and works with SAS7BCAT files.
