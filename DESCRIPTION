@@ -4,7 +4,7 @@ Version: 0.1.0
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
     person("Evan", "Miller", , role = c("aut", "cph"),
-      comment = "Author of ReadStat"),
+      comment = "Author of included ReadStat code"),
     person("RStudio", role = "cph")
   )
 Description: Import foreign statistical formats into R via the ReadStat C
