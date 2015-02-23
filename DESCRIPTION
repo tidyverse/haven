@@ -1,6 +1,6 @@
 Package: haven
 Title: Import SPSS, Stata and SAS files into R.
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
     person("Evan", "Miller", , role = c("aut", "cph"),
