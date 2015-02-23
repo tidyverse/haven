@@ -126,7 +126,7 @@ public:
     if (type == READSTAT_TYPE_LONG_STRING || type == READSTAT_TYPE_STRING) {
       // Missing strings and "" are identical in other systems
       CharacterVector col = output_[var_index];
-      col[obs_index] = readstat_string_value(value);
+      col[obs_index] = Rf_mkCharCE(readstat_string_value(value), CE_UTF8);
     } else if (type == READSTAT_TYPE_CHAR) {
       CharacterVector col = output_[var_index];
       col[obs_index] = readstat_char_value(value);
