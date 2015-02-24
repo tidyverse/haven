@@ -18,3 +18,10 @@ test_that("missing values encoded as NA", {
 
   expect_equal(num[[2]], NA_real_)
 })
+
+test_that("non-ASCII labels converted to utf-8", {
+  x <- read_sav("umlauts.sav")[[1]]
+
+  expect_equal(attr(x, "label"), "This is an \u00e4-umlaut")
+  expect_equal(names(attr(x, "labels"))[1], "the \u00e4 umlaut")
+})

@@ -37,7 +37,7 @@ public:
 
       for (int i = 0; i < n; ++i) {
         values[i] = values_d_[i];
-        labels[i] = labels_[i];
+        labels[i] = Rf_mkCharCE(labels_[i].c_str(), CE_UTF8);
       }
 
       values.attr("names") = labels;
@@ -47,8 +47,8 @@ public:
       CharacterVector values(n), labels(n);
 
       for (int i = 0; i < n; ++i) {
-        values[i] = values_s_[i];
-        labels[i] = labels_[i];
+        values[i] = Rf_mkCharCE(values_s_[i].c_str(), CE_UTF8);
+        labels[i] = Rf_mkCharCE(labels_[i].c_str(), CE_UTF8);
       }
 
       values.attr("names") = labels;
@@ -107,7 +107,7 @@ public:
 
     if (var_label != NULL && strcmp(var_label, "") != 0) {
       RObject col = output_[index];
-      col.attr("label") = var_label;
+      col.attr("label") = CharacterVector::create(Rf_mkCharCE(var_label, CE_UTF8));
     }
 
     if (val_labels != NULL)
@@ -171,6 +171,7 @@ public:
 
     switch(type) {
     case READSTAT_TYPE_STRING:
+      // Encoded to utf-8 on output
       label_set.add(readstat_string_value(value), label_s);
       break;
     case READSTAT_TYPE_CHAR:
