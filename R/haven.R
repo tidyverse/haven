@@ -25,7 +25,7 @@ read_sas <- function(b7dat, b7cat = NULL) {
 #'
 #' Currently haven can read and write logical, integer, numeric, character
 #' and factors. See \code{\link{labelled}} for how labelled variables in
-#' Stata are handled in R.
+#' Stata are handled in R. \code{read_spss} is an alias for \code{read_sav}.
 #'
 #' @param path Path to data. When reading data, if the path is a URL, the file
 #'   will be first downloaded to a temporary location before reading.
@@ -53,6 +53,11 @@ read_por <- function(path) {
 read_sav <- function(path) {
   df_parse_sav(clean_path(path))
 }
+
+#' @export
+#' @rdname read_spss
+read_spss <- read_sav
+
 
 #' Read and write Stata DTA files.
 #'

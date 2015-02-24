@@ -12,6 +12,8 @@ write_sav(data, path)
 read_por(path)
 
 read_sav(path)
+
+read_spss(path)
 }
 \arguments{
 \item{data}{Data frame to write.}
@@ -29,7 +31,7 @@ A data frame with additional "tbl_df" and "tbl" classes, which
 \description{
 Currently haven can read and write logical, integer, numeric, character
 and factors. See \code{\link{labelled}} for how labelled variables in
-Stata are handled in R.
+Stata are handled in R. \code{read_spss} is an alias for \code{read_sav}.
 }
 \examples{
 tmp <- tempfile(fileext = ".sav")
