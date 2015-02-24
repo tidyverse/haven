@@ -69,10 +69,19 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 29,    .name = "ISO-8859-1" },
     { .code = 30,    .name = "ISO-8859-2" },
     { .code = 31,    .name = "ISO-8859-3" },
+    { .code = 34,    .name = "ISO-8859-6" },
+    { .code = 35,    .name = "ISO-8859-7" },
+    { .code = 36,    .name = "ISO-8859-8" },
+    { .code = 39,    .name = "ISO-8859-11" },
     { .code = 40,    .name = "ISO-8859-9" },
     { .code = 60,    .name = "WINDOWS-1250" },
     { .code = 62,    .name = "WINDOWS-1252" },
-    { .code = 125,   .name = "GB18030" }
+    { .code = 119,   .name = "EUC-TW" },
+    { .code = 123,   .name = "BIG-5" },
+    { .code = 125,   .name = "EUC-CN" },
+    { .code = 134,   .name = "EUC-JP" },
+    { .code = 138,   .name = "SHIFT-JIS" },
+    { .code = 140,   .name = "EUC-KR" }
 };
 
 #define SAS_SUBHEADER_SIGNATURE_ROW_SIZE       0xF7F7F7F7

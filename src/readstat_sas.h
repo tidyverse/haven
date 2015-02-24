@@ -14,7 +14,7 @@ typedef struct sas_header_start_s {
     unsigned char mystery3[1];
     char          file_format;
     unsigned char mystery4[30];
-    char          encoding;
+    unsigned char encoding;
     unsigned char mystery5[13];
     char          type[8];
     char          dataset[64];
