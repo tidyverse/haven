@@ -70,6 +70,17 @@ print.labelled <- function(x, ...) {
   invisible()
 }
 
+#' @export
+as.data.frame.labelled <- function(x, ...) {
+  df <- list(x)
+  names(df) <- deparse(substitute(x))
+  class(df) <- "data.frame"
+  attr(df, "row.names") <- .set_row_names(length(x))
+
+  df
+}
+
+
 #' @rdname labelled
 #' @export
 as_factor.labelled <- function(x, levels = c("labels", "values"),
