@@ -40,7 +40,7 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     strftime(header.creation_date, sizeof(header.creation_date),
              "%d %b %y", time_s);
     strftime(header.creation_time, sizeof(header.creation_time),
-             "%T", time_s);
+             "%H:%M:%S", time_s);
     
     memset(header.file_label, ' ', sizeof(header.file_label));
 
