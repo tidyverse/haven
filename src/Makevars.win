@@ -1,1 +1,1 @@
-PKG_LIBS=-lRiconv -lRzlib
+PKG_LIBS=-lRiconv
