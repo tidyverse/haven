@@ -19,6 +19,12 @@
 
 #define MAX_TEXT_SIZE               256
 
+static int32_t sav_encode_format(spss_format_t *spss_format) {
+    return ((spss_format->type << 16) |
+            (spss_format->width << 8) |
+            spss_format->decimal_places);
+}
+
 static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
     time_t now = time(NULL);
@@ -82,20 +88,29 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
         variable.type = (r_variable->type == READSTAT_TYPE_STRING) ? 255 : 0;
         variable.has_var_label = (title_data_len > 0);
         variable.n_missing_values = 1;
+
+        spss_format_t spss_format;
+        memset(&spss_format, 0, sizeof(spss_format_t));
+        
         if (r_variable->format[0]) {
             const char *fmt = r_variable->format;
-            spss_format_t spss_format = { .type = 0, .width = 0, .decimal_places = 0 };
-            if (spss_parse_format(fmt, strlen(fmt), &spss_format) == READSTAT_OK) {
-                variable.print = (
-                        (spss_format.type << 16) |
-                        (spss_format.width << 8) |
-                        spss_format.decimal_places);
-            } else {
+            if (spss_parse_format(fmt, strlen(fmt), &spss_format) != READSTAT_OK) {
                 retval = READSTAT_ERROR_BAD_FORMAT_STRING;
                 goto cleanup;
             }
-            variable.write = variable.print;
+        } else if (r_variable->type == READSTAT_TYPE_STRING) {
+            spss_format.type = SPSS_FORMAT_TYPE_A;
+        } else {
+            spss_format.type = SPSS_FORMAT_TYPE_F;
+            spss_format.width = 8;
+            if (r_variable->type == READSTAT_TYPE_DOUBLE ||
+                    r_variable->type == READSTAT_TYPE_FLOAT) {
+                spss_format.decimal_places = 2;
+            }
         }
+
+        variable.print = sav_encode_format(&spss_format);
+        variable.write = variable.print;
 
         memset(variable.name, ' ', sizeof(variable.name));
         if (name_data_len > 0 && name_data_len <= sizeof(variable.name))
