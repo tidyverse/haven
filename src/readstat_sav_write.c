@@ -25,6 +25,41 @@ static int32_t sav_encode_format(spss_format_t *spss_format) {
             spss_format->decimal_places);
 }
 
+static readstat_error_t sav_encode_variable_format(int32_t *out_code, 
+        readstat_variable_t *r_variable) {
+    readstat_error_t retval = READSTAT_OK;
+    spss_format_t spss_format;
+    memset(&spss_format, 0, sizeof(spss_format_t));
+
+    if (r_variable->format[0]) {
+        const char *fmt = r_variable->format;
+        if (spss_parse_format(fmt, strlen(fmt), &spss_format) != READSTAT_OK) {
+            retval = READSTAT_ERROR_BAD_FORMAT_STRING;
+            goto cleanup;
+        }
+    } else if (r_variable->type == READSTAT_TYPE_STRING) {
+        spss_format.type = SPSS_FORMAT_TYPE_A;
+        if (r_variable->user_width) {
+            spss_format.width = r_variable->user_width;
+        } else {
+            spss_format.width = r_variable->width;
+        }
+    } else {
+        spss_format.type = SPSS_FORMAT_TYPE_F;
+        spss_format.width = 8;
+        if (r_variable->type == READSTAT_TYPE_DOUBLE ||
+                r_variable->type == READSTAT_TYPE_FLOAT) {
+            spss_format.decimal_places = 2;
+        }
+    }
+
+cleanup:
+    if (retval == READSTAT_OK && out_code)
+        *out_code = sav_encode_format(&spss_format);
+
+    return retval;
+}
+
 static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
     time_t now = time(NULL);
@@ -34,8 +69,8 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     memcpy(header.rec_type, "$FL2", sizeof("$FL2")-1);
     memset(header.prod_name, ' ', sizeof(header.prod_name));
     memcpy(header.prod_name,
-           "@(#) SPSS DATA FILE - created by " READSTAT_PRODUCT_NAME ", " READSTAT_PRODUCT_URL, 
-           sizeof("@(#) SPSS DATA FILE - created by " READSTAT_PRODUCT_NAME ", " READSTAT_PRODUCT_URL)-1);
+           "@(#) SPSS DATA FILE - " READSTAT_PRODUCT_URL, 
+           sizeof("@(#) SPSS DATA FILE - " READSTAT_PRODUCT_URL)-1);
     header.layout_code = 2;
     header.nominal_case_size = writer->row_len / 8;
     header.compressed = 0; /* TODO */
@@ -65,7 +100,7 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
 
 static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
-    int i;
+    int i, j;
     int32_t rec_type = 0;
     double missing_val = NAN;
     
@@ -85,31 +120,15 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
         
         sav_variable_record_t variable;
         memset(&variable, 0, sizeof(sav_variable_record_t));
-        variable.type = (r_variable->type == READSTAT_TYPE_STRING) ? 255 : 0;
+
+        variable.type = (r_variable->type == READSTAT_TYPE_STRING) ? r_variable->width : 0;
         variable.has_var_label = (title_data_len > 0);
-        variable.n_missing_values = 1;
+        variable.n_missing_values = (r_variable->type != READSTAT_TYPE_STRING);
 
-        spss_format_t spss_format;
-        memset(&spss_format, 0, sizeof(spss_format_t));
-        
-        if (r_variable->format[0]) {
-            const char *fmt = r_variable->format;
-            if (spss_parse_format(fmt, strlen(fmt), &spss_format) != READSTAT_OK) {
-                retval = READSTAT_ERROR_BAD_FORMAT_STRING;
-                goto cleanup;
-            }
-        } else if (r_variable->type == READSTAT_TYPE_STRING) {
-            spss_format.type = SPSS_FORMAT_TYPE_A;
-        } else {
-            spss_format.type = SPSS_FORMAT_TYPE_F;
-            spss_format.width = 8;
-            if (r_variable->type == READSTAT_TYPE_DOUBLE ||
-                    r_variable->type == READSTAT_TYPE_FLOAT) {
-                spss_format.decimal_places = 2;
-            }
-        }
+        retval = sav_encode_variable_format(&variable.print, r_variable);
+        if (retval != READSTAT_OK)
+            goto cleanup;
 
-        variable.print = sav_encode_format(&spss_format);
         variable.write = variable.print;
 
         memset(variable.name, ' ', sizeof(variable.name));
@@ -137,24 +156,23 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
                 goto cleanup;
         }
         
-        retval = readstat_write_bytes(writer, &missing_val, sizeof(missing_val));
-        if (retval != READSTAT_OK)
-            goto cleanup;
+        if (variable.n_missing_values) {
+            retval = readstat_write_bytes(writer, &missing_val, sizeof(missing_val));
+            if (retval != READSTAT_OK)
+                goto cleanup;
+        }
         
-        if (r_variable->type == READSTAT_TYPE_STRING) {
-            int extra_fields = r_variable->width / 8 - 1;
-            int j;
-            for (j=0; j<extra_fields; j++) {
-                retval = readstat_write_bytes(writer, &rec_type, sizeof(rec_type));
-                if (retval != READSTAT_OK)
-                    goto cleanup;
+        int extra_fields = r_variable->width / 8 - 1;
+        for (j=0; j<extra_fields; j++) {
+            retval = readstat_write_bytes(writer, &rec_type, sizeof(rec_type));
+            if (retval != READSTAT_OK)
+                goto cleanup;
 
-                memset(&variable, '\0', sizeof(variable));
-                variable.type = -1;
-                retval = readstat_write_bytes(writer, &variable, sizeof(variable));
-                if (retval != READSTAT_OK)
-                    goto cleanup;
-            }
+            memset(&variable, '\0', sizeof(variable));
+            variable.type = -1;
+            retval = readstat_write_bytes(writer, &variable, sizeof(variable));
+            if (retval != READSTAT_OK)
+                goto cleanup;
         }
     }
 
