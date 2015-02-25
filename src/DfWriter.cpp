@@ -177,13 +177,6 @@ public:
   }
 
   void defineVariable(CharacterVector x, std::string name) {
-    int max_length = 0;
-    for (int i = 0; i < x.size(); ++i) {
-      int length = std::string(x[i]).size();
-      if (length > max_length)
-        max_length = length;
-    }
-
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "labelled") {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name.c_str());
@@ -193,6 +186,13 @@ public:
 
       for (int i = 0; i < values.size(); ++i)
         readstat_label_string_value(labelSet, values[i], std::string(labels[i]).c_str());
+    }
+
+    int max_length = 0;
+    for (int i = 0; i < x.size(); ++i) {
+      int length = std::string(x[i]).size();
+      if (length > max_length)
+        max_length = length;
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_STRING, max_length,
