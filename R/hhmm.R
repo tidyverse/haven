@@ -27,5 +27,15 @@ format.hms <- function(x, ...) {
 
 #' @export
 print.hms <- function(x, ...) {
-  print(format(hms), quote = FALSE)
+  print(format(x), quote = FALSE)
+}
+
+#' @export
+`[.hms` <- function(x, ...) {
+  hms(NextMethod(x))
+}
+
+#' @export
+`[[.hms` <- function(x, ...) {
+  hms(NextMethod(x))
 }
