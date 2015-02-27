@@ -12,14 +12,16 @@ Authors@R: c(
     person("RStudio", role = "cph")
   )
 Depends: R (>= 3.1.0)
-Suggests:
+Suggests: 
     dplyr,
-    testthat
-LinkingTo:
+    testthat,
+    knitr
+LinkingTo: 
     Rcpp,
     BH
-Imports:
+Imports: 
     Rcpp (>= 0.11.4)
 LazyData: true
 URL: https://github.com/hadley/haven, https://github.com/WizardMac/ReadStat
 BugReports: https://github.com/hadley/haven/issues
+VignetteBuilder: knitr
