@@ -22,6 +22,8 @@ inline int daysOffset(FileType type) {
   case HAVEN_STATA: return 3653;
   case HAVEN_SPSS:  return 141428; // 1582-01-01
   }
+
+  return 0;
 }
 
 inline bool hasPrefix(std::string x, std::string prefix) {
@@ -59,6 +61,8 @@ inline VarType numType(FileType type, const char* var_format) {
     else if (format == "%td")      return HAVEN_DATE;
     else                           return HAVEN_DEFAULT;
   }
+
+  return HAVEN_DEFAULT;
 }
 
 #endif

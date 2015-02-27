@@ -203,6 +203,8 @@ public:
     case HAVEN_TIME:
       return value;
     }
+
+    return value;
   }
 
   int value_label(const char *val_labels, readstat_value_t value,
