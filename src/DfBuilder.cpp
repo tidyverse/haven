@@ -68,6 +68,7 @@ class DfBuilder {
 
   std::vector<std::string> val_labels_;
   std::map<std::string, LabelSet> label_sets_;
+  std::vector<VarType> var_types_;
 
 public:
   DfBuilder(FileType type): type_(type), nrows_(0), ncols_(0) {
@@ -80,6 +81,7 @@ public:
     output_ = List(ncols_);
     names_ = CharacterVector(ncols_);
     val_labels_.resize(ncols_);
+    var_types_.resize(ncols_);
     return 0;
   }
 
@@ -107,13 +109,31 @@ public:
       break;
     }
 
+    RObject col = output_[index];
     if (var_label != NULL && strcmp(var_label, "") != 0) {
-      RObject col = output_[index];
       col.attr("label") = CharacterVector::create(Rf_mkCharCE(var_label, CE_UTF8));
     }
 
     if (val_labels != NULL)
       val_labels_[index] = val_labels;
+
+    VarType var_type = numType(type_, var_format);
+    // Rcout << var_name << ": " << var_format << " [" << var_type << "]\n";
+    var_types_[index] = var_type;
+    switch(var_type) {
+    case HAVEN_DATE:
+      col.attr("class") = "Date";
+      break;
+    case HAVEN_TIME:
+      col.attr("class") = "hms";
+      break;
+    case HAVEN_DATETIME:
+      col.attr("class") = CharacterVector::create("POSIXct", "POSIXt");
+      col.attr("tzone") = "UTC";
+      break;
+    default:
+      break;
+    }
 
     return 0;
   }
@@ -124,6 +144,8 @@ public:
     // Check for user interrupts every 1000 rows or cols
     if (obs_index % 1000 == 0 || var_index % 1000 == 0)
       checkUserInterrupt();
+
+    VarType var_type = var_types_[var_index];
 
     if (type == READSTAT_TYPE_LONG_STRING || type == READSTAT_TYPE_STRING) {
       // Missing strings and "" are identical in other systems
@@ -137,21 +159,21 @@ public:
       if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_INTEGER;
       } else {
-        col[obs_index] = readstat_int16_value(value);
+        col[obs_index] = adjust_datetime(readstat_int16_value(value), var_type);
       }
     } else if (type == READSTAT_TYPE_INT32) {
       IntegerVector col = output_[var_index];
       if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_INTEGER;
       } else {
-        col[obs_index] = readstat_int32_value(value);
+        col[obs_index] = adjust_datetime(readstat_int32_value(value), var_type);
       }
     } else if (type == READSTAT_TYPE_FLOAT) {
       NumericVector col = output_[var_index];
       if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_REAL;
       } else {
-        col[obs_index] = readstat_float_value(value);
+        col[obs_index] = adjust_datetime(readstat_float_value(value), var_type);
       }
     } else if (type == READSTAT_TYPE_DOUBLE) {
       NumericVector col = output_[var_index];
@@ -159,11 +181,28 @@ public:
         col[obs_index] = NA_REAL;
       } else {
         double val = readstat_double_value(value);
-        col[obs_index] = std::isnan(val) ? NA_REAL : val;
+        col[obs_index] = std::isnan(val) ? NA_REAL : adjust_datetime(val, var_type);
       }
     }
 
     return 0;
+  }
+
+  double adjust_datetime(double value, VarType var_type) {
+    double offset = daysOffset(type_);
+
+    switch(var_type) {
+    case HAVEN_DEFAULT:
+      return value;
+    case HAVEN_DATETIME:
+      if (type_ == HAVEN_STATA) // stored in milliseconds
+        value /= 1000;
+      return value - offset * 86400;
+    case HAVEN_DATE:
+      return value - offset;
+    case HAVEN_TIME:
+      return value;
+    }
   }
 
   int value_label(const char *val_labels, readstat_value_t value,

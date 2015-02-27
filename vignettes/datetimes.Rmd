@@ -23,12 +23,12 @@ Time (number of seconds):
 
 * SAS:   TIME, HHMM, TOD 
 * Spss:  TIME, DTIME
-* Stata: (but in ms)
+* Stata: n/a
 
 DateTime (number of seconds):
 
 * SAS:   DATETIME
-* Spss:  DATE, ADATE, SDATE, DATETIME
+* Spss:  DATE, ADATE, SDATE, DATETIME (as milliseconds)
 * Stata: %tc, %tC
 
 
