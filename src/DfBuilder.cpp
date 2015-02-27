@@ -1,6 +1,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 #include "readstat.h"
+#include "haven_types.h"
 
 class LabelSet {
   std::vector<std::string> labels_;

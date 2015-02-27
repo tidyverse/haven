@@ -1,14 +1,10 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 #include "readstat.h"
+#include "haven_types.h"
 
 ssize_t data_writer(const void *data, size_t len, void *ctx);
 std::string rClass(RObject x);
-
-enum FileType {
-  HAVEN_SAV,
-  HAVEN_DTA
-};
 
 class Writer {
   List x_;
@@ -62,12 +58,14 @@ public:
 
     int n = Rf_length(x_[0]);
     switch (type_) {
-    case HAVEN_DTA:
+    case HAVEN_STATA:
       readstat_begin_writing_dta(writer_, this, "", n);
       break;
-    case HAVEN_SAV:
+    case HAVEN_SPSS:
       readstat_begin_writing_sav(writer_, this, "", n);
       break;
+    default:
+      Rcpp::stop("Not currently supported");
     }
 
     // Write data
@@ -228,12 +226,12 @@ std::string rClass(RObject x) {
 //' @rdname read_spss
 // [[Rcpp::export]]
 void write_sav(List data, std::string path) {
-  Writer(data, path, HAVEN_SAV).write_sav();
+  Writer(data, path, HAVEN_SPSS).write_sav();
 }
 
 //' @export
 //' @rdname read_dta
 // [[Rcpp::export]]
 void write_dta(List data, std::string path) {
-  Writer(data, path, HAVEN_DTA).write_sav();
+  Writer(data, path, HAVEN_STATA).write_sav();
 }
