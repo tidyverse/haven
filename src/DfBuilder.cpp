@@ -61,6 +61,7 @@ public:
 };
 
 class DfBuilder {
+  FileType type_;
   int nrows_, ncols_;
   List output_;
   CharacterVector names_;
@@ -69,7 +70,7 @@ class DfBuilder {
   std::map<std::string, LabelSet> label_sets_;
 
 public:
-  DfBuilder(): nrows_(0), ncols_(0) {
+  DfBuilder(FileType type): type_(type), nrows_(0), ncols_(0) {
   }
 
   int info(int obs_count, int var_count) {
@@ -241,8 +242,8 @@ void print_error(const char* error_message) {
 // Parser wrappers -------------------------------------------------------------
 
 template<typename ParseFunction>
-List df_parse(std::string filename, ParseFunction parse_f) {
-  DfBuilder builder;
+List df_parse(FileType type, std::string filename, ParseFunction parse_f) {
+  DfBuilder builder(type);
 
   readstat_parser_t* parser = readstat_parser_init();
   readstat_set_info_handler(parser, dfbuilder_info);
@@ -264,7 +265,7 @@ List df_parse(std::string filename, ParseFunction parse_f) {
 
 // [[Rcpp::export]]
 List df_parse_sas(const std::string& b7dat, const std::string& b7cat) {
-  DfBuilder builder;
+  DfBuilder builder(HAVEN_SAS);
 
   readstat_parser_t* parser = readstat_parser_init();
   readstat_set_info_handler(parser, dfbuilder_info);
@@ -294,15 +295,15 @@ List df_parse_sas(const std::string& b7dat, const std::string& b7cat) {
 
 // [[Rcpp::export]]
 List df_parse_dta(std::string filename) {
-  return df_parse(filename, readstat_parse_dta);
+  return df_parse(HAVEN_STATA, filename, readstat_parse_dta);
 }
 
 // [[Rcpp::export]]
 List df_parse_por(std::string filename) {
-  return df_parse(filename, readstat_parse_por);
+  return df_parse(HAVEN_SPSS, filename, readstat_parse_por);
 }
 
 // [[Rcpp::export]]
 List df_parse_sav(std::string filename) {
-  return df_parse(filename, readstat_parse_sav);
+  return df_parse(HAVEN_SPSS, filename, readstat_parse_sav);
 }
