@@ -142,17 +142,17 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
             goto cleanup;
         
         if (title_data_len > 0) {
-            int32_t label_len = title_data_len;
-            if (label_len > 120)
-                label_len = 120;
-            
             char padded_label[120];
-            memcpy(padded_label, title_data, label_len);
+            int32_t label_len = title_data_len;
+            if (label_len > sizeof(padded_label))
+                label_len = sizeof(padded_label);
             
             retval = readstat_write_bytes(writer, &label_len, sizeof(label_len));
             if (retval != READSTAT_OK)
                 goto cleanup;
 
+            strncpy(padded_label, title_data, (label_len + 3) / 4 * 4);
+            
             retval = readstat_write_bytes(writer, padded_label, (label_len + 3) / 4 * 4);
             if (retval != READSTAT_OK)
                 goto cleanup;
