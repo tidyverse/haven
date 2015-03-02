@@ -31,13 +31,7 @@ static readstat_error_t sav_encode_variable_format(int32_t *out_code,
     spss_format_t spss_format;
     memset(&spss_format, 0, sizeof(spss_format_t));
 
-    if (r_variable->format[0]) {
-        const char *fmt = r_variable->format;
-        if (spss_parse_format(fmt, strlen(fmt), &spss_format) != READSTAT_OK) {
-            retval = READSTAT_ERROR_BAD_FORMAT_STRING;
-            goto cleanup;
-        }
-    } else if (r_variable->type == READSTAT_TYPE_STRING) {
+    if (r_variable->type == READSTAT_TYPE_STRING) {
         spss_format.type = SPSS_FORMAT_TYPE_A;
         if (r_variable->user_width) {
             spss_format.width = r_variable->user_width;
@@ -53,6 +47,14 @@ static readstat_error_t sav_encode_variable_format(int32_t *out_code,
         }
     }
 
+    if (r_variable->format[0]) {
+        const char *fmt = r_variable->format;
+        if (spss_parse_format(fmt, strlen(fmt), &spss_format) != READSTAT_OK) {
+            retval = READSTAT_ERROR_BAD_FORMAT_STRING;
+            goto cleanup;
+        }
+    } 
+
 cleanup:
     if (retval == READSTAT_OK && out_code)
         *out_code = sav_encode_format(&spss_format);
@@ -66,6 +68,8 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     struct tm *time_s = localtime(&now);
 
     sav_file_header_record_t header;
+    memset(&header, 0, sizeof(sav_file_header_record_t));
+
     memcpy(header.rec_type, "$FL2", sizeof("$FL2")-1);
     memset(header.prod_name, ' ', sizeof(header.prod_name));
     memcpy(header.prod_name,
@@ -91,8 +95,6 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
 
     if (writer->file_label[0])
         memcpy(header.file_label, writer->file_label, file_label_len);
-    
-    memset(header.padding, '\0', sizeof(header.padding));
     
     retval = readstat_write_bytes(writer, &header, sizeof(header));
     return retval;
@@ -266,15 +268,20 @@ static readstat_error_t sav_emit_integer_info_record(readstat_writer_t *writer) 
     readstat_error_t retval = READSTAT_OK;
 
     sav_info_record_t info_header;
+    memset(&info_header, 0, sizeof(sav_info_record_t));
+
     info_header.rec_type = SAV_RECORD_TYPE_HAS_DATA;
     info_header.subtype = SAV_RECORD_SUBTYPE_INTEGER_INFO;
     info_header.size = 4;
     info_header.count = 8;
+
     retval = readstat_write_bytes(writer, &info_header, sizeof(info_header));
     if (retval != READSTAT_OK)
         goto cleanup;
     
     sav_machine_integer_info_record_t machine_info;
+    memset(&machine_info, 0, sizeof(sav_machine_integer_info_record_t));
+
     machine_info.version_major = 1;
     machine_info.version_minor = 0;
     machine_info.version_revision = 0;
@@ -283,6 +290,7 @@ static readstat_error_t sav_emit_integer_info_record(readstat_writer_t *writer) 
     machine_info.compression_code = 1;
     machine_info.endianness = machine_is_little_endian() ? SAV_ENDIANNESS_LITTLE : SAV_ENDIANNESS_BIG;
     machine_info.character_code = SAV_CHARSET_UTF8;
+
     retval = readstat_write_bytes(writer, &machine_info, sizeof(machine_info));
 
 cleanup:
@@ -293,18 +301,24 @@ static readstat_error_t sav_emit_floating_point_info_record(readstat_writer_t *w
     readstat_error_t retval = READSTAT_OK;
 
     sav_info_record_t info_header;
+    memset(&info_header, 0, sizeof(sav_info_record_t));
+
     info_header.rec_type = SAV_RECORD_TYPE_HAS_DATA;
     info_header.subtype = SAV_RECORD_SUBTYPE_FP_INFO;
     info_header.size = 8;
     info_header.count = 3;
+
     retval = readstat_write_bytes(writer, &info_header, sizeof(info_header));
     if (retval != READSTAT_OK)
         goto cleanup;
     
     sav_machine_floating_point_info_record_t fp_info;
+    memset(&fp_info, 0, sizeof(sav_machine_floating_point_info_record_t));
+
     fp_info.sysmis = NAN;
     fp_info.lowest = DBL_MAX;
     fp_info.highest = -DBL_MAX;
+
     retval = readstat_write_bytes(writer, &fp_info, sizeof(fp_info));
     if (retval != READSTAT_OK)
         goto cleanup;
@@ -317,6 +331,8 @@ static readstat_error_t sav_emit_long_var_name_record(readstat_writer_t *writer)
     readstat_error_t retval = READSTAT_OK;
     int i;
     sav_info_record_t info_header;
+    memset(&info_header, 0, sizeof(sav_info_record_t));
+
     info_header.rec_type = SAV_RECORD_TYPE_HAS_DATA;
     info_header.subtype = SAV_RECORD_SUBTYPE_LONG_VAR_NAME;
     info_header.size = 1;
@@ -395,8 +411,9 @@ cleanup:
 
 static readstat_error_t sav_emit_termination_record(readstat_writer_t *writer) {
     sav_dictionary_termination_record_t termination_record;
+    memset(&termination_record, 0, sizeof(sav_dictionary_termination_record_t));
+
     termination_record.rec_type = SAV_RECORD_TYPE_DICT_TERMINATION;
-    termination_record.filler = 0;
     
     return readstat_write_bytes(writer, &termination_record, sizeof(termination_record));
 }
@@ -514,7 +531,7 @@ cleanup:
 
 readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *user_ctx,
         const char *file_label, long row_count) {
-    strncpy(writer->file_label, file_label, sizeof(writer->file_label));
+    snprintf(writer->file_label, sizeof(writer->file_label), "%s", file_label);
     writer->row_count = row_count;
     writer->user_ctx = user_ctx;
 

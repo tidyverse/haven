@@ -12,14 +12,9 @@
 #include "readstat_writer.h"
 
 static readstat_error_t dta_emit_header_data_label(readstat_writer_t *writer) {
-    size_t data_label_len = strlen(writer->file_label);
-    if (data_label_len > 80)
-        data_label_len = 80;
-    
     char data_label[81];
-    if (data_label_len > 0)
-        memcpy(data_label, writer->file_label, data_label_len);
-    data_label[data_label_len] = '\0';
+    memset(data_label, 0, sizeof(data_label));
+    snprintf(data_label, sizeof(data_label), "%s", writer->file_label);
     return readstat_write_bytes(writer, data_label, sizeof(data_label));
 }
 
@@ -27,6 +22,7 @@ static readstat_error_t dta_emit_header_time_stamp(readstat_writer_t *writer) {
     time_t now = time(NULL);
     struct tm *time_s = localtime(&now);
     char time_stamp[18];
+    memset(time_stamp, 0, sizeof(time_stamp));
     strftime(time_stamp, sizeof(time_stamp), "%d %b %Y %H:%M", time_s);
     return readstat_write_bytes(writer, time_stamp, sizeof(time_stamp));
 }
@@ -170,6 +166,8 @@ static readstat_error_t dta_emit_value_labels(readstat_writer_t *writer, dta_ctx
             txtlen += strlen(label) + 1;
         }
         dta_value_label_table_header_t table_header;
+        memset(&table_header, 0, sizeof(dta_value_label_table_header_t));
+
         table_header.len = 8 + 8*n + txtlen;
         strncpy(table_header.labname, r_label_set->name, sizeof(table_header.labname));
 
@@ -265,6 +263,8 @@ static readstat_error_t dta_begin_data(void *writer_ctx) {
     
     dta_ctx_t *ctx = NULL;
     dta_header_t header;
+    memset(&header, 0, sizeof(dta_header_t));
+
     header.ds_format = 111;
     header.byteorder = machine_is_little_endian() ? DTA_LOHI : DTA_HILO;
     header.filetype  = 0x01;
@@ -395,7 +395,7 @@ static readstat_error_t dta_end_data(void *writer_ctx) {
 
 readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *user_ctx,
         const char *file_label, long row_count) {
-    strncpy(writer->file_label, file_label, sizeof(writer->file_label));
+    snprintf(writer->file_label, sizeof(writer->file_label), "%s", file_label);
     writer->row_count = row_count;
     writer->user_ctx = user_ctx;
 

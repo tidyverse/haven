@@ -171,7 +171,7 @@ typedef struct readstat_writer_s {
 
     int                         row_count;
     int                         current_row;
-    char                        file_label[80];
+    char                        file_label[100];
     readstat_writer_callbacks_t callbacks;
     void                       *module_ctx;
     void                       *user_ctx;
