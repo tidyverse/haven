@@ -19,4 +19,4 @@ There were 2 NOTEs:
   ReadStat, SAS, SPSS and Stata - this are not misspelled.
 
 ## Reverse dependencies
-This is a new submission and has no reverse dependencies.
+This currently has no reverse dependencies.
