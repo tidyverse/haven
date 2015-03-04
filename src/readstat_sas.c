@@ -119,8 +119,8 @@ typedef struct sas_header_info_s {
     int      little_endian;
     int      u64;
     int      vendor;
-    int      page_size;
-    int      page_count;
+    size_t   page_size;
+    long     page_count;
     char    *encoding;
 } sas_header_info_t;
 
@@ -1020,7 +1020,7 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
         ctx->converter = converter;
     }
 
-    int i;
+    long i;
     char *page = malloc(hinfo->page_size);
     off_t start_pos = lseek(fd, 0, SEEK_CUR);
     for (i=0; i<hinfo->page_count; i++) {
