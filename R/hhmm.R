@@ -14,15 +14,17 @@ hms <- function(x) {
 #' @export
 format.hms <- function(x, ...) {
   x <- as.integer(x)
-  h <- x %/% 3600
-  m <- (x - h * 3600) %/% 60
-  s <- x %% 60
+  h <- x %/% 3600L
+  m <- (x - h * 3600L) %/% 60L
+  s <- x %% 60L
 
-  paste0(
+  hms <- paste0(
     format(h, align = "right"), ":",
     sprintf("%02d", m), ":",
     sprintf("%02d", s)
   )
+
+  ifelse(is.na(x), "NA", hms)
 }
 
 #' @export
