@@ -156,11 +156,13 @@ static readstat_error_t sav_read_variable_record(int fd, sav_ctx_t *ctx) {
     info->offset = ctx->var_offset;
     info->type = dta_type;
 
-    retval = readstat_convert(info->name, sizeof(info->name), variable.name, 8, ctx->converter);
+    retval = readstat_convert(info->name, sizeof(info->name), 
+            variable.name, sizeof(variable.name), ctx->converter);
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    retval = readstat_convert(info->longname, sizeof(info->longname), variable.name, 8, ctx->converter);
+    retval = readstat_convert(info->longname, sizeof(info->longname), 
+            variable.name, sizeof(variable.name), ctx->converter);
     if (retval != READSTAT_OK)
         goto cleanup;
 
@@ -323,20 +325,22 @@ static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx, void
             var->labels_index = ctx->value_labels_count;
         }
     }
-    for (i=0; i<label_count; i++) {
-        value_label_t *vlabel = &value_labels[i];
-        if (value_type == READSTAT_TYPE_DOUBLE) {
-            double val_d = 0.0;
-            memcpy(&val_d, vlabel->value, 8);
-            if (ctx->machine_needs_byte_swap)
-                val_d = byteswap_double(val_d);
-            ctx->value_label_handler(label_name_buf, &val_d, value_type, vlabel->label, user_ctx);
-        } else {
-            char unpadded_val[8*4+1];
-            retval = readstat_convert(unpadded_val, sizeof(unpadded_val), vlabel->value, 8, ctx->converter);
-            if (retval != READSTAT_OK)
-                break;
-            ctx->value_label_handler(label_name_buf, unpadded_val, value_type, vlabel->label, user_ctx);
+    if (ctx->value_label_handler) {
+        for (i=0; i<label_count; i++) {
+            value_label_t *vlabel = &value_labels[i];
+            if (value_type == READSTAT_TYPE_DOUBLE) {
+                double val_d = 0.0;
+                memcpy(&val_d, vlabel->value, 8);
+                if (ctx->machine_needs_byte_swap)
+                    val_d = byteswap_double(val_d);
+                ctx->value_label_handler(label_name_buf, &val_d, value_type, vlabel->label, user_ctx);
+            } else {
+                char unpadded_val[8*4+1];
+                retval = readstat_convert(unpadded_val, sizeof(unpadded_val), vlabel->value, 8, ctx->converter);
+                if (retval != READSTAT_OK)
+                    break;
+                ctx->value_label_handler(label_name_buf, unpadded_val, value_type, vlabel->label, user_ctx);
+            }
         }
     }
     ctx->value_labels_count++;
