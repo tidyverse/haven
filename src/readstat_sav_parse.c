@@ -3479,7 +3479,7 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
     readstat_error_t retval = READSTAT_OK;
     int var_count = ctx->var_index;
     for (i=0; i<var_count; i++) {
-        memcpy(table[i].name, ctx->varinfo[i].name, 9);
+        memcpy(table[i].name, ctx->varinfo[i].name, sizeof(ctx->varinfo[0].name));
         table[i].index = ctx->varinfo[i].index;
     }
     qsort(table, var_count, sizeof(varlookup_t), &compare_varlookups);
