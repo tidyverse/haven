@@ -6,34 +6,56 @@ using namespace Rcpp;
 class LabelSet {
   std::vector<std::string> labels_;
   std::vector<std::string> values_s_;
+  std::vector<int> values_i_;
   std::vector<double> values_d_;
 
 public:
   LabelSet() {}
 
   void add(char* value, std::string label) {
-    if (values_d_.size() > 0)
-      stop("Can't add string to integer labelset");
+    if (values_i_.size() > 0 || values_d_.size() > 0)
+      stop("Can't add string to integer/double labelset");
 
     std::string string(value);
     values_s_.push_back(string);
     labels_.push_back(label);
   }
 
+  void add(int value, std::string label) {
+    if (values_d_.size() > 0 || values_s_.size() > 0)
+      stop("Can't add integer to string/double labelset");
+
+    values_i_.push_back(value);
+    labels_.push_back(label);
+  }
+
   void add(double value, std::string label) {
-    if (values_s_.size() > 0)
-      stop("Can't add integer to string labelset");
+    if (values_i_.size() > 0 || values_s_.size() > 0)
+      stop("Can't add double to integer/string labelset");
 
     values_d_.push_back(value);
     labels_.push_back(label);
   }
 
+
   RObject labels() const {
     RObject out;
 
-    if (values_d_.size() > 0) {
-      int n = values_d_.size();
+    if (values_i_.size() > 0) {
+      int n = values_i_.size();
       IntegerVector values(n);
+      CharacterVector labels(n);
+
+      for (int i = 0; i < n; ++i) {
+        values[i] = values_i_[i];
+        labels[i] = Rf_mkCharCE(labels_[i].c_str(), CE_UTF8);
+      }
+
+      values.attr("names") = labels;
+      out = values;
+    } else if (values_d_.size() > 0) {
+      int n = values_d_.size();
+      NumericVector values(n);
       CharacterVector labels(n);
 
       for (int i = 0; i < n; ++i) {
