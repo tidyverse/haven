@@ -13,6 +13,16 @@ test_that("value labels stored as labelled class", {
   expect_equal(str[[1]], labelled(c("M", "F"), c(Female = "F", Male = "M")))
 })
 
+test_that("value labels read in as same type as vector", {
+  df <- read_sav("variable-label.sav")
+  num <- read_sav("labelled-num.sav")
+  str <- read_sav("labelled-str.sav")
+
+  expect_equal(class(as.vector(df$sex)), class(attr(df$sex, "labels")))
+  expect_equal(class(as.vector(num[[1]])), class(attr(num[[1]], "labels")))
+  expect_equal(class(as.vector(str[[1]])), class(attr(str[[1]], "labels")))
+})
+
 test_that("missing values encoded as NA", {
   num <- read_sav("labelled-num-na.sav")[[1]]
 
@@ -25,3 +35,4 @@ test_that("non-ASCII labels converted to utf-8", {
   expect_equal(attr(x, "label"), "This is an \u00e4-umlaut")
   expect_equal(names(attr(x, "labels"))[1], "the \u00e4 umlaut")
 })
+
