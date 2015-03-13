@@ -71,6 +71,9 @@ typedef struct readstat_por_ctx_s {
     readstat_value_handler          value_handler;
     readstat_value_label_handler    value_label_handler;
     readstat_error_handler          error_handler;
+    readstat_progress_handler       progress_handler;
+    size_t                          file_size;
+    void                           *user_ctx;
     int            pos;
     int            fd;
     unsigned char  buf[100];
@@ -89,11 +92,17 @@ typedef struct readstat_por_ctx_s {
 } readstat_por_ctx_t;
 
 
-
 static int skip_newline(int fd);
 static int utf8_encode(const unsigned char *input, size_t input_len, char *output, size_t output_len, uint16_t lookup[256]);
 static int read_bytes(readstat_por_ctx_t *ctx, void *dst, size_t len);
 static int read_string(readstat_por_ctx_t *ctx, char *data, size_t len);
+
+static readstat_error_t por_update_progress(readstat_por_ctx_t *ctx) {
+    if (!ctx->progress_handler)
+        return READSTAT_OK;
+
+    return readstat_update_progress(ctx->fd, ctx->file_size, ctx->progress_handler, ctx->user_ctx);
+}
 
 static int skip_newline(int fd) {
     char newline[1];
@@ -218,7 +227,7 @@ static int read_double(readstat_por_ctx_t *ctx, double *out_double) {
         return 1;
     
     double value;
-    bytes_read = readstat_por_parse_double(utf8_buffer, len, &value, ctx->error_handler);
+    bytes_read = readstat_por_parse_double(utf8_buffer, len, &value, ctx->error_handler, ctx->user_ctx);
     if (bytes_read == -1) {
         return -1;
     }
@@ -462,7 +471,7 @@ static readstat_error_t read_document_record(readstat_por_ctx_t *ctx) {
     return READSTAT_OK;
 }
 
-static readstat_error_t read_value_label_record(readstat_por_ctx_t *ctx, void *user_ctx) {
+static readstat_error_t read_value_label_record(readstat_por_ctx_t *ctx) {
     double value;
     int i;
     char string[256];
@@ -497,7 +506,7 @@ static readstat_error_t read_value_label_record(readstat_por_ctx_t *ctx, void *u
             if (read_string(ctx, label_buf, sizeof(label_buf)) == -1) {
                 return READSTAT_ERROR_PARSE;
             }
-            ctx->value_label_handler(label_name_buf, string, value_type, label_buf, user_ctx);
+            ctx->value_label_handler(label_name_buf, string, value_type, label_buf, ctx->user_ctx);
         } else {
             if (read_double(ctx, &value) == -1) {
                 return READSTAT_ERROR_PARSE;
@@ -505,7 +514,7 @@ static readstat_error_t read_value_label_record(readstat_por_ctx_t *ctx, void *u
             if (read_string(ctx, label_buf, sizeof(label_buf)) == -1) {
                 return READSTAT_ERROR_PARSE;
             }
-            ctx->value_label_handler(label_name_buf, &value, value_type, label_buf, user_ctx);
+            ctx->value_label_handler(label_name_buf, &value, value_type, label_buf, ctx->user_ctx);
         }
     }
     ctx->labels_offset++;
@@ -531,12 +540,13 @@ static double handle_missing_double(double input, por_varinfo_t *info) {
     return input;
 }
 
-static readstat_error_t read_por_file_data(readstat_por_ctx_t *ctx, void *user_ctx) {
+static readstat_error_t read_por_file_data(readstat_por_ctx_t *ctx) {
     int i;
     double value;
     char string[256];
     char error_buf[1024];
     int retval = 0;
+    readstat_error_t rs_retval = READSTAT_OK;
 
     while (1) {
         for (i=0; i<ctx->var_count; i++) {
@@ -548,12 +558,13 @@ static readstat_error_t read_por_file_data(readstat_por_ctx_t *ctx, void *user_c
                 } else if (retval == -1) {
                     if (ctx->error_handler) {
                         snprintf(error_buf, sizeof(error_buf), "Error in %s\n", info->name);
-                        ctx->error_handler(error_buf);
+                        ctx->error_handler(error_buf, ctx->user_ctx);
                     }
-                    return READSTAT_ERROR_PARSE;
+                    rs_retval = READSTAT_ERROR_PARSE;
+                    goto cleanup;
                 }
 //                printf("String value: %s\n", string);
-                ctx->value_handler(ctx->obs_count, i, string, READSTAT_TYPE_STRING, user_ctx);
+                ctx->value_handler(ctx->obs_count, i, string, READSTAT_TYPE_STRING, ctx->user_ctx);
             } else if (info->type == READSTAT_TYPE_DOUBLE) {
                 retval = read_double(ctx, &value);
                 if (i == 0 && retval == 1) {
@@ -561,21 +572,32 @@ static readstat_error_t read_por_file_data(readstat_por_ctx_t *ctx, void *user_c
                 } else if (retval != 0) {
                     if (ctx->error_handler) {
                         snprintf(error_buf, sizeof(error_buf), "Error in %s\n", info->name);
-                        ctx->error_handler(error_buf);
+                        ctx->error_handler(error_buf, ctx->user_ctx);
                     }
-                    return READSTAT_ERROR_PARSE;
+                    rs_retval = READSTAT_ERROR_PARSE;
+                    goto cleanup;
                 }
                 value = handle_missing_double(value, info);
-                ctx->value_handler(ctx->obs_count, i, isnan(value) ? NULL : &value, READSTAT_TYPE_DOUBLE, user_ctx);
+                ctx->value_handler(ctx->obs_count, i, isnan(value) ? NULL : &value, READSTAT_TYPE_DOUBLE, ctx->user_ctx);
             }
         }
         ctx->obs_count++;
+
+        rs_retval = por_update_progress(ctx);
+        if (rs_retval != READSTAT_OK)
+            break;
     }
-    return READSTAT_OK;
+cleanup:
+    return rs_retval;
 }
 
 readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filename, void *user_ctx) {
+    readstat_error_t retval = READSTAT_OK;
+    unsigned char reverse_lookup[256];
+    char vanity[200];
+    
     readstat_por_ctx_t *ctx = calloc(1, sizeof(readstat_por_ctx_t));
+
     ctx->space = ' ';
     ctx->var_dict = ck_hash_table_init(1024);
     ctx->info_handler = parser->info_handler;
@@ -583,16 +605,23 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
     ctx->value_handler = parser->value_handler;
     ctx->value_label_handler = parser->value_label_handler;
     ctx->error_handler = parser->error_handler;
-
-    readstat_error_t retval = READSTAT_OK;
+    ctx->progress_handler = parser->progress_handler;
+    ctx->user_ctx = user_ctx;
     
     if ((ctx->fd = readstat_open(filename)) == -1) {
         free(ctx);
         return READSTAT_ERROR_OPEN;
     }
-    
-    unsigned char reverse_lookup[256];
-    char vanity[200];
+
+    if ((ctx->file_size = lseek(ctx->fd, 0, SEEK_END)) == -1) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+
+    if (lseek(ctx->fd, 0, SEEK_SET) == -1) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
     
     if (read_bytes(ctx, vanity, sizeof(vanity)) != sizeof(vanity)) {
         retval = READSTAT_ERROR_READ;
@@ -700,7 +729,7 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
                 }
                 break;
             case 'D': /* value label */
-                retval = read_value_label_record(ctx, user_ctx);
+                retval = read_value_label_record(ctx);
                 if (retval != READSTAT_OK)
                     goto cleanup;
                 break;
@@ -735,12 +764,12 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
                         goto cleanup;
                     }
                 }
-                retval = read_por_file_data(ctx, user_ctx);
+                retval = read_por_file_data(ctx);
                 if (retval != READSTAT_OK)
                     goto cleanup;
                 
                 if (parser->info_handler) {
-                    if (parser->info_handler(ctx->obs_count, ctx->var_count, user_ctx)) {
+                    if (parser->info_handler(ctx->obs_count, ctx->var_count, ctx->user_ctx)) {
                         retval = READSTAT_ERROR_USER_ABORT;
                     }
                 }

@@ -5,10 +5,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <math.h>
-#include "readstat_io.h"
 #include "readstat_sas.h"
 #include "readstat_iconv.h"
 #include "readstat_convert.h"
+#include "readstat_io.h"
 
 #define SAS_DEFAULT_STRING_ENCODING "WINDOWS-1252"
 
@@ -142,6 +142,9 @@ typedef struct sas_ctx_s {
     readstat_variable_handler   variable_handler;
     readstat_value_handler      value_handler;
     readstat_error_handler      error_handler;
+    readstat_progress_handler   progress_handler;
+    size_t                      file_size;
+
     int           little_endian;
     int           u64;
     int           vendor;
@@ -226,7 +229,15 @@ static void sas_catalog_ctx_free(sas_catalog_ctx_t *ctx) {
     free(ctx);
 }
 
-static readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx, readstat_error_handler error_handler) {
+static readstat_error_t sas_update_progress(int fd, sas_ctx_t *ctx) {
+    if (!ctx->progress_handler)
+        return READSTAT_OK;
+
+    return readstat_update_progress(fd, ctx->file_size, ctx->progress_handler, ctx->user_ctx);
+}
+
+static readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx, 
+        readstat_error_handler error_handler, void *user_ctx) {
     sas_header_start_t  header_start;
     sas_header_end_t    header_end;
     int retval = READSTAT_OK;
@@ -268,7 +279,7 @@ static readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx, readstat
         if (error_handler) {
             char buf[1024];
             snprintf(buf, sizeof(buf), "Unsupported character set code: %d\n", header_start.encoding);
-            error_handler(buf);
+            error_handler(buf, user_ctx);
         }
         retval = READSTAT_ERROR_UNSUPPORTED_CHARSET;
         goto cleanup;
@@ -1000,6 +1011,7 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
     ctx->variable_handler = parser->variable_handler;
     ctx->value_handler = parser->value_handler;
     ctx->error_handler = parser->error_handler;
+    ctx->progress_handler = parser->progress_handler;
     ctx->user_ctx = user_ctx;
 
     if ((fd = readstat_open(filename)) == -1) {
@@ -1007,7 +1019,18 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
         goto cleanup;
     }
 
-    if ((retval = sas_read_header(fd, hinfo, parser->error_handler)) != READSTAT_OK) {
+    ctx->file_size = lseek(fd, 0, SEEK_END);
+    if (ctx->file_size == -1) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+
+    if (lseek(fd, 0, SEEK_SET) == -1) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+
+    if ((retval = sas_read_header(fd, hinfo, parser->error_handler, user_ctx)) != READSTAT_OK) {
         goto cleanup;
     }
 
@@ -1060,7 +1083,11 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
         }
     }
     lseek(fd, start_pos, SEEK_SET);
+
     for (i=0; i<hinfo->page_count; i++) {
+        if ((retval = sas_update_progress(fd, ctx)) != READSTAT_OK) {
+            goto cleanup;
+        }
         if (read(fd, page, hinfo->page_size) < hinfo->page_size) {
             retval = READSTAT_ERROR_READ;
             goto cleanup;
@@ -1085,8 +1112,12 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
             char error_buf[1024];
             sprintf(error_buf, "ReadStat: Expected %d rows in file, found %d\n",
                     ctx->total_row_count, ctx->parsed_row_count);
-            ctx->error_handler(error_buf);
+            ctx->error_handler(error_buf, ctx->user_ctx);
         }
+        goto cleanup;
+    }
+
+    if ((retval = sas_update_progress(fd, ctx)) != READSTAT_OK) {
         goto cleanup;
     }
 
@@ -1122,7 +1153,7 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
         goto cleanup;
     }
 
-    if ((retval = sas_read_header(fd, hinfo, parser->error_handler)) != READSTAT_OK) {
+    if ((retval = sas_read_header(fd, hinfo, parser->error_handler, user_ctx)) != READSTAT_OK) {
         goto cleanup;
     }
 

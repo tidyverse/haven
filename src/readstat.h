@@ -66,7 +66,8 @@ typedef int (*readstat_value_handler)(int obs_index, int var_index,
         readstat_value_t value, readstat_types_t type, void *ctx);
 typedef int (*readstat_value_label_handler)(const char *val_labels, 
         readstat_value_t value, readstat_types_t type, const char *label, void *ctx);
-typedef void (*readstat_error_handler)(const char *error_message);
+typedef void (*readstat_error_handler)(const char *error_message, void *ctx);
+typedef int (*readstat_progress_handler)(double progress, void *ctx);
 
 typedef struct readstat_parser_s {
     readstat_info_handler          info_handler;
@@ -74,6 +75,7 @@ typedef struct readstat_parser_s {
     readstat_value_handler         value_handler;
     readstat_value_label_handler   value_label_handler;
     readstat_error_handler         error_handler;
+    readstat_progress_handler      progress_handler;
 } readstat_parser_t;
 
 readstat_parser_t *readstat_parser_init();
@@ -84,6 +86,7 @@ readstat_error_t readstat_set_variable_handler(readstat_parser_t *parser, readst
 readstat_error_t readstat_set_value_handler(readstat_parser_t *parser, readstat_value_handler value_handler);
 readstat_error_t readstat_set_value_label_handler(readstat_parser_t *parser, readstat_value_label_handler value_label_handler);
 readstat_error_t readstat_set_error_handler(readstat_parser_t *parser, readstat_error_handler error_handler);
+readstat_error_t readstat_set_progress_handler(readstat_parser_t *parser, readstat_progress_handler progress_handler);
 
 readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filename, void *user_ctx);
 readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filename, void *user_ctx);

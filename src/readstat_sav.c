@@ -16,8 +16,8 @@
 #include <float.h>
 #include <time.h>
 
-#include "readstat_io.h"
 #include "readstat_sav.h"
+#include "readstat_io.h"
 
 #define SAV_VARINFO_INITIAL_CAPACITY  512
 

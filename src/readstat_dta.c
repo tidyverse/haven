@@ -5,8 +5,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "readstat_io.h"
 #include "readstat_dta.h"
+#include "readstat_io.h"
 
 dta_ctx_t *dta_ctx_init(int16_t nvar, int32_t nobs, unsigned char byteorder, unsigned char ds_format) {
     dta_ctx_t *ctx;

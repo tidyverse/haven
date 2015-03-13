@@ -80,6 +80,10 @@ typedef struct dta_ctx_s {
     int            machine_needs_byte_swap;
     int            machine_is_twos_complement;
     int            file_is_xmlish;
+
+    readstat_progress_handler progress_handler;
+    size_t                    file_size;
+    void                     *user_ctx;
 } dta_ctx_t;
 
 #define DTA_HILO  0x01

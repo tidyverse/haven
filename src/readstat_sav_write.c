@@ -9,10 +9,10 @@
 #include <float.h>
 #include <time.h>
 
-#include "readstat_io.h"
 #include "readstat_sav.h"
 #include "readstat_spss_parse.h"
 #include "readstat_writer.h"
+#include "readstat_io.h"
 
 #define READSTAT_PRODUCT_NAME       "ReadStat"
 #define READSTAT_PRODUCT_URL        "https://github.com/WizardMac/ReadStat"
@@ -104,7 +104,6 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
     int i, j;
     int32_t rec_type = 0;
-    double missing_val = NAN;
     
     for (i=0; i<writer->variables_count; i++) {
         readstat_variable_t *r_variable = readstat_get_variable(writer, i);
@@ -125,7 +124,7 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
 
         variable.type = (r_variable->type == READSTAT_TYPE_STRING) ? r_variable->width : 0;
         variable.has_var_label = (title_data_len > 0);
-        variable.n_missing_values = (r_variable->type != READSTAT_TYPE_STRING);
+        variable.n_missing_values = 0;
 
         retval = sav_encode_variable_format(&variable.print, r_variable);
         if (retval != READSTAT_OK)
@@ -154,12 +153,6 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
             strncpy(padded_label, title_data, (label_len + 3) / 4 * 4);
             
             retval = readstat_write_bytes(writer, padded_label, (label_len + 3) / 4 * 4);
-            if (retval != READSTAT_OK)
-                goto cleanup;
-        }
-        
-        if (variable.n_missing_values) {
-            retval = readstat_write_bytes(writer, &missing_val, sizeof(missing_val));
             if (retval != READSTAT_OK)
                 goto cleanup;
         }
@@ -478,8 +471,8 @@ static readstat_error_t sav_write_missing(void *row, const readstat_variable_t *
     if (var->type == READSTAT_TYPE_STRING) {
         memset(row, ' ', var->width);
     } else {
-        double dval = NAN;
-        memcpy(row, &dval, sizeof(double));
+        uint64_t missing_val = SAV_MISSING_DOUBLE;
+        memcpy(row, &missing_val, sizeof(uint64_t));
     }
     return READSTAT_OK;
 }

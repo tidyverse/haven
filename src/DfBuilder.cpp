@@ -276,7 +276,7 @@ int dfbuilder_value_label(const char *val_labels, readstat_value_t value,
   return ((DfBuilder*) ctx)->value_label(val_labels, value, type, label);
 }
 
-void print_error(const char* error_message) {
+void print_error(const char* error_message, void* ctx) {
   Rcout << error_message << "\n";
 }
 

@@ -9,10 +9,10 @@
 #include <float.h>
 #include <time.h>
 
-#include "readstat_io.h"
 #include "readstat_sav.h"
 #include "readstat_sav_parse.h"
 #include "readstat_convert.h"
+#include "readstat_io.h"
 
 #define DATA_BUFFER_SIZE            65536
 
@@ -110,11 +110,12 @@ typedef struct value_label_s {
     char          label[256*4+1];
 } value_label_t;
 
-static readstat_error_t sav_read_data(int fd, sav_ctx_t *ctx, void *user_ctx);
+static readstat_error_t sav_update_progress(int fd, sav_ctx_t *ctx);
+static readstat_error_t sav_read_data(int fd, sav_ctx_t *ctx);
 static readstat_error_t sav_read_compressed_data(int fd, size_t longest_string, 
-        sav_ctx_t *ctx, void *user_ctx, int *out_rows);
+        sav_ctx_t *ctx, int *out_rows);
 static readstat_error_t sav_read_uncompressed_data(int fd, size_t longest_string, 
-        sav_ctx_t *ctx, void *user_ctx, int *out_rows);
+        sav_ctx_t *ctx, int *out_rows);
 
 static readstat_error_t sav_skip_variable_record(int fd, sav_ctx_t *ctx);
 static readstat_error_t sav_read_variable_record(int fd, sav_ctx_t *ctx);
@@ -122,14 +123,21 @@ static readstat_error_t sav_read_variable_record(int fd, sav_ctx_t *ctx);
 static readstat_error_t sav_skip_document_record(int fd, sav_ctx_t *ctx);
 static readstat_error_t sav_read_document_record(int fd, sav_ctx_t *ctx);
 
-static readstat_error_t sav_skip_value_label_record(int fd, sav_ctx_t *ctx, void *user_ctx);
-static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx, void *user_ctx);
+static readstat_error_t sav_skip_value_label_record(int fd, sav_ctx_t *ctx);
+static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx);
 
 static readstat_error_t sav_read_dictionary_termination_record(int fd, sav_ctx_t *ctx);
 
 static readstat_error_t sav_parse_machine_floating_point_record(void *data, sav_ctx_t *ctx);
 static readstat_error_t sav_parse_variable_display_parameter_record(void *data, sav_ctx_t *ctx);
 static readstat_error_t sav_parse_machine_integer_info_record(void *data, size_t data_len, sav_ctx_t *ctx);
+
+static readstat_error_t sav_update_progress(int fd, sav_ctx_t *ctx) {
+    if (!ctx->progress_handler)
+        return READSTAT_OK;
+
+    return readstat_update_progress(fd, ctx->file_size, ctx->progress_handler, ctx->user_ctx);
+}
 
 static readstat_error_t sav_skip_variable_record(int fd, sav_ctx_t *ctx) {
     sav_variable_record_t variable;
@@ -282,7 +290,7 @@ static int sav_varinfo_compare(const void *elem1, const void *elem2) {
     return (offset > v->offset);
 }
 
-static readstat_error_t sav_skip_value_label_record(int fd, sav_ctx_t *ctx, void *user_ctx) {
+static readstat_error_t sav_skip_value_label_record(int fd, sav_ctx_t *ctx) {
     int32_t label_count;
     int32_t rec_type;
     int32_t var_count;
@@ -328,7 +336,7 @@ cleanup:
     return retval;
 }
 
-static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx, void *user_ctx) {
+static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx) {
     int32_t label_count;
     readstat_error_t retval = READSTAT_OK;
     int32_t *vars = NULL;
@@ -413,13 +421,13 @@ static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx, void
                 memcpy(&val_d, vlabel->value, 8);
                 if (ctx->machine_needs_byte_swap)
                     val_d = byteswap_double(val_d);
-                ctx->value_label_handler(label_name_buf, &val_d, value_type, vlabel->label, user_ctx);
+                ctx->value_label_handler(label_name_buf, &val_d, value_type, vlabel->label, ctx->user_ctx);
             } else {
                 char unpadded_val[8*4+1];
                 retval = readstat_convert(unpadded_val, sizeof(unpadded_val), vlabel->value, 8, ctx->converter);
                 if (retval != READSTAT_OK)
                     break;
-                ctx->value_label_handler(label_name_buf, unpadded_val, value_type, vlabel->label, user_ctx);
+                ctx->value_label_handler(label_name_buf, unpadded_val, value_type, vlabel->label, ctx->user_ctx);
             }
         }
     }
@@ -491,7 +499,7 @@ double handle_missing_double(double fp_value, sav_varinfo_t *info) {
     return fp_value;
 }
 
-static readstat_error_t sav_read_data(int fd, sav_ctx_t *ctx, void *user_ctx) {
+static readstat_error_t sav_read_data(int fd, sav_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     int longest_string = 256;
     int rows = 0;
@@ -504,9 +512,9 @@ static readstat_error_t sav_read_data(int fd, sav_ctx_t *ctx, void *user_ctx) {
         }
     }
     if (ctx->data_is_compressed) {
-        retval = sav_read_compressed_data(fd, longest_string, ctx, user_ctx, &rows);
+        retval = sav_read_compressed_data(fd, longest_string, ctx, &rows);
     } else {
-        retval = sav_read_uncompressed_data(fd, longest_string, ctx, user_ctx, &rows);
+        retval = sav_read_uncompressed_data(fd, longest_string, ctx, &rows);
     }
     if (retval != READSTAT_OK)
         goto done;
@@ -514,13 +522,13 @@ static readstat_error_t sav_read_data(int fd, sav_ctx_t *ctx, void *user_ctx) {
     if (rows != ctx->record_count) {
         retval = READSTAT_ERROR_PARSE;
     }
+
 done:
-    
     return retval;
 }
 
 static readstat_error_t sav_read_uncompressed_data(int fd, size_t longest_string, 
-        sav_ctx_t *ctx, void *user_ctx, int *out_rows) {
+        sav_ctx_t *ctx, int *out_rows) {
     readstat_error_t retval = READSTAT_OK;
     int segment_offset = 0;
     int row = 0, var_index = 0, col = 0;
@@ -545,6 +553,10 @@ static readstat_error_t sav_read_uncompressed_data(int fd, size_t longest_string
     }
     while (1) {
         if (data_offset >= buffer_used) {
+            retval = sav_update_progress(fd, ctx);
+            if (retval != READSTAT_OK)
+                goto done;
+
             if ((buffer_used = read(fd, buffer, sizeof(buffer))) == -1 ||
                 buffer_used == 0 || (buffer_used % 8) != 0)
                 goto done;
@@ -571,7 +583,8 @@ static readstat_error_t sav_read_uncompressed_data(int fd, size_t longest_string
                             raw_str_value, raw_str_used, ctx->converter);
                     if (retval != READSTAT_OK)
                         goto done;
-                    if (ctx->value_handler(row, var_info->index, utf8_str_value, READSTAT_TYPE_STRING, user_ctx)) {
+                    if (ctx->value_handler(row, var_info->index, utf8_str_value, 
+                                READSTAT_TYPE_STRING, ctx->user_ctx)) {
                         retval = READSTAT_ERROR_USER_ABORT;
                         goto done;
                     }
@@ -588,7 +601,8 @@ static readstat_error_t sav_read_uncompressed_data(int fd, size_t longest_string
                 fp_value = byteswap_double(fp_value);
             }
             fp_value = handle_missing_double(fp_value, var_info);
-            if (ctx->value_handler(row, var_info->index, isnan(fp_value) ? NULL : &fp_value, READSTAT_TYPE_DOUBLE, user_ctx)) {
+            if (ctx->value_handler(row, var_info->index, isnan(fp_value) ? NULL : &fp_value, 
+                        READSTAT_TYPE_DOUBLE, ctx->user_ctx)) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto done;
             }
@@ -616,7 +630,7 @@ done:
 }
 
 static readstat_error_t sav_read_compressed_data(int fd,
-        size_t longest_string, sav_ctx_t *ctx, void *user_ctx, int *out_rows) {
+        size_t longest_string, sav_ctx_t *ctx, int *out_rows) {
     readstat_error_t retval = READSTAT_OK;
     unsigned char value[8];
     int offset = 0;
@@ -643,6 +657,10 @@ static readstat_error_t sav_read_compressed_data(int fd,
     }
     while (1) {
         if (data_offset >= buffer_used) {
+            retval = sav_update_progress(fd, ctx);
+            if (retval != READSTAT_OK)
+                goto done;
+
             if ((buffer_used = read(fd, buffer, sizeof(buffer))) == -1 ||
                 buffer_used == 0 || (buffer_used % 8) != 0)
                 goto done;
@@ -688,7 +706,8 @@ static readstat_error_t sav_read_compressed_data(int fd,
                                         raw_str_value, raw_str_used, ctx->converter);
                                 if (retval != READSTAT_OK)
                                     goto done;
-                                if (ctx->value_handler(row, var_info->index, utf8_str_value, READSTAT_TYPE_STRING, user_ctx)) {
+                                if (ctx->value_handler(row, var_info->index, utf8_str_value, 
+                                            READSTAT_TYPE_STRING, ctx->user_ctx)) {
                                     retval = READSTAT_ERROR_USER_ABORT;
                                     goto done;
                                 }
@@ -705,7 +724,8 @@ static readstat_error_t sav_read_compressed_data(int fd,
                             fp_value = byteswap_double(fp_value);
                         }
                         fp_value = handle_missing_double(fp_value, var_info);
-                        if (ctx->value_handler(row, var_info->index, &fp_value, READSTAT_TYPE_DOUBLE, user_ctx)) {
+                        if (ctx->value_handler(row, var_info->index, &fp_value, 
+                                    READSTAT_TYPE_DOUBLE, ctx->user_ctx)) {
                             retval = READSTAT_ERROR_USER_ABORT;
                             goto done;
                         }
@@ -728,7 +748,8 @@ static readstat_error_t sav_read_compressed_data(int fd,
                                         raw_str_value, raw_str_used, ctx->converter);
                                 if (retval != READSTAT_OK)
                                     goto done;
-                                if (ctx->value_handler(row, var_info->index, utf8_str_value, READSTAT_TYPE_STRING, user_ctx)) {
+                                if (ctx->value_handler(row, var_info->index, utf8_str_value, 
+                                            READSTAT_TYPE_STRING, ctx->user_ctx)) {
                                     retval = READSTAT_ERROR_USER_ABORT;
                                     goto done;
                                 }
@@ -746,7 +767,7 @@ static readstat_error_t sav_read_compressed_data(int fd,
                     break;
                 case 255:
                     fp_value = NAN;
-                    if (ctx->value_handler(row, var_info->index, &fp_value, var_info->type, user_ctx)) {
+                    if (ctx->value_handler(row, var_info->index, &fp_value, var_info->type, ctx->user_ctx)) {
                         retval = READSTAT_ERROR_USER_ABORT;
                         goto done;
                     }
@@ -756,7 +777,7 @@ static readstat_error_t sav_read_compressed_data(int fd,
                 default:
                     fp_value = value[i] - 100.0;
                     fp_value = handle_missing_double(fp_value, var_info);
-                    if (ctx->value_handler(row, var_info->index, &fp_value, var_info->type, user_ctx)) {
+                    if (ctx->value_handler(row, var_info->index, &fp_value, var_info->type, ctx->user_ctx)) {
                         retval = READSTAT_ERROR_USER_ABORT;
                         goto done;
                     }
@@ -808,7 +829,7 @@ static readstat_error_t sav_parse_machine_integer_info_record(void *data, size_t
             if (ctx->error_handler) {
                 char error_buf[1024];
                 snprintf(error_buf, sizeof(error_buf), "Unsupported character set: %d\n", record.character_code);
-                ctx->error_handler(error_buf);
+                ctx->error_handler(error_buf, ctx->user_ctx);
             }
             return READSTAT_ERROR_UNSUPPORTED_CHARSET;
         }
@@ -830,7 +851,7 @@ static readstat_error_t sav_parse_variable_display_parameter_record(void *data, 
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_parse_records_pass1(int fd, sav_ctx_t *ctx, void *user_ctx) {
+static readstat_error_t sav_parse_records_pass1(int fd, sav_ctx_t *ctx) {
     char data_buf[4096];
     readstat_error_t retval = READSTAT_OK;
     while (1) {
@@ -855,7 +876,7 @@ static readstat_error_t sav_parse_records_pass1(int fd, sav_ctx_t *ctx, void *us
                     goto cleanup;
                 break;
             case SAV_RECORD_TYPE_VALUE_LABEL:
-                retval = sav_skip_value_label_record(fd, ctx, user_ctx);
+                retval = sav_skip_value_label_record(fd, ctx);
                 if (retval)
                     goto cleanup;
                 break;
@@ -909,7 +930,7 @@ cleanup:
     return retval;
 }
 
-static readstat_error_t sav_parse_records_pass2(int fd, sav_ctx_t *ctx, void *user_ctx) {
+static readstat_error_t sav_parse_records_pass2(int fd, sav_ctx_t *ctx) {
     void *data_buf = NULL;
     size_t data_buf_capacity = 4096;
     readstat_error_t retval = READSTAT_OK;
@@ -941,7 +962,7 @@ static readstat_error_t sav_parse_records_pass2(int fd, sav_ctx_t *ctx, void *us
                     goto cleanup;
                 break;
             case SAV_RECORD_TYPE_VALUE_LABEL:
-                retval = sav_read_value_label_record(fd, ctx, user_ctx);
+                retval = sav_read_value_label_record(fd, ctx);
                 if (retval)
                     goto cleanup;
                 break;
@@ -1027,11 +1048,23 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filen
     readstat_error_t retval = READSTAT_OK;
     sav_file_header_record_t header;
     sav_ctx_t *ctx = NULL;
+    size_t file_size = 0;
     
     if ((fd = readstat_open(filename)) == -1) {
         return READSTAT_ERROR_OPEN;
     }
-    
+
+    file_size = lseek(fd, 0, SEEK_END);
+    if (file_size == -1) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+
+    if (lseek(fd, 0, SEEK_SET) == -1) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+
     if ((read(fd, &header, sizeof(sav_file_header_record_t))) < sizeof(sav_file_header_record_t)) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
@@ -1043,21 +1076,27 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filen
         goto cleanup;
     }
 
+    ctx->progress_handler = parser->progress_handler;
     ctx->error_handler = parser->error_handler;
     ctx->value_handler = parser->value_handler;
     ctx->value_label_handler = parser->value_label_handler;
+    ctx->user_ctx = user_ctx;
+    ctx->file_size = file_size;
     
-    retval = sav_parse_records_pass1(fd, ctx, user_ctx);
+    retval = sav_parse_records_pass1(fd, ctx);
     if (retval != READSTAT_OK)
         goto cleanup;
 
     lseek(fd, sizeof(sav_file_header_record_t), SEEK_SET);
 
-    retval = sav_parse_records_pass2(fd, ctx, user_ctx);
+    retval = sav_update_progress(fd, ctx);
     if (retval != READSTAT_OK)
         goto cleanup;
-    
-    
+
+    retval = sav_parse_records_pass2(fd, ctx);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
     int i;
     for (i=0; i<ctx->var_index;) {
         sav_varinfo_t *info = &ctx->varinfo[i];
@@ -1071,7 +1110,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filen
     }
     
     if (parser->info_handler) {
-        if (parser->info_handler(ctx->record_count, ctx->var_count, user_ctx)) {
+        if (parser->info_handler(ctx->record_count, ctx->var_count, ctx->user_ctx)) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -1091,7 +1130,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filen
 
             int cb_retval = parser->variable_handler(info->index, info->longname, format, info->label, 
                                         info->labels_index == -1 ? NULL : label_name_buf,
-                                        info->type, user_ctx);
+                                        info->type, ctx->user_ctx);
             if (cb_retval) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
@@ -1099,9 +1138,9 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filen
             i += info->n_segments;
         }
     }
-    
+
     if (ctx->value_handler) {
-        retval = sav_read_data(fd, ctx, user_ctx);
+        retval = sav_read_data(fd, ctx);
     }
     
 cleanup:

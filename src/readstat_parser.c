@@ -37,6 +37,11 @@ readstat_error_t readstat_set_error_handler(readstat_parser_t *parser, readstat_
     return READSTAT_OK;
 }
 
+readstat_error_t readstat_set_progress_handler(readstat_parser_t *parser, readstat_progress_handler progress_handler) {
+    parser->progress_handler = progress_handler;
+    return READSTAT_OK;
+}
+
 rdata_parser_t *rdata_parser_init() {
     rdata_parser_t *parser = calloc(1, sizeof(rdata_parser_t));
     return parser;

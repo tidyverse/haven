@@ -367,7 +367,7 @@ tr233:
                 ctx->varinfo[found->index].longname[str_len] = '\0';
             } else if (ctx->error_handler) {
                 snprintf(error_buf, sizeof(error_buf), "Failed to find %s\n", temp_key);
-                ctx->error_handler(error_buf);
+                ctx->error_handler(error_buf, ctx->user_ctx);
             }
         }
 	goto st228;
@@ -3428,7 +3428,7 @@ case 226:
                 ctx->varinfo[found->index].longname[str_len] = '\0';
             } else if (ctx->error_handler) {
                 snprintf(error_buf, sizeof(error_buf), "Failed to find %s\n", temp_key);
-                ctx->error_handler(error_buf);
+                ctx->error_handler(error_buf, ctx->user_ctx);
             }
         }
 	break;
@@ -3446,7 +3446,7 @@ case 226:
         if (ctx->error_handler) {
             snprintf(error_buf, sizeof(error_buf), "Error parsing string \"%s\" around byte #%ld/%d, character %c\n", 
                     (char *)data, (long)(p - c_data), count, *p);
-            ctx->error_handler(error_buf);
+            ctx->error_handler(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_PARSE;
     }
@@ -4055,7 +4055,7 @@ case 35:
     if (cs < 36 || p != pe) {
         if (ctx->error_handler) {
             snprintf(error_buf, error_buf_len, "Parsed %ld of %ld bytes\nRemaining bytes: %s\n", (long)(p - c_data), (long)(pe - c_data), p);
-            ctx->error_handler(error_buf);
+            ctx->error_handler(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_PARSE;
     }

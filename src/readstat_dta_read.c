@@ -6,14 +6,22 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "readstat_io.h"
 #include "readstat_dta.h"
+#include "readstat_io.h"
 
+static readstat_error_t dta_update_progress(int fd, dta_ctx_t *ctx);
 static inline readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx);
 static readstat_error_t dta_read_descriptors(int fd, dta_ctx_t *ctx);
 static readstat_error_t dta_read_tag(int fd, dta_ctx_t *ctx, const char *tag);
 static readstat_error_t dta_read_long_string(int fd, dta_ctx_t *ctx, int v, int o, char **long_string_out);
 static int dta_skip_expansion_fields(int fd, dta_ctx_t *ctx);
+
+static readstat_error_t dta_update_progress(int fd, dta_ctx_t *ctx) {
+    if (!ctx->progress_handler)
+        return READSTAT_OK;
+
+    return readstat_update_progress(fd, ctx->file_size, ctx->progress_handler, ctx->user_ctx);
+}
 
 static inline readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx) {
     size_t len = 0;
@@ -369,6 +377,7 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
     dta_ctx_t    *ctx = NULL;
     char  str_buf[2048];
     char *long_string = NULL;
+    size_t file_size = 0;
 
     if ((fd = readstat_open(filename)) == -1) {
         retval = READSTAT_ERROR_OPEN;
@@ -377,6 +386,12 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
 
     char magic[4];
     if (read(fd, magic, 4) != 4) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+
+    file_size = lseek(fd, 0, SEEK_END);
+    if (file_size == -1) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
@@ -396,6 +411,14 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;
     }
+
+    ctx->user_ctx = user_ctx;
+    ctx->file_size = file_size;
+    ctx->progress_handler = parser->progress_handler;
+
+    retval = dta_update_progress(fd, ctx);
+    if (retval != READSTAT_OK)
+        goto cleanup;
     
     if (parser->info_handler) {
         if (parser->info_handler(ctx->nobs, ctx->nvar, user_ctx)) {
@@ -514,10 +537,15 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
         goto cleanup;
     }
 
+    if ((retval = dta_update_progress(fd, ctx)) != READSTAT_OK) {
+        goto cleanup;
+    }
+
     if ((buf = malloc(record_len)) == NULL) {
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;
     }
+
     for (i=0; i<ctx->nobs; i++) {
         if (read(fd, buf, record_len) != record_len) {
             retval = READSTAT_ERROR_READ;
@@ -621,6 +649,9 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
             }
 
             offset += max_len;
+        }
+        if ((retval = dta_update_progress(fd, ctx)) != READSTAT_OK) {
+            goto cleanup;
         }
     }
 
@@ -744,6 +775,10 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
             
             free(table_buffer);
         }
+    }
+
+    if ((retval = dta_update_progress(fd, ctx)) != READSTAT_OK) {
+        goto cleanup;
     }
 
 cleanup:

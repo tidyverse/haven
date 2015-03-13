@@ -90,8 +90,12 @@ typedef struct sav_varinfo_s {
 
 typedef struct sav_ctx_s {
     readstat_error_handler          error_handler;
+    readstat_progress_handler       progress_handler;
     readstat_value_handler          value_handler;
     readstat_value_label_handler    value_label_handler;
+    size_t                          file_size;
+    void                           *user_ctx;
+
     sav_varinfo_t *varinfo;
     size_t         varinfo_capacity;
     iconv_t        converter;

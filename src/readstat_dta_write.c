@@ -7,9 +7,9 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "readstat_io.h"
 #include "readstat_dta.h"
 #include "readstat_writer.h"
+#include "readstat_io.h"
 
 static readstat_error_t dta_emit_header_data_label(readstat_writer_t *writer) {
     char data_label[81];
