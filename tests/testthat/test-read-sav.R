@@ -18,9 +18,9 @@ test_that("value labels read in as same type as vector", {
   num <- read_sav("labelled-num.sav")
   str <- read_sav("labelled-str.sav")
 
-  expect_equal(class(as.vector(df$sex)), class(attr(df$sex, "labels")))
-  expect_equal(class(as.vector(num[[1]])), class(attr(num[[1]], "labels")))
-  expect_equal(class(as.vector(str[[1]])), class(attr(str[[1]], "labels")))
+  expect_equal(typeof(df$sex), typeof(attr(df$sex, "labels")))
+  expect_equal(typeof(num[[1]]), typeof(attr(num[[1]], "labels")))
+  expect_equal(typeof(str[[1]]), typeof(attr(str[[1]], "labels")))
 })
 
 test_that("missing values encoded as NA", {

@@ -17,8 +17,8 @@ test_that("value labels parsed from bcat file", {
 test_that("value labels read in as same type as vector", {
   df <- read_sas("hadley.sas7bdat", "formats.sas7bcat")
 
-  expect_equal(class(as.vector(df$gender)), class(attr(df$gender, "labels")))
-  expect_equal(class(as.vector(df$workshop)), class(attr(df$workshop, "labels")))
+  expect_equal(typeof(df$gender), typeof(attr(df$gender, "labels")))
+  expect_equal(typeof(df$workshop), typeof(attr(df$workshop, "labels")))
 })
 
 test_that("date times are converted into corresponding R types", {
