@@ -73,7 +73,7 @@ read_spss <- read_sav
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #' @export
 #' @examples
-#' tmp <- tempfile(fileext = ".sav")
+#' tmp <- tempfile(fileext = ".dta")
 #' write_dta(mtcars, tmp)
 #' read_dta(tmp)
 read_dta <- function(path) {
