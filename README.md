@@ -39,7 +39,7 @@ Haven is still a work in progress so please [file an issue](https://github.com/h
 # Install the released version from CRAN:
 install.packages("haven")
 
-# Install the cutting edge development version from CRAN:
+# Install the cutting edge development version from GitHub:
 # install.packages("devtools")
 devtools::install_github("hadley/haven")
 ```
