@@ -56,8 +56,15 @@ read_sav <- function(path) {
 
 #' @export
 #' @rdname read_spss
-read_spss <- read_sav
+read_spss <- function(path) {
+  ext <- tolower(tools::file_ext(path))
 
+  switch(ext,
+    sav = read_sav(path),
+    por = read_por(path),
+    stop("Unknown extension '.",  ext, "'", call. = FALSE)
+  )
+}
 
 #' Read and write Stata DTA files.
 #'
