@@ -164,7 +164,7 @@ public:
             readstat_types_t type) {
 
     // Check for user interrupts every 1000 rows or cols
-    if (obs_index % 1000 == 0 || var_index % 1000 == 0)
+    if ((obs_index + 1) % 10000 == 0 || (var_index + 1) % 10000 == 0)
       checkUserInterrupt();
 
     VarType var_type = var_types_[var_index];
