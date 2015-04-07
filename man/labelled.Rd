@@ -41,7 +41,7 @@ s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
 s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
 
 # Unfortunately it's not possible to make as.factor work for labelled objects
-# so instead use as_factor
+# so instead use as_factor. This works for all types of labelled vectors.
 as_factor(s1)
 as_factor(s1, labels = "values")
 as_factor(s2)

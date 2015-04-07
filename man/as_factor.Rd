@@ -13,6 +13,7 @@ as_factor(x, ...)
 }
 \description{
 The base function \code{as.factor()} is not a generic, but this variant
-is.
+is. Methods are provided for factors, character vectors and labelled
+vectors.
 }
 

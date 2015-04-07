@@ -1,7 +1,8 @@
 #' Convert input to a factor.
 #'
 #' The base function \code{as.factor()} is not a generic, but this variant
-#' is.
+#' is. Methods are provided for factors, character vectors and labelled
+#' vectors.
 #'
 #' @param x Object to coerce to a factor.
 #' @param ... Other arguments passed down to method.
