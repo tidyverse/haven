@@ -31,7 +31,7 @@ and factors. See \code{\link{labelled}} for how labelled variables in
 Stata are handled in R.
 }
 \examples{
-tmp <- tempfile(fileext = ".sav")
+tmp <- tempfile(fileext = ".dta")
 write_dta(mtcars, tmp)
 read_dta(tmp)
 read_stata(tmp)
