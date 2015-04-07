@@ -1,5 +1,8 @@
 # haven 0.1.1.9000
 
+* `zap_labels()` now leaves unlabelled vectors unchanged, making it easier
+  to apply to all columns.
+
 * `write_dta()` and `write_sav()` take more care to always write output as
   UTF-8 (#36)
 
