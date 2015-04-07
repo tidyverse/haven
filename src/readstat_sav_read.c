@@ -158,7 +158,7 @@ static readstat_error_t sav_skip_variable_record(int fd, sav_ctx_t *ctx) {
     }
     if (variable.n_missing_values) {
         int n_missing_values = ctx->machine_needs_byte_swap ? byteswap4(variable.n_missing_values) : variable.n_missing_values;
-        lseek(fd, n_missing_values * sizeof(double), SEEK_CUR);
+        lseek(fd, abs(n_missing_values) * sizeof(double), SEEK_CUR);
     }
 cleanup:
     return retval;
