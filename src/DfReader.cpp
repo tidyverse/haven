@@ -82,7 +82,7 @@ public:
   }
 };
 
-class DfBuilder {
+class DfReader {
   FileType type_;
   int nrows_, ncols_;
   List output_;
@@ -93,7 +93,7 @@ class DfBuilder {
   std::vector<VarType> var_types_;
 
 public:
-  DfBuilder(FileType type): type_(type), nrows_(0), ncols_(0) {
+  DfReader(FileType type): type_(type), nrows_(0), ncols_(0) {
   }
 
   int info(int obs_count, int var_count) {
@@ -280,22 +280,22 @@ public:
 
 };
 
-int dfbuilder_info(int obs_count, int var_count, void *ctx) {
-  return ((DfBuilder*) ctx)->info(obs_count, var_count);
+int dfreader_info(int obs_count, int var_count, void *ctx) {
+  return ((DfReader*) ctx)->info(obs_count, var_count);
 }
-int dfbuilder_variable(int index, const char *var_name, const char *var_format,
+int dfreader_variable(int index, const char *var_name, const char *var_format,
                        const char *var_label, const char *val_labels,
                        readstat_types_t type, void *ctx) {
-  return ((DfBuilder*) ctx)->variable(index, var_name, var_format, var_label,
+  return ((DfReader*) ctx)->variable(index, var_name, var_format, var_label,
     val_labels, type);
 }
-int dfbuilder_value(int obs_index, int var_index, void *value,
+int dfreader_value(int obs_index, int var_index, void *value,
                     readstat_types_t type, void *ctx) {
-  return ((DfBuilder*) ctx)->value(obs_index, var_index, value, type);
+  return ((DfReader*) ctx)->value(obs_index, var_index, value, type);
 }
-int dfbuilder_value_label(const char *val_labels, readstat_value_t value,
+int dfreader_value_label(const char *val_labels, readstat_value_t value,
                           readstat_types_t type, const char *label, void *ctx) {
-  return ((DfBuilder*) ctx)->value_label(val_labels, value, type, label);
+  return ((DfReader*) ctx)->value_label(val_labels, value, type, label);
 }
 
 void print_error(const char* error_message, void* ctx) {
@@ -306,13 +306,13 @@ void print_error(const char* error_message, void* ctx) {
 
 template<typename ParseFunction>
 List df_parse(FileType type, std::string filename, ParseFunction parse_f) {
-  DfBuilder builder(type);
+  DfReader builder(type);
 
   readstat_parser_t* parser = readstat_parser_init();
-  readstat_set_info_handler(parser, dfbuilder_info);
-  readstat_set_variable_handler(parser, dfbuilder_variable);
-  readstat_set_value_handler(parser, dfbuilder_value);
-  readstat_set_value_label_handler(parser, dfbuilder_value_label);
+  readstat_set_info_handler(parser, dfreader_info);
+  readstat_set_variable_handler(parser, dfreader_variable);
+  readstat_set_value_handler(parser, dfreader_value);
+  readstat_set_value_label_handler(parser, dfreader_value_label);
   readstat_set_error_handler(parser, print_error);
 
   readstat_error_t result = parse_f(parser, filename.c_str(), &builder);
@@ -328,13 +328,13 @@ List df_parse(FileType type, std::string filename, ParseFunction parse_f) {
 
 // [[Rcpp::export]]
 List df_parse_sas(const std::string& b7dat, const std::string& b7cat) {
-  DfBuilder builder(HAVEN_SAS);
+  DfReader builder(HAVEN_SAS);
 
   readstat_parser_t* parser = readstat_parser_init();
-  readstat_set_info_handler(parser, dfbuilder_info);
-  readstat_set_variable_handler(parser, dfbuilder_variable);
-  readstat_set_value_handler(parser, dfbuilder_value);
-  readstat_set_value_label_handler(parser, dfbuilder_value_label);
+  readstat_set_info_handler(parser, dfreader_info);
+  readstat_set_variable_handler(parser, dfreader_variable);
+  readstat_set_value_handler(parser, dfreader_value);
+  readstat_set_value_label_handler(parser, dfreader_value_label);
   readstat_set_error_handler(parser, print_error);
 
   if (b7cat != "") {
