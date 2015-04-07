@@ -1,5 +1,7 @@
 # haven 0.1.1.9000
 
+* Added `read_stata()` as alias to `read_dta()` (#52)
+
 * `read_spss()` uses extension to automatically choose between `read_sav()`
   and `read_por()` (#53)
 

@@ -2,12 +2,15 @@
 % Please edit documentation in R/RcppExports.R, R/haven.R
 \name{write_dta}
 \alias{read_dta}
+\alias{read_stata}
 \alias{write_dta}
 \title{Read and write Stata DTA files.}
 \usage{
 write_dta(data, path)
 
 read_dta(path)
+
+read_stata(path)
 }
 \arguments{
 \item{data}{Data frame to write.}

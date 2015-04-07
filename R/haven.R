@@ -83,6 +83,13 @@ read_spss <- function(path) {
 #' tmp <- tempfile(fileext = ".sav")
 #' write_dta(mtcars, tmp)
 #' read_dta(tmp)
+#' read_stata(tmp)
 read_dta <- function(path) {
   df_parse_dta(clean_path(path))
+}
+
+#' @export
+#' @rdname read_dta
+read_stata <- function(path) {
+  read_dta(path)
 }
