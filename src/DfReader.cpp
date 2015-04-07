@@ -175,7 +175,11 @@ public:
       col[obs_index] = Rf_mkCharCE(readstat_string_value(value), CE_UTF8);
     } else if (type == READSTAT_TYPE_CHAR) {
       IntegerVector col = output_[var_index];
-      col[obs_index] = readstat_char_value(value);
+      if (readstat_value_is_missing(value)) {
+        col[obs_index] = NA_INTEGER;
+      } else {
+        col[obs_index] = readstat_char_value(value);
+      }
     } else if (type == READSTAT_TYPE_INT16) {
       IntegerVector col = output_[var_index];
       if (readstat_value_is_missing(value)) {
