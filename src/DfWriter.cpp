@@ -13,8 +13,11 @@ class Writer {
   FILE* pOut_;
 
 public:
-  Writer(List x, std::string path_, FileType type): x_(x), type_(type) {
-    pOut_ = fopen(path_.c_str(), "wb");
+  Writer(List x, std::string path, FileType type): x_(x), type_(type) {
+    pOut_ = fopen(path.c_str(), "wb");
+    if (pOut_ == NULL)
+      stop("Failed to open '%s' for writing", path);
+
     writer_ = readstat_writer_init();
     checkStatus(readstat_set_data_writer(writer_, data_writer));
   }
