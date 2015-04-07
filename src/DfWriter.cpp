@@ -108,7 +108,7 @@ public:
           if (val == NA_STRING) {
             readstat_insert_missing_value(writer_, var);
           } else {
-            readstat_insert_string_value(writer_, var, CHAR(val));
+            readstat_insert_string_value(writer_, var, Rf_translateCharUTF8(val));
           }
           break;
         }
@@ -132,7 +132,7 @@ public:
     if (label == R_NilValue)
       return NULL;
 
-    return CHAR(STRING_ELT(label, 0));
+    return Rf_translateCharUTF8(STRING_ELT(label, 0));
   }
 
   void defineVariable(IntegerVector x, std::string name) {
