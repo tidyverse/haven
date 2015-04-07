@@ -89,11 +89,10 @@ as_factor.labelled <- function(x, levels = c("labels", "values"),
 
   if (is.character(x)) {
     levs <- unname(attr(x, "labels"))
-    if (levels == "labels") {
-      labs <- names(attr(x, "labels"))
-    } else {
-      labs <- levs
-    }
+    labs <- switch(levels,
+      labels = names(attr(x, "labels")),
+      values = levs
+    )
     factor(x, levs, labels = labs, ordered = ordered)
   } else {
     labs <- attr(x, "labels")
