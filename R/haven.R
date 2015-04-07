@@ -56,6 +56,13 @@ read_sav <- function(path) {
 
 #' @export
 #' @rdname read_spss
+write_sav <- function(data, path) {
+  write_sav_(data, normalizePath(path, mustWork = FALSE))
+}
+
+
+#' @export
+#' @rdname read_spss
 read_spss <- function(path) {
   ext <- tolower(tools::file_ext(path))
 
@@ -92,4 +99,10 @@ read_dta <- function(path) {
 #' @rdname read_dta
 read_stata <- function(path) {
   read_dta(path)
+}
+
+#' @export
+#' @rdname read_dta
+write_dta <- function(data, path) {
+  write_dta_(data, normalizePath(path, mustWork = FALSE))
 }

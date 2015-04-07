@@ -225,16 +225,12 @@ std::string rClass(RObject x) {
   return std::string(klassv[0]);
 }
 
-//' @export
-//' @rdname read_spss
 // [[Rcpp::export]]
-void write_sav(List data, std::string path) {
+void write_sav_(List data, std::string path) {
   Writer(data, path, HAVEN_SPSS).write_sav();
 }
 
-//' @export
-//' @rdname read_dta
 // [[Rcpp::export]]
-void write_dta(List data, std::string path) {
+void write_dta_(List data, std::string path) {
   Writer(data, path, HAVEN_STATA).write_sav();
 }
