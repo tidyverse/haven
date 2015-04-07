@@ -34,5 +34,6 @@ Stata are handled in R.
 tmp <- tempfile(fileext = ".sav")
 write_dta(mtcars, tmp)
 read_dta(tmp)
+read_stata(tmp)
 }
 
