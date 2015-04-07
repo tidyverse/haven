@@ -6,7 +6,8 @@
 * `write_dta()` and `write_sav()` won't crash if you give them invalid paths,
   and you can now use `~` to refer to your home directory (#37).
 
-* Stata byte variables are now correctly read into integers (not strings, #45).
+* Byte variables are now correctly read into integers (not strings, #45), 
+  and missing values are captured correctly (#43).
 
 * Added `read_stata()` as alias to `read_dta()` (#52).
 
