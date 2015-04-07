@@ -96,7 +96,8 @@ as_factor.labelled <- function(x, levels = c("labels", "values"),
     }
     factor(x, levs, labels = labs, ordered = ordered)
   } else {
-    factor(match(x, attr(x, "labels")), labels = names(attr(x, "labels")))
+    labs <- attr(x, "labels")
+    factor(match(x, labs), levels = unname(labs), labels = names(labs))
   }
 
 }
