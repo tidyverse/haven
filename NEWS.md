@@ -1,5 +1,7 @@
 # haven 0.1.1.9000
 
+* Stata byte variables are now correctly read into integers (not strings, #45).
+
 * Added `read_stata()` as alias to `read_dta()` (#52).
 
 * `read_spss()` uses extension to automatically choose between `read_sav()`
