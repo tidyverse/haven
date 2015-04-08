@@ -1,4 +1,4 @@
-# haven 0.1.1.9000
+# haven 0.2.0
 
 * `zap_labels()` now leaves unlabelled vectors unchanged, making it easier
   to apply to all columns.
@@ -23,8 +23,7 @@
 * hms objects deal better with missings when printing.
 
 * Fixed bug causing labels for numeric variables to be read in as
-  integers and associated error:
-  ``Error: `x` and `labels` must be same type``
+  integers and associated error: ``Error: `x` and `labels` must be same type``
 
 # haven 0.1.1
 
