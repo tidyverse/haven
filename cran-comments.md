@@ -18,4 +18,4 @@ There was 1 NOTE:
 ## Reverse dependencies
 I have run R CMD check on the 2 reverse dependencies of haven. There were no signficant problems.
 
-Full results are available at https://github.com/hadley/haven/tree/master/revdep.
+Full results are available at https://github.com/hadley/haven/tree/master/revdep/summary.md.
