@@ -1,3 +1,5 @@
+# haven 0.2.0.9000
+
 # haven 0.2.0
 
 * `zap_labels()` now leaves unlabelled vectors unchanged, making it easier
