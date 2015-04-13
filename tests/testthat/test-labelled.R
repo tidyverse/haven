@@ -16,3 +16,13 @@ test_that("can coerce single value labelled vectors into factor", {
   var <- labelled(1L, c(female = 1L, male = 2L))
   expect_equal(as_factor(var), factor("female", levels = c("female", "male")))
 })
+
+test_that("integer labels that are not equal to vector positions work", {
+  var <- labelled(1L, c(female = 2L, male = 1L))
+  expect_equal(as_factor(var), factor("male", levels = c("female", "male")))
+})
+
+test_that("integer labels that are larger then label list work", {
+  var <- labelled(11L, c(female = 11L, male = 12L))
+  expect_equal(as_factor(var), factor("female", levels = c("female", "male")))
+})
