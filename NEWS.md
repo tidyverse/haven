@@ -1,6 +1,8 @@
 # haven 0.2.0.9000
 
 # haven 0.2.0
+* fixed a bug in `as_factor.labelled`, which generated <NA>'s and wrong 
+  labels for integer labels
 
 * `zap_labels()` now leaves unlabelled vectors unchanged, making it easier
   to apply to all columns.
