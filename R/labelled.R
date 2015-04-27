@@ -104,7 +104,7 @@ as_factor.labelled <- function(x, levels = c("labels", "values"),
 #' @export
 #' @rdname labelled
 zap_labels <- function(x) {
-  if (is.labelled(x))
+  if (!is.labelled(x))
     return(x)
 
   labelled <- x %in% attr(x, "labels")
