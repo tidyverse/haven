@@ -1,6 +1,7 @@
 # Haven
 
 [![Travis-CI Build Status](https://travis-ci.org/hadley/haven.png?branch=master)](https://travis-ci.org/hadley/haven)
+[![Coverage Status](https://img.shields.io/codecov/c/github/hadley/haven/master.svg)](https://codecov.io/github/hadley/haven?branch=master)
 
 Haven allows you to load foreign data formats (SAS, Spss and Stata) in to R by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). Haven offers similar functionality to the base foreign package but:
 
