@@ -26,3 +26,14 @@ test_that("integer labels that are larger then label list work", {
   var <- labelled(11L, c(female = 11L, male = 12L))
   expect_equal(as_factor(var), factor("female", levels = c("female", "male")))
 })
+
+test_that("zap_labels replaces labels with NAs for labelled variable", {
+    var <- labelled(c(1L, 98L, 99L),  c(not_answered = 98L, not_applicable = 99L))
+    exp <- c(1L,NA,NA)
+    expect_equal(zap_labels(var), exp)
+})
+
+test_that("zap_labels returns variables not of class('labelled') unmodified", {
+    var <- c(1L, 98L, 99L)
+    expect_equal(zap_labels(var), var)
+})
