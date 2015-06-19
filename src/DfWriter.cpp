@@ -62,10 +62,10 @@ public:
     int n = Rf_length(x_[0]);
     switch (type_) {
     case HAVEN_STATA:
-      readstat_begin_writing_dta(writer_, this, "", n);
+      readstat_begin_writing_dta(writer_, this, n);
       break;
     case HAVEN_SPSS:
-      readstat_begin_writing_sav(writer_, this, "", n);
+      readstat_begin_writing_sav(writer_, this, n);
       break;
     default:
       Rcpp::stop("Not currently supported");

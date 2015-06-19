@@ -1,4 +1,5 @@
 #include "readstat.h"
+#include "readstat_iconv.h"
 #include "readstat_bits.h"
 
 #pragma pack(push, 1)
@@ -48,6 +49,7 @@ typedef struct dta_gso_header_s {
 
 typedef struct dta_ctx_s {
     size_t         data_label_len;
+    size_t         data_label_len_len;
     size_t         time_stamp_len;
     char           typlist_version;
     size_t         typlist_entry_len;
@@ -81,6 +83,7 @@ typedef struct dta_ctx_s {
     int            machine_is_twos_complement;
     int            file_is_xmlish;
 
+    iconv_t        converter;
     readstat_progress_handler progress_handler;
     size_t                    file_size;
     void                     *user_ctx;

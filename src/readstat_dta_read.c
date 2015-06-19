@@ -8,6 +8,7 @@
 
 #include "readstat_dta.h"
 #include "readstat_io.h"
+#include "readstat_convert.h"
 
 static readstat_error_t dta_update_progress(int fd, dta_ctx_t *ctx);
 static inline readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx);
@@ -77,6 +78,31 @@ static inline readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len,
     
     *max_len = len;
     return type;
+}
+
+static readstat_variable_t *dta_init_variable(dta_ctx_t *ctx, int i, readstat_types_t type) {
+    readstat_variable_t *variable = calloc(1, sizeof(readstat_variable_t));
+
+    variable->type = type;
+    variable->index = i;
+
+    readstat_convert(variable->name, sizeof(variable->name), 
+            &ctx->varlist[ctx->variable_name_len*i],
+            ctx->variable_name_len, ctx->converter);
+
+    if (ctx->variable_labels[ctx->variable_labels_entry_len*i]) {
+        readstat_convert(variable->label, sizeof(variable->label),
+                &ctx->variable_labels[ctx->variable_labels_entry_len*i],
+                ctx->variable_labels_entry_len, ctx->converter);
+    }
+
+    if (ctx->fmtlist[ctx->fmtlist_entry_len*i]) {
+        readstat_convert(variable->format, sizeof(variable->format),
+                &ctx->fmtlist[ctx->fmtlist_entry_len*i],
+                ctx->fmtlist_entry_len, ctx->converter);
+    }
+
+    return variable;
 }
 
 static readstat_error_t dta_read_map(int fd, dta_ctx_t *ctx) {
@@ -359,6 +385,20 @@ readstat_error_t dta_read_xmlish_preamble(int fd, dta_ctx_t *ctx, dta_header_t *
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
+    if (header->ds_format >= 118) {
+        /* Only support files < 4 billion rows for now */
+        if (header->byteorder == DTA_HILO) {
+            if (read(fd, &header->nobs, sizeof(int32_t)) != sizeof(int32_t)) {
+                retval = READSTAT_ERROR_READ;
+                goto cleanup;
+            }
+        } else {
+            if (lseek(fd, 4, SEEK_CUR) == -1) {
+                retval = READSTAT_ERROR_READ;
+                goto cleanup;
+            }
+        }
+    }
     if ((retval = dta_read_tag(fd, ctx, "</N>")) != READSTAT_OK) {
         goto cleanup;
     }
@@ -428,15 +468,26 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
     }
     
     if (ctx->file_is_xmlish) {
-        unsigned char label_len;
+        uint16_t label_len = 0;
+        unsigned char timestamp_len;
 
         if ((retval = dta_read_tag(fd, ctx, "<label>")) != READSTAT_OK) {
             goto cleanup;
         }
         
-        if (read(fd, &label_len, 1) != 1) {
-            retval = READSTAT_ERROR_READ;
-            goto cleanup;
+        if (ctx->data_label_len_len == 2) {
+            if (read(fd, &label_len, sizeof(uint16_t)) != sizeof(uint16_t)) {
+                retval = READSTAT_ERROR_READ;
+                goto cleanup;
+            }
+            label_len = ctx->machine_needs_byte_swap ? byteswap2(label_len) : label_len;
+        } else if (ctx->data_label_len_len == 1) {
+            unsigned char label_len_char;
+            if (read(fd, &label_len_char, sizeof(unsigned char)) != sizeof(unsigned char)) {
+                retval = READSTAT_ERROR_READ;
+                goto cleanup;
+            }
+            label_len = label_len_char;
         }
         
         if (lseek(fd, label_len, SEEK_CUR) == -1) {
@@ -452,12 +503,12 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
             goto cleanup;
         }
         
-        if (read(fd, &label_len, 1) != 1) {
+        if (read(fd, &timestamp_len, 1) != 1) {
             retval = READSTAT_ERROR_READ;
             goto cleanup;
         }
         
-        if (lseek(fd, label_len, SEEK_CUR) == -1) {
+        if (lseek(fd, timestamp_len, SEEK_CUR) == -1) {
             retval = READSTAT_ERROR_READ;
             goto cleanup;
         }
@@ -501,22 +552,20 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
 
         if (type == READSTAT_TYPE_STRING)
             max_len++; /* might append NULL */
-        
-        const char *variable_name = &ctx->varlist[ctx->variable_name_len*i];
-        const char *variable_label = NULL;
-        const char *value_labels = NULL;
-        const char *variable_format = NULL;
-        
-        if (ctx->variable_labels[ctx->variable_labels_entry_len*i])
-            variable_label = &ctx->variable_labels[ctx->variable_labels_entry_len*i];
-        if (ctx->lbllist[ctx->lbllist_entry_len*i])
-            value_labels = &ctx->lbllist[ctx->lbllist_entry_len*i];
-        if (ctx->fmtlist[ctx->fmtlist_entry_len*i])
-            variable_format = &ctx->fmtlist[ctx->fmtlist_entry_len*i];
 
         if (parser->variable_handler) {
-            if (parser->variable_handler(i, variable_name, variable_format, variable_label, 
-                        value_labels, type, user_ctx)) {
+            readstat_variable_t *variable = dta_init_variable(ctx, i, type);
+
+            const char *value_labels = NULL;
+
+            if (ctx->lbllist[ctx->lbllist_entry_len*i])
+                value_labels = &ctx->lbllist[ctx->lbllist_entry_len*i];
+
+            int cb_retval = parser->variable_handler(i, variable, value_labels, user_ctx);
+
+            free(variable);
+
+            if (cb_retval) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
             }
@@ -555,26 +604,15 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
         off_t offset = 0;
         for (j=0; j<ctx->nvar; j++) {
             size_t max_len;
-            readstat_types_t type = dta_type_info(ctx->typlist[j], &max_len, ctx);
-            void *value = NULL;
+            readstat_value_t value;
+            memset(&value, 0, sizeof(readstat_value_t));
 
-            if (type == READSTAT_TYPE_STRING) {
-                int needs_null = 1;
-                int k;
-                for (k=0; k<max_len; k++) {
-                    if (buf[offset+k] == '\0') {
-                        needs_null = 0;
-                        break;
-                    }
-                }
-                if (needs_null) {
-                    memcpy(str_buf, &buf[offset], max_len);
-                    str_buf[max_len] = '\0';
-                    value = str_buf;
-                } else {
-                    value = &buf[offset];
-                }
-            } else if (type == READSTAT_TYPE_LONG_STRING) {
+            value.type = dta_type_info(ctx->typlist[j], &max_len, ctx);
+
+            if (value.type == READSTAT_TYPE_STRING) {
+                readstat_convert(str_buf, sizeof(str_buf), &buf[offset], max_len, ctx->converter);
+                value.v.string_value = str_buf;
+            } else if (value.type == READSTAT_TYPE_LONG_STRING) {
                 uint32_t v, o;
                 v = *((uint32_t *)&buf[offset]);
                 o = *((uint32_t *)&buf[offset+4]);
@@ -592,19 +630,20 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                     if (retval != READSTAT_OK) {
                         goto cleanup;
                     }
-                    value = long_string;
+                    value.v.string_value = long_string;
                     if (lseek(fd, cur_pos, SEEK_SET) == -1) {
                         retval = READSTAT_ERROR_READ;
                         goto cleanup;
                     }
                 }
-            } else if (type == READSTAT_TYPE_CHAR) {
+            } else if (value.type == READSTAT_TYPE_CHAR) {
                 char byte = buf[offset];
                 if (ctx->machine_is_twos_complement) {
                     byte = ones_to_twos_complement1(byte);
                 }
-                value = byte <= DTA_MAX_CHAR ? &byte : NULL;
-            } else if (type == READSTAT_TYPE_INT16) {
+                value.is_system_missing = (byte > DTA_MAX_CHAR);
+                value.v.char_value = byte;
+            } else if (value.type == READSTAT_TYPE_INT16) {
                 int16_t num = *((int16_t *)&buf[offset]);
                 if (ctx->machine_needs_byte_swap) {
                     num = byteswap2(num);
@@ -612,8 +651,9 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                 if (ctx->machine_is_twos_complement) {
                     num = ones_to_twos_complement2(num);
                 }
-                value = num <= DTA_MAX_INT16 ? &num : NULL;
-            } else if (type == READSTAT_TYPE_INT32) {
+                value.is_system_missing = (num > DTA_MAX_INT16);
+                value.v.i16_value = num;
+            } else if (value.type == READSTAT_TYPE_INT32) {
                 int32_t num = *((int32_t *)&buf[offset]);
                 if (ctx->machine_needs_byte_swap) {
                     num = byteswap4(num);
@@ -621,23 +661,26 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                 if (ctx->machine_is_twos_complement) {
                     num = ones_to_twos_complement4(num);
                 }
-                value = num <= DTA_MAX_INT32 ? &num : NULL;
-            } else if (type == READSTAT_TYPE_FLOAT) {
+                value.is_system_missing = (num > DTA_MAX_INT32);
+                value.v.i32_value = num;
+            } else if (value.type == READSTAT_TYPE_FLOAT) {
                 float num = *((float *)&buf[offset]);
                 if (ctx->machine_needs_byte_swap) {
                     num = byteswap_float(num);
                 }
-                value = num <= DTA_MAX_FLOAT ? &num : NULL;
-            } else if (type == READSTAT_TYPE_DOUBLE) {
+                value.is_system_missing = (num > DTA_MAX_FLOAT);
+                value.v.float_value = num;
+            } else if (value.type == READSTAT_TYPE_DOUBLE) {
                 double num = *((double *)&buf[offset]);
                 if (ctx->machine_needs_byte_swap) {
                     num = byteswap_double(num);
                 }
-                value = num <= DTA_MAX_DOUBLE ? &num : NULL;
+                value.is_system_missing = (num > DTA_MAX_DOUBLE);
+                value.v.double_value = num;
             }
 
             if (parser->value_handler) {
-                if (parser->value_handler(i, j, value, type, user_ctx)) {
+                if (parser->value_handler(i, j, value, user_ctx)) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -697,7 +740,8 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                 
                 int32_t l;
                 for (l=0; l<len; l++) {
-                    if (parser->value_label_handler(table_header.labname, &l, READSTAT_TYPE_INT32, table_buffer + 8 * l, user_ctx)) {
+                    readstat_value_t value = { .v = { .i32_value = l }, .type = READSTAT_TYPE_INT32 };
+                    if (parser->value_label_handler(table_header.labname, value, table_buffer + 8 * l, user_ctx)) {
                         retval = READSTAT_ERROR_USER_ABORT;
                         free(table_buffer);
                         goto cleanup;
@@ -764,7 +808,8 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                 
                 for (i=0; i<n; i++) {
                     if (off[i] < txtlen) {
-                        if (parser->value_label_handler(table_header.labname, &val[i], READSTAT_TYPE_INT32, &txt[off[i]], user_ctx)) {
+                        readstat_value_t value = { .v = { .i32_value = val[i] }, .type = READSTAT_TYPE_INT32 };
+                        if (parser->value_label_handler(table_header.labname, value, &txt[off[i]], user_ctx)) {
                             retval = READSTAT_ERROR_USER_ABORT;
                             free(table_buffer);
                             goto cleanup;

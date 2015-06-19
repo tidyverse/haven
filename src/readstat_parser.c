@@ -42,6 +42,11 @@ readstat_error_t readstat_set_progress_handler(readstat_parser_t *parser, readst
     return READSTAT_OK;
 }
 
+readstat_error_t readstat_set_fweight_handler(readstat_parser_t *parser, readstat_fweight_handler fweight_handler) {
+    parser->fweight_handler = fweight_handler;
+    return READSTAT_OK;
+}
+
 rdata_parser_t *rdata_parser_init() {
     rdata_parser_t *parser = calloc(1, sizeof(rdata_parser_t));
     return parser;

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "readstat.h"
 #include "readstat_spss.h"
 
 typedef struct spss_type_s {
@@ -62,4 +63,103 @@ int spss_format(char *buffer, size_t len, spss_format_t *format) {
         }
     }
     return 0;
+}
+
+void spss_tag_missing_double(readstat_value_t *value, readstat_missingness_t *missingness) {
+    double fp_value = value->v.double_value;
+    value->is_system_missing = isnan(fp_value);
+    int i;
+    for (i=0; i<missingness->missing_ranges_count; i++) {
+        double lo = readstat_double_value(missingness->missing_ranges[2*i]);
+        double hi = readstat_double_value(missingness->missing_ranges[2*i+1]);
+        if (fp_value >= lo && fp_value <= hi) {
+            value->is_considered_missing = 1;
+            break;
+        }
+    }
+    uint64_t long_value = 0;
+    memcpy(&long_value, &fp_value, 8);
+    if (long_value == SAV_MISSING_DOUBLE)
+        value->is_system_missing = 1;
+    if (long_value == SAV_LOWEST_DOUBLE)
+        value->is_system_missing = 1;
+    if (long_value == SAV_HIGHEST_DOUBLE)
+        value->is_system_missing = 1;
+}
+
+int spss_varinfo_compare(const void *elem1, const void *elem2) {
+    int offset = *(int *)elem1;
+    const spss_varinfo_t *v = (const spss_varinfo_t *)elem2;
+    if (offset < v->offset)
+        return -1;
+    return (offset > v->offset);
+}
+
+readstat_value_t spss_boxed_value(double fp_value) {
+    readstat_value_t value;
+    memset(&value, 0, sizeof(readstat_value_t));
+
+    value.v.double_value = fp_value;
+    value.type = READSTAT_TYPE_DOUBLE;
+
+    uint64_t long_value = 0;
+    memcpy(&long_value, &fp_value, 8);
+
+    if (long_value == SAV_MISSING_DOUBLE)
+        value.is_system_missing = 1;
+    if (long_value == SAV_LOWEST_DOUBLE)
+        value.v.double_value = -HUGE_VAL;
+    if (long_value == SAV_HIGHEST_DOUBLE)
+        value.v.double_value = HUGE_VAL;
+
+    return value;
+}
+
+readstat_missingness_t spss_missingness_for_info(spss_varinfo_t *info) {
+    readstat_missingness_t missingness;
+    memset(&missingness, 0, sizeof(readstat_missingness_t));
+
+    if (info->missing_range) {
+        missingness.missing_ranges_count++;
+        missingness.missing_ranges[0] = spss_boxed_value(info->missing_values[0]);
+        missingness.missing_ranges[1] = spss_boxed_value(info->missing_values[1]);
+
+        if (info->n_missing_values == 3) {
+            missingness.missing_ranges_count++;
+            missingness.missing_ranges[2] = missingness.missing_ranges[3] = spss_boxed_value(info->missing_values[2]);
+        }
+    } else if (info->n_missing_values > 0) {
+        missingness.missing_ranges_count = info->n_missing_values;
+        int i=0;
+        for (i=0; i<info->n_missing_values; i++) {
+            missingness.missing_ranges[2*i] = missingness.missing_ranges[2*i+1] = spss_boxed_value(info->missing_values[i]);
+        }
+    }
+    return missingness;
+}
+
+readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info) {
+    readstat_variable_t *variable = calloc(1, sizeof(readstat_variable_t));
+
+    variable->index = info->index;
+    variable->type = info->type;
+
+    if (info->longname[0]) {
+        snprintf(variable->name, sizeof(variable->name), "%s", info->longname);
+    } else {
+        snprintf(variable->name, sizeof(variable->name), "%s", info->name);
+    }
+    if (info->label) {
+        snprintf(variable->label, sizeof(variable->label), "%s", info->label);
+    }
+
+    spss_format(variable->format, sizeof(variable->format), &info->print_format);
+
+    variable->missingness = info->missingness;
+
+    return variable;
+}
+
+void spss_free_variable(readstat_variable_t *variable) {
+    free(variable);
 }

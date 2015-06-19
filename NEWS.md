@@ -1,5 +1,11 @@
 # haven 0.2.0.9000
 
+* Update to latest ReadStat (#65). Includes: 
+
+    * Support for Binary (aka Ross) compression (#31)
+    * Support extended ASCII stata encoding (#71)
+    * Support for Stata 14 files (#75)
+
 * fixed bug in `zap_labels()` which was leaving labelled vectors unchanged
   instead of leaving unlabelled vectors unchanged. (@markriseley, #67).
 

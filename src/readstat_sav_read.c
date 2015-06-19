@@ -21,7 +21,7 @@
 /* See http://msdn.microsoft.com/en-us/library/dd317756(VS.85).aspx */
 static readstat_charset_entry_t _charset_table[] = { 
     { .code = 1,     .name = "EBCDIC-US" },
-    { .code = 2,     .name = "US-ASCII" },
+    { .code = 2,     .name = "WINDOWS-1252" }, /* supposed to be ASCII, but some files are miscoded */
     { .code = 3,     .name = "WINDOWS-1252" },
     { .code = 4,     .name = "DEC-KANJI" },
     { .code = 437,   .name = "CP437" },
@@ -168,7 +168,7 @@ static readstat_error_t sav_read_variable_record(int fd, sav_ctx_t *ctx) {
     sav_variable_record_t variable;
     readstat_error_t retval = READSTAT_OK;
     if (ctx->var_index == ctx->varinfo_capacity) {
-        if ((ctx->varinfo = realloc(ctx->varinfo, (ctx->varinfo_capacity *= 2) * sizeof(sav_varinfo_t))) == NULL) {
+        if ((ctx->varinfo = realloc(ctx->varinfo, (ctx->varinfo_capacity *= 2) * sizeof(spss_varinfo_t))) == NULL) {
             retval = READSTAT_ERROR_MALLOC;
             goto cleanup;
         }
@@ -188,7 +188,7 @@ static readstat_error_t sav_read_variable_record(int fd, sav_ctx_t *ctx) {
             return READSTAT_ERROR_PARSE;
         }
         ctx->var_offset++;
-        sav_varinfo_t *prev = &ctx->varinfo[ctx->var_index-1];
+        spss_varinfo_t *prev = &ctx->varinfo[ctx->var_index-1];
         prev->width++;
         return 0;
     }
@@ -196,8 +196,8 @@ static readstat_error_t sav_read_variable_record(int fd, sav_ctx_t *ctx) {
         dta_type = READSTAT_TYPE_STRING;
         // len = type;
     }
-    sav_varinfo_t *info = &ctx->varinfo[ctx->var_index];
-    memset(info, 0, sizeof(sav_varinfo_t));
+    spss_varinfo_t *info = &ctx->varinfo[ctx->var_index];
+    memset(info, 0, sizeof(spss_varinfo_t));
     info->width = 1;
     info->index = ctx->var_index;
     info->offset = ctx->var_offset;
@@ -272,6 +272,7 @@ static readstat_error_t sav_read_variable_record(int fd, sav_ctx_t *ctx) {
                 info->missing_values[i] = byteswap_double(info->missing_values[i]);
             }
         }
+        info->missingness = spss_missingness_for_info(info);
     }
     
     ctx->var_index++;
@@ -280,14 +281,6 @@ static readstat_error_t sav_read_variable_record(int fd, sav_ctx_t *ctx) {
 cleanup:
     
     return retval;
-}
-
-static int sav_varinfo_compare(const void *elem1, const void *elem2) {
-    int offset = *(int *)elem1;
-    const sav_varinfo_t *v = (const sav_varinfo_t *)elem2;
-    if (offset < v->offset)
-        return -1;
-    return (offset > v->offset);
 }
 
 static readstat_error_t sav_skip_value_label_record(int fd, sav_ctx_t *ctx) {
@@ -406,8 +399,8 @@ static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx) {
     }
     for (i=0; i<var_count; i++) {
         int var_offset = vars[i]-1; // Why subtract 1????
-        sav_varinfo_t *var = bsearch(&var_offset, ctx->varinfo, ctx->var_index, sizeof(sav_varinfo_t),
-                &sav_varinfo_compare);
+        spss_varinfo_t *var = bsearch(&var_offset, ctx->varinfo, ctx->var_index, sizeof(spss_varinfo_t),
+                &spss_varinfo_compare);
         if (var) {
             value_type = var->type;
             var->labels_index = ctx->value_labels_count;
@@ -416,19 +409,23 @@ static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx) {
     if (ctx->value_label_handler) {
         for (i=0; i<label_count; i++) {
             value_label_t *vlabel = &value_labels[i];
+            readstat_value_t value = { .type = value_type };
             if (value_type == READSTAT_TYPE_DOUBLE) {
                 double val_d = 0.0;
                 memcpy(&val_d, vlabel->value, 8);
                 if (ctx->machine_needs_byte_swap)
                     val_d = byteswap_double(val_d);
-                ctx->value_label_handler(label_name_buf, &val_d, value_type, vlabel->label, ctx->user_ctx);
+
+                value.v.double_value = val_d;
             } else {
                 char unpadded_val[8*4+1];
                 retval = readstat_convert(unpadded_val, sizeof(unpadded_val), vlabel->value, 8, ctx->converter);
                 if (retval != READSTAT_OK)
                     break;
-                ctx->value_label_handler(label_name_buf, unpadded_val, value_type, vlabel->label, ctx->user_ctx);
+
+                value.v.string_value = unpadded_val;
             }
+            ctx->value_label_handler(label_name_buf, value, vlabel->label, ctx->user_ctx);
         }
     }
     ctx->value_labels_count++;
@@ -472,33 +469,6 @@ static readstat_error_t sav_read_dictionary_termination_record(int fd, sav_ctx_t
     return retval;
 }
 
-double handle_missing_double(double fp_value, sav_varinfo_t *info) {
-    if (info->missing_range) {
-        if (fp_value >= info->missing_values[0] && fp_value <= info->missing_values[1]) {
-            return NAN;
-        }
-    } else {
-        if (info->n_missing_values > 0 && fp_value == info->missing_values[0]) {
-            return NAN;
-        } else if (info->n_missing_values > 1 && fp_value == info->missing_values[1]) {
-            return NAN;
-        }
-    }
-    if (info->n_missing_values == 3 && fp_value == info->missing_values[2]) {
-        return NAN;
-    }
-    uint64_t long_value = 0;
-    memcpy(&long_value, &fp_value, 8);
-    if (long_value == SAV_MISSING_DOUBLE)
-        return NAN;
-    if (long_value == SAV_LOWEST_DOUBLE)
-        return NAN;
-    if (long_value == SAV_HIGHEST_DOUBLE)
-        return NAN;
-    
-    return fp_value;
-}
-
 static readstat_error_t sav_read_data(int fd, sav_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     int longest_string = 256;
@@ -506,7 +476,7 @@ static readstat_error_t sav_read_data(int fd, sav_ctx_t *ctx) {
     int i;
 
     for (i=0; i<ctx->var_count; i++) {
-        sav_varinfo_t *info = &ctx->varinfo[i];
+        spss_varinfo_t *info = &ctx->varinfo[i];
         if (info->string_length > longest_string) {
             longest_string = info->string_length;
         }
@@ -564,8 +534,9 @@ static readstat_error_t sav_read_uncompressed_data(int fd, size_t longest_string
             data_offset = 0;
         }
 
-        sav_varinfo_t *col_info = &ctx->varinfo[col];
-        sav_varinfo_t *var_info = &ctx->varinfo[var_index];
+        spss_varinfo_t *col_info = &ctx->varinfo[col];
+        spss_varinfo_t *var_info = &ctx->varinfo[var_index];
+        readstat_value_t value = { .type = var_info->type };
         if (offset > 31) {
             retval = READSTAT_ERROR_PARSE;
             goto done;
@@ -583,8 +554,8 @@ static readstat_error_t sav_read_uncompressed_data(int fd, size_t longest_string
                             raw_str_value, raw_str_used, ctx->converter);
                     if (retval != READSTAT_OK)
                         goto done;
-                    if (ctx->value_handler(row, var_info->index, utf8_str_value, 
-                                READSTAT_TYPE_STRING, ctx->user_ctx)) {
+                    value.v.string_value = utf8_str_value;
+                    if (ctx->value_handler(row, var_info->index, value, ctx->user_ctx)) {
                         retval = READSTAT_ERROR_USER_ABORT;
                         goto done;
                     }
@@ -600,9 +571,9 @@ static readstat_error_t sav_read_uncompressed_data(int fd, size_t longest_string
             if (ctx->machine_needs_byte_swap) {
                 fp_value = byteswap_double(fp_value);
             }
-            fp_value = handle_missing_double(fp_value, var_info);
-            if (ctx->value_handler(row, var_info->index, isnan(fp_value) ? NULL : &fp_value, 
-                        READSTAT_TYPE_DOUBLE, ctx->user_ctx)) {
+            value.v.double_value = fp_value;
+            spss_tag_missing_double(&value, &var_info->missingness);
+            if (ctx->value_handler(row, var_info->index, value, ctx->user_ctx)) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto done;
             }
@@ -632,7 +603,7 @@ done:
 static readstat_error_t sav_read_compressed_data(int fd,
         size_t longest_string, sav_ctx_t *ctx, int *out_rows) {
     readstat_error_t retval = READSTAT_OK;
-    unsigned char value[8];
+    unsigned char chunk[8];
     int offset = 0;
     int segment_offset = 0;
     int row = 0, var_index = 0, col = 0;
@@ -668,11 +639,11 @@ static readstat_error_t sav_read_compressed_data(int fd,
             data_offset = 0;
         }
 
-        memcpy(value, &buffer[data_offset], 8);
+        memcpy(chunk, &buffer[data_offset], 8);
         data_offset += 8;
         
-        sav_varinfo_t *col_info = &ctx->varinfo[col];
-        sav_varinfo_t *var_info = &ctx->varinfo[var_index];
+        spss_varinfo_t *col_info = &ctx->varinfo[col];
+        spss_varinfo_t *var_info = &ctx->varinfo[var_index];
         for (i=0; i<8; i++) {
             if (offset > 31) {
                 retval = READSTAT_ERROR_PARSE;
@@ -680,7 +651,8 @@ static readstat_error_t sav_read_compressed_data(int fd,
             }
             col_info = &ctx->varinfo[col];
             var_info = &ctx->varinfo[var_index];
-            switch (value[i]) {
+            readstat_value_t value = { .type = var_info->type };
+            switch (chunk[i]) {
                 case 0:
                     break;
                 case 252:
@@ -706,8 +678,8 @@ static readstat_error_t sav_read_compressed_data(int fd,
                                         raw_str_value, raw_str_used, ctx->converter);
                                 if (retval != READSTAT_OK)
                                     goto done;
-                                if (ctx->value_handler(row, var_info->index, utf8_str_value, 
-                                            READSTAT_TYPE_STRING, ctx->user_ctx)) {
+                                value.v.string_value = utf8_str_value;
+                                if (ctx->value_handler(row, var_info->index, value, ctx->user_ctx)) {
                                     retval = READSTAT_ERROR_USER_ABORT;
                                     goto done;
                                 }
@@ -723,9 +695,9 @@ static readstat_error_t sav_read_compressed_data(int fd,
                         if (ctx->machine_needs_byte_swap) {
                             fp_value = byteswap_double(fp_value);
                         }
-                        fp_value = handle_missing_double(fp_value, var_info);
-                        if (ctx->value_handler(row, var_info->index, &fp_value, 
-                                    READSTAT_TYPE_DOUBLE, ctx->user_ctx)) {
+                        value.v.double_value = fp_value;
+                        spss_tag_missing_double(&value, &var_info->missingness);
+                        if (ctx->value_handler(row, var_info->index, value, ctx->user_ctx)) {
                             retval = READSTAT_ERROR_USER_ABORT;
                             goto done;
                         }
@@ -748,8 +720,8 @@ static readstat_error_t sav_read_compressed_data(int fd,
                                         raw_str_value, raw_str_used, ctx->converter);
                                 if (retval != READSTAT_OK)
                                     goto done;
-                                if (ctx->value_handler(row, var_info->index, utf8_str_value, 
-                                            READSTAT_TYPE_STRING, ctx->user_ctx)) {
+                                value.v.string_value = utf8_str_value;
+                                if (ctx->value_handler(row, var_info->index, value, ctx->user_ctx)) {
                                     retval = READSTAT_ERROR_USER_ABORT;
                                     goto done;
                                 }
@@ -766,8 +738,9 @@ static readstat_error_t sav_read_compressed_data(int fd,
                     }
                     break;
                 case 255:
-                    fp_value = NAN;
-                    if (ctx->value_handler(row, var_info->index, &fp_value, var_info->type, ctx->user_ctx)) {
+                    value.v.double_value = NAN;
+                    value.is_system_missing = 1;
+                    if (ctx->value_handler(row, var_info->index, value, ctx->user_ctx)) {
                         retval = READSTAT_ERROR_USER_ABORT;
                         goto done;
                     }
@@ -775,9 +748,9 @@ static readstat_error_t sav_read_compressed_data(int fd,
                     col++;
                     break;
                 default:
-                    fp_value = value[i] - 100.0;
-                    fp_value = handle_missing_double(fp_value, var_info);
-                    if (ctx->value_handler(row, var_info->index, &fp_value, var_info->type, ctx->user_ctx)) {
+                    value.v.double_value = chunk[i] - 100.0;
+                    spss_tag_missing_double(&value, &var_info->missingness);
+                    if (ctx->value_handler(row, var_info->index, value, ctx->user_ctx)) {
                         retval = READSTAT_ERROR_USER_ABORT;
                         goto done;
                     }
@@ -815,7 +788,7 @@ static readstat_error_t sav_parse_machine_integer_info_record(void *data, size_t
     if (ctx->machine_needs_byte_swap) {
         record.character_code = byteswap4(record.character_code);
     }
-    if (record.character_code == SAV_CHARSET_7_BIT_ASCII || record.character_code == SAV_CHARSET_UTF8) {
+    if (record.character_code == SAV_CHARSET_UTF8) {
         /* do nothing */
     } else {
         int i;
@@ -1099,7 +1072,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filen
 
     int i;
     for (i=0; i<ctx->var_index;) {
-        sav_varinfo_t *info = &ctx->varinfo[i];
+        spss_varinfo_t *info = &ctx->varinfo[i];
         if (info->string_length) {
             info->n_segments = (info->string_length + 251) / 252;
         } else {
@@ -1118,24 +1091,34 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filen
     if (parser->variable_handler) {
         for (i=0; i<ctx->var_index;) {
             char label_name_buf[256];
-            sav_varinfo_t *info = &ctx->varinfo[i];
+            spss_varinfo_t *info = &ctx->varinfo[i];
+            readstat_variable_t *variable = spss_init_variable_for_info(info);
+
             snprintf(label_name_buf, sizeof(label_name_buf), SAV_LABEL_NAME_PREFIX "%d", info->labels_index);
 
-            char *format = NULL;
-            char buf[80];
+            int cb_retval = parser->variable_handler(info->index, variable,
+                    info->labels_index == -1 ? NULL : label_name_buf,
+                    ctx->user_ctx);
 
-            if (spss_format(buf, sizeof(buf), &info->print_format)) {
-                format = buf;
-            }
+            spss_free_variable(variable);
 
-            int cb_retval = parser->variable_handler(info->index, info->longname, format, info->label, 
-                                        info->labels_index == -1 ? NULL : label_name_buf,
-                                        info->type, ctx->user_ctx);
             if (cb_retval) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
             }
             i += info->n_segments;
+        }
+    }
+    if (parser->fweight_handler && ctx->fweight_index) {
+        for (i=0; i<ctx->var_index; i++) {
+            spss_varinfo_t *info = &ctx->varinfo[i];
+            if (info->offset == ctx->fweight_index - 1) {
+                if (parser->fweight_handler(i, ctx->user_ctx)) {
+                    retval = READSTAT_ERROR_USER_ABORT;
+                    goto cleanup;
+                }
+                break;
+            }
         }
     }
 

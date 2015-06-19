@@ -34,9 +34,13 @@
 
 #define SAS_COMPRESSION_NONE   0x00
 #define SAS_COMPRESSION_TRUNC  0x01
-#define SAS_COMPRESSION_RLE    0x04
+#define SAS_COMPRESSION_ROW    0x04
+
+#define SAS_COMPRESSION_SIGNATURE_RLE  "SASYZCRL"
+#define SAS_COMPRESSION_SIGNATURE_RDC  "SASYZCR2"
 
 #define SAS_RLE_COMMAND_COPY64          0
+#define SAS_RLE_COMMAND_INSERT_BYTE17   4
 #define SAS_RLE_COMMAND_INSERT_BLANK17  6
 #define SAS_RLE_COMMAND_INSERT_ZERO17   7
 #define SAS_RLE_COMMAND_COPY1           8
@@ -93,6 +97,7 @@ static readstat_charset_entry_t _charset_table[] = {
 #define SAS_SUBHEADER_SIGNATURE_COLUMN_SIZE    0xF6F6F6F6
 #define SAS_SUBHEADER_SIGNATURE_COUNTS         0xFFFFFC00
 #define SAS_SUBHEADER_SIGNATURE_COLUMN_FORMAT  0xFFFFFBFE
+#define SAS_SUBHEADER_SIGNATURE_COLUMN_UNKNOWN 0xFFFFFFFA
 #define SAS_SUBHEADER_SIGNATURE_COLUMN_ATTRS   0xFFFFFFFC
 #define SAS_SUBHEADER_SIGNATURE_COLUMN_TEXT    0xFFFFFFFD
 #define SAS_SUBHEADER_SIGNATURE_COLUMN_LIST    0xFFFFFFFE
@@ -365,6 +370,13 @@ static readstat_error_t sas_parse_column_text_subheader(const char *subheader, s
     ctx->text_blob_lengths[ctx->text_blob_count-1] = len-signature_len;
     ctx->text_blobs[ctx->text_blob_count-1] = blob;
 
+    /* another bit of a hack */
+    if (len-signature_len > 12 + sizeof(SAS_COMPRESSION_SIGNATURE_RDC)-1 &&
+            strncmp(blob + 12, SAS_COMPRESSION_SIGNATURE_RDC, sizeof(SAS_COMPRESSION_SIGNATURE_RDC)-1) == 0) {
+        retval = READSTAT_ERROR_UNSUPPORTED_COMPRESSION;
+        goto cleanup;
+    }
+
 cleanup:
     return retval;
 }
@@ -534,14 +546,18 @@ static readstat_error_t sas_parse_column_format_subheader(const char *subheader,
 static readstat_error_t handle_data_value(const char *col_data, col_info_t *col_info, sas_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     int cb_retval = 0;
+    readstat_value_t value;
+    memset(&value, 0, sizeof(readstat_value_t));
+
+    value.type = col_info->type;
+
     if (col_info->type == READSTAT_TYPE_STRING) {
         retval = readstat_convert(ctx->scratch_buffer, ctx->scratch_buffer_len,
                 col_data, col_info->width, ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        cb_retval = ctx->value_handler(ctx->parsed_row_count, col_info->index, 
-                ctx->scratch_buffer, READSTAT_TYPE_STRING, ctx->user_ctx);
+        value.v.string_value = ctx->scratch_buffer;
     } else if (col_info->type == READSTAT_TYPE_DOUBLE) {
         uint64_t  val = 0;
         double dval = NAN;
@@ -560,9 +576,11 @@ static readstat_error_t handle_data_value(const char *col_data, col_info_t *col_
 
         memcpy(&dval, &val, 8);
 
-        cb_retval = ctx->value_handler(ctx->parsed_row_count, col_info->index, 
-                isnan(dval) ? NULL : &dval, READSTAT_TYPE_DOUBLE, ctx->user_ctx);
+        value.v.double_value = dval;
+        value.is_system_missing = isnan(dval);
     }
+    cb_retval = ctx->value_handler(ctx->parsed_row_count, col_info->index, 
+            value, ctx->user_ctx);
 
     if (cb_retval)
         retval = READSTAT_ERROR_USER_ABORT;
@@ -607,40 +625,39 @@ cleanup:
 static readstat_error_t sas_parse_subheader_rle(const char *subheader, size_t len, sas_ctx_t *ctx) {
     /* TODO bounds checking */
     readstat_error_t retval = READSTAT_OK;
-    const char *input = subheader;
+    const unsigned char *input = (const unsigned char *)subheader;
     char *buffer = malloc(ctx->row_length);
     char *output = buffer;
-    while (input < subheader + len) {
-        unsigned char control = input[0];
+    while (input < (const unsigned char *)subheader + len) {
+        unsigned char control = *input++;
         unsigned char command = (control & 0xF0) >> 4;
         unsigned char length = (control & 0x0F);
         int copy_len = 0;
         int insert_len = 0;
-        char insert_byte = '\0';
-        input++;
+        unsigned char insert_byte = '\0';
         switch (command) {
             case SAS_RLE_COMMAND_COPY64:
-                copy_len = (unsigned char)input[0] + 64;
-                input++;
+                copy_len = (*input++) + 64 + length * 256;
+                break;
+            case SAS_RLE_COMMAND_INSERT_BYTE17:
+                insert_len = (*input++) + 17 + length * 16;
+                insert_byte = *input++;
                 break;
             case SAS_RLE_COMMAND_INSERT_BLANK17:
-                insert_len = (unsigned char)input[0] + 17;
+                insert_len = (*input++) + 17 + length * 256;
                 insert_byte = ' ';
-                input++;
                 break;
             case SAS_RLE_COMMAND_INSERT_ZERO17:
-                insert_len = (unsigned char)input[0] + 17;
+                insert_len = (*input++) + 17 + length * 256;
                 insert_byte = '\0';
-                input++;
                 break;
             case SAS_RLE_COMMAND_COPY1:  copy_len = length + 1; break;
             case SAS_RLE_COMMAND_COPY17: copy_len = length + 17; break;
             case SAS_RLE_COMMAND_COPY33: copy_len = length + 33; break;
             case SAS_RLE_COMMAND_COPY49: copy_len = length + 49; break;
             case SAS_RLE_COMMAND_INSERT_BYTE3:
-                insert_byte = input[0];
+                insert_byte = *input++;
                 insert_len = length + 3;
-                input++;
                 break;
             case SAS_RLE_COMMAND_INSERT_AT2:
                 insert_byte = '@';
@@ -701,6 +718,8 @@ static readstat_error_t sas_parse_subheader(uint32_t signature, const char *subh
     } else if (signature == SAS_SUBHEADER_SIGNATURE_COLUMN_FORMAT) {
         retval = sas_parse_column_format_subheader(subheader, len, ctx);
     } else if (signature == SAS_SUBHEADER_SIGNATURE_COLUMN_LIST) {
+        /* void */
+    } else if (signature == SAS_SUBHEADER_SIGNATURE_COLUMN_UNKNOWN) {
         /* void */
     } else {
         retval = READSTAT_ERROR_PARSE;
@@ -769,21 +788,24 @@ static readstat_error_t sas_parse_catalog_page(const char *page, size_t page_siz
             size_t label_len = read2(&lbp2[8], ctx->bswap);
             size_t value_entry_len = 6 + lbp1[2];
             const char *label = &lbp2[10];
+            readstat_value_t value = { .type = is_string ? READSTAT_TYPE_STRING : READSTAT_TYPE_DOUBLE };
             if (is_string) {
                 char val[4*16+1];
                 retval = readstat_convert(val, sizeof(val), &lbp1[value_entry_len-16], 16, ctx->converter);
                 if (retval != READSTAT_OK)
                     goto cleanup;
 
-                if (ctx->value_label_handler)
-                    ctx->value_label_handler(name, val, READSTAT_TYPE_STRING, label, ctx->user_ctx);
+                value.v.string_value = val;
             } else {
                 uint64_t val = read8(&lbp1[22], bswap_doubles);
                 double dval;
                 memcpy(&dval, &val, 8);
                 dval *= -1.0;
-                if (ctx->value_label_handler)
-                    ctx->value_label_handler(name, &dval, READSTAT_TYPE_DOUBLE, label, ctx->user_ctx);
+
+                value.v.double_value = dval;
+            }
+            if (ctx->value_label_handler) {
+                ctx->value_label_handler(name, value, label, ctx->user_ctx);
             }
 
             lbp1 += value_entry_len;
@@ -797,6 +819,38 @@ cleanup:
     return retval;
 }
 
+static readstat_variable_t *sas_init_variable(sas_ctx_t *ctx, int i, readstat_error_t *out_retval) {
+    readstat_error_t retval = READSTAT_OK;
+    readstat_variable_t *variable = calloc(1, sizeof(readstat_variable_t));
+
+    variable->index = i;
+    variable->type = ctx->col_info[i].type;
+
+    if ((retval = copy_text_ref(variable->name, sizeof(variable->name), 
+                    ctx->col_info[i].name_ref, ctx)) != READSTAT_OK) {
+        goto cleanup;
+    }
+    if ((retval = copy_text_ref(variable->format, sizeof(variable->format), 
+                    ctx->col_info[i].format_ref, ctx)) != READSTAT_OK) {
+        goto cleanup;
+    }
+    if ((retval = copy_text_ref(variable->label, sizeof(variable->label), 
+                    ctx->col_info[i].label_ref, ctx)) != READSTAT_OK) {
+        goto cleanup;
+    }
+
+cleanup:
+    if (retval != READSTAT_OK) {
+        free(variable);
+        if (out_retval)
+            *out_retval = retval;
+
+        return NULL;
+    }
+
+    return variable;
+}
+
 static readstat_error_t submit_columns(sas_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     if (ctx->info_handler) {
@@ -807,24 +861,13 @@ static readstat_error_t submit_columns(sas_ctx_t *ctx) {
     }
     if (ctx->variable_handler) {
         int i;
-        char name_buf[1024];
-        char format_buf[1024];
-        char label_buf[1024];
         for (i=0; i<ctx->column_count; i++) {
-            if ((retval = copy_text_ref(name_buf, sizeof(name_buf), 
-                            ctx->col_info[i].name_ref, ctx)) != READSTAT_OK) {
-                goto cleanup;
-            }
-            if ((retval = copy_text_ref(format_buf, sizeof(format_buf), 
-                            ctx->col_info[i].format_ref, ctx)) != READSTAT_OK) {
-                goto cleanup;
-            }
-            if ((retval = copy_text_ref(label_buf, sizeof(label_buf), 
-                            ctx->col_info[i].label_ref, ctx)) != READSTAT_OK) {
-                goto cleanup;
-            }
-            int cb_retval = ctx->variable_handler(i, name_buf, format_buf, 
-                    label_buf, format_buf, ctx->col_info[i].type, ctx->user_ctx);
+            readstat_variable_t *variable = sas_init_variable(ctx, i, &retval);
+            if (variable == NULL)
+                break;
+
+            int cb_retval = ctx->variable_handler(i, variable, variable->format, ctx->user_ctx);
+            free(variable);
             if (cb_retval) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
@@ -880,7 +923,7 @@ static readstat_error_t sas_parse_page_pass1(const char *page, size_t page_size,
                         goto cleanup;
                     }
                 }
-            } else if (compression == SAS_COMPRESSION_RLE) {
+            } else if (compression == SAS_COMPRESSION_ROW) {
                 /* void */
             } else {
                 retval = READSTAT_ERROR_UNSUPPORTED_COMPRESSION;
@@ -912,7 +955,7 @@ static readstat_error_t sas_parse_page_pass2(const char *page, size_t page_size,
     if ((page_type & SAS_PAGE_TYPE_MASK) == SAS_PAGE_TYPE_DATA) {
         ctx->page_row_count = read2(&page[off+18], ctx->bswap);
         data = &page[off+24];
-    } else if (page_type != SAS_PAGE_TYPE_COMP) {
+    } else if (!(page_type & SAS_PAGE_TYPE_COMP)) {
         uint16_t subheader_count = read2(&page[off+20], ctx->bswap);
 
         int i;
@@ -950,7 +993,7 @@ static readstat_error_t sas_parse_page_pass2(const char *page, size_t page_size,
                             goto cleanup;
                         }
                     }
-                } else if (compression == SAS_COMPRESSION_RLE) {
+                } else if (compression == SAS_COMPRESSION_ROW) {
                     if (!ctx->did_submit_columns) {
                         if ((retval = submit_columns(ctx)) != READSTAT_OK) {
                             goto cleanup;
@@ -1051,6 +1094,8 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
     long i;
     char *page = malloc(hinfo->page_size);
     off_t start_pos = lseek(fd, 0, SEEK_CUR);
+
+    /* look for META and MIX pages at beginning... */
     for (i=0; i<hinfo->page_count; i++) {
         lseek(fd, start_pos + i*hinfo->page_size, SEEK_SET);
 
@@ -1069,8 +1114,8 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
         uint16_t page_type = read2(&page[off+16], ctx->bswap);
 
         if ((page_type & SAS_PAGE_TYPE_MASK) == SAS_PAGE_TYPE_DATA)
-            continue;
-        if (page_type == SAS_PAGE_TYPE_COMP)
+            break;
+        if ((page_type & SAS_PAGE_TYPE_COMP))
             continue;
 
         if (read(fd, page + head_len, tail_len) < tail_len) {
@@ -1082,6 +1127,42 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
             goto cleanup;
         }
     }
+
+    long last_examined_page_pass1 = i;
+
+    /* ...then AMD pages at the end */
+    for (i=hinfo->page_count-1; i>last_examined_page_pass1; i--) {
+        lseek(fd, start_pos + i*hinfo->page_size, SEEK_SET);
+
+        off_t off = 0;
+        if (ctx->u64)
+            off = 16;
+
+        size_t head_len = off + 16 + 2;
+        size_t tail_len = hinfo->page_size - head_len;
+
+        if (read(fd, page, head_len) < head_len) {
+            retval = READSTAT_ERROR_READ;
+            goto cleanup;
+        }
+
+        uint16_t page_type = read2(&page[off+16], ctx->bswap);
+
+        if ((page_type & SAS_PAGE_TYPE_MASK) == SAS_PAGE_TYPE_DATA)
+            break;
+        if ((page_type & SAS_PAGE_TYPE_COMP))
+            continue;
+
+        if (read(fd, page + head_len, tail_len) < tail_len) {
+            retval = READSTAT_ERROR_READ;
+            goto cleanup;
+        }
+
+        if ((retval = sas_parse_page_pass1(page, hinfo->page_size, ctx)) != READSTAT_OK) {
+            goto cleanup;
+        }
+    }
+
     lseek(fd, start_pos, SEEK_SET);
 
     for (i=0; i<hinfo->page_count; i++) {

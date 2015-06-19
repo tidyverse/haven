@@ -50,7 +50,7 @@ readstat_error_t sav_parse_long_variable_names_record(void *data, int count, sav
     unsigned char *str_start = NULL;
     size_t str_len = 0;
     
-    char error_buf[1024];
+    char error_buf[8192];
     unsigned char *p = NULL;
     unsigned char *pe = NULL;
     unsigned char *output_buffer = NULL;

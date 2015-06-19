@@ -149,8 +149,10 @@ readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, readstat_t
                 writer->variables_capacity * sizeof(readstat_variable_t *));
     }
     readstat_variable_t *new_variable = calloc(1, sizeof(readstat_variable_t));
+
+    new_variable->index = writer->variables_count++;
     
-    writer->variables[writer->variables_count++] = new_variable;
+    writer->variables[new_variable->index] = new_variable;
 
     new_variable->user_width = width;
     new_variable->type = type;
@@ -184,6 +186,14 @@ readstat_variable_t *readstat_get_variable(readstat_writer_t *writer, int index)
         return writer->variables[index];
     }
     return NULL;
+}
+
+void readstat_writer_set_file_label(readstat_writer_t *writer, const char *file_label) {
+    snprintf(writer->file_label, sizeof(writer->file_label), "%s", file_label);
+}
+
+void readstat_writer_set_fweight_variable(readstat_writer_t *writer, const readstat_variable_t *variable) {
+    writer->fweight_variable = variable;
 }
 
 readstat_error_t readstat_begin_row(readstat_writer_t *writer) {

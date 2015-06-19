@@ -47,9 +47,24 @@ typedef enum readstat_error_e {
 
 const char *readstat_error_message(readstat_error_t error_code);
 
-typedef void * readstat_value_t;
+typedef struct readstat_value_s {
+    union {
+        char        char_value;
+        float       float_value;
+        double      double_value;
+        int16_t     i16_value;
+        int32_t     i32_value;
+        char       *string_value;
+    } v;
+    readstat_types_t        type;
+    int                     is_system_missing:1;
+    int                     is_considered_missing:1;
+} readstat_value_t;
 
+readstat_types_t readstat_value_type(readstat_value_t value);
 int readstat_value_is_missing(readstat_value_t value);
+int readstat_value_is_system_missing(readstat_value_t value);
+int readstat_value_is_considered_missing(readstat_value_t value);
 char readstat_char_value(readstat_value_t value);
 int16_t readstat_int16_value(readstat_value_t value);
 int32_t readstat_int32_value(readstat_value_t value);
@@ -57,45 +72,7 @@ float readstat_float_value(readstat_value_t value);
 double readstat_double_value(readstat_value_t value);
 char *readstat_string_value(readstat_value_t value);
 
-/* Callbacks should return 0 on success and non-zero to abort */
-typedef int (*readstat_info_handler)(int obs_count, int var_count, void *ctx);
-typedef int (*readstat_variable_handler)(int index, const char *var_name, 
-        const char *var_format, const char *var_label, const char *val_labels, 
-        readstat_types_t type, void *ctx);
-typedef int (*readstat_value_handler)(int obs_index, int var_index, 
-        readstat_value_t value, readstat_types_t type, void *ctx);
-typedef int (*readstat_value_label_handler)(const char *val_labels, 
-        readstat_value_t value, readstat_types_t type, const char *label, void *ctx);
-typedef void (*readstat_error_handler)(const char *error_message, void *ctx);
-typedef int (*readstat_progress_handler)(double progress, void *ctx);
-
-typedef struct readstat_parser_s {
-    readstat_info_handler          info_handler;
-    readstat_variable_handler      variable_handler;
-    readstat_value_handler         value_handler;
-    readstat_value_label_handler   value_label_handler;
-    readstat_error_handler         error_handler;
-    readstat_progress_handler      progress_handler;
-} readstat_parser_t;
-
-readstat_parser_t *readstat_parser_init();
-void readstat_parser_free(readstat_parser_t *parser);
-
-readstat_error_t readstat_set_info_handler(readstat_parser_t *parser, readstat_info_handler info_handler);
-readstat_error_t readstat_set_variable_handler(readstat_parser_t *parser, readstat_variable_handler variable_handler);
-readstat_error_t readstat_set_value_handler(readstat_parser_t *parser, readstat_value_handler value_handler);
-readstat_error_t readstat_set_value_label_handler(readstat_parser_t *parser, readstat_value_label_handler value_label_handler);
-readstat_error_t readstat_set_error_handler(readstat_parser_t *parser, readstat_error_handler error_handler);
-readstat_error_t readstat_set_progress_handler(readstat_parser_t *parser, readstat_progress_handler progress_handler);
-
-readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filename, void *user_ctx);
-readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filename, void *user_ctx);
-readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filename, void *user_ctx);
-readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *filename, void *user_ctx);
-readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *filename, void *user_ctx);
-
-
-/* Internal data structures & module callbacks */
+/* Internal data structures */
 typedef struct readstat_value_label_s {
     double      double_key;
     int32_t     int32_key;
@@ -117,8 +94,14 @@ typedef struct readstat_label_set_s {
     long                        variables_capacity;
 } readstat_label_set_t;
 
+typedef struct readstat_missingness_s {
+    readstat_value_t missing_ranges[32];
+    long             missing_ranges_count;
+} readstat_missingness_t;
+
 typedef struct readstat_variable_s {
     readstat_types_t        type;
+    int                     index;
     char                    name[256];
     char                    format[256];
     char                    label[1024];
@@ -126,8 +109,59 @@ typedef struct readstat_variable_s {
     off_t                   offset;
     size_t                  width;
     size_t                  user_width;
+    readstat_missingness_t  missingness;
 } readstat_variable_t;
 
+/* Accessor methods for use inside a variable handler */
+const char *readstat_variable_get_name(readstat_variable_t *variable);
+const char *readstat_variable_get_label(readstat_variable_t *variable);
+const char *readstat_variable_get_format(readstat_variable_t *variable);
+readstat_types_t readstat_variable_get_type(readstat_variable_t *variable);
+int readstat_variable_get_missing_ranges_count(readstat_variable_t *variable);
+readstat_value_t readstat_variable_get_missing_range_lo(readstat_variable_t *variable, int i);
+readstat_value_t readstat_variable_get_missing_range_hi(readstat_variable_t *variable, int i);
+
+/* Callbacks should return 0 on success and non-zero to abort */
+typedef int (*readstat_info_handler)(int obs_count, int var_count, void *ctx);
+typedef int (*readstat_variable_handler)(int index, readstat_variable_t *variable, 
+        const char *val_labels, void *ctx);
+typedef int (*readstat_fweight_handler)(int var_index, void *ctx);
+typedef int (*readstat_value_handler)(int obs_index, int var_index, 
+        readstat_value_t value, void *ctx);
+typedef int (*readstat_value_label_handler)(const char *val_labels, 
+        readstat_value_t value, const char *label, void *ctx);
+typedef void (*readstat_error_handler)(const char *error_message, void *ctx);
+typedef int (*readstat_progress_handler)(double progress, void *ctx);
+
+typedef struct readstat_parser_s {
+    readstat_info_handler          info_handler;
+    readstat_variable_handler      variable_handler;
+    readstat_fweight_handler       fweight_handler;
+    readstat_value_handler         value_handler;
+    readstat_value_label_handler   value_label_handler;
+    readstat_error_handler         error_handler;
+    readstat_progress_handler      progress_handler;
+} readstat_parser_t;
+
+readstat_parser_t *readstat_parser_init();
+void readstat_parser_free(readstat_parser_t *parser);
+
+readstat_error_t readstat_set_info_handler(readstat_parser_t *parser, readstat_info_handler info_handler);
+readstat_error_t readstat_set_variable_handler(readstat_parser_t *parser, readstat_variable_handler variable_handler);
+readstat_error_t readstat_set_fweight_handler(readstat_parser_t *parser, readstat_fweight_handler fweight_handler);
+readstat_error_t readstat_set_value_handler(readstat_parser_t *parser, readstat_value_handler value_handler);
+readstat_error_t readstat_set_value_label_handler(readstat_parser_t *parser, readstat_value_label_handler value_label_handler);
+readstat_error_t readstat_set_error_handler(readstat_parser_t *parser, readstat_error_handler error_handler);
+readstat_error_t readstat_set_progress_handler(readstat_parser_t *parser, readstat_progress_handler progress_handler);
+
+readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filename, void *user_ctx);
+readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filename, void *user_ctx);
+readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filename, void *user_ctx);
+readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *filename, void *user_ctx);
+readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *filename, void *user_ctx);
+
+
+/* Internal module callbacks */
 typedef size_t (*readstat_variable_width_callback)(readstat_types_t type, size_t user_width);
 
 typedef readstat_error_t (*readstat_write_char_callback)(void *row_data, const readstat_variable_t *variable, char value);
@@ -175,6 +209,8 @@ typedef struct readstat_writer_s {
     int                         row_count;
     int                         current_row;
     char                        file_label[100];
+    const readstat_variable_t  *fweight_variable;
+
     readstat_writer_callbacks_t callbacks;
     void                       *module_ctx;
     void                       *user_ctx;
@@ -200,12 +236,13 @@ readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, readstat_t
         const char *name, const char *label, const char *format, readstat_label_set_t *label_set);
 readstat_variable_t *readstat_get_variable(readstat_writer_t *writer, int index);
 
-// Call one of these at any time before the first invocation of readstat_begin_row
-readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *user_ctx,
-        const char *file_label, long row_count);
+// Optional metadata
+void readstat_writer_set_file_label(readstat_writer_t *writer, const char *file_label);
+void readstat_writer_set_fweight_variable(readstat_writer_t *writer, const readstat_variable_t *variable);
 
-readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *user_ctx,
-        const char *file_label, long row_count);
+// Call one of these at any time before the first invocation of readstat_begin_row
+readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *user_ctx, long row_count);
+readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *user_ctx, long row_count);
 
 // Start a row of data (that is, a case or observation)
 readstat_error_t readstat_begin_row(readstat_writer_t *writer);

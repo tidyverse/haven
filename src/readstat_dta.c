@@ -33,8 +33,10 @@ dta_ctx_t *dta_ctx_init(int16_t nvar, int32_t nobs, unsigned char byteorder, uns
         ctx->fmtlist_entry_len = 7;
     } else if (ds_format < 114) {
         ctx->fmtlist_entry_len = 12;
-    } else {
+    } else if (ds_format < 118) {
         ctx->fmtlist_entry_len = 49;
+    } else {
+        ctx->fmtlist_entry_len = 57;
     }
     
     if (ds_format >= 117) {
@@ -43,6 +45,12 @@ dta_ctx_t *dta_ctx_init(int16_t nvar, int32_t nobs, unsigned char byteorder, uns
         ctx->typlist_version = 111;
     } else {
         ctx->typlist_version = 0;
+    }
+
+    if (ds_format >= 118) {
+        ctx->data_label_len_len = 2;
+    } else if (ds_format >= 117) {
+        ctx->data_label_len_len = 1;
     }
 
     if (ds_format < 105) {
@@ -56,17 +64,23 @@ dta_ctx_t *dta_ctx_init(int16_t nvar, int32_t nobs, unsigned char byteorder, uns
     if (ds_format < 110) {
         ctx->lbllist_entry_len = 9;
         ctx->variable_name_len = 9;
-    } else {
+    } else if (ds_format < 118) {
         ctx->lbllist_entry_len = 33;
         ctx->variable_name_len = 33;
+    } else {
+        ctx->lbllist_entry_len = 129;
+        ctx->variable_name_len = 129;
     }
 
     if (ds_format < 108) {
         ctx->variable_labels_entry_len = 32;
         ctx->data_label_len = 32;
-    } else {
+    } else if (ds_format < 118) {
         ctx->variable_labels_entry_len = 81;
         ctx->data_label_len = 81;
+    } else {
+        ctx->variable_labels_entry_len = 321;
+        ctx->data_label_len = 321;
     }
 
     if (ds_format < 105) {
@@ -83,6 +97,10 @@ dta_ctx_t *dta_ctx_init(int16_t nvar, int32_t nobs, unsigned char byteorder, uns
     } else {
         ctx->typlist_entry_len = 2;
         ctx->file_is_xmlish = 1;
+    }
+
+    if (ds_format < 118) {
+        ctx->converter = iconv_open("UTF-8", "WINDOWS-1252");
     }
 
     ctx->typlist_len = ctx->nvar * sizeof(uint16_t);
@@ -134,5 +152,7 @@ void dta_ctx_free(dta_ctx_t *ctx) {
         free(ctx->lbllist);
     if (ctx->variable_labels)
         free(ctx->variable_labels);
+    if (ctx->converter)
+        iconv_close(ctx->converter);
     free(ctx);
 }

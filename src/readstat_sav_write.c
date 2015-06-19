@@ -18,6 +18,7 @@
 #define READSTAT_PRODUCT_URL        "https://github.com/WizardMac/ReadStat"
 
 #define MAX_TEXT_SIZE               256
+#define MAX_LABEL_SIZE              256
 
 static int32_t sav_encode_format(spss_format_t *spss_format) {
     return ((spss_format->type << 16) |
@@ -78,7 +79,12 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     header.layout_code = 2;
     header.nominal_case_size = writer->row_len / 8;
     header.compressed = 0; /* TODO */
-    header.weight_index = 0;
+    if (writer->fweight_variable) {
+        int32_t dictionary_index = 1 + writer->fweight_variable->offset / 8;
+        header.weight_index = dictionary_index;
+    } else {
+        header.weight_index = 0;
+    }
     header.ncases = writer->row_count;
     header.bias = 100.0;
     
@@ -141,7 +147,7 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
             goto cleanup;
         
         if (title_data_len > 0) {
-            char padded_label[120];
+            char padded_label[MAX_LABEL_SIZE];
             int32_t label_len = title_data_len;
             if (label_len > sizeof(padded_label))
                 label_len = sizeof(padded_label);
@@ -522,9 +528,7 @@ cleanup:
     return retval;
 }
 
-readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *user_ctx,
-        const char *file_label, long row_count) {
-    snprintf(writer->file_label, sizeof(writer->file_label), "%s", file_label);
+readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *user_ctx, long row_count) {
     writer->row_count = row_count;
     writer->user_ctx = user_ctx;
 

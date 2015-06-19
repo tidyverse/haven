@@ -70,24 +70,6 @@ typedef struct sav_dictionary_termination_record_s {
 
 #pragma pack(pop)
 
-typedef struct sav_varinfo_s {
-    readstat_types_t type;
-    int              labels_index;
-    int              index;
-    int              offset;
-    int              width;
-    int              string_length;
-    spss_format_t    print_format;
-    spss_format_t    write_format;
-    int              n_segments;
-    int              n_missing_values;
-    int              missing_range;
-    double           missing_values[3];
-    char             name[8*4+1];
-    char             longname[64*4+1];
-    char            *label;
-} sav_varinfo_t;
-
 typedef struct sav_ctx_s {
     readstat_error_handler          error_handler;
     readstat_progress_handler       progress_handler;
@@ -96,7 +78,7 @@ typedef struct sav_ctx_s {
     size_t                          file_size;
     void                           *user_ctx;
 
-    sav_varinfo_t *varinfo;
+    spss_varinfo_t *varinfo;
     size_t         varinfo_capacity;
     iconv_t        converter;
     int            var_index;
@@ -104,6 +86,7 @@ typedef struct sav_ctx_s {
     int            var_count;
     int            record_count;
     int            value_labels_count;
+    int            fweight_index;
     int            data_is_compressed:1;
     int            machine_needs_byte_swap:1;
 } sav_ctx_t;
@@ -127,10 +110,6 @@ typedef struct sav_ctx_s {
 
 #define SAV_ENDIANNESS_BIG               1
 #define SAV_ENDIANNESS_LITTLE            2
-
-#define SAV_HIGHEST_DOUBLE   0x7FEFFFFFFFFFFFFFUL
-#define SAV_MISSING_DOUBLE   0xFFEFFFFFFFFFFFFFUL
-#define SAV_LOWEST_DOUBLE    0xFFEFFFFFFFFFFFFEUL
 
 #define SAV_CHARSET_EBCDIC                1
 #define SAV_CHARSET_7_BIT_ASCII           2

@@ -393,9 +393,7 @@ static readstat_error_t dta_end_data(void *writer_ctx) {
     return retval;
 }
 
-readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *user_ctx,
-        const char *file_label, long row_count) {
-    snprintf(writer->file_label, sizeof(writer->file_label), "%s", file_label);
+readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *user_ctx, long row_count) {
     writer->row_count = row_count;
     writer->user_ctx = user_ctx;
 

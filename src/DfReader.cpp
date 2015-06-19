@@ -107,15 +107,11 @@ public:
     return 0;
   }
 
-  int variable(int index, const char *var_name,
-               const char *var_format,
-               const char *var_label,
-               const char *val_labels,
-               readstat_types_t type) {
+  int variable(int index, readstat_variable_t *variable, const char *val_labels) {
 
-    names_[index] = var_name;
+    names_[index] = readstat_variable_get_name(variable);
 
-    switch(type) {
+    switch(readstat_variable_get_type(variable)) {
     case READSTAT_TYPE_LONG_STRING:
     case READSTAT_TYPE_STRING:
       output_[index] = CharacterVector(nrows_);
@@ -132,6 +128,8 @@ public:
     }
 
     RObject col = output_[index];
+
+    const char* var_label = readstat_variable_get_label(variable);
     if (var_label != NULL && strcmp(var_label, "") != 0) {
       col.attr("label") = CharacterVector::create(Rf_mkCharCE(var_label, CE_UTF8));
     }
@@ -139,6 +137,7 @@ public:
     if (val_labels != NULL)
       val_labels_[index] = val_labels;
 
+    const char* var_format = readstat_variable_get_format(variable);
     VarType var_type = numType(type_, var_format);
     // Rcout << var_name << ": " << var_format << " [" << var_type << "]\n";
     var_types_[index] = var_type;
@@ -160,48 +159,46 @@ public:
     return 0;
   }
 
-  int value(int obs_index, int var_index, void *value,
-            readstat_types_t type) {
+  int value(int obs_index, int var_index, readstat_value_t value) {
 
     // Check for user interrupts every 1000 rows or cols
     if ((obs_index + 1) % 10000 == 0 || (var_index + 1) % 10000 == 0)
       checkUserInterrupt();
 
     VarType var_type = var_types_[var_index];
-
-    if (type == READSTAT_TYPE_LONG_STRING || type == READSTAT_TYPE_STRING) {
+    if (value.type == READSTAT_TYPE_LONG_STRING || value.type == READSTAT_TYPE_STRING) {
       // Missing strings and "" are identical in other systems
       CharacterVector col = output_[var_index];
       col[obs_index] = Rf_mkCharCE(readstat_string_value(value), CE_UTF8);
-    } else if (type == READSTAT_TYPE_CHAR) {
+    } else if (value.type == READSTAT_TYPE_CHAR) {
       IntegerVector col = output_[var_index];
       if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_INTEGER;
       } else {
         col[obs_index] = readstat_char_value(value);
       }
-    } else if (type == READSTAT_TYPE_INT16) {
+    } else if (value.type == READSTAT_TYPE_INT16) {
       IntegerVector col = output_[var_index];
       if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_INTEGER;
       } else {
         col[obs_index] = adjust_datetime(readstat_int16_value(value), var_type);
       }
-    } else if (type == READSTAT_TYPE_INT32) {
+    } else if (value.type == READSTAT_TYPE_INT32) {
       IntegerVector col = output_[var_index];
       if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_INTEGER;
       } else {
         col[obs_index] = adjust_datetime(readstat_int32_value(value), var_type);
       }
-    } else if (type == READSTAT_TYPE_FLOAT) {
+    } else if (value.type == READSTAT_TYPE_FLOAT) {
       NumericVector col = output_[var_index];
       if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_REAL;
       } else {
         col[obs_index] = adjust_datetime(readstat_float_value(value), var_type);
       }
-    } else if (type == READSTAT_TYPE_DOUBLE) {
+    } else if (value.type == READSTAT_TYPE_DOUBLE) {
       NumericVector col = output_[var_index];
       if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_REAL;
@@ -234,11 +231,11 @@ public:
   }
 
   int value_label(const char *val_labels, readstat_value_t value,
-                  readstat_types_t type, const char *label) {
+                  const char *label) {
     LabelSet& label_set = label_sets_[val_labels];
     std::string label_s(label);
 
-    switch(type) {
+    switch(value.type) {
     case READSTAT_TYPE_STRING:
       // Encoded to utf-8 on output
       label_set.add(readstat_string_value(value), label_s);
@@ -256,7 +253,7 @@ public:
       label_set.add(readstat_double_value(value), label_s);
       break;
     default:
-      Rf_warning("Unsupported label type: %s", type);
+      Rf_warning("Unsupported label type: %s", value.type);
     }
 
     return 0;
@@ -287,19 +284,17 @@ public:
 int dfreader_info(int obs_count, int var_count, void *ctx) {
   return ((DfReader*) ctx)->info(obs_count, var_count);
 }
-int dfreader_variable(int index, const char *var_name, const char *var_format,
-                       const char *var_label, const char *val_labels,
-                       readstat_types_t type, void *ctx) {
-  return ((DfReader*) ctx)->variable(index, var_name, var_format, var_label,
-    val_labels, type);
+int dfreader_variable(int index, readstat_variable_t *variable,
+                      const char *val_labels, void *ctx) {
+  return ((DfReader*) ctx)->variable(index, variable, val_labels);
 }
-int dfreader_value(int obs_index, int var_index, void *value,
-                    readstat_types_t type, void *ctx) {
-  return ((DfReader*) ctx)->value(obs_index, var_index, value, type);
+int dfreader_value(int obs_index, int var_index, readstat_value_t value,
+                   void *ctx) {
+  return ((DfReader*) ctx)->value(obs_index, var_index, value);
 }
 int dfreader_value_label(const char *val_labels, readstat_value_t value,
-                          readstat_types_t type, const char *label, void *ctx) {
-  return ((DfReader*) ctx)->value_label(val_labels, value, type, label);
+                         const char *label, void *ctx) {
+  return ((DfReader*) ctx)->value_label(val_labels, value, label);
 }
 
 void print_error(const char* error_message, void* ctx) {
