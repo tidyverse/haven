@@ -7,7 +7,7 @@
     * Support for Stata 14 files (#75)
 
 * fixed bug in `zap_labels()` which was leaving labelled vectors unchanged
-  instead of leaving unlabelled vectors unchanged. (@markriseley, #67).
+  instead of leaving unlabelled vectors unchanged. (@markriseley, #69).
 
 # haven 0.2.0
 
