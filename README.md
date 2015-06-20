@@ -10,14 +10,14 @@ Haven allows you to load foreign data formats (SAS, Spss and Stata) in to R by w
   CRAN that does that, [sas7bdat](http://cran.r-project.org/web/packages/sas7bdat),
   was created to document the reverse-engineering effort. Thus its implementation
   is designed for experimentation, rather than efficiency. Haven is significantly
-  faster and should also support a wider range of SAS files, and works with 
-  SAS7BCAT files.
+  faster and should also support a wider range of SAS files (including 
+  compressed), and works with SAS7BCAT files.
 
 * It can be faster. Some spss files seem to load about 4x faster, but 
   others load slower. If you have a lot of SPSS files to import, you might
   want to benchmark both and pick the fastest.
 
-* Works with Stata 13 files (foreign only works up to Stata 12).
+* Works with Stata 13 and 14 files (foreign only works up to Stata 12).
 
 * Can also write SPSS and Stata files (This is hard to test so if you
   run into any problems, please let me know).
