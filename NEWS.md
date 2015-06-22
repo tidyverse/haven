@@ -1,7 +1,11 @@
 # haven 0.2.0.9000
 
-* `labelled()` gains an additional `is_na` argument which makes it possible to
-  flag more than one label as a "missing" (#33). 
+* SAS, SPSS and Stata all allow multiple types of missingness. Now, when 
+  reading external data, haven preserves all missing labels. They will be 
+  converted to `NA`, when you call `as_factor()`. If you want to preserve
+  their original values, use `as_factor(drop_na = FALSE)`. This is supported
+  by the new `is_na` argument to `labelled()` which allows you to flag 
+  multiple labels as a "missing" (#33). 
 
 * Writer functions use a better test for missing values (#70).
 
