@@ -1,5 +1,7 @@
 # haven 0.2.0.9000
 
+* Writer functions use a better test for missing values (#70).
+
 * `read_spss()` now correctly recognises EDATE and JDATE formats as dates (#72).
 
 * Update to latest ReadStat (#65). Includes: 

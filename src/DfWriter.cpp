@@ -99,7 +99,7 @@ public:
         }
         case REALSXP: {
           double val = REAL(col)[i];
-          if (val == NA_REAL) {
+          if (ISNAN(val)) {
             readstat_insert_missing_value(writer_, var);
           } else {
             readstat_insert_double_value(writer_, var, val);
