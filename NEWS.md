@@ -1,5 +1,8 @@
 # haven 0.2.0.9000
 
+* `labelled()` gains an additional `is_na` argument which makes it possible to
+  flag more than one label as a "missing" (#33). 
+
 * Writer functions use a better test for missing values (#70).
 
 * `read_spss()` now correctly recognises EDATE and JDATE formats as dates (#72).

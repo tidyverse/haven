@@ -37,6 +37,9 @@ public:
     labels_.push_back(label);
   }
 
+  size_t size() const {
+    return labels_.size();
+  }
 
   RObject labels() const {
     RObject out;
@@ -270,6 +273,7 @@ public:
       RObject col = output_[i];
       col.attr("class") = "labelled";
       col.attr("labels") = label_sets_[label].labels();
+      col.attr("is_na") = rep(false, label_sets_[label].size());
     }
 
     output_.attr("names") = names_;
