@@ -52,6 +52,8 @@ inline VarType numType(FileType type, const char* var_format) {
     if      (hasPrefix(format, "DATETIME")) return HAVEN_DATETIME;
     else if (hasPrefix(format, "DATE"))     return HAVEN_DATETIME;
     else if (hasPrefix(format, "ADATE"))    return HAVEN_DATETIME;
+    else if (hasPrefix(format, "EDATE"))    return HAVEN_DATETIME;
+    else if (hasPrefix(format, "JDATE"))    return HAVEN_DATETIME;
     else if (hasPrefix(format, "SDATE"))    return HAVEN_DATETIME;
     else if (hasPrefix(format, "TIME"))     return HAVEN_TIME;
     else if (hasPrefix(format, "DTIME"))    return HAVEN_TIME;
