@@ -48,16 +48,17 @@ inline VarType numType(FileType type, const char* var_format) {
     else if (format == "HHMM")     return HAVEN_TIME;
     else                           return HAVEN_DEFAULT;
   case HAVEN_SPSS:
+    // http://www-01.ibm.com/support/knowledgecenter/?lang=en#!/SSLVMB_20.0.0/com.ibm.spss.statistics.help/syn_date_and_time_date_time_formats.htm
     if      (hasPrefix(format, "DATETIME")) return HAVEN_DATETIME;
-    if      (hasPrefix(format, "DATE"))     return HAVEN_DATETIME;
-    if      (hasPrefix(format, "ADATE"))    return HAVEN_DATETIME;
-    if      (hasPrefix(format, "SDATE"))    return HAVEN_DATETIME;
+    else if (hasPrefix(format, "DATE"))     return HAVEN_DATETIME;
+    else if (hasPrefix(format, "ADATE"))    return HAVEN_DATETIME;
+    else if (hasPrefix(format, "SDATE"))    return HAVEN_DATETIME;
     else if (hasPrefix(format, "TIME"))     return HAVEN_TIME;
     else if (hasPrefix(format, "DTIME"))    return HAVEN_TIME;
     else                                    return HAVEN_DEFAULT;
   case HAVEN_STATA:
     if      (format == "%tC")      return HAVEN_DATETIME;
-    if      (format == "%tc")      return HAVEN_DATETIME;
+    else if (format == "%tc")      return HAVEN_DATETIME;
     else if (format == "%td")      return HAVEN_DATE;
     else                           return HAVEN_DEFAULT;
   }
