@@ -1,5 +1,7 @@
 # haven 0.2.0.9000
 
+* `read_por()` now throws an informative error message (#35)
+
 * SAS, SPSS and Stata all allow multiple types of missingness. Now, when 
   reading external data, haven preserves all missing labels. They will be 
   converted to `NA`, when you call `as_factor()`. If you want to preserve

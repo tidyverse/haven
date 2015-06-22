@@ -45,6 +45,7 @@ NULL
 #' @export
 #' @rdname read_spss
 read_por <- function(path) {
+  stop("por files are not currently supported", call. = FALSE)
   df_parse_por(clean_path(path))
 }
 
