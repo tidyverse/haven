@@ -14,6 +14,7 @@
 * Writer functions use a better test for missing values (#70).
 
 * `read_spss()` now correctly recognises EDATE and JDATE formats as dates (#72).
+  `read_stata()` now correctly recognises custom date types (#80).
 
 * Update to latest ReadStat (#65). Includes: 
 
