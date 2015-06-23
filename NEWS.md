@@ -18,8 +18,8 @@
 
 * Update to latest ReadStat (#65). Includes: 
 
-    * Support for Binary (aka Ross) compression (#31)
-    * Support extended ASCII stata encoding (#71)
+    * Support for binary (aka Ross) compression for SAS (#31)
+    * Support extended ASCII encoding for Stata (#71)
     * Support for Stata 14 files (#75)
 
 * fixed bug in `zap_labels()` which was leaving labelled vectors unchanged
