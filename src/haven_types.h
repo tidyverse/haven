@@ -59,8 +59,8 @@ inline VarType numType(FileType type, const char* var_format) {
     else if (hasPrefix(format, "DTIME"))    return HAVEN_TIME;
     else                                    return HAVEN_DEFAULT;
   case HAVEN_STATA:
-    if      (format == "%tC")               return HAVEN_DATETIME;
-    else if (format == "%tc")               return HAVEN_DATETIME;
+    if      (hasPrefix(format, "%tC"))      return HAVEN_DATETIME;
+    else if (hasPrefix(format, "%tc"))      return HAVEN_DATETIME;
     else if (hasPrefix(format, "%td"))      return HAVEN_DATE;
     else                                    return HAVEN_DEFAULT;
   }
