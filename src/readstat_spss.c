@@ -68,13 +68,15 @@ int spss_format(char *buffer, size_t len, spss_format_t *format) {
 void spss_tag_missing_double(readstat_value_t *value, readstat_missingness_t *missingness) {
     double fp_value = value->v.double_value;
     value->is_system_missing = isnan(fp_value);
-    int i;
-    for (i=0; i<missingness->missing_ranges_count; i++) {
-        double lo = readstat_double_value(missingness->missing_ranges[2*i]);
-        double hi = readstat_double_value(missingness->missing_ranges[2*i+1]);
-        if (fp_value >= lo && fp_value <= hi) {
-            value->is_considered_missing = 1;
-            break;
+    if (missingness) {
+        int i;
+        for (i=0; i<missingness->missing_ranges_count; i++) {
+            double lo = readstat_double_value(missingness->missing_ranges[2*i]);
+            double hi = readstat_double_value(missingness->missing_ranges[2*i+1]);
+            if (fp_value >= lo && fp_value <= hi) {
+                value->is_considered_missing = 1;
+                break;
+            }
         }
     }
     uint64_t long_value = 0;

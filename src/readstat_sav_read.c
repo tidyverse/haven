@@ -339,6 +339,7 @@ static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx) {
     char label_name_buf[256];
     char label_buf[256];
     value_label_t *value_labels = NULL;
+    readstat_missingness_t *missingness = NULL;
 
     if (read(fd, &label_count, sizeof(int32_t)) < sizeof(int32_t)) {
         retval = READSTAT_ERROR_READ;
@@ -402,8 +403,10 @@ static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx) {
         spss_varinfo_t *var = bsearch(&var_offset, ctx->varinfo, ctx->var_index, sizeof(spss_varinfo_t),
                 &spss_varinfo_compare);
         if (var) {
-            value_type = var->type;
             var->labels_index = ctx->value_labels_count;
+
+            value_type = var->type;
+            missingness = &var->missingness;
         }
     }
     if (ctx->value_label_handler) {
@@ -417,6 +420,7 @@ static readstat_error_t sav_read_value_label_record(int fd, sav_ctx_t *ctx) {
                     val_d = byteswap_double(val_d);
 
                 value.v.double_value = val_d;
+                spss_tag_missing_double(&value, missingness);
             } else {
                 char unpadded_val[8*4+1];
                 retval = readstat_convert(unpadded_val, sizeof(unpadded_val), vlabel->value, 8, ctx->converter);
