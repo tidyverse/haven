@@ -86,9 +86,17 @@ dta_ctx_t *dta_ctx_init(int16_t nvar, int32_t nobs, unsigned char byteorder, uns
     if (ds_format < 105) {
         ctx->time_stamp_len = 0;
         ctx->value_label_table_len_len = 2;
+        ctx->value_label_table_labname_len = 12;
+        ctx->value_label_table_padding_len = 2;
     } else {
         ctx->time_stamp_len = 18;
         ctx->value_label_table_len_len = 4;
+        if (ds_format < 118) {
+            ctx->value_label_table_labname_len = 33;
+        } else {
+            ctx->value_label_table_labname_len = 129;
+        }
+        ctx->value_label_table_padding_len = 3;
     }
 
     if (ds_format < 117) {

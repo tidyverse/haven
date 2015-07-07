@@ -25,12 +25,6 @@ typedef struct dta_short_expansion_field_s {
     int16_t          len;
 } dta_short_expansion_field_t;
 
-typedef struct dta_short_value_label_table_header_s {
-    int16_t          len;
-    char             labname[12];
-    char             padding[2];
-} dta_short_value_label_table_header_t;
-
 typedef struct dta_value_label_table_header_s {
     int32_t          len;
     char             labname[33];
@@ -72,6 +66,8 @@ typedef struct dta_ctx_s {
     size_t         variable_labels_entry_len;
     size_t         expansion_len_len;
     size_t         value_label_table_len_len;
+    size_t         value_label_table_labname_len;
+    size_t         value_label_table_padding_len;
 
     off_t          data_offset;
     off_t          strls_offset;

@@ -715,69 +715,69 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
     if (parser->value_label_handler) {
         while (1) {
             size_t len = 0;
+            char labname[129];
             char *table_buffer;
+            int32_t i, n;
 
             if (ctx->value_label_table_len_len == 2) {
-                dta_short_value_label_table_header_t table_header;
-                if (read(fd, &table_header, sizeof(dta_short_value_label_table_header_t)) < 
-                        sizeof(dta_short_value_label_table_header_t))
+                int16_t table_header_len;
+                if (read(fd, &table_header_len, sizeof(int16_t)) < sizeof(int16_t))
                     break;
 
-                len = table_header.len;
+                n = table_header_len;
             
                 if (ctx->machine_needs_byte_swap)
-                    len = byteswap2(table_header.len);
-                
-                if ((table_buffer = malloc(8 * len)) == NULL) {
-                    retval = READSTAT_ERROR_MALLOC;
-                    goto cleanup;
-                }
-                
-                if (read(fd, table_buffer, 8 * len) < 8 * len) {
-                    free(table_buffer);
+                    n = byteswap2(table_header_len);
+
+                len = 8 * n;
+            } else {
+                if (dta_read_tag(fd, ctx, "<lbl>") != READSTAT_OK) {
                     break;
                 }
+
+                int32_t table_header_len;
+                if (read(fd, &table_header_len, sizeof(int32_t)) < sizeof(int32_t))
+                    break;
+
+                len = table_header_len;
+            
+                if (ctx->machine_needs_byte_swap)
+                    len = byteswap4(table_header_len);
+            }
                 
-                int32_t l;
-                for (l=0; l<len; l++) {
-                    readstat_value_t value = { .v = { .i32_value = l }, .type = READSTAT_TYPE_INT32 };
-                    if (parser->value_label_handler(table_header.labname, value, table_buffer + 8 * l, user_ctx)) {
+            if (read(fd, labname, ctx->value_label_table_labname_len) < ctx->value_label_table_labname_len)
+                break;
+
+            if (lseek(fd, ctx->value_label_table_padding_len, SEEK_CUR) == -1)
+                break;
+
+            if ((table_buffer = malloc(len)) == NULL) {
+                retval = READSTAT_ERROR_MALLOC;
+                goto cleanup;
+            }
+
+            if (read(fd, table_buffer, len) < len) {
+                free(table_buffer);
+                break;
+            }
+
+            if (ctx->value_label_table_len_len == 2) {
+                for (i=0; i<n; i++) {
+                    readstat_value_t value = { .v = { .i32_value = i }, .type = READSTAT_TYPE_INT32 };
+                    if (parser->value_label_handler(labname, value, table_buffer + 8 * i, user_ctx)) {
                         retval = READSTAT_ERROR_USER_ABORT;
                         free(table_buffer);
                         goto cleanup;
                     }
                 }
             } else {
-                if (dta_read_tag(fd, ctx, "<lbl>") != READSTAT_OK) {
-                    break;
-                }
-
-                dta_value_label_table_header_t table_header;
-                if (read(fd, &table_header, sizeof(dta_value_label_table_header_t)) < 
-                        sizeof(dta_value_label_table_header_t))
-                    break;
-            
-                len = table_header.len;
-            
-                if (ctx->machine_needs_byte_swap)
-                    len = byteswap4(table_header.len);
-                        
-                if ((table_buffer = malloc(len)) == NULL) {
-                    retval = READSTAT_ERROR_MALLOC;
-                    goto cleanup;
-                }
-                
-                if (read(fd, table_buffer, len) < len) {
-                    free(table_buffer);
-                    break;
-                }
-
                 if ((retval = dta_read_tag(fd, ctx, "</lbl>")) != READSTAT_OK) {
                     free(table_buffer);
                     goto cleanup;
                 }
                 
-                int32_t n = *(int32_t *)table_buffer;
+                n = *(int32_t *)table_buffer;
+
                 int32_t txtlen = *((int32_t *)table_buffer+1);
                 if (ctx->machine_needs_byte_swap) {
                     n = byteswap4(n);
@@ -792,7 +792,6 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                 int32_t *off = (int32_t *)table_buffer+2;
                 int32_t *val = (int32_t *)table_buffer+2+n;
                 char *txt = &table_buffer[8*n+8];
-                int i;
                 
                 if (ctx->machine_needs_byte_swap) {
                     for (i=0; i<n; i++) {
@@ -809,7 +808,7 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                 for (i=0; i<n; i++) {
                     if (off[i] < txtlen) {
                         readstat_value_t value = { .v = { .i32_value = val[i] }, .type = READSTAT_TYPE_INT32 };
-                        if (parser->value_label_handler(table_header.labname, value, &txt[off[i]], user_ctx)) {
+                        if (parser->value_label_handler(labname, value, &txt[off[i]], user_ctx)) {
                             retval = READSTAT_ERROR_USER_ABORT;
                             free(table_buffer);
                             goto cleanup;
