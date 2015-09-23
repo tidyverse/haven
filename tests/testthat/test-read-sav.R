@@ -36,3 +36,16 @@ test_that("non-ASCII labels converted to utf-8", {
   expect_equal(names(attr(x, "labels"))[1], "the \u00e4 umlaut")
 })
 
+test_that("datetime variables converted to the correct class", {
+  df <- read_sav("datetime.sav")
+  expect_true(inherits(df$date, "Date"))
+  expect_true(inherits(df$date.posix, "POSIXct"))
+  expect_true(inherits(df$time, "hms"))
+})
+
+test_that("datetime values correctly imported (offset)", {
+  df <- read_sav("datetime.sav")
+  expect_equal(df$date[1], as.Date("2014-09-22d"))
+  expect_equal(df$date.posix[2], as.POSIXct("2014-09-23 15:59:20", tz="UTC"))
+  expect_equal(as.integer(df$time[1]), 43870)
+})
