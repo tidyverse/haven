@@ -117,6 +117,23 @@ readstat_value_t spss_boxed_value(double fp_value) {
     return value;
 }
 
+uint64_t spss_64bit_value(readstat_value_t value) {
+    double dval = readstat_double_value(value);
+    uint64_t special_val;
+    memcpy(&special_val, &dval, sizeof(double));
+
+    if (isinf(dval)) {
+        if (dval < 0.0) {
+            special_val = SAV_LOWEST_DOUBLE;
+        } else {
+            special_val = SAV_HIGHEST_DOUBLE;
+        }
+    } else if (isnan(dval)) {
+        special_val = SAV_MISSING_DOUBLE;
+    }
+    return special_val;
+}
+
 readstat_missingness_t spss_missingness_for_info(spss_varinfo_t *info) {
     readstat_missingness_t missingness;
     memset(&missingness, 0, sizeof(readstat_missingness_t));

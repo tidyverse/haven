@@ -15,7 +15,7 @@ static inline readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len,
 static readstat_error_t dta_read_descriptors(int fd, dta_ctx_t *ctx);
 static readstat_error_t dta_read_tag(int fd, dta_ctx_t *ctx, const char *tag);
 static readstat_error_t dta_read_long_string(int fd, dta_ctx_t *ctx, int v, int o, char **long_string_out);
-static int dta_skip_expansion_fields(int fd, dta_ctx_t *ctx);
+static readstat_error_t dta_skip_expansion_fields(int fd, dta_ctx_t *ctx);
 
 static readstat_error_t dta_update_progress(int fd, dta_ctx_t *ctx) {
     if (!ctx->progress_handler)
@@ -189,15 +189,15 @@ static readstat_error_t dta_read_descriptors(int fd, dta_ctx_t *ctx) {
     return 0;
 }
 
-static int dta_skip_expansion_fields(int fd, dta_ctx_t *ctx) {
+static readstat_error_t dta_skip_expansion_fields(int fd, dta_ctx_t *ctx) {
     if (ctx->file_is_xmlish) {
-        if (lseek(fd, ctx->data_offset, SEEK_SET) == -1)
-            return -1;
+        if (readstat_lseek(fd, ctx->data_offset, SEEK_SET) == -1)
+            return READSTAT_ERROR_SEEK;
 
-        return 0;
+        return READSTAT_OK;
     }
     if (ctx->expansion_len_len == 0)
-        return 0;
+        return READSTAT_OK;
     
     while (1) {
         size_t len;
@@ -205,7 +205,7 @@ static int dta_skip_expansion_fields(int fd, dta_ctx_t *ctx) {
         if (ctx->expansion_len_len == 2) {
             dta_short_expansion_field_t  expansion_field;
             if (read(fd, &expansion_field, sizeof(expansion_field)) != sizeof(expansion_field))
-                return -1;
+                return READSTAT_ERROR_READ;
 
             if (ctx->machine_needs_byte_swap) {
                 len = byteswap2(expansion_field.len);
@@ -217,7 +217,7 @@ static int dta_skip_expansion_fields(int fd, dta_ctx_t *ctx) {
         } else {
             dta_expansion_field_t  expansion_field;
             if (read(fd, &expansion_field, sizeof(expansion_field)) != sizeof(expansion_field))
-                return -1;
+                return READSTAT_ERROR_READ;
             
             if (ctx->machine_needs_byte_swap) {
                 len = byteswap4(expansion_field.len);
@@ -229,16 +229,16 @@ static int dta_skip_expansion_fields(int fd, dta_ctx_t *ctx) {
         }
 
         if (data_type == 0 && len == 0)
-            return 0;
+            return READSTAT_OK;
         
         if (data_type != 1)
-            return -1;
+            return READSTAT_ERROR_PARSE;
 
-        if (lseek(fd, len, SEEK_CUR) == -1)
-            return -1;
+        if (readstat_lseek(fd, len, SEEK_CUR) == -1)
+            return READSTAT_ERROR_SEEK;
     }
 
-    return -1;
+    return READSTAT_ERROR_PARSE;
 }
 
 static readstat_error_t dta_read_tag(int fd, dta_ctx_t *ctx, const char *tag) {
@@ -262,8 +262,8 @@ cleanup:
 
 static readstat_error_t dta_read_long_string(int fd, dta_ctx_t *ctx, int v, int o, char **long_string_out) {
     readstat_error_t retval = READSTAT_OK;
-    if (lseek(fd, ctx->strls_offset, SEEK_SET) != ctx->strls_offset) {
-        retval = READSTAT_ERROR_READ;
+    if (readstat_lseek(fd, ctx->strls_offset, SEEK_SET) != ctx->strls_offset) {
+        retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
 
@@ -311,8 +311,8 @@ static readstat_error_t dta_read_long_string(int fd, dta_ctx_t *ctx, int v, int 
             }
             break;
         } else {
-            if (lseek(fd, header.len, SEEK_CUR) == -1) {
-                retval = READSTAT_ERROR_READ;
+            if (readstat_lseek(fd, header.len, SEEK_CUR) == -1) {
+                retval = READSTAT_ERROR_SEEK;
                 goto cleanup;
             }
         }
@@ -393,8 +393,8 @@ readstat_error_t dta_read_xmlish_preamble(int fd, dta_ctx_t *ctx, dta_header_t *
                 goto cleanup;
             }
         } else {
-            if (lseek(fd, 4, SEEK_CUR) == -1) {
-                retval = READSTAT_ERROR_READ;
+            if (readstat_lseek(fd, 4, SEEK_CUR) == -1) {
+                retval = READSTAT_ERROR_SEEK;
                 goto cleanup;
             }
         }
@@ -430,13 +430,16 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
         goto cleanup;
     }
 
-    file_size = lseek(fd, 0, SEEK_END);
+    file_size = readstat_lseek(fd, 0, SEEK_END);
     if (file_size == -1) {
-        retval = READSTAT_ERROR_READ;
+        retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
 
-    lseek(fd, 0, SEEK_SET);
+    if (readstat_lseek(fd, 0, SEEK_SET) == -1) {
+        retval = READSTAT_ERROR_SEEK;
+        goto cleanup;
+    }
 
     if (strncmp(magic, "<sta", 4) == 0) {
         retval = dta_read_xmlish_preamble(fd, ctx, &header);
@@ -490,8 +493,8 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
             label_len = label_len_char;
         }
         
-        if (lseek(fd, label_len, SEEK_CUR) == -1) {
-            retval = READSTAT_ERROR_READ;
+        if (readstat_lseek(fd, label_len, SEEK_CUR) == -1) {
+            retval = READSTAT_ERROR_SEEK;
             goto cleanup;
         }
         
@@ -508,8 +511,8 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
             goto cleanup;
         }
         
-        if (lseek(fd, timestamp_len, SEEK_CUR) == -1) {
-            retval = READSTAT_ERROR_READ;
+        if (readstat_lseek(fd, timestamp_len, SEEK_CUR) == -1) {
+            retval = READSTAT_ERROR_SEEK;
             goto cleanup;
         }
 
@@ -517,14 +520,14 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
             goto cleanup;
         }
     } else {
-        if (lseek(fd, ctx->data_label_len, SEEK_CUR) == -1) {
-            retval = READSTAT_ERROR_READ;
+        if (readstat_lseek(fd, ctx->data_label_len, SEEK_CUR) == -1) {
+            retval = READSTAT_ERROR_SEEK;
             goto cleanup;
         }
         
         if (ctx->time_stamp_len) {
-            if (lseek(fd, ctx->time_stamp_len, SEEK_CUR) == -1) {
-                retval = READSTAT_ERROR_READ;
+            if (readstat_lseek(fd, ctx->time_stamp_len, SEEK_CUR) == -1) {
+                retval = READSTAT_ERROR_SEEK;
                 goto cleanup;
             }
         }
@@ -572,8 +575,7 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
         }
     }
 
-    if (dta_skip_expansion_fields(fd, ctx) != 0) {
-        retval = READSTAT_ERROR_READ;
+    if ((retval = dta_skip_expansion_fields(fd, ctx)) != READSTAT_OK) {
         goto cleanup;
     }
     
@@ -621,9 +623,9 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                     o = byteswap4(o);
                 }
                 if (v > 0 && o > 0) {
-                    off_t cur_pos = lseek(fd, 0, SEEK_CUR);
+                    off_t cur_pos = readstat_lseek(fd, 0, SEEK_CUR);
                     if (cur_pos == -1) {
-                        retval = READSTAT_ERROR_READ;
+                        retval = READSTAT_ERROR_SEEK;
                         goto cleanup;
                     }
                     retval = dta_read_long_string(fd, ctx, v, o, &long_string);
@@ -631,8 +633,8 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                         goto cleanup;
                     }
                     value.v.string_value = long_string;
-                    if (lseek(fd, cur_pos, SEEK_SET) == -1) {
-                        retval = READSTAT_ERROR_READ;
+                    if (readstat_lseek(fd, cur_pos, SEEK_SET) == -1) {
+                        retval = READSTAT_ERROR_SEEK;
                         goto cleanup;
                     }
                 }
@@ -703,8 +705,8 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
     }
 
     if (ctx->file_is_xmlish) {
-        if (lseek(fd, ctx->value_labels_offset, SEEK_SET) == -1) {
-            retval = READSTAT_ERROR_READ;
+        if (readstat_lseek(fd, ctx->value_labels_offset, SEEK_SET) == -1) {
+            retval = READSTAT_ERROR_SEEK;
             goto cleanup;
         }
         if ((retval = dta_read_tag(fd, ctx, "<value_labels>")) != READSTAT_OK) {
@@ -748,7 +750,7 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
             if (read(fd, labname, ctx->value_label_table_labname_len) < ctx->value_label_table_labname_len)
                 break;
 
-            if (lseek(fd, ctx->value_label_table_padding_len, SEEK_CUR) == -1)
+            if (readstat_lseek(fd, ctx->value_label_table_padding_len, SEEK_CUR) == -1)
                 break;
 
             if ((table_buffer = malloc(len)) == NULL) {

@@ -143,7 +143,7 @@ static int read_bytes(readstat_por_ctx_t *ctx, void *dst, size_t len) {
         }
         for (; i<line_len; i++) {
             buf[i] = ctx->space;
-            if (lseek(ctx->fd, -1, SEEK_CUR) == -1)
+            if (readstat_lseek(ctx->fd, -1, SEEK_CUR) == -1)
                 return -1;
         }
         if (skip_newline(ctx->fd) == -1)
@@ -172,7 +172,7 @@ static int read_bytes(readstat_por_ctx_t *ctx, void *dst, size_t len) {
         }
         for (; i<bytes_left; i++) {
             buf[i] = ctx->space;
-            if (lseek(ctx->fd, -1, SEEK_CUR) == -1)
+            if (readstat_lseek(ctx->fd, -1, SEEK_CUR) == -1)
                 return -1;
         }
         memcpy((char *)dst + offset, buf, bytes_left);
@@ -620,13 +620,13 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
         return READSTAT_ERROR_OPEN;
     }
 
-    if ((ctx->file_size = lseek(ctx->fd, 0, SEEK_END)) == -1) {
-        retval = READSTAT_ERROR_READ;
+    if ((ctx->file_size = readstat_lseek(ctx->fd, 0, SEEK_END)) == -1) {
+        retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
 
-    if (lseek(ctx->fd, 0, SEEK_SET) == -1) {
-        retval = READSTAT_ERROR_READ;
+    if (readstat_lseek(ctx->fd, 0, SEEK_SET) == -1) {
+        retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
     

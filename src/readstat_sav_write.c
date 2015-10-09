@@ -106,6 +106,94 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     return retval;
 }
 
+static readstat_error_t sav_emit_variable_label(readstat_writer_t *writer, readstat_variable_t *r_variable) {
+    readstat_error_t retval = READSTAT_OK;
+    const char *title_data = r_variable->label;
+    size_t title_data_len = strlen(title_data);
+    if (title_data_len > 0) {
+        char padded_label[MAX_LABEL_SIZE];
+        int32_t label_len = title_data_len;
+        if (label_len > sizeof(padded_label))
+            label_len = sizeof(padded_label);
+
+        retval = readstat_write_bytes(writer, &label_len, sizeof(label_len));
+        if (retval != READSTAT_OK)
+            goto cleanup;
+
+        strncpy(padded_label, title_data, (label_len + 3) / 4 * 4);
+
+        retval = readstat_write_bytes(writer, padded_label, (label_len + 3) / 4 * 4);
+        if (retval != READSTAT_OK)
+            goto cleanup;
+    }
+
+cleanup:
+    return retval;
+}
+
+static int sav_n_missing_values(readstat_variable_t *r_variable) {
+    int n_missing_ranges = readstat_variable_get_missing_ranges_count(r_variable);
+    int n_missing_values = n_missing_ranges;
+    int has_missing_range = 0;
+    int j;
+    for (j=0; j<n_missing_ranges; j++) {
+        readstat_value_t lo = readstat_variable_get_missing_range_lo(r_variable, j);
+        readstat_value_t hi = readstat_variable_get_missing_range_hi(r_variable, j);
+        if (spss_64bit_value(lo) != spss_64bit_value(hi)) {
+            n_missing_values++;
+            has_missing_range = 1;
+        }
+    }
+    if (n_missing_values > 3)
+        n_missing_values = 3;
+
+    return has_missing_range ? -n_missing_values : n_missing_values;
+}
+
+static readstat_error_t sav_emit_variable_missing_values(readstat_writer_t *writer, readstat_variable_t *r_variable) {
+    readstat_error_t retval = READSTAT_OK;
+    int n_missing_values = 0;
+    int n_missing_ranges = readstat_variable_get_missing_ranges_count(r_variable);
+    /* ranges */
+    int j;
+
+    for (j=0; j<n_missing_ranges; j++) {
+        readstat_value_t lo = readstat_variable_get_missing_range_lo(r_variable, j);
+        readstat_value_t hi = readstat_variable_get_missing_range_hi(r_variable, j);
+        if (spss_64bit_value(lo) != spss_64bit_value(hi)) {
+            uint64_t lo_val = spss_64bit_value(lo);
+            retval = readstat_write_bytes(writer, &lo_val, sizeof(uint64_t));
+            if (retval != READSTAT_OK)
+                goto cleanup;
+
+            uint64_t hi_val = spss_64bit_value(hi);
+            retval = readstat_write_bytes(writer, &hi_val, sizeof(uint64_t));
+            if (retval != READSTAT_OK)
+                goto cleanup;
+
+            n_missing_values += 2;
+
+            break;
+        }
+    }
+    /* values */
+    for (j=0; j<n_missing_ranges; j++) {
+        readstat_value_t lo = readstat_variable_get_missing_range_lo(r_variable, j);
+        readstat_value_t hi = readstat_variable_get_missing_range_hi(r_variable, j);
+        if (spss_64bit_value(lo) == spss_64bit_value(hi)) {
+            uint64_t d_val = spss_64bit_value(lo);
+            retval = readstat_write_bytes(writer, &d_val, sizeof(uint64_t));
+            if (retval != READSTAT_OK)
+                goto cleanup;
+
+            if (++n_missing_values == 3)
+                break;
+        }
+    }
+cleanup:
+    return retval;
+}
+
 static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
     int i, j;
@@ -117,9 +205,6 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
         snprintf(name_data, sizeof(name_data), "VAR%d", i);
         size_t name_data_len = strlen(name_data);
 
-        const char *title_data = r_variable->label;
-        size_t title_data_len = strlen(title_data);
-
         rec_type = SAV_RECORD_TYPE_VARIABLE;
         retval = readstat_write_bytes(writer, &rec_type, sizeof(rec_type));
         if (retval != READSTAT_OK)
@@ -129,8 +214,8 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
         memset(&variable, 0, sizeof(sav_variable_record_t));
 
         variable.type = (r_variable->type == READSTAT_TYPE_STRING) ? r_variable->width : 0;
-        variable.has_var_label = (title_data_len > 0);
-        variable.n_missing_values = 0;
+        variable.has_var_label = (r_variable->label[0] != '\0');
+        variable.n_missing_values = sav_n_missing_values(r_variable); 
 
         retval = sav_encode_variable_format(&variable.print, r_variable);
         if (retval != READSTAT_OK)
@@ -146,22 +231,13 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
         if (retval != READSTAT_OK)
             goto cleanup;
         
-        if (title_data_len > 0) {
-            char padded_label[MAX_LABEL_SIZE];
-            int32_t label_len = title_data_len;
-            if (label_len > sizeof(padded_label))
-                label_len = sizeof(padded_label);
-            
-            retval = readstat_write_bytes(writer, &label_len, sizeof(label_len));
-            if (retval != READSTAT_OK)
-                goto cleanup;
+        retval = sav_emit_variable_label(writer, r_variable);
+        if (retval != READSTAT_OK)
+            goto cleanup;
 
-            strncpy(padded_label, title_data, (label_len + 3) / 4 * 4);
-            
-            retval = readstat_write_bytes(writer, padded_label, (label_len + 3) / 4 * 4);
-            if (retval != READSTAT_OK)
-                goto cleanup;
-        }
+        retval = sav_emit_variable_missing_values(writer, r_variable);
+        if (retval != READSTAT_OK)
+            goto cleanup;
         
         int extra_fields = r_variable->width / 8 - 1;
         for (j=0; j<extra_fields; j++) {

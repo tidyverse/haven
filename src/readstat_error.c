@@ -9,7 +9,7 @@ const char *readstat_error_message(readstat_error_t error_code) {
         return "Unable to open file";
 
     if (error_code == READSTAT_ERROR_READ)
-        return "Unable to read file";
+        return "Unable to read from file";
 
     if (error_code == READSTAT_ERROR_MALLOC)
         return "Unable to allocate memory";
@@ -40,6 +40,9 @@ const char *readstat_error_message(readstat_error_t error_code) {
 
     if (error_code == READSTAT_ERROR_WRITE)
         return "Unable to write data";
+
+    if (error_code == READSTAT_ERROR_SEEK)
+        return "Unable to seek within file";
 
     return "Unknown error";
 }
