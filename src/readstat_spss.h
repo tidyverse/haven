@@ -83,3 +83,4 @@ readstat_missingness_t spss_missingness_for_info(spss_varinfo_t *info);
 readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info);
 void spss_free_variable(readstat_variable_t *);
 
+uint64_t spss_64bit_value(readstat_value_t value);

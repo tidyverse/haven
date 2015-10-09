@@ -154,11 +154,17 @@ static readstat_error_t sav_skip_variable_record(int fd, sav_ctx_t *ctx) {
         }
         label_len = ctx->machine_needs_byte_swap ? byteswap4(label_len) : label_len;
         int32_t label_capacity = (label_len + 3) / 4 * 4;
-        lseek(fd, label_capacity, SEEK_CUR);
+        if (readstat_lseek(fd, label_capacity, SEEK_CUR) == -1) {
+            retval = READSTAT_ERROR_SEEK;
+            goto cleanup;
+        }
     }
     if (variable.n_missing_values) {
         int n_missing_values = ctx->machine_needs_byte_swap ? byteswap4(variable.n_missing_values) : variable.n_missing_values;
-        lseek(fd, abs(n_missing_values) * sizeof(double), SEEK_CUR);
+        if (readstat_lseek(fd, abs(n_missing_values) * sizeof(double), SEEK_CUR) == -1) {
+            retval = READSTAT_ERROR_SEEK;
+            goto cleanup;
+        }
     }
 cleanup:
     return retval;
@@ -302,7 +308,10 @@ static readstat_error_t sav_skip_value_label_record(int fd, sav_ctx_t *ctx) {
             goto cleanup;
         }
         size_t label_len = (vlabel.label_len + 8) / 8 * 8 - 1;
-        lseek(fd, label_len, SEEK_CUR);
+        if (readstat_lseek(fd, label_len, SEEK_CUR) == -1) {
+            retval = READSTAT_ERROR_SEEK;
+            goto cleanup;
+        }
     }
 
     if (read(fd, &rec_type, sizeof(int32_t)) < sizeof(int32_t)) {
@@ -323,7 +332,10 @@ static readstat_error_t sav_skip_value_label_record(int fd, sav_ctx_t *ctx) {
     if (ctx->machine_needs_byte_swap)
         var_count = byteswap4(var_count);
     
-    lseek(fd, var_count * sizeof(int32_t), SEEK_CUR);
+    if (readstat_lseek(fd, var_count * sizeof(int32_t), SEEK_CUR) == -1) {
+        retval = READSTAT_ERROR_SEEK;
+        goto cleanup;
+    }
 
 cleanup:
     return retval;
@@ -451,8 +463,8 @@ static readstat_error_t sav_skip_document_record(int fd, sav_ctx_t *ctx) {
     }
     if (ctx->machine_needs_byte_swap)
         n_lines = byteswap4(n_lines);
-    if (lseek(fd, n_lines * 80, SEEK_CUR) == -1) {
-        retval = READSTAT_ERROR_READ;
+    if (readstat_lseek(fd, n_lines * 80, SEEK_CUR) == -1) {
+        retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
     
@@ -892,7 +904,10 @@ static readstat_error_t sav_parse_records_pass1(int fd, sav_ctx_t *ctx) {
                         goto cleanup;
                     done = 1;
                 } else {
-                    lseek(fd, data_len, SEEK_CUR);
+                    if (readstat_lseek(fd, data_len, SEEK_CUR) == -1) {
+                        retval = READSTAT_ERROR_SEEK;
+                        goto cleanup;
+                    }
                 }
                 break;
             default:
@@ -1031,14 +1046,14 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filen
         return READSTAT_ERROR_OPEN;
     }
 
-    file_size = lseek(fd, 0, SEEK_END);
+    file_size = readstat_lseek(fd, 0, SEEK_END);
     if (file_size == -1) {
-        retval = READSTAT_ERROR_READ;
+        retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
 
-    if (lseek(fd, 0, SEEK_SET) == -1) {
-        retval = READSTAT_ERROR_READ;
+    if (readstat_lseek(fd, 0, SEEK_SET) == -1) {
+        retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
 
@@ -1064,7 +1079,10 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filen
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    lseek(fd, sizeof(sav_file_header_record_t), SEEK_SET);
+    if (readstat_lseek(fd, sizeof(sav_file_header_record_t), SEEK_SET) == -1) {
+        retval = READSTAT_ERROR_SEEK;
+        goto cleanup;
+    }
 
     retval = sav_update_progress(fd, ctx);
     if (retval != READSTAT_OK)
