@@ -35,6 +35,7 @@ typedef struct sas_header_info_s {
     int      little_endian;
     int      u64;
     int      vendor;
+    int      pad1;
     int64_t  page_size;
     int64_t  page_count;
     int64_t  header_size;

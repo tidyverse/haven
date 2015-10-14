@@ -16,6 +16,7 @@ typedef struct sas_catalog_ctx_s {
     readstat_value_label_handler   value_label_handler;
     void         *user_ctx;
     int           u64;
+    int           pad1;
     int           bswap;
     int           fd;
     int64_t       page_count;
@@ -150,20 +151,19 @@ cleanup:
 static void sas_catalog_augment_index(const char *index, size_t len, sas_catalog_ctx_t *ctx) {
     const char *xlsr = index;
     while (xlsr + 212 <= index + len) {
-        if (memcmp(xlsr, "        ", 8) == 0) // some block pointers seem to have an extra 8-byte padding
+        if (memcmp(xlsr, "XLSR", 4) != 0) // some block pointers seem to have 8 bytes of extra padding
             xlsr += 8;
-
         if (memcmp(xlsr, "XLSR", 4) != 0)
             break;
 
-        if (xlsr[50] == 'O')
+        if (xlsr[50+ctx->pad1] == 'O')
             ctx->block_pointers[ctx->block_pointers_used++] = ((uint64_t)sas_read2(&xlsr[4], ctx->bswap) << 32) + sas_read2(&xlsr[8], ctx->bswap);
 
         if (ctx->block_pointers_used == ctx->block_pointers_capacity) {
             ctx->block_pointers = realloc(ctx->block_pointers, (ctx->block_pointers_capacity *= 2) * sizeof(uint64_t));
         }
 
-        xlsr += 212;
+        xlsr += 212 + ctx->pad1;
     }
 }
 
@@ -262,6 +262,7 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
     }
 
     ctx->u64 = hinfo->u64;
+    ctx->pad1 = hinfo->pad1;
     ctx->bswap = machine_is_little_endian() ^ hinfo->little_endian;
     ctx->header_size = hinfo->header_size;
     ctx->page_count = hinfo->page_count;
@@ -295,7 +296,7 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
         goto cleanup;
     }
 
-    sas_catalog_augment_index(&page[856], ctx->page_size - 856, ctx);
+    sas_catalog_augment_index(&page[856+2*ctx->pad1], ctx->page_size - 856 - 2*ctx->pad1, ctx);
 
     // Pass 1 -- find the XLSR entries
     for (i=SAS_CATALOG_USELESS_PAGES; i<ctx->page_count; i++) {

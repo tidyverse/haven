@@ -85,7 +85,6 @@ readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx,
     sas_header_end_t    header_end;
     int retval = READSTAT_OK;
     char error_buf[1024];
-    int a1 = 0;
     if (read(fd, &header_start, sizeof(sas_header_start_t)) < sizeof(sas_header_start_t)) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
@@ -96,7 +95,7 @@ readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx,
         goto cleanup;
     }
     if (header_start.a1 == SAS_ALIGNMENT_OFFSET_4) {
-        a1 = 4;
+        ctx->pad1 = 4;
     }
     if (header_start.a2 == SAS_ALIGNMENT_OFFSET_4) {
         ctx->u64 = 1;
@@ -127,10 +126,10 @@ readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx,
         retval = READSTAT_ERROR_UNSUPPORTED_CHARSET;
         goto cleanup;
     }
-    if (readstat_lseek(fd, 196 + a1, SEEK_SET) == -1) {
+    if (readstat_lseek(fd, 196 + ctx->pad1, SEEK_SET) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %d\n", 196 + a1);
+            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %d\n", 196 + ctx->pad1);
             error_handler(error_buf, user_ctx);
         }
         goto cleanup;
