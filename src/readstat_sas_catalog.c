@@ -56,7 +56,7 @@ static readstat_error_t sas_parse_value_labels(const char *value_start, size_t v
             goto cleanup;
         }
         if (i<label_count_used) {
-            uint32_t label_pos = sas_read4(&lbp1[10], ctx->bswap);
+            uint32_t label_pos = sas_read4(&lbp1[10+ctx->pad1], ctx->bswap);
             if (label_pos >= label_count_used) {
                 retval = READSTAT_ERROR_PARSE;
                 goto cleanup;
