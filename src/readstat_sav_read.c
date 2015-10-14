@@ -1132,15 +1132,16 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filen
         }
     }
     if (parser->fweight_handler && ctx->fweight_index) {
-        for (i=0; i<ctx->var_index; i++) {
+        for (i=0; i<ctx->var_index;) {
             spss_varinfo_t *info = &ctx->varinfo[i];
             if (info->offset == ctx->fweight_index - 1) {
-                if (parser->fweight_handler(i, ctx->user_ctx)) {
+                if (parser->fweight_handler(info->index, ctx->user_ctx)) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
                 break;
             }
+            i += info->n_segments;
         }
     }
 

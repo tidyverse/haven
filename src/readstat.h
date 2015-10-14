@@ -58,14 +58,17 @@ typedef struct readstat_value_s {
         char       *string_value;
     } v;
     readstat_types_t        type;
-    int                     is_system_missing:1;
-    int                     is_considered_missing:1;
+    char                    tag;
+    unsigned int            is_system_missing:1;
+    unsigned int            is_considered_missing:1;
 } readstat_value_t;
 
 readstat_types_t readstat_value_type(readstat_value_t value);
 int readstat_value_is_missing(readstat_value_t value);
 int readstat_value_is_system_missing(readstat_value_t value);
 int readstat_value_is_considered_missing(readstat_value_t value);
+char readstat_value_tag(readstat_value_t value);
+
 char readstat_char_value(readstat_value_t value);
 int16_t readstat_int16_value(readstat_value_t value);
 int32_t readstat_int32_value(readstat_value_t value);

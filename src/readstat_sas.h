@@ -31,3 +31,22 @@ typedef struct sas_header_end_s {
 
 #pragma pack(pop)
 
+typedef struct sas_header_info_s {
+    int      little_endian;
+    int      u64;
+    int      vendor;
+    int64_t  page_size;
+    int64_t  page_count;
+    int64_t  header_size;
+    char    *encoding;
+} sas_header_info_t;
+
+enum {
+    READSTAT_VENDOR_STAT_TRANSFER,
+    READSTAT_VENDOR_SAS
+};
+
+uint64_t sas_read8(const char *data, int bswap);
+uint32_t sas_read4(const char *data, int bswap);
+uint16_t sas_read2(const char *data, int bswap);
+readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx, readstat_error_handler error_handler, void *user_ctx);
