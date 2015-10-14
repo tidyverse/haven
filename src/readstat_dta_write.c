@@ -11,6 +11,12 @@
 #include "readstat_writer.h"
 #include "readstat_io.h"
 
+#define DTA_DEFAULT_FORMAT_BYTE    "%8.0g"
+#define DTA_DEFAULT_FORMAT_INT16   "%8.0g"
+#define DTA_DEFAULT_FORMAT_INT32  "%12.0g"
+#define DTA_DEFAULT_FORMAT_FLOAT   "%9.0g"
+#define DTA_DEFAULT_FORMAT_DOUBLE "%10.0g"
+
 static readstat_error_t dta_emit_header_data_label(readstat_writer_t *writer) {
     char data_label[81];
     memset(data_label, 0, sizeof(data_label));
@@ -86,8 +92,25 @@ static readstat_error_t dta_emit_fmtlist(readstat_writer_t *writer, dta_ctx_t *c
     for (i=0; i<ctx->nvar; i++) {
         readstat_variable_t *r_variable = readstat_get_variable(writer, i);
 
-        strncpy(&ctx->fmtlist[ctx->fmtlist_entry_len*i], 
-                r_variable->format, ctx->fmtlist_entry_len);
+        if (r_variable->format[0]) {
+            strncpy(&ctx->fmtlist[ctx->fmtlist_entry_len*i],
+                    r_variable->format, ctx->fmtlist_entry_len);
+        } else {
+            char *format = "%9s";
+            if (r_variable->type == READSTAT_TYPE_CHAR) {
+                format = DTA_DEFAULT_FORMAT_BYTE;
+            } else if (r_variable->type == READSTAT_TYPE_INT16) {
+                format = DTA_DEFAULT_FORMAT_INT16;
+            } else if (r_variable->type == READSTAT_TYPE_INT32) {
+                format = DTA_DEFAULT_FORMAT_INT32;
+            } else if (r_variable->type == READSTAT_TYPE_FLOAT) {
+                format = DTA_DEFAULT_FORMAT_FLOAT;
+            } else if (r_variable->type == READSTAT_TYPE_DOUBLE) {
+                format = DTA_DEFAULT_FORMAT_DOUBLE;
+            }
+            strncpy(&ctx->fmtlist[ctx->fmtlist_entry_len*i],
+                    format, ctx->fmtlist_entry_len);
+        }
     }
     return readstat_write_bytes(writer, ctx->fmtlist, ctx->fmtlist_len);
 }

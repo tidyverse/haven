@@ -5,6 +5,10 @@ readstat_types_t readstat_value_type(readstat_value_t value) {
     return value.type;
 }
 
+char readstat_value_tag(readstat_value_t value) {
+    return value.tag;
+}
+
 int readstat_value_is_missing(readstat_value_t value) {
     return (value.is_system_missing || value.is_considered_missing);
 }
