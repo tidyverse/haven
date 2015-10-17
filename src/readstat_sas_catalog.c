@@ -132,11 +132,9 @@ static readstat_error_t sas_catalog_parse_block(const char *data, size_t data_si
     }
 
     if ((data[2] & 0x80)) { // has long name
-        /* Uncomment to return long name to client code instead of short name
-           retval = readstat_convert(name, sizeof(name), &data[106+pad], 32, ctx->converter);
-           if (retval != READSTAT_OK)
-           goto cleanup;
-           */
+        retval = readstat_convert(name, sizeof(name), &data[106+pad], 32, ctx->converter);
+        if (retval != READSTAT_OK)
+            goto cleanup;
         pad += 32;
     }
 
