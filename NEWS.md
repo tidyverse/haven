@@ -25,7 +25,8 @@
 * fixed bug in `zap_labels()` which was leaving labelled vectors unchanged
   instead of leaving unlabelled vectors unchanged. (@markriseley, #69).
 
-* added support for writing out variable formats to write_sav and write_dta.
+* Added support for reading and writing variable formats. Similarly to 
+  to variable labels, formats are stored as an attribute on the vector.
 
 # haven 0.2.0
 
