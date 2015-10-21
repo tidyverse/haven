@@ -10,16 +10,13 @@ read_dta(path)
 
 read_stata(path)
 
-write_dta(data, path, format = NULL)
+write_dta(data, path)
 }
 \arguments{
 \item{path}{Path to data. When reading data, if the path is a URL, the file
 will be first downloaded to a temporary location before reading.}
 
 \item{data}{Data frame to write.}
-
-\item{format}{A named character vector of format strings to apply to the
-final variables. Unspecified variables receive the default format.}
 }
 \value{
 A data frame with additional "tbl_df" and "tbl" classes, which

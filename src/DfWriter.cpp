@@ -8,13 +8,12 @@ std::string rClass(RObject x);
 
 class Writer {
   List x_;
-  CharacterVector format_;
   readstat_writer_t* writer_;
   FileType type_;
   FILE* pOut_;
 
 public:
-  Writer(List x, std::string path, CharacterVector format, FileType type): x_(x), format_(format), type_(type) {
+  Writer(List x, std::string path, FileType type): x_(x), type_(type) {
     pOut_ = fopen(path.c_str(), "wb");
     if (pOut_ == NULL)
       stop("Failed to open '%s' for writing", path);
@@ -32,7 +31,6 @@ public:
 
   void write_sav() {
     CharacterVector names = as<CharacterVector>(x_.attr("names"));
-    CharacterVector format = as<CharacterVector>(format_);
 
     int p = x_.size();
     if (p == 0)
@@ -42,19 +40,18 @@ public:
     for (int j = 0; j < p; ++j) {
       RObject col = x_[j];
       std::string name(names[j]);
-      std::string format = Rcpp::as<std::string>(format_[j]);
       switch(TYPEOF(col)) {
       case LGLSXP:
-        defineVariable(as<IntegerVector>(col), name, format);
+        defineVariable(as<IntegerVector>(col), name);
         break;
       case INTSXP:
-        defineVariable(as<IntegerVector>(col), name, format);
+        defineVariable(as<IntegerVector>(col), name);
         break;
       case REALSXP:
-        defineVariable(as<NumericVector>(col), name, format);
+        defineVariable(as<NumericVector>(col), name);
         break;
       case STRSXP:
-        defineVariable(as<CharacterVector>(col), name, format);
+        defineVariable(as<CharacterVector>(col), name);
         break;
       default:
         stop("Variables of type %s not supported yet",
@@ -141,7 +138,16 @@ public:
     return Rf_translateCharUTF8(STRING_ELT(label, 0));
   }
 
-  void defineVariable(IntegerVector x, std::string name, std::string format) {
+  const char* var_format(RObject x) {
+    RObject format = x.attr("format");
+
+    if (format == R_NilValue)
+      return NULL;
+
+    return Rf_translateCharUTF8(STRING_ELT(format, 0));
+  }
+
+  void defineVariable(IntegerVector x, std::string name) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "factor") {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name.c_str());
@@ -161,10 +167,10 @@ public:
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name.c_str(),
-      var_label(x), format.c_str(), labelSet);
+      var_label(x), var_format(x), labelSet);
   }
 
-  void defineVariable(NumericVector x, std::string name, std::string format) {
+  void defineVariable(NumericVector x, std::string name) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "labelled") {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name.c_str());
@@ -177,10 +183,10 @@ public:
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_DOUBLE, 0, name.c_str(),
-      var_label(x), format.c_str(), labelSet);
+      var_label(x), var_format(x), labelSet);
   }
 
-  void defineVariable(CharacterVector x, std::string name, std::string format) {
+  void defineVariable(CharacterVector x, std::string name) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "labelled") {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name.c_str());
@@ -200,7 +206,7 @@ public:
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_STRING, max_length,
-      name.c_str(), var_label(x), format.c_str(), labelSet);
+      name.c_str(), var_label(x), var_format(x), labelSet);
   }
 
   void checkStatus(readstat_error_t err) {
@@ -229,11 +235,11 @@ std::string rClass(RObject x) {
 }
 
 // [[Rcpp::export]]
-void write_sav_(List data, std::string path, CharacterVector format) {
-  Writer(data, path, format, HAVEN_SPSS).write_sav();
+void write_sav_(List data, std::string path) {
+  Writer(data, path, HAVEN_SPSS).write_sav();
 }
 
 // [[Rcpp::export]]
-void write_dta_(List data, std::string path, CharacterVector format) {
-  Writer(data, path, format, HAVEN_STATA).write_sav();
+void write_dta_(List data, std::string path) {
+  Writer(data, path, HAVEN_STATA).write_sav();
 }

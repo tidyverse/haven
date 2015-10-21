@@ -166,6 +166,9 @@ public:
     default:
       break;
     }
+    if (var_format != NULL && strcmp(var_format, "") != 0) {
+      col.attr("format") = CharacterVector::create(Rf_mkCharCE(var_format, CE_UTF8));
+    }
 
     return 0;
   }
