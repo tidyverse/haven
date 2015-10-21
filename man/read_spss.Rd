@@ -11,7 +11,7 @@ read_por(path)
 
 read_sav(path)
 
-write_sav(data, path)
+write_sav(data, path, format = NULL)
 
 read_spss(path)
 }
@@ -20,6 +20,9 @@ read_spss(path)
 will be first downloaded to a temporary location before reading.}
 
 \item{data}{Data frame to write.}
+
+\item{format}{A named character vector of format strings to apply to the
+final variables. Unspecified variables receive the default format.}
 }
 \value{
 A data frame with additional "tbl_df" and "tbl" classes, which

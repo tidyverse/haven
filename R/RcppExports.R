@@ -17,11 +17,11 @@ df_parse_sav <- function(filename) {
     .Call('haven_df_parse_sav', PACKAGE = 'haven', filename)
 }
 
-write_sav_ <- function(data, path) {
-    invisible(.Call('haven_write_sav_', PACKAGE = 'haven', data, path))
+write_sav_ <- function(data, path, format) {
+    invisible(.Call('haven_write_sav_', PACKAGE = 'haven', data, path, format))
 }
 
-write_dta_ <- function(data, path) {
-    invisible(.Call('haven_write_dta_', PACKAGE = 'haven', data, path))
+write_dta_ <- function(data, path, format) {
+    invisible(.Call('haven_write_dta_', PACKAGE = 'haven', data, path, format))
 }
 

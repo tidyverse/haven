@@ -30,6 +30,8 @@ read_sas <- function(b7dat, b7cat = NULL) {
 #' @param path Path to data. When reading data, if the path is a URL, the file
 #'   will be first downloaded to a temporary location before reading.
 #' @param data Data frame to write.
+#' @param format A named character vector of format strings to apply to the
+#'   final variables. Unspecified variables receive the default format.
 #' @return A data frame with additional "tbl_df" and "tbl" classes, which
 #'   improve printing if dplyr is loaded.
 #'
@@ -57,8 +59,20 @@ read_sav <- function(path) {
 
 #' @export
 #' @rdname read_spss
-write_sav <- function(data, path) {
-  write_sav_(data, normalizePath(path, mustWork = FALSE))
+write_sav <- function(data, path, format = NULL) {
+  fmt <- vector("character", ncol(data))
+  names(fmt) <- names(data)
+  if (!is.null(format)) {
+    for (i in 1:length(format)) {
+      if (!names(format)[i] %in% names(fmt)) {
+        warning("Invalid field name in formats: ", names(format)[i])
+      } else {
+        fmt[names(format)[i]] <- format[i]
+      }
+    }
+  }
+
+  write_sav_(data, normalizePath(path, mustWork = FALSE), fmt)
 }
 
 
@@ -104,6 +118,18 @@ read_stata <- function(path) {
 
 #' @export
 #' @rdname read_dta
-write_dta <- function(data, path) {
-  write_dta_(data, normalizePath(path, mustWork = FALSE))
+write_dta <- function(data, path, format = NULL) {
+  fmt <- vector("character", ncol(data))
+  names(fmt) <- names(data)
+  if (!is.null(format)) {
+    for (i in 1:length(format)) {
+      if (!names(format)[i] %in% names(fmt)) {
+        warning("Invalid field name in formats: ", names(format)[i])
+      } else {
+        fmt[names(format)[i]] <- format[i]
+      }
+    }
+  }
+
+  write_dta_(data, normalizePath(path, mustWork = FALSE), fmt)
 }

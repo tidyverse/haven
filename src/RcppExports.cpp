@@ -52,24 +52,26 @@ BEGIN_RCPP
 END_RCPP
 }
 // write_sav_
-void write_sav_(List data, std::string path);
-RcppExport SEXP haven_write_sav_(SEXP dataSEXP, SEXP pathSEXP) {
+void write_sav_(List data, std::string path, CharacterVector format);
+RcppExport SEXP haven_write_sav_(SEXP dataSEXP, SEXP pathSEXP, SEXP formatSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< List >::type data(dataSEXP);
     Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
-    write_sav_(data, path);
+    Rcpp::traits::input_parameter< CharacterVector >::type format(formatSEXP);
+    write_sav_(data, path, format);
     return R_NilValue;
 END_RCPP
 }
 // write_dta_
-void write_dta_(List data, std::string path);
-RcppExport SEXP haven_write_dta_(SEXP dataSEXP, SEXP pathSEXP) {
+void write_dta_(List data, std::string path, CharacterVector format);
+RcppExport SEXP haven_write_dta_(SEXP dataSEXP, SEXP pathSEXP, SEXP formatSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< List >::type data(dataSEXP);
     Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
-    write_dta_(data, path);
+    Rcpp::traits::input_parameter< CharacterVector >::type format(formatSEXP);
+    write_dta_(data, path, format);
     return R_NilValue;
 END_RCPP
 }
