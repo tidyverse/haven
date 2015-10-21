@@ -39,3 +39,12 @@ test_that("non-ASCII labels converted to utf-8", {
   expect_equal(names(attr(x, "labels"))[1], "the \u00e4 umlaut")
 })
 
+test_that("formats read in correctly", {
+  num <- read_sav("labelled-num.sav")
+  str <- read_sav("labelled-str.sav")
+
+  expect_equal(attr(num[[1]], "format"), "F8.0")
+  expect_equal(attr(str[[1]], "format"), "A1")
+})
+
+
