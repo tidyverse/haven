@@ -14,7 +14,7 @@ roundtrip_var <- function(x) {
   class(df) <- "data.frame"
   attr(df, "row.names") <- .set_row_names(length(x))
   out <- roundtrip(df)$x
-  attr(out, "format") <- NULL
+  attr(out, "format.spss") <- NULL
   out
 }
 
@@ -72,10 +72,10 @@ test_that("formats roundtrip", {
   tmp <- tempfile()
 
   x <-
-    data.frame(a = structure(c(1, 1, 2), format = "F1.0"),
-               b = structure(4:6, format = "F2.1"),
-               c = structure(7:9, format = "N2"),
-               d = structure(c("Text", "Text", ""), format = "A100"),
+    data.frame(a = structure(c(1, 1, 2), format.spss = "F1.0"),
+               b = structure(4:6, format.spss = "F2.1"),
+               c = structure(7:9, format.spss = "N2"),
+               d = structure(c("Text", "Text", ""), format.spss = "A100"),
                stringsAsFactors = FALSE)
 
   write_sav(x, tmp)

@@ -42,16 +42,16 @@ public:
       std::string name(names[j]);
       switch(TYPEOF(col)) {
       case LGLSXP:
-        defineVariable(as<IntegerVector>(col), name);
+        defineVariable(as<IntegerVector>(col), name, var_format(col, type_));
         break;
       case INTSXP:
-        defineVariable(as<IntegerVector>(col), name);
+        defineVariable(as<IntegerVector>(col), name, var_format(col, type_));
         break;
       case REALSXP:
-        defineVariable(as<NumericVector>(col), name);
+        defineVariable(as<NumericVector>(col), name, var_format(col, type_));
         break;
       case STRSXP:
-        defineVariable(as<CharacterVector>(col), name);
+        defineVariable(as<CharacterVector>(col), name, var_format(col, type_));
         break;
       default:
         stop("Variables of type %s not supported yet",
@@ -138,8 +138,18 @@ public:
     return Rf_translateCharUTF8(STRING_ELT(label, 0));
   }
 
-  const char* var_format(RObject x) {
-    RObject format = x.attr("format");
+  const char* var_format(RObject x, FileType t) {
+    RObject format;
+    switch (t) {
+    case HAVEN_STATA:
+      format = x.attr("format.stata");
+      break;
+    case HAVEN_SPSS:
+      format = x.attr("format.spss");
+      break;
+    default:
+      Rcpp::stop("Not currently supported");
+    }
 
     if (format == R_NilValue)
       return NULL;
@@ -147,7 +157,7 @@ public:
     return Rf_translateCharUTF8(STRING_ELT(format, 0));
   }
 
-  void defineVariable(IntegerVector x, std::string name) {
+  void defineVariable(IntegerVector x, std::string name, const char* format) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "factor") {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name.c_str());
@@ -167,10 +177,10 @@ public:
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name.c_str(),
-      var_label(x), var_format(x), labelSet);
+      var_label(x), format, labelSet);
   }
 
-  void defineVariable(NumericVector x, std::string name) {
+  void defineVariable(NumericVector x, std::string name, const char* format) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "labelled") {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name.c_str());
@@ -183,10 +193,10 @@ public:
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_DOUBLE, 0, name.c_str(),
-      var_label(x), var_format(x), labelSet);
+      var_label(x), format, labelSet);
   }
 
-  void defineVariable(CharacterVector x, std::string name) {
+  void defineVariable(CharacterVector x, std::string name, const char* format) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "labelled") {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name.c_str());
@@ -206,7 +216,7 @@ public:
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_STRING, max_length,
-      name.c_str(), var_label(x), var_format(x), labelSet);
+      name.c_str(), var_label(x), format, labelSet);
   }
 
   void checkStatus(readstat_error_t err) {

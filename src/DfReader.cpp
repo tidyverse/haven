@@ -118,7 +118,7 @@ public:
     return 0;
   }
 
-  int variable(int index, readstat_variable_t *variable, const char *val_labels) {
+  int variable(int index, readstat_variable_t *variable, const char *val_labels, FileType type) {
 
     names_[index] = readstat_variable_get_name(variable);
 
@@ -167,7 +167,19 @@ public:
       break;
     }
     if (var_format != NULL && strcmp(var_format, "") != 0) {
-      col.attr("format") = CharacterVector::create(Rf_mkCharCE(var_format, CE_UTF8));
+      switch (type) {
+      case HAVEN_STATA:
+        col.attr("format.stata") = CharacterVector::create(Rf_mkCharCE(var_format, CE_UTF8));
+        break;
+      case HAVEN_SPSS:
+        col.attr("format.spss") = CharacterVector::create(Rf_mkCharCE(var_format, CE_UTF8));
+        break;
+      case HAVEN_SAS:
+        col.attr("format.sas") = CharacterVector::create(Rf_mkCharCE(var_format, CE_UTF8));
+        break;
+      default:
+        Rcpp::stop("Not currently supported");
+      }
     }
 
     return 0;
@@ -303,9 +315,17 @@ public:
 int dfreader_info(int obs_count, int var_count, void *ctx) {
   return ((DfReader*) ctx)->info(obs_count, var_count);
 }
-int dfreader_variable(int index, readstat_variable_t *variable,
-                      const char *val_labels, void *ctx) {
-  return ((DfReader*) ctx)->variable(index, variable, val_labels);
+int dfreader_variable_stata(int index, readstat_variable_t *variable,
+                            const char *val_labels, void *ctx) {
+  return ((DfReader*) ctx)->variable(index, variable, val_labels, HAVEN_STATA);
+}
+int dfreader_variable_spss(int index, readstat_variable_t *variable,
+                           const char *val_labels, void *ctx) {
+  return ((DfReader*) ctx)->variable(index, variable, val_labels, HAVEN_SPSS);
+}
+int dfreader_variable_sas(int index, readstat_variable_t *variable,
+                          const char *val_labels, void *ctx) {
+  return ((DfReader*) ctx)->variable(index, variable, val_labels, HAVEN_SAS);
 }
 int dfreader_value(int obs_index, int var_index, readstat_value_t value,
                    void *ctx) {
@@ -328,7 +348,18 @@ List df_parse(FileType type, std::string filename, ParseFunction parse_f) {
 
   readstat_parser_t* parser = readstat_parser_init();
   readstat_set_info_handler(parser, dfreader_info);
-  readstat_set_variable_handler(parser, dfreader_variable);
+
+  switch (type) {
+  case HAVEN_STATA:
+    readstat_set_variable_handler(parser, dfreader_variable_stata);
+    break;
+  case HAVEN_SPSS:
+    readstat_set_variable_handler(parser, dfreader_variable_spss);
+    break;
+  default:
+    Rcpp::stop("Not currently supported");
+  }
+
   readstat_set_value_handler(parser, dfreader_value);
   readstat_set_value_label_handler(parser, dfreader_value_label);
   readstat_set_error_handler(parser, print_error);
@@ -350,7 +381,7 @@ List df_parse_sas(const std::string& b7dat, const std::string& b7cat) {
 
   readstat_parser_t* parser = readstat_parser_init();
   readstat_set_info_handler(parser, dfreader_info);
-  readstat_set_variable_handler(parser, dfreader_variable);
+  readstat_set_variable_handler(parser, dfreader_variable_sas);
   readstat_set_value_handler(parser, dfreader_value);
   readstat_set_value_label_handler(parser, dfreader_value_label);
   readstat_set_error_handler(parser, print_error);
