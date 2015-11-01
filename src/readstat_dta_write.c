@@ -395,9 +395,11 @@ static readstat_error_t dta_write_missing(void *row, const readstat_variable_t *
     } else if (var->type == READSTAT_TYPE_INT32) {
         retval = dta_write_int32(row, var, DTA_MISSING_INT32);
     } else if (var->type == READSTAT_TYPE_FLOAT) {
-        retval = dta_write_float(row, var, DTA_MISSING_FLOAT);
+        int32_t val_i = DTA_MISSING_FLOAT;
+        memcpy(row, &val_i, sizeof(int32_t));
     } else if (var->type == READSTAT_TYPE_DOUBLE) {
-        retval = dta_write_double(row, var, DTA_MISSING_DOUBLE);
+        int64_t val_l = DTA_MISSING_DOUBLE;
+        memcpy(row, &val_l, sizeof(int64_t));
     } else if (var->type == READSTAT_TYPE_STRING) {
         retval = dta_write_string(row, var, NULL);
     }

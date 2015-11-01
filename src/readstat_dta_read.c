@@ -681,7 +681,7 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                 }
                 value.v.i32_value = num;
             } else if (value.type == READSTAT_TYPE_FLOAT) {
-                uint32_t num = *((uint32_t *)&buf[offset]);
+                int32_t num = *((int32_t *)&buf[offset]);
                 float f_num = NAN;
                 if (ctx->machine_needs_byte_swap) {
                     num = byteswap4(num);
@@ -692,11 +692,11 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                         value.tag = 'a' + ((num - DTA_MISSING_FLOAT_A) >> 11);
                     }
                 } else {
-                    memcpy(&f_num, &num, sizeof(uint32_t));
+                    memcpy(&f_num, &num, sizeof(int32_t));
                 }
                 value.v.float_value = f_num;
             } else if (value.type == READSTAT_TYPE_DOUBLE) {
-                uint64_t num = *((uint64_t *)&buf[offset]);
+                int64_t num = *((int64_t *)&buf[offset]);
                 double d_num = NAN;
                 if (ctx->machine_needs_byte_swap) {
                     num = byteswap8(num);
@@ -707,7 +707,7 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filen
                         value.tag = 'a' + ((num - DTA_MISSING_DOUBLE_A) >> 40);
                     }
                 } else {
-                    memcpy(&d_num, &num, sizeof(double));
+                    memcpy(&d_num, &num, sizeof(int64_t));
                 }
                 value.v.double_value = d_num;
             }
