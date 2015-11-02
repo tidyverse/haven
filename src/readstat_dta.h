@@ -88,17 +88,17 @@ typedef struct dta_ctx_s {
 #define DTA_HILO  0x01
 #define DTA_LOHI  0x02
 
-#define DTA_MAX_CHAR   0x64
-#define DTA_MAX_INT16  0x7fe4
-#define DTA_MAX_INT32  0x7fffffe4U
-#define DTA_MAX_FLOAT  0x7effffffU // +1.7e38f
-#define DTA_MAX_DOUBLE 0x7fdfffffffffffffUL // +8.9e307
+#define DTA_MAX_CHAR                 0x64
+#define DTA_MAX_INT16              0x7fe4
+#define DTA_MAX_INT32          0x7fffffe4
+#define DTA_MAX_FLOAT          0x7effffff // +1.7e38f
+#define DTA_MAX_DOUBLE 0x7fdfffffffffffffL // +8.9e307
 
 #define DTA_MISSING_CHAR                 0x65
 #define DTA_MISSING_INT16              0x7FE5
-#define DTA_MISSING_INT32          0x7FFFFFE5U
-#define DTA_MISSING_FLOAT          0x7F000000U
-#define DTA_MISSING_DOUBLE 0x7FE0000000000000UL
+#define DTA_MISSING_INT32          0x7FFFFFE5
+#define DTA_MISSING_FLOAT          0x7F000000
+#define DTA_MISSING_DOUBLE 0x7FE0000000000000L
 
 #define DTA_MISSING_CHAR_A    (DTA_MISSING_CHAR+1)
 #define DTA_MISSING_INT16_A   (DTA_MISSING_INT16+1)
