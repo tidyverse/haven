@@ -6,38 +6,95 @@
 
 using namespace Rcpp;
 
-// df_parse_sas
-List df_parse_sas(const std::string& b7dat, const std::string& b7cat);
-RcppExport SEXP haven_df_parse_sas(SEXP b7datSEXP, SEXP b7catSEXP) {
+// df_parse_sas_file
+List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat);
+RcppExport SEXP haven_df_parse_sas_file(SEXP spec_b7datSEXP, SEXP spec_b7catSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< const std::string& >::type b7dat(b7datSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type b7cat(b7catSEXP);
-    __result = Rcpp::wrap(df_parse_sas(b7dat, b7cat));
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec_b7dat(spec_b7datSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec_b7cat(spec_b7catSEXP);
+    __result = Rcpp::wrap(df_parse_sas_file(spec_b7dat, spec_b7cat));
     return __result;
 END_RCPP
 }
-// df_parse_dta
-List df_parse_dta(std::string filename, std::string encoding);
-RcppExport SEXP haven_df_parse_dta(SEXP filenameSEXP, SEXP encodingSEXP) {
+// df_parse_sas_raw
+List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat);
+RcppExport SEXP haven_df_parse_sas_raw(SEXP spec_b7datSEXP, SEXP spec_b7catSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec_b7dat(spec_b7datSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec_b7cat(spec_b7catSEXP);
+    __result = Rcpp::wrap(df_parse_sas_raw(spec_b7dat, spec_b7cat));
+    return __result;
+END_RCPP
+}
+// df_parse_dta_file
+List df_parse_dta_file(Rcpp::List spec, std::string encoding);
+RcppExport SEXP haven_df_parse_dta_file(SEXP specSEXP, SEXP encodingSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
     Rcpp::traits::input_parameter< std::string >::type encoding(encodingSEXP);
-    __result = Rcpp::wrap(df_parse_dta(filename, encoding));
+    __result = Rcpp::wrap(df_parse_dta_file(spec, encoding));
     return __result;
 END_RCPP
 }
-// df_parse_sav
-List df_parse_sav(std::string filename);
-RcppExport SEXP haven_df_parse_sav(SEXP filenameSEXP) {
+// df_parse_dta_raw
+List df_parse_dta_raw(Rcpp::List spec, std::string encoding);
+RcppExport SEXP haven_df_parse_dta_raw(SEXP specSEXP, SEXP encodingSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
-    __result = Rcpp::wrap(df_parse_sav(filename));
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    Rcpp::traits::input_parameter< std::string >::type encoding(encodingSEXP);
+    __result = Rcpp::wrap(df_parse_dta_raw(spec, encoding));
+    return __result;
+END_RCPP
+}
+// df_parse_por_file
+List df_parse_por_file(Rcpp::List spec);
+RcppExport SEXP haven_df_parse_por_file(SEXP specSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    __result = Rcpp::wrap(df_parse_por_file(spec));
+    return __result;
+END_RCPP
+}
+// df_parse_por_raw
+List df_parse_por_raw(Rcpp::List spec);
+RcppExport SEXP haven_df_parse_por_raw(SEXP specSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    __result = Rcpp::wrap(df_parse_por_raw(spec));
+    return __result;
+END_RCPP
+}
+// df_parse_sav_file
+List df_parse_sav_file(Rcpp::List spec);
+RcppExport SEXP haven_df_parse_sav_file(SEXP specSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    __result = Rcpp::wrap(df_parse_sav_file(spec));
+    return __result;
+END_RCPP
+}
+// df_parse_sav_raw
+List df_parse_sav_raw(Rcpp::List spec);
+RcppExport SEXP haven_df_parse_sav_raw(SEXP specSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    __result = Rcpp::wrap(df_parse_sav_raw(spec));
     return __result;
 END_RCPP
 }

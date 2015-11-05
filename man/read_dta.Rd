@@ -6,15 +6,24 @@
 \alias{write_dta}
 \title{Read and write Stata DTA files.}
 \usage{
-read_dta(path, encoding = NULL)
+read_dta(file, encoding = NULL)
 
-read_stata(path, encoding = NULL)
+read_stata(file, encoding = NULL)
 
 write_dta(data, path)
 }
 \arguments{
-\item{path}{Path to data. When reading data, if the path is a URL, the file
-will be first downloaded to a temporary location before reading.}
+\item{file}{Either a path to a file, a connection, or literal data
+   (either a single string or a raw vector).
+
+   Files ending in \code{.gz}, \code{.bz2}, \code{.xz}, or \code{.zip} will
+   be automatically uncompressed. Files starting with \code{http://},
+   \code{https://}, \code{ftp://}, or \code{ftps://} will be automatically
+   downloaded. Remote gz files can also be automatically downloaded &
+   decompressed.
+
+   Literal data is most useful for examples and tests. It must contain at
+   least one new line to be recognised as data (instead of a path).}
 
 \item{encoding}{The character encoding used for the file. This defaults to
 the encoding specified in the file, or UTF-8. But older versions of Stata
@@ -22,6 +31,8 @@ the encoding specified in the file, or UTF-8. But older versions of Stata
 specify manually. A commonly used value is "Win 1252".}
 
 \item{data}{Data frame to write.}
+
+\item{path}{Path to a file where the data will be written.}
 }
 \value{
 A data frame with additional "tbl_df" and "tbl" classes, which
