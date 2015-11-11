@@ -4,11 +4,15 @@
 \alias{read_sas}
 \title{Read SAS files.}
 \usage{
-read_sas(b7dat, b7cat = NULL)
+read_sas(b7dat, b7cat = NULL, normalise_na = TRUE)
 }
 \arguments{
 \item{b7dat, b7cat}{Path to data and catalog files. If the path is a URL, the
 file will be first download to a temporary location before reading.}
+
+\item{normalise_na}{When \code{TRUE} (the default), the
+pseudo-missing values are imported as \code{NA}. When
+\code{FALSE}, they are imported literally.}
 }
 \value{
 A data frame with additional "tbl_df" and "tbl" classes, which

@@ -6,15 +6,19 @@
 \alias{write_dta}
 \title{Read and write Stata DTA files.}
 \usage{
-read_dta(path)
+read_dta(path, normalise_na = TRUE)
 
-read_stata(path)
+read_stata(path, normalise_na = TRUE)
 
 write_dta(data, path)
 }
 \arguments{
 \item{path}{Path to data. When reading data, if the path is a URL, the file
 will be first downloaded to a temporary location before reading.}
+
+\item{normalise_na}{When \code{TRUE} (the default), the
+pseudo-missing values are imported as \code{NA}. When
+\code{FALSE}, they are imported literally.}
 
 \item{data}{Data frame to write.}
 }

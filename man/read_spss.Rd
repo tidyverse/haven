@@ -7,17 +7,21 @@
 \alias{write_sav}
 \title{Read SPSS (POR and SAV) files. Write SAV files.}
 \usage{
-read_por(path)
+read_por(path, normalise_na = TRUE)
 
-read_sav(path)
+read_sav(path, normalise_na = TRUE)
 
 write_sav(data, path)
 
-read_spss(path)
+read_spss(path, normalise_na = TRUE)
 }
 \arguments{
 \item{path}{Path to data. When reading data, if the path is a URL, the file
 will be first downloaded to a temporary location before reading.}
+
+\item{normalise_na}{When \code{TRUE} (the default), the
+pseudo-missing values are imported as \code{NA}. When
+\code{FALSE}, they are imported literally.}
 
 \item{data}{Data frame to write.}
 }

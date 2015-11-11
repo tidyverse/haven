@@ -9,7 +9,7 @@
 \alias{zap_labels}
 \title{Create a labelled vector.}
 \usage{
-labelled(x, labels = NULL, is_na = NULL, missings = NULL)
+labelled(x, labels = NULL, label_na = NULL, x_na = NULL)
 
 \method{as_factor}{labelled}(x, levels = c("labels", "values"),
   ordered = FALSE, drop_na = TRUE, ...)
@@ -30,14 +30,14 @@ character.}
 x. Unlike factors, labels don't need to be exhaustive: only a fraction
 of the values might be labelled.}
 
-\item{is_na}{Optionally, a logical vector that should be as long as
+\item{label_na}{Optionally, a logical vector that should be as long as
 \code{labels} and indicate which labels correspond to
 pseudo-missing values.}
 
-\item{missings}{Optionally, a logical vector that should be as long
+\item{x_na}{Optionally, a logical vector that should be as long
 as \code{x} and indicate which values are pseudo-missing. This
 missingness pattern can be broader than the one implied by
-\code{is_na}. An error is issued when the patterns are not
+\code{label_na}. An error is issued when the patterns are not
 consistent with each other.}
 
 \item{levels}{When coercing a labelled character vector to a factor, you
@@ -75,15 +75,15 @@ as_factor(s2)
 s3 <- labelled(
   c("M", "M", "F", "X", "N/A"),
   labels = c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A"),
-  is_na = c(FALSE, FALSE, TRUE, TRUE)
+  label_na = c(FALSE, FALSE, TRUE, TRUE)
 )
 s3
 as_factor(s3)
 
-# Alternatively, you can specify missingness with `missings`
+# Alternatively, you can specify missingness with `x_na`
 s4 <- labelled(
   c("M", "M", "F", "X", "N/A"),
-  missings = c(FALSE, FALSE, FALSE, TRUE, TRUE)
+  x_na = c(FALSE, FALSE, FALSE, TRUE, TRUE)
 )
 s4
 
@@ -93,8 +93,8 @@ s4
 s5 <- labelled(
   c("Z", "M", "M", "F", "X", "N/A"),
   labels = c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A"),
-  is_na = c(FALSE, FALSE, TRUE, TRUE),
-  missings = c(TRUE, FALSE, FALSE, FALSE, TRUE, TRUE)
+  label_na = c(FALSE, FALSE, TRUE, TRUE),
+  x_na = c(TRUE, FALSE, FALSE, FALSE, TRUE, TRUE)
 )
 s5
 
