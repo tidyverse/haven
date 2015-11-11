@@ -13,8 +13,14 @@
 #'   of the values might be labelled.
 #' @param levels When coercing a labelled character vector to a factor, you
 #'   can choose whether to use the labels or the values as the factor levels.
-#' @param is_na Optionally, a logical vector describing which levels should
-#'   be translated to missing values.
+#' @param is_na Optionally, a logical vector that should be as long as
+#'   \code{labels} and indicate which labels correspond to
+#'   pseudo-missing values.
+#' @param missings Optionally, a logical vector that should be as long
+#'   as \code{x} and indicate which values are pseudo-missing. This
+#'   missingness pattern can be broader than the one implied by
+#'   \code{is_na}. An error is issued when the patterns are not
+#'   consistent with each other.
 #' @param ... Ignored
 #' @export
 #' @examples
@@ -27,28 +33,51 @@
 #' as_factor(s1, labels = "values")
 #' as_factor(s2)
 #'
-#' # Other statistical software supports multiple types of missing values
-#' s3 <- labelled(c("M", "M", "F", "X", "N/A"),
-#'   c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A"),
-#'   c(FALSE, FALSE, TRUE, TRUE)
+#' # Other statistical software supports pseudo-missing values in
+#' # addition to regular NAs. You can specify which labels define
+#' # pseudo-missing values with a logical vector.
+#' s3 <- labelled(
+#'   c("M", "M", "F", "X", "N/A"),
+#'   labels = c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A"),
+#'   is_na = c(FALSE, FALSE, TRUE, TRUE)
 #' )
 #' s3
 #' as_factor(s3)
+#'
+#' # Alternatively, you can specify missingness with `missings`
+#' s4 <- labelled(
+#'   c("M", "M", "F", "X", "N/A"),
+#'   missings = c(FALSE, FALSE, FALSE, TRUE, TRUE)
+#' )
+#' s4
+#'
+#' # When you supply both, it is possible to declare values not
+#' # mentioned in `labels` as missing. In this case make sure the
+#' # patterns are consistent or labelled() will fail
+#' s5 <- labelled(
+#'   c("Z", "M", "M", "F", "X", "N/A"),
+#'   labels = c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A"),
+#'   is_na = c(FALSE, FALSE, TRUE, TRUE),
+#'   missings = c(TRUE, FALSE, FALSE, FALSE, TRUE, TRUE)
+#' )
+#' s5
 #'
 #' # Often when you have a partially labelled numeric vector, labelled values
 #' # are special types of missing. Use XXX to replace labels with missing
 #' # values
 #' x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 #' zap_labels(x)
-labelled <- function(x, labels, is_na = NULL) {
+labelled <- function(x, labels = NULL, is_na = NULL, missings = NULL) {
   if (!is.numeric(x) && !is.character(x)) {
     stop("`x` must be either numeric or a character vector", call. = FALSE)
   }
-  if (typeof(x) != typeof(labels)) {
+  if (!is.null(labels) && typeof(x) != typeof(labels)) {
     stop("`x` and `labels` must be same type", call. = FALSE)
   }
-  if (is.null(labels)) {
-    stop("`labels` must be a named vector", call. = FALSE)
+
+  if (!is.null(missings) && (!is.logical(missings) || length(missings) != length(x))) {
+    stop("`missings` must be a logical vector the same length as `x`",
+      call. = FALSE)
   }
   if (is.null(is_na)) {
     is_na <- rep(FALSE, length(labels))
@@ -57,20 +86,35 @@ labelled <- function(x, labels, is_na = NULL) {
       stop("`is_na` must be a logical vector the same length as `labels`",
         call. = FALSE)
     }
+    labels_missings <- x %in% labels[is_na]
+    if (is.null(missings)) {
+      missings <- labels_missings
+    } else {
+      check_missingness(missings, labels_missings)
+    }
   }
 
   structure(x,
     labels = labels,
     is_na = is_na,
+    missings = missings,
     class = "labelled"
   )
+}
+
+check_missingness <- function(missings, labels_missings) {
+  if (any(labels_missings[missings == FALSE])) {
+    stop("Inconsitent missing patterns. Check `missings` and `is_na`",
+      call. = FALSE)
+  }
 }
 
 is.labelled <- function(x) inherits(x, "labelled")
 
 #' @export
 `[.labelled` <- function(x, ...) {
-  labelled(NextMethod(), attr(x, "labels"), attr(x, "is_na"))
+  missings <- attr(x, "missings")[...]
+  labelled(NextMethod(), attr(x, "labels"), attr(x, "is_na"), missings)
 }
 
 #' @export
@@ -80,12 +124,22 @@ print.labelled <- function(x, ...) {
   xx <- unclass(x)
   attr(xx, "labels") <- NULL
   attr(xx, "is_na") <- NULL
+  attr(xx, "missings") <- NULL
   print(xx, quote = FALSE)
 
-  cat("\nLabels:\n")
-  labels <- attr(x, "labels")
-  lab_df <- data.frame(value = unname(labels), label = names(labels), is_na = attr(x, "is_na"))
-  print(lab_df, row.names = FALSE)
+  if (length(attr(x, "missings"))) {
+    cat(paste0("\n", sum(attr(x, "missings")), " pseudo-missing values\n"))
+  }
+
+  cat("\nLabels: ")
+  if (is.null(attr(x, "labels"))) {
+    cat("NULL\n")
+  } else {
+    cat("\n")
+    labels <- attr(x, "labels")
+    lab_df <- data.frame(value = unname(labels), label = names(labels), is_na = attr(x, "is_na"))
+    print(lab_df, row.names = FALSE)
+  }
 
   invisible()
 }
@@ -111,10 +165,24 @@ as.data.frame.labelled <- function(x, ...) {
 as_factor.labelled <- function(x, levels = c("labels", "values"),
                                ordered = FALSE, drop_na = TRUE, ...) {
   levels <- match.arg(levels)
+  if (is.null(attr(x, "labels"))) {
+    labels <- autoname(unique(as.character(x)))
+    is_na <- rep(FALSE, length(labels))
+  } else {
+    labels <- attr(x, "labels")
+    is_na <- attr(x, "is_na")
+  }
+  missings <- attr(x, "missings")
 
-  labels <- attr(x, "labels")
   if (drop_na) {
-    labels <- labels[!attr(x, "is_na")]
+    if (!is.null(missings)) {
+      nonmissing_labels <- unique(x[!missings])
+      labels_pos <- vapply(nonmissing_labels, match, numeric(1), labels)
+      labels <- labels[na.omit(labels_pos)]
+    } else if (!is.null(labels)){
+      labels <- labels[!is_na]
+    }
+    x <- normalise_na(x)
   }
 
   if (is.character(x)) {
@@ -127,7 +195,6 @@ as_factor.labelled <- function(x, levels = c("labels", "values"),
   } else {
     factor(x, levels = unname(labels), labels = names(labels))
   }
-
 }
 
 #' @export
@@ -144,3 +211,29 @@ zap_labels <- function(x) {
   x[labelled] <- NA
   x
 }
+
+#' @export
+#' @rdname labelled
+is_missing <- function(x) {
+  if (is.labelled(x) && !is.null(attr(x, "missings"))) {
+    attr(x, "missings")
+  } else {
+    rep_len(FALSE, length(x))
+  }
+}
+
+#' @export
+#' @rdname labelled
+normalise_na <- function(x) {
+  if (is.labelled(x)) {
+    missings <- is_missing(x)
+    attr(x, "missings") <- NULL
+    x[missings] <- NA
+  }
+
+  x
+}
+
+#' @export
+#' @rdname labelled
+normalize_na <- normalise_na
