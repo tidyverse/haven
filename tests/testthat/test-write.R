@@ -3,17 +3,22 @@ context("write")
 # writing uses exactly the same path for sav and dta, so don't need
 # to test both
 
-roundtrip <- function(x) {
+roundtrip <- function(x, normalise_na = TRUE) {
   tmp <- tempfile()
   write_sav(x, tmp)
-  read_sav(tmp)
+  read_sav(tmp, normalise_na = normalise_na)
 }
 
-roundtrip_var <- function(x) {
+roundtrip_var <- function(x, normalise_na = TRUE) {
+  df <- data_frame(x)
+  roundtrip(df, normalise_na = normalise_na)$x
+}
+
+data_frame <- function(x) {
   df <- list(x = x)
   class(df) <- "data.frame"
   attr(df, "row.names") <- .set_row_names(length(x))
-  roundtrip(df)$x
+  df
 }
 
 test_that("can roundtrip basic types", {
@@ -64,4 +69,20 @@ test_that("factors become labelleds", {
   expect_is(rt, "labelled")
   expect_equal(as.vector(rt), 1:2)
   expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
+})
+
+test_that("missing labels are round tripped", {
+  dbl <- labelled(c(1, 2, 3, 4),
+    labels = c(`value` = 1, `Non response` = 2, `Don't know` = 3),
+    label_na = c(FALSE, TRUE, TRUE)
+  )
+  res_dbl <- roundtrip(data_frame(dbl), FALSE)
+  expect_equal(attr(res_dbl[[1]], "label_na"), c(FALSE, TRUE, TRUE))
+
+  int <- labelled(1:4,
+    labels = c(`value` = 1L, `Non response` = 2L, `Don't know` = 3L),
+    label_na = c(FALSE, TRUE, TRUE)
+  )
+  res_int <- roundtrip(data_frame(int), FALSE)
+  expect_equal(attr(res_int[[1]], "label_na"), c(FALSE, TRUE, TRUE))
 })

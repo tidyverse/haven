@@ -140,6 +140,8 @@ public:
 
   void defineVariable(IntegerVector x, std::string name) {
     readstat_label_set_t* labelSet = NULL;
+    std::vector<int> na_values;
+
     if (rClass(x) == "factor") {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name.c_str());
 
@@ -151,30 +153,48 @@ public:
 
       IntegerVector values = as<IntegerVector>(x.attr("labels"));
       CharacterVector labels = as<CharacterVector>(values.attr("names"));
+      LogicalVector is_na = as<LogicalVector>(x.attr("label_na"));
 
-      for (int i = 0; i < values.size(); ++i)
+      for (int i = 0; i < values.size(); ++i) {
+        if (is_na[i])
+          na_values.push_back(values[i]);
         readstat_label_int32_value(labelSet, values[i], std::string(labels[i]).c_str());
+      }
 
     }
 
-    readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name.c_str(),
-      var_label(x), NULL, labelSet);
+    readstat_variable_t* var = readstat_add_variable(writer_, READSTAT_TYPE_INT32,
+      0, name.c_str(), var_label(x), NULL, labelSet);
+
+    for (int i = 0; i < na_values.size(); ++i) {
+      readstat_variable_add_missing_double_value(var, (double) na_values[i]);
+    }
   }
 
   void defineVariable(NumericVector x, std::string name) {
     readstat_label_set_t* labelSet = NULL;
+    std::vector<double> na_values;
+
     if (rClass(x) == "labelled") {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name.c_str());
 
       NumericVector values = as<NumericVector>(x.attr("labels"));
       CharacterVector labels = as<CharacterVector>(values.attr("names"));
+      LogicalVector is_na = as<LogicalVector>(x.attr("label_na"));
 
-      for (int i = 0; i < values.size(); ++i)
+      for (int i = 0; i < values.size(); ++i) {
+        if (is_na[i])
+          na_values.push_back(values[i]);
         readstat_label_double_value(labelSet, values[i], std::string(labels[i]).c_str());
+      }
     }
 
-    readstat_add_variable(writer_, READSTAT_TYPE_DOUBLE, 0, name.c_str(),
-      var_label(x), NULL, labelSet);
+    readstat_variable_t* var = readstat_add_variable(writer_, READSTAT_TYPE_DOUBLE,
+      0, name.c_str(), var_label(x), NULL, labelSet);
+
+    for (int i = 0; i < na_values.size(); ++i) {
+      readstat_variable_add_missing_double_value(var, na_values[i]);
+    }
   }
 
   void defineVariable(CharacterVector x, std::string name) {
