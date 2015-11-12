@@ -13,13 +13,13 @@
 #'   of the values might be labelled.
 #' @param levels When coercing a labelled character vector to a factor, you
 #'   can choose whether to use the labels or the values as the factor levels.
-#' @param is_na Optionally, a logical vector that should be as long as
+#' @param label_na Optionally, a logical vector that should be as long as
 #'   \code{labels} and indicate which labels correspond to
 #'   pseudo-missing values.
-#' @param missings Optionally, a logical vector that should be as long
+#' @param x_na Optionally, a logical vector that should be as long
 #'   as \code{x} and indicate which values are pseudo-missing. This
 #'   missingness pattern can be broader than the one implied by
-#'   \code{is_na}. An error is issued when the patterns are not
+#'   \code{label_na}. An error is issued when the patterns are not
 #'   consistent with each other.
 #' @param ... Ignored
 #' @export
@@ -39,15 +39,15 @@
 #' s3 <- labelled(
 #'   c("M", "M", "F", "X", "N/A"),
 #'   labels = c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A"),
-#'   is_na = c(FALSE, FALSE, TRUE, TRUE)
+#'   label_na = c(FALSE, FALSE, TRUE, TRUE)
 #' )
 #' s3
 #' as_factor(s3)
 #'
-#' # Alternatively, you can specify missingness with `missings`
+#' # Alternatively, you can specify missingness with `x_na`
 #' s4 <- labelled(
 #'   c("M", "M", "F", "X", "N/A"),
-#'   missings = c(FALSE, FALSE, FALSE, TRUE, TRUE)
+#'   x_na = c(FALSE, FALSE, FALSE, TRUE, TRUE)
 #' )
 #' s4
 #'
@@ -57,8 +57,8 @@
 #' s5 <- labelled(
 #'   c("Z", "M", "M", "F", "X", "N/A"),
 #'   labels = c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A"),
-#'   is_na = c(FALSE, FALSE, TRUE, TRUE),
-#'   missings = c(TRUE, FALSE, FALSE, FALSE, TRUE, TRUE)
+#'   label_na = c(FALSE, FALSE, TRUE, TRUE),
+#'   x_na = c(TRUE, FALSE, FALSE, FALSE, TRUE, TRUE)
 #' )
 #' s5
 #'
@@ -67,7 +67,7 @@
 #' # values
 #' x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 #' zap_labels(x)
-labelled <- function(x, labels = NULL, is_na = NULL, missings = NULL) {
+labelled <- function(x, labels = NULL, label_na = NULL, x_na = NULL) {
   if (!is.numeric(x) && !is.character(x)) {
     stop("`x` must be either numeric or a character vector", call. = FALSE)
   }
@@ -75,36 +75,36 @@ labelled <- function(x, labels = NULL, is_na = NULL, missings = NULL) {
     stop("`x` and `labels` must be same type", call. = FALSE)
   }
 
-  if (!is.null(missings) && (!is.logical(missings) || length(missings) != length(x))) {
-    stop("`missings` must be a logical vector the same length as `x`",
+  if (!is.null(x_na) && (!is.logical(x_na) || length(x_na) != length(x))) {
+    stop("`x_na` must be a logical vector the same length as `x`",
       call. = FALSE)
   }
-  if (is.null(is_na)) {
-    is_na <- rep(FALSE, length(labels))
+  if (is.null(label_na)) {
+    label_na <- rep(FALSE, length(labels))
   } else {
-    if (!is.logical(is_na) || length(is_na) != length(labels)) {
-      stop("`is_na` must be a logical vector the same length as `labels`",
+    if (!is.logical(label_na) || length(label_na) != length(labels)) {
+      stop("`label_na` must be a logical vector the same length as `labels`",
         call. = FALSE)
     }
-    labels_missings <- x %in% labels[is_na]
-    if (is.null(missings)) {
-      missings <- labels_missings
+    missings <- x %in% labels[label_na]
+    if (is.null(x_na)) {
+      x_na <- missings
     } else {
-      check_missingness(missings, labels_missings)
+      check_missingness(x_na, missings)
     }
   }
 
   structure(x,
     labels = labels,
-    is_na = is_na,
-    missings = missings,
+    label_na = label_na,
+    x_na = x_na,
     class = "labelled"
   )
 }
 
-check_missingness <- function(missings, labels_missings) {
-  if (any(labels_missings[missings == FALSE])) {
-    stop("Inconsitent missing patterns. Check `missings` and `is_na`",
+check_missingness <- function(x_na, labels_missings) {
+  if (any(labels_missings[x_na == FALSE])) {
+    stop("Inconsitent missing patterns. Check `x_na` and `label_na`",
       call. = FALSE)
   }
 }
@@ -113,8 +113,8 @@ is.labelled <- function(x) inherits(x, "labelled")
 
 #' @export
 `[.labelled` <- function(x, ...) {
-  missings <- attr(x, "missings")[...]
-  labelled(NextMethod(), attr(x, "labels"), attr(x, "is_na"), missings)
+  x_na <- attr(x, "x_na")[...]
+  labelled(NextMethod(), attr(x, "labels"), attr(x, "label_na"), x_na)
 }
 
 #' @export
@@ -123,12 +123,13 @@ print.labelled <- function(x, ...) {
 
   xx <- unclass(x)
   attr(xx, "labels") <- NULL
-  attr(xx, "is_na") <- NULL
-  attr(xx, "missings") <- NULL
+  attr(xx, "label_na") <- NULL
+  attr(xx, "x_na") <- NULL
   print(xx, quote = FALSE)
 
-  if (length(attr(x, "missings"))) {
-    cat(paste0("\n", sum(attr(x, "missings")), " pseudo-missing values\n"))
+  na_n <- sum(attr(x, "x_na"))
+  if (na_n > 0) {
+    cat(paste0("\n", na_n, " pseudo-missing values\n"))
   }
 
   cat("\nLabels: ")
@@ -137,7 +138,7 @@ print.labelled <- function(x, ...) {
   } else {
     cat("\n")
     labels <- attr(x, "labels")
-    lab_df <- data.frame(value = unname(labels), label = names(labels), is_na = attr(x, "is_na"))
+    lab_df <- data.frame(value = unname(labels), label = names(labels), label_na = attr(x, "label_na"))
     print(lab_df, row.names = FALSE)
   }
 
@@ -167,20 +168,20 @@ as_factor.labelled <- function(x, levels = c("labels", "values"),
   levels <- match.arg(levels)
   if (is.null(attr(x, "labels"))) {
     labels <- autoname(unique(as.character(x)))
-    is_na <- rep(FALSE, length(labels))
+    label_na <- rep(FALSE, length(labels))
   } else {
     labels <- attr(x, "labels")
-    is_na <- attr(x, "is_na")
+    label_na <- attr(x, "label_na")
   }
-  missings <- attr(x, "missings")
+  x_na <- attr(x, "x_na")
 
   if (drop_na) {
-    if (!is.null(missings)) {
-      nonmissing_labels <- unique(x[!missings])
+    if (!is.null(x_na)) {
+      nonmissing_labels <- unique(x[!x_na])
       labels_pos <- vapply(nonmissing_labels, match, numeric(1), labels)
       labels <- labels[na.omit(labels_pos)]
     } else if (!is.null(labels)){
-      labels <- labels[!is_na]
+      labels <- labels[!label_na]
     }
     x <- normalise_na(x)
   }
@@ -205,7 +206,7 @@ zap_labels <- function(x) {
 
   labelled <- x %in% attr(x, "labels")
   attr(x, "labels") <- NULL
-  attr(x, "is_na") <- NULL
+  attr(x, "label_na") <- NULL
   class(x) <- NULL
 
   x[labelled] <- NA
@@ -215,8 +216,8 @@ zap_labels <- function(x) {
 #' @export
 #' @rdname labelled
 is_missing <- function(x) {
-  if (is.labelled(x) && !is.null(attr(x, "missings"))) {
-    attr(x, "missings")
+  if (is.labelled(x) && !is.null(attr(x, "x_na"))) {
+    attr(x, "x_na")
   } else {
     rep_len(FALSE, length(x))
   }
@@ -227,7 +228,7 @@ is_missing <- function(x) {
 normalise_na <- function(x) {
   if (is.labelled(x)) {
     missings <- is_missing(x)
-    attr(x, "missings") <- NULL
+    attr(x, "x_na") <- NULL
     x[missings] <- NA
   }
 

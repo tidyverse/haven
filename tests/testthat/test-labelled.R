@@ -40,8 +40,8 @@ test_that("multiple NA values turned into NA", {
   var <- labelled(
     c("a", "b", "c", "d"),
     c(A = "a", B = "b", C = "c", D = "d"),
-    is_na = c(FALSE, TRUE, TRUE, FALSE),
-    missings = c(FALSE, TRUE, TRUE, TRUE)
+    label_na = c(FALSE, TRUE, TRUE, FALSE),
+    x_na = c(FALSE, TRUE, TRUE, TRUE)
   )
   expect_equal(as_factor(var), factor(c("A", NA, NA, NA)))
 })
@@ -50,8 +50,8 @@ test_that("multiple NA values preserved if drop_na = FALSE", {
   var <- labelled(
     c("a", "b", "c", "d"),
     c(A = "a", B = "b", C = "c", D = "d"),
-    is_na = c(FALSE, TRUE, TRUE, FALSE),
-    missings = c(FALSE, TRUE, TRUE, TRUE)
+    label_na = c(FALSE, TRUE, TRUE, FALSE),
+    x_na = c(FALSE, TRUE, TRUE, TRUE)
   )
   expect_equal(as_factor(var, drop_na = FALSE), factor(c("A", "B", "C", "D")))
 })
@@ -77,7 +77,7 @@ test_that("is_missing() works with non-labelled variables", {
 
 test_that("all arguments can be NULL", {
   var <- labelled(1:3)
-  expected <- structure(1:3, class = "labelled", is_na = logical(0))
+  expected <- structure(1:3, class = "labelled", label_na = logical(0))
   expect_equal(var, expected)
 })
 
@@ -87,13 +87,13 @@ test_that("as_factor() works with NULL labels", {
   expect_equal(as_factor(var_nolabels, levels = "values"), factor(var_nolabels)) 
 })
 
-test_that("missings attribute is subsetted as well", {
-  var <- labelled(1:4, missings = c(TRUE, FALSE, FALSE, TRUE))
+test_that("x_na attribute is subsetted as well", {
+  var <- labelled(1:4, x_na = c(TRUE, FALSE, FALSE, TRUE))
   var <- var[3:4]
   expect_equal(is_missing(var), c(FALSE, TRUE))
 })
 
-test_that("missings attribute is correctly implied from is_na", {
+test_that("x_na attribute is correctly implied from label_na", {
   var <- labelled(
     c(-1, 1, 1, 8, 9),
     c(value = 1, missing1 = 8, missing2 = 9),

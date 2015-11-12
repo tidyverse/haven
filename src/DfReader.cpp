@@ -104,7 +104,7 @@ class DfReader {
   std::vector<VarType> var_types_;
 
   int normalise_na_;
-  List missings_list_;
+  List x_na_list_;
 
 public:
   DfReader(FileType type, int normalise_na)
@@ -122,10 +122,10 @@ public:
     var_types_.resize(ncols_);
 
     if (!normalise_na_) {
-      missings_list_ = List(ncols_);
+      x_na_list_ = List(ncols_);
       for (int i = 0; i < ncols_; ++i) {
-        LogicalVector missings(nrows_);
-        missings_list_[i] = missings;
+        LogicalVector x_na(nrows_);
+        x_na_list_[i] = x_na;
       }
     }
 
@@ -201,8 +201,8 @@ public:
       checkUserInterrupt();
 
     if (!normalise_na_ && readstat_value_is_considered_missing(value)) {
-      LogicalVector missings = missings_list_[var_index];
-      missings[obs_index] = 1;
+      LogicalVector x_na = x_na_list_[var_index];
+      x_na[obs_index] = 1;
     }
 
     VarType var_type = var_types_[var_index];
@@ -308,7 +308,7 @@ public:
     for (int i = 0; i < output_.size(); ++i) {
       RObject col = output_[i];
       if (!normalise_na_) {
-        col.attr("missings") = missings_list_[i];
+        col.attr("x_na") = x_na_list_[i];
       }
 
       std::string label = val_labels_[i];
@@ -319,7 +319,7 @@ public:
 
       col.attr("class") = "labelled";
       col.attr("labels") = label_sets_[label].labels();
-      col.attr("is_na") = label_sets_[label].is_missing();
+      col.attr("label_na") = label_sets_[label].is_missing();
     }
 
     output_.attr("names") = names_;
