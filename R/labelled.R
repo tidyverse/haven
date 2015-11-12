@@ -22,6 +22,7 @@
 #'   \code{label_na}. An error is issued when the patterns are not
 #'   consistent with each other.
 #' @param ... Ignored
+#' @seealso \code{\link{bare_na}()}
 #' @export
 #' @examples
 #' s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
@@ -61,6 +62,16 @@
 #'   x_na = c(TRUE, FALSE, FALSE, FALSE, TRUE, TRUE)
 #' )
 #' s5
+#'
+#' # If you replace a value with a labelled pseudo-missing, the
+#' # missingness information will be preserved correctly.
+#' s5[2] <- "X"
+#' is_missing(s5)
+#'
+#' # When the pseudo-missing is not labelled, use bare_na(). See
+#' # documentation of that function:
+#' s5[3] <- bare_na("Z")
+#' is_missing(s5)
 #'
 #' # Often when you have a partially labelled numeric vector, labelled values
 #' # are special types of missing. Use XXX to replace labels with missing
@@ -116,6 +127,77 @@ is.labelled <- function(x) inherits(x, "labelled")
   x_na <- attr(x, "x_na")[...]
   labelled(NextMethod(), attr(x, "labels"), attr(x, "label_na"), x_na)
 }
+
+#' @export
+`[<-.labelled` <- function(x, i, value) {
+  is_bare_na <- inherits(value, "x_na")
+  if (is_bare_na) {
+    value <- unclass(value)
+  }
+  x <- NextMethod()
+
+  x_na <- is_missing(x)
+  if (is_bare_na || value %in% na_labels(x)) {
+    x_na[i] <- TRUE
+  } else {
+    x_na[i] <- FALSE
+  }
+
+  if (sum(x_na) == 0) {
+    x_na <- NULL
+  }
+  attr(x, "x_na") <- x_na
+
+  x
+}
+
+#' @export
+`[[<-.labelled` <- `[<-.labelled`
+
+#' Signal a pseudo-missing value
+#'
+#' \code{bare_na()} signals to the subset-assignment operator that a value
+#'
+#' R works with system-missing values represented by the \code{NA}
+#' object. However, other statistical softwares allow ordinary values
+#' to be flagged as missing. These pseudo-missing values may or may
+#' not have labels attached. When they don't have labels attached, use
+#' \code{bare_na()} to signal missingness to replacement operators.
+#' @param x The replacement value.
+#' @seealso \code{\link{labelled}()}
+#' @export
+#' @examples
+#' # Let's create a vector that has two labelled pseudo-na values ("X"
+#' # and "N/A"), and one non-labelled pseudo-na value (the first value)
+#' v <- labelled(
+#'   c("Z", "M", "M", "F", "X", "N/A"),
+#'   labels = c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A"),
+#'   label_na = c(FALSE, FALSE, TRUE, TRUE),
+#'   x_na = c(TRUE, FALSE, FALSE, FALSE, TRUE, TRUE)
+#' )
+#' is_missing(v)
+#'
+#' # If we change the first value to an ordinary value, it looses its
+#' # missing status:
+#' v[1] <- "F"
+#' is_missing(v)
+#'
+#' # Changing a value to a labelled pseudo-missing works automatically:
+#' v[2] <- "N/A"
+#' is_missing(v)
+#'
+#' # To signal a non-labelled pseudo-missing, use bare_na():
+#' v[3] <- bare_na("X")
+#' is_missing(v)
+bare_na <- function(x) {
+  structure(x, class = "x_na")
+}
+
+na_labels <- function(x) {
+  labels <- attr(x, "labels")
+  labels[attr(x, "label_na")]
+}
+
 
 #' @export
 print.labelled <- function(x, ...) {

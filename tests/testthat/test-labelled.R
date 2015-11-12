@@ -118,3 +118,21 @@ test_that("labelled() fails when missingness patterns are inconsistent", {
   )
   expect_equal(is_missing(var), c(TRUE, FALSE, FALSE, TRUE, TRUE))
 })
+
+test_that("replacement operator works well with pseudo-missings", {
+  var <- labelled(
+    c("Z", "M", "M", "F", "X", "N/A"),
+    labels = c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A"),
+    label_na = c(FALSE, FALSE, TRUE, TRUE),
+    x_na = c(TRUE, FALSE, FALSE, FALSE, TRUE, TRUE)
+  )
+
+  var[1] <- "F"
+  expect_equal(is_missing(var), c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE))
+
+  var[2] <- "N/A"
+  expect_equal(is_missing(var), c(FALSE, TRUE, FALSE, FALSE, TRUE, TRUE))
+
+  var[3] <- bare_na("X")
+  expect_equal(is_missing(var), c(FALSE, TRUE, TRUE, FALSE, TRUE, TRUE))
+})
