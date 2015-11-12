@@ -66,12 +66,18 @@
 #' # If you replace a value with a labelled pseudo-missing, the
 #' # missingness information will be preserved correctly.
 #' s5[2] <- "X"
-#' is_missing(s5)
+#' is_pseudo_na(s5)
 #'
 #' # When the pseudo-missing is not labelled, use bare_na(). See
 #' # documentation of that function:
 #' s5[3] <- bare_na("Z")
-#' is_missing(s5)
+#' is_pseudo_na(s5)
+#'
+#' # As seen in the previous example, you can check whether values are
+#' # pseudo-missing using is_pseudo_na(). In addition, is_na() returns
+#' # TRUE for both pseudo-missing and system-missing values:
+#' s5[3] <- NA
+#' is_na(s5)
 #'
 #' # Often when you have a partially labelled numeric vector, labelled values
 #' # are special types of missing. Use XXX to replace labels with missing
@@ -136,7 +142,7 @@ is.labelled <- function(x) inherits(x, "labelled")
   }
   x <- NextMethod()
 
-  x_na <- is_missing(x)
+  x_na <- is_pseudo_na(x)
   if (is_bare_na || value %in% na_labels(x)) {
     x_na[i] <- TRUE
   } else {
@@ -175,20 +181,20 @@ is.labelled <- function(x) inherits(x, "labelled")
 #'   label_na = c(FALSE, FALSE, TRUE, TRUE),
 #'   x_na = c(TRUE, FALSE, FALSE, FALSE, TRUE, TRUE)
 #' )
-#' is_missing(v)
+#' is_pseudo_na(v)
 #'
 #' # If we change the first value to an ordinary value, it looses its
 #' # missing status:
 #' v[1] <- "F"
-#' is_missing(v)
+#' is_pseudo_na(v)
 #'
 #' # Changing a value to a labelled pseudo-missing works automatically:
 #' v[2] <- "N/A"
-#' is_missing(v)
+#' is_pseudo_na(v)
 #'
 #' # To signal a non-labelled pseudo-missing, use bare_na():
 #' v[3] <- bare_na("X")
-#' is_missing(v)
+#' is_pseudo_na(v)
 bare_na <- function(x) {
   structure(x, class = "x_na")
 }
@@ -297,7 +303,7 @@ zap_labels <- function(x) {
 
 #' @export
 #' @rdname labelled
-is_missing <- function(x) {
+is_pseudo_na <- function(x) {
   if (is.labelled(x) && !is.null(attr(x, "x_na"))) {
     attr(x, "x_na")
   } else {
@@ -307,9 +313,15 @@ is_missing <- function(x) {
 
 #' @export
 #' @rdname labelled
+is_na <- function(x) {
+  is.na(x) | is_pseudo_na(x)
+}
+
+#' @export
+#' @rdname labelled
 normalise_na <- function(x) {
   if (is.labelled(x)) {
-    missings <- is_missing(x)
+    missings <- is_pseudo_na(x)
     attr(x, "x_na") <- NULL
     x[missings] <- NA
   }

@@ -70,9 +70,9 @@ test_that("zap_labels returns variables not of class('labelled') unmodified", {
   expect_equal(zap_labels(var), var)
 })
 
-test_that("is_missing() works with non-labelled variables", {
+test_that("is_pseudo_na() works with non-labelled variables", {
   var <- 1:3
-  expect_equal(is_missing(var), rep(FALSE, 3))
+  expect_equal(is_pseudo_na(var), rep(FALSE, 3))
 })
 
 test_that("all arguments can be NULL", {
@@ -90,7 +90,7 @@ test_that("as_factor() works with NULL labels", {
 test_that("x_na attribute is subsetted as well", {
   var <- labelled(1:4, x_na = c(TRUE, FALSE, FALSE, TRUE))
   var <- var[3:4]
-  expect_equal(is_missing(var), c(FALSE, TRUE))
+  expect_equal(is_pseudo_na(var), c(FALSE, TRUE))
 })
 
 test_that("x_na attribute is correctly implied from label_na", {
@@ -99,7 +99,7 @@ test_that("x_na attribute is correctly implied from label_na", {
     c(value = 1, missing1 = 8, missing2 = 9),
     c(FALSE, TRUE, TRUE)
   )
-  expect_equal(is_missing(var), c(FALSE, FALSE, FALSE, TRUE, TRUE))
+  expect_equal(is_pseudo_na(var), c(FALSE, FALSE, FALSE, TRUE, TRUE))
 })
 
 test_that("labelled() fails when missingness patterns are inconsistent", {
@@ -116,7 +116,7 @@ test_that("labelled() fails when missingness patterns are inconsistent", {
     c(FALSE, TRUE, TRUE),
     c(TRUE, FALSE, FALSE, TRUE, TRUE)
   )
-  expect_equal(is_missing(var), c(TRUE, FALSE, FALSE, TRUE, TRUE))
+  expect_equal(is_pseudo_na(var), c(TRUE, FALSE, FALSE, TRUE, TRUE))
 })
 
 test_that("replacement operator works well with pseudo-missings", {
@@ -128,11 +128,11 @@ test_that("replacement operator works well with pseudo-missings", {
   )
 
   var[1] <- "F"
-  expect_equal(is_missing(var), c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE))
+  expect_equal(is_pseudo_na(var), c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE))
 
   var[2] <- "N/A"
-  expect_equal(is_missing(var), c(FALSE, TRUE, FALSE, FALSE, TRUE, TRUE))
+  expect_equal(is_pseudo_na(var), c(FALSE, TRUE, FALSE, FALSE, TRUE, TRUE))
 
   var[3] <- bare_na("X")
-  expect_equal(is_missing(var), c(FALSE, TRUE, TRUE, FALSE, TRUE, TRUE))
+  expect_equal(is_pseudo_na(var), c(FALSE, TRUE, TRUE, FALSE, TRUE, TRUE))
 })

@@ -2,7 +2,8 @@
 % Please edit documentation in R/labelled.R
 \name{labelled}
 \alias{as_factor.labelled}
-\alias{is_missing}
+\alias{is_na}
+\alias{is_pseudo_na}
 \alias{labelled}
 \alias{normalise_na}
 \alias{normalize_na}
@@ -16,7 +17,9 @@ labelled(x, labels = NULL, label_na = NULL, x_na = NULL)
 
 zap_labels(x)
 
-is_missing(x)
+is_pseudo_na(x)
+
+is_na(x)
 
 normalise_na(x)
 
@@ -98,10 +101,29 @@ s5 <- labelled(
 )
 s5
 
+# If you replace a value with a labelled pseudo-missing, the
+# missingness information will be preserved correctly.
+s5[2] <- "X"
+is_pseudo_na(s5)
+
+# When the pseudo-missing is not labelled, use bare_na(). See
+# documentation of that function:
+s5[3] <- bare_na("Z")
+is_pseudo_na(s5)
+
+# As seen in the previous example, you can check whether values are
+# pseudo-missing using is_pseudo_na(). In addition, is_na() returns
+# TRUE for both pseudo-missing and system-missing values:
+s5[3] <- NA
+is_na(s5)
+
 # Often when you have a partially labelled numeric vector, labelled values
 # are special types of missing. Use XXX to replace labels with missing
 # values
 x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 zap_labels(x)
+}
+\seealso{
+\code{\link{bare_na}()}
 }
 
