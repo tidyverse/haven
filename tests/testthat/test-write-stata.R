@@ -21,11 +21,23 @@ test_that("can roundtrip basic types", {
   expect_equal(roundtrip_var(letters), letters)
 })
 
+test_that("can rountrip dates", {
+  today <- Sys.Date()
+  expect_equal(roundtrip_var(today), today)
+})
+
+test_that("can rountrip datetimes", {
+  now <- Sys.time()
+  expect_equal(roundtrip_var(now), now)
+})
+
 test_that("can roundtrip missing values (as much as possible)", {
   expect_equal(roundtrip_var(NA), NA_integer_)
   expect_equal(roundtrip_var(NA_real_), NA_real_)
   expect_equal(roundtrip_var(NA_integer_), NA_integer_)
   expect_equal(roundtrip_var(NA_character_), "")
+  expect_equal(roundtrip_var(as.Date(NA)), as.Date(NA))
+  expect_equal(roundtrip_var(as.POSIXct(NA)), as.POSIXct(NA))
 })
 
 test_that("factors become labelleds", {

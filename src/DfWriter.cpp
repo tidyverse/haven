@@ -40,7 +40,12 @@ public:
     for (int j = 0; j < p; ++j) {
       RObject col = x_[j];
       std::string name(names[j]);
-      switch(TYPEOF(col)) {
+
+      if (col.inherits("Date")) {
+        defineVariable(as<NumericVector>(col), name, "%td");
+      } else if (col.inherits("POSIXct")) {
+        defineVariable(as<NumericVector>(col), name, "%tc");
+      } else switch(TYPEOF(col)) {
       case LGLSXP:
         defineVariable(as<IntegerVector>(col), name);
         break;
@@ -70,7 +75,26 @@ public:
         RObject col = x_[j];
         readstat_variable_t* var = readstat_get_variable(writer_, j);
 
-        switch (TYPEOF(col)) {
+        if (col.inherits("Date")) {
+          double val = REAL(col)[i];
+          if (ISNAN(val)) {
+            readstat_insert_missing_value(writer_, var);
+          }
+          else {
+            val = val + daysOffset(HAVEN_STATA);
+            readstat_insert_double_value(writer_, var, val);
+          }
+        } else if (col.inherits("POSIXct")) {
+          double val = REAL(col)[i];
+          if (ISNAN(val)) {
+            readstat_insert_missing_value(writer_, var);
+          }
+          else {
+            // Stata stores datetimes in milliseconds
+            val = (val + (daysOffset(HAVEN_STATA) * 86400)) * 1000;
+            readstat_insert_double_value(writer_, var, val);
+          }
+        } else switch (TYPEOF(col)) {
         case LGLSXP: {
           int val = LOGICAL(col)[i];
           if (val == NA_LOGICAL) {
