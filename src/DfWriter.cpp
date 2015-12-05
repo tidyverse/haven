@@ -270,13 +270,17 @@ public:
   void defineVariable(NumericVector x, std::string name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "labelled") {
-      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name.c_str());
+      if(type_ == HAVEN_STATA) {
+        warning("Non-integer labelleds are unsupported in Stata.");
+      } else {
+        labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name.c_str());
 
-      NumericVector values = as<NumericVector>(x.attr("labels"));
-      CharacterVector labels = as<CharacterVector>(values.attr("names"));
+        NumericVector values = as<NumericVector>(x.attr("labels"));
+        CharacterVector labels = as<CharacterVector>(values.attr("names"));
 
-      for (int i = 0; i < values.size(); ++i)
-        readstat_label_double_value(labelSet, values[i], std::string(labels[i]).c_str());
+        for (int i = 0; i < values.size(); ++i)
+          readstat_label_double_value(labelSet, values[i], std::string(labels[i]).c_str());
+      }
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_DOUBLE, 0, name.c_str(),
@@ -286,13 +290,17 @@ public:
   void defineVariable(CharacterVector x, std::string name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "labelled") {
-      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name.c_str());
+      if(type_ == HAVEN_STATA) {
+        warning("Non-integer labelleds are unsupported in Stata.");
+      } else {
+        labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name.c_str());
 
-      CharacterVector values = as<CharacterVector>(x.attr("labels"));
-      CharacterVector labels = as<CharacterVector>(values.attr("names"));
+        CharacterVector values = as<CharacterVector>(x.attr("labels"));
+        CharacterVector labels = as<CharacterVector>(values.attr("names"));
 
-      for (int i = 0; i < values.size(); ++i)
-        readstat_label_string_value(labelSet, values[i], std::string(labels[i]).c_str());
+        for (int i = 0; i < values.size(); ++i)
+          readstat_label_string_value(labelSet, values[i], std::string(labels[i]).c_str());
+      }
     }
 
     int max_length = 0;

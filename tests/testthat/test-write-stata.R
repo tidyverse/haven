@@ -56,14 +56,22 @@ test_that("labels are preserved", {
   expect_equal(attr(roundtrip_var(x), "label"), "abc")
 })
 
-test_that("labelleds are round tripped", {
+test_that("integer labelleds are round tripped", {
   int <- labelled(c(1L, 2L), c(a = 1L, b = 3L))
+  expect_equal(roundtrip_var(int), int)
+})
+
+test_that("non-integer labelleds are unsupported", {
   num <- labelled(c(1, 2), c(a = 1, b = 3))
   chr <- labelled(c("a", "b"), c(a = "b", b = "a"))
 
-  expect_equal(roundtrip_var(int), int)
-  expect_equal(roundtrip_var(num), num)
-  expect_equal(roundtrip_var(chr), chr)
+  expect_warning(num_rt <- roundtrip_var(num), "(not |un)supported")
+  attributes(num) <- NULL
+  expect_equal(num_rt, num)
+
+  expect_warning(chr_rt <- roundtrip_var(chr), "(not |un)supported")
+  attributes(chr) <- NULL
+  expect_equal(chr_rt, chr)
 })
 
 test_that("factors become labelleds", {
