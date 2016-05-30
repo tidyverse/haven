@@ -39,7 +39,8 @@ public:
     // Define variables
     for (int j = 0; j < p; ++j) {
       RObject col = x_[j];
-      std::string name(names[j]);
+
+      std::string name(Rf_translateCharUTF8(names[j]));
       switch(TYPEOF(col)) {
       case LGLSXP:
         defineVariable(as<IntegerVector>(col), name);
@@ -152,9 +153,10 @@ public:
       IntegerVector values = as<IntegerVector>(x.attr("labels"));
       CharacterVector labels = as<CharacterVector>(values.attr("names"));
 
-      for (int i = 0; i < values.size(); ++i)
-        readstat_label_int32_value(labelSet, values[i], std::string(labels[i]).c_str());
-
+      for (int i = 0; i < values.size(); ++i) {
+        const char* label = Rf_translateCharUTF8(STRING_ELT(labels, i));
+        readstat_label_int32_value(labelSet, values[i], label);
+      }
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name.c_str(),

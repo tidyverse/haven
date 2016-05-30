@@ -1,5 +1,7 @@
 # haven 0.2.0.9000
 
+* Labelled values are always converted to UTF-8 before being written out (#87).
+
 * Support for `hms()` has been moved into the hms package (#162).
   Time varibles now have class `c("hms", "difftime")` and a `units` attribute
   with value "secs" (#162).

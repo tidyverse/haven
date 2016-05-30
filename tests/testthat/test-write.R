@@ -56,3 +56,14 @@ test_that("factors become labelleds", {
   expect_equal(as.vector(rt), 1:2)
   expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
 })
+
+test_that("labels are converted to utf-8", {
+  labels_utf8 <- c("\u00e9\u00e8", "\u00e0", "\u00ef")
+  labels_latin1 <- iconv(labels_utf8, "utf-8", "latin1")
+
+  v_utf8 <- labelled(3:1, setNames(1:3, labels_utf8))
+  v_latin1 <- labelled(3:1, setNames(1:3, labels_latin1))
+
+  expect_equal(names(attr(roundtrip_var(v_utf8), "labels")), labels_utf8)
+  expect_equal(names(attr(roundtrip_var(v_latin1), "labels")), labels_utf8)
+})
