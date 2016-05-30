@@ -50,22 +50,34 @@ public:
 
       const char* name = string_utf8(names, j);
 
-      switch(TYPEOF(col)) {
-      case LGLSXP:
-        defineVariable(as<IntegerVector>(col), name);
+      switch(numType(col)) {
+      case HAVEN_DATETIME:
+        defineVariable(as<NumericVector>(col), name, "DATETIME");
         break;
-      case INTSXP:
-        defineVariable(as<IntegerVector>(col), name);
+      case HAVEN_DATE:
+        defineVariable(as<NumericVector>(col), name, "DATE");
         break;
-      case REALSXP:
-        defineVariable(as<NumericVector>(col), name);
+      case HAVEN_TIME:
+        defineVariable(as<NumericVector>(col), name, "TIME");
         break;
-      case STRSXP:
-        defineVariable(as<CharacterVector>(col), name);
-        break;
-      default:
-        stop("Variables of type %s not supported yet",
-          Rf_type2str(TYPEOF(col)));
+      case HAVEN_DEFAULT:
+        switch(TYPEOF(col)) {
+        case LGLSXP:
+          defineVariable(as<IntegerVector>(col), name);
+          break;
+        case INTSXP:
+          defineVariable(as<IntegerVector>(col), name);
+          break;
+        case REALSXP:
+          defineVariable(as<NumericVector>(col), name);
+          break;
+        case STRSXP:
+          defineVariable(as<CharacterVector>(col), name);
+          break;
+        default:
+          stop("Variables of type %s not supported yet",
+            Rf_type2char(TYPEOF(col)));
+        }
       }
     }
 
@@ -87,12 +99,12 @@ public:
         }
         case INTSXP: {
           int val = INTEGER(col)[i];
-          insertValue(var, val, val == NA_INTEGER);
+          insertValue(var, (int) adjustDatetimeFromR(HAVEN_SPSS, col, val), val == NA_INTEGER);
           break;
         }
         case REALSXP: {
           double val = REAL(col)[i];
-          insertValue(var, val, !R_finite(val));
+          insertValue(var, adjustDatetimeFromR(HAVEN_SPSS, col, val), !R_finite(val));
           break;
         }
         case STRSXP: {

@@ -15,6 +15,20 @@ test_that("can roundtrip missing values (as much as possible)", {
   expect_equal(roundtrip_var(NA_character_, "sav"), "")
 })
 
+test_that("can roundtrip date times", {
+  x1 <- c(as.Date("2010-01-01"), NA)
+  x2 <- as.POSIXct(x1)
+  attr(x2, "tzone") <- "UTC"
+
+  expect_equal(roundtrip_var(x1, "sav"), x1)
+  expect_equal(roundtrip_var(x2, "sav"), x2)
+})
+
+test_that("can roundtrip times", {
+  x <- hms::hms(c(1, NA, 86400))
+  expect_equal(roundtrip_var(x, "sav"), x)
+})
+
 test_that("infinity gets converted to NA", {
   expect_equal(roundtrip_var(c(Inf, 0, -Inf), "sav"), c(NA, 0, NA))
 })

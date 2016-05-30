@@ -1,6 +1,7 @@
 # haven 0.2.0.9000
 
-* `write_dta()` supports writing date and date/times (#139, #145).
+* `write_dta()` and `write_sav()` supports writing date and date/times 
+  (#25, #139, #145). `write_sav()` also supports writes hms.
 
 * Labelled values are always converted to UTF-8 before being written out (#87).
 
