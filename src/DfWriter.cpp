@@ -6,6 +6,15 @@ using namespace Rcpp;
 ssize_t data_writer(const void *data, size_t len, void *ctx);
 std::string rClass(RObject x);
 
+inline const char* string_utf8(SEXP x, int i) {
+  return Rf_translateCharUTF8(STRING_ELT(x, i));
+}
+
+inline const bool string_is_missing(SEXP x, int i) {
+  return STRING_ELT(x, i) == NA_STRING;
+}
+
+
 class Writer {
   List x_;
   readstat_writer_t* writer_;
@@ -40,7 +49,7 @@ public:
     for (int j = 0; j < p; ++j) {
       RObject col = x_[j];
 
-      const char* name = Rf_translateCharUTF8(names[j]);
+      const char* name = string_utf8(names, j);
       switch(TYPEOF(col)) {
       case LGLSXP:
         defineVariable(as<IntegerVector>(col), name);
@@ -108,11 +117,10 @@ public:
           break;
         }
         case STRSXP: {
-          SEXP val = STRING_ELT(col, i);
-          if (val == NA_STRING) {
+          if (string_is_missing(col, i)) {
             readstat_insert_missing_value(writer_, var);
           } else {
-            readstat_insert_string_value(writer_, var, Rf_translateCharUTF8(val));
+            readstat_insert_string_value(writer_, var, string_utf8(col, i));
           }
           break;
         }
@@ -136,7 +144,7 @@ public:
     if (label == R_NilValue)
       return NULL;
 
-    return Rf_translateCharUTF8(STRING_ELT(label, 0));
+    return string_utf8(label, 0);
   }
 
   void defineVariable(IntegerVector x, const char* name) {
@@ -146,17 +154,15 @@ public:
 
       CharacterVector levels = as<CharacterVector>(x.attr("levels"));
       for (int i = 0; i < levels.size(); ++i)
-        readstat_label_int32_value(labelSet, i + 1, std::string(levels[i]).c_str());
+        readstat_label_int32_value(labelSet, i + 1, string_utf8(levels, i));
     } else if (rClass(x) == "labelled") {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
 
       IntegerVector values = as<IntegerVector>(x.attr("labels"));
       CharacterVector labels = as<CharacterVector>(values.attr("names"));
 
-      for (int i = 0; i < values.size(); ++i) {
-        const char* label = Rf_translateCharUTF8(STRING_ELT(labels, i));
-        readstat_label_int32_value(labelSet, values[i], label);
-      }
+      for (int i = 0; i < values.size(); ++i)
+        readstat_label_int32_value(labelSet, values[i], string_utf8(labels, i));
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name,
@@ -172,7 +178,7 @@ public:
       CharacterVector labels = as<CharacterVector>(values.attr("names"));
 
       for (int i = 0; i < values.size(); ++i)
-        readstat_label_double_value(labelSet, values[i], std::string(labels[i]).c_str());
+        readstat_label_double_value(labelSet, values[i], string_utf8(labels, i));
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_DOUBLE, 0, name,
@@ -188,7 +194,7 @@ public:
       CharacterVector labels = as<CharacterVector>(values.attr("names"));
 
       for (int i = 0; i < values.size(); ++i)
-        readstat_label_string_value(labelSet, values[i], std::string(labels[i]).c_str());
+        readstat_label_string_value(labelSet, string_utf8(values, i), string_utf8(labels, i));
     }
 
     int max_length = 0;
