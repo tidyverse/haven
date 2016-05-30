@@ -1,6 +1,6 @@
 # Haven
 
-[![Travis-CI Build Status](https://travis-ci.org/hadley/haven.png?branch=master)](https://travis-ci.org/hadley/haven)
+[![Travis-CI Build Status](https://travis-ci.org/hadley/haven.svg?branch=master)](https://travis-ci.org/hadley/haven)
 [![Coverage Status](https://img.shields.io/codecov/c/github/hadley/haven/master.svg)](https://codecov.io/github/hadley/haven?branch=master)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/haven)](http://cran.r-project.org/web/packages/haven)
 
