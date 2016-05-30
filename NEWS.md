@@ -1,5 +1,8 @@
 # haven 0.2.0.9000
 
+* `labelled()` is less strict with its checks: you can mix double and integer
+  value and labels (#86, #110, @lionel-).
+
 * `read_dta()` gains an encoding parameter which you can use to override
   the default encoding. This is particularly useful for Stata 13 and below
   which did not store the encoding used in the file (#163).
