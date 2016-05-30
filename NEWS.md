@@ -1,5 +1,7 @@
 # haven 0.2.0.9000
 
+* `write_dta()` supports writing date and date/times (#139, #145).
+
 * Labelled values are always converted to UTF-8 before being written out (#87).
 
 * Support for `hms()` has been moved into the hms package (#162).

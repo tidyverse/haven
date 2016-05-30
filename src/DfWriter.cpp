@@ -49,6 +49,7 @@ public:
       RObject col = x_[j];
 
       const char* name = string_utf8(names, j);
+
       switch(TYPEOF(col)) {
       case LGLSXP:
         defineVariable(as<IntegerVector>(col), name);
@@ -119,24 +120,34 @@ public:
     // Define variables
     for (int j = 0; j < p; ++j) {
       RObject col = x_[j];
-
       const char* name = string_utf8(names, j);
-      switch(TYPEOF(col)) {
-      case LGLSXP:
-        defineVariable(as<IntegerVector>(col), name);
+
+      switch(numType(col)) {
+      case HAVEN_DATETIME:
+        defineVariable(as<NumericVector>(col), name, "%tc");
         break;
-      case INTSXP:
-        defineVariable(as<IntegerVector>(col), name);
+      case HAVEN_DATE:
+        defineVariable(as<NumericVector>(col), name, "%td");
         break;
-      case REALSXP:
-        defineVariable(as<NumericVector>(col), name);
-        break;
-      case STRSXP:
-        defineVariable(as<CharacterVector>(col), name);
-        break;
-      default:
-        stop("Variables of type %s not supported yet",
-          Rf_type2char(TYPEOF(col)));
+      case HAVEN_TIME: // Stata doesn't have a pure time variable
+      case HAVEN_DEFAULT:
+        switch(TYPEOF(col)) {
+        case LGLSXP:
+          defineVariable(as<IntegerVector>(col), name);
+          break;
+        case INTSXP:
+          defineVariable(as<IntegerVector>(col), name);
+          break;
+        case REALSXP:
+          defineVariable(as<NumericVector>(col), name);
+          break;
+        case STRSXP:
+          defineVariable(as<CharacterVector>(col), name);
+          break;
+        default:
+          stop("Variables of type %s not supported yet",
+            Rf_type2char(TYPEOF(col)));
+        }
       }
     }
 
@@ -158,12 +169,12 @@ public:
         }
         case INTSXP: {
           int val = INTEGER(col)[i];
-          insertValue(var, val, val == NA_INTEGER);
+          insertValue(var, (int) adjustDatetimeFromR(HAVEN_STATA, col, val), val == NA_INTEGER);
           break;
         }
         case REALSXP: {
           double val = REAL(col)[i];
-          insertValue(var, val, !R_finite(val));
+          insertValue(var, adjustDatetimeFromR(HAVEN_STATA, col, val), !R_finite(val));
           break;
         }
         case STRSXP: {

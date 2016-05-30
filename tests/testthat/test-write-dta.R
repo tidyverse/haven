@@ -15,6 +15,15 @@ test_that("can roundtrip missing values (as much as possible)", {
   expect_equal(roundtrip_var(NA_character_, "dta"), "")
 })
 
+test_that("can roundtrip date times", {
+  x1 <- c(as.Date("2010-01-01"), NA)
+  x2 <- as.POSIXct(x1)
+  attr(x2, "tzone") <- "UTC"
+
+  expect_equal(roundtrip_var(x1, "dta"), x1)
+  expect_equal(roundtrip_var(x2, "dta"), x2)
+})
+
 test_that("infinity gets converted to NA", {
   expect_equal(roundtrip_var(c(Inf, 0, -Inf), "dta"), c(NA, 0, NA))
 })

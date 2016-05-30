@@ -21,7 +21,7 @@ inline bool hasPrefix(std::string x, std::string prefix) {
 }
 
 inline VarType numType(SEXP x) {
-  if (Rf_inherits(x, "date")) {
+  if (Rf_inherits(x, "Date")) {
     return HAVEN_DATE;
   } else if (Rf_inherits(x, "POSIXct")) {
     return HAVEN_DATETIME;
@@ -102,10 +102,10 @@ inline double adjustDatetimeToR(FileType file, VarType var, double value) {
   }
 }
 
-inline double adjustDatetimeFromR(FileType file, VarType var, double value) {
+inline double adjustDatetimeFromR(FileType file, SEXP col, double value) {
   double offset = daysOffset(file);
 
-  switch(var) {
+  switch(numType(col)) {
   case HAVEN_DATETIME:
     value += offset * 86400;
     if (file == HAVEN_STATA) // stored in milliseconds
