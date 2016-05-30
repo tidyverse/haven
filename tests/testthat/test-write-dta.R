@@ -49,9 +49,8 @@ test_that("labelleds are round tripped", {
   num <- labelled(c(1, 2), c(a = 1, b = 3))
   chr <- labelled(c("a", "b"), c(a = "b", b = "a"))
 
-  # FIXME!
   expect_equal(roundtrip_var(int, "dta"), int)
-  # expect_equal(roundtrip_var(num, "dta"), num)
+  # FIXME!
   # expect_equal(roundtrip_var(chr, "dta"), chr)
 })
 
@@ -79,4 +78,11 @@ test_that("throws error on invalid variable names", {
   df <- data.frame(1)
   names(df) <- "x y"
   expect_error(write_dta(df, tempfile()), "not valid Stata variables: `x y`")
+})
+
+test_that("throws error on labelled numerics", {
+  df <- data.frame(labelled(c(1, 2, 3), c("a" = 1)))
+  names(df) <- "x"
+
+  expect_error(write_dta(df, tempfile()), "labelled double vectors: `x`")
 })

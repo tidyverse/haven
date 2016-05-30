@@ -1,7 +1,8 @@
 # haven 0.2.0.9000
 
 * `write_dta()` now verifies that variable names are valid Stata variables
-  (#132).
+  (#132), and throws an error if you attempt to save a labelled numeric
+  vectors (#144).
 
 * `write_dta()` and `write_sav()` supports writing date and date/times 
   (#25, #139, #145). `write_sav()` also supports writes hms.

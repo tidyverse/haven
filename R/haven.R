@@ -109,6 +109,18 @@ validate_dta <- function(data) {
       call. = FALSE
     )
   }
+
+  # Check for labelled double vectors
+  is_labelled <- vapply(data, is.labelled, logical(1))
+  is_numeric <- vapply(data, typeof, character(1)) == "double"
+  bad_labels <- is_labelled && is_numeric
+  if (any(bad_labels)) {
+    stop(
+      "Stata does not support labelled double vectors: ",
+      var_names(data, bad_labels),
+      call. = FALSE
+    )
+  }
 }
 
 var_names <- function(data, i) {
