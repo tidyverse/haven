@@ -1,7 +1,4 @@
-context("write")
-
-# writing uses exactly the same path for sav and dta, so don't need
-# to test both
+context("write_sav")
 
 roundtrip <- function(x) {
   tmp <- tempfile()

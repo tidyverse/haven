@@ -29,6 +29,120 @@ public:
     } catch (...) {};
   }
 
+  void write_dta() {
+    CharacterVector names = as<CharacterVector>(x_.attr("names"));
+
+    int p = x_.size();
+    if (p == 0)
+      return;
+
+    // Define variables
+    for (int j = 0; j < p; ++j) {
+      RObject col = x_[j];
+      std::string name(names[j]);
+
+      if (col.inherits("Date")) {
+        defineVariable(as<NumericVector>(col), name, "%td");
+      } else if (col.inherits("POSIXct")) {
+        defineVariable(as<NumericVector>(col), name, "%tc");
+      } else switch(TYPEOF(col)) {
+      case LGLSXP:
+        defineVariable(as<IntegerVector>(col), name);
+        break;
+      case INTSXP:
+        defineVariable(as<IntegerVector>(col), name);
+        break;
+      case REALSXP:
+        defineVariable(as<NumericVector>(col), name);
+        break;
+      case STRSXP:
+        defineVariable(as<CharacterVector>(col), name);
+        break;
+      default:
+        stop("Variables of type %s not supported yet",
+             Rf_type2char(TYPEOF(col)));
+      }
+    }
+
+    int n = Rf_length(x_[0]);
+
+    readstat_begin_writing_dta(writer_, this, n);
+
+    // Write data
+    for (int i = 0; i < n; ++i) {
+      readstat_begin_row(writer_);
+      for (int j = 0; j < p; ++j) {
+        RObject col = x_[j];
+        readstat_variable_t* var = readstat_get_variable(writer_, j);
+
+        if (col.inherits("Date")) {
+          double val = REAL(col)[i];
+          if (ISNAN(val)) {
+            readstat_insert_missing_value(writer_, var);
+          }
+          else {
+            val = val + daysOffset(HAVEN_STATA);
+            readstat_insert_double_value(writer_, var, val);
+          }
+        } else if (col.inherits("POSIXct")) {
+          double val = REAL(col)[i];
+          if (ISNAN(val)) {
+            readstat_insert_missing_value(writer_, var);
+          }
+          else {
+            // Stata stores datetimes in milliseconds
+            val = (val + (daysOffset(HAVEN_STATA) * 86400)) * 1000;
+            readstat_insert_double_value(writer_, var, val);
+          }
+        } else switch (TYPEOF(col)) {
+        case LGLSXP: {
+          int val = LOGICAL(col)[i];
+          if (val == NA_LOGICAL) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_int32_value(writer_, var, val);
+          }
+          break;
+        }
+        case INTSXP: {
+          int val = INTEGER(col)[i];
+          if (val == NA_INTEGER) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_int32_value(writer_, var, val);
+          }
+          break;
+        }
+        case REALSXP: {
+          double val = REAL(col)[i];
+          if (ISNAN(val)) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_double_value(writer_, var, val);
+          }
+          break;
+        }
+        case STRSXP: {
+          SEXP val = STRING_ELT(col, i);
+          if (val == NA_STRING) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_string_value(writer_, var, Rf_translateCharUTF8(val));
+          }
+          break;
+        }
+          break;
+        default:
+          break;
+        }
+      }
+      readstat_end_row(writer_);
+    }
+
+    readstat_end_writing(writer_);
+
+  }
+
   void write_sav() {
     CharacterVector names = as<CharacterVector>(x_.attr("names"));
 
@@ -60,16 +174,8 @@ public:
     }
 
     int n = Rf_length(x_[0]);
-    switch (type_) {
-    case HAVEN_STATA:
-      readstat_begin_writing_dta(writer_, this, n);
-      break;
-    case HAVEN_SPSS:
-      readstat_begin_writing_sav(writer_, this, n);
-      break;
-    default:
-      Rcpp::stop("Not currently supported");
-    }
+
+    readstat_begin_writing_sav(writer_, this, n);
 
     // Write data
     for (int i = 0; i < n; ++i) {
@@ -138,7 +244,7 @@ public:
     return Rf_translateCharUTF8(STRING_ELT(label, 0));
   }
 
-  void defineVariable(IntegerVector x, std::string name) {
+  void defineVariable(IntegerVector x, std::string name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "factor") {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name.c_str());
@@ -158,35 +264,43 @@ public:
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name.c_str(),
-      var_label(x), NULL, labelSet);
+      var_label(x), format, labelSet);
   }
 
-  void defineVariable(NumericVector x, std::string name) {
+  void defineVariable(NumericVector x, std::string name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "labelled") {
-      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name.c_str());
+      if(type_ == HAVEN_STATA) {
+        warning("Non-integer labelleds are unsupported in Stata.");
+      } else {
+        labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name.c_str());
 
-      NumericVector values = as<NumericVector>(x.attr("labels"));
-      CharacterVector labels = as<CharacterVector>(values.attr("names"));
+        NumericVector values = as<NumericVector>(x.attr("labels"));
+        CharacterVector labels = as<CharacterVector>(values.attr("names"));
 
-      for (int i = 0; i < values.size(); ++i)
-        readstat_label_double_value(labelSet, values[i], std::string(labels[i]).c_str());
+        for (int i = 0; i < values.size(); ++i)
+          readstat_label_double_value(labelSet, values[i], std::string(labels[i]).c_str());
+      }
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_DOUBLE, 0, name.c_str(),
-      var_label(x), NULL, labelSet);
+      var_label(x), format, labelSet);
   }
 
-  void defineVariable(CharacterVector x, std::string name) {
+  void defineVariable(CharacterVector x, std::string name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "labelled") {
-      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name.c_str());
+      if(type_ == HAVEN_STATA) {
+        warning("Non-integer labelleds are unsupported in Stata.");
+      } else {
+        labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name.c_str());
 
-      CharacterVector values = as<CharacterVector>(x.attr("labels"));
-      CharacterVector labels = as<CharacterVector>(values.attr("names"));
+        CharacterVector values = as<CharacterVector>(x.attr("labels"));
+        CharacterVector labels = as<CharacterVector>(values.attr("names"));
 
-      for (int i = 0; i < values.size(); ++i)
-        readstat_label_string_value(labelSet, values[i], std::string(labels[i]).c_str());
+        for (int i = 0; i < values.size(); ++i)
+          readstat_label_string_value(labelSet, values[i], std::string(labels[i]).c_str());
+      }
     }
 
     int max_length = 0;
@@ -197,7 +311,7 @@ public:
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_STRING, max_length,
-      name.c_str(), var_label(x), NULL, labelSet);
+      name.c_str(), var_label(x), format, labelSet);
   }
 
   void checkStatus(readstat_error_t err) {
@@ -232,5 +346,5 @@ void write_sav_(List data, std::string path) {
 
 // [[Rcpp::export]]
 void write_dta_(List data, std::string path) {
-  Writer(data, path, HAVEN_STATA).write_sav();
+  Writer(data, path, HAVEN_STATA).write_dta();
 }

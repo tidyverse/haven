@@ -1,0 +1,84 @@
+context("write_stata")
+
+roundtrip <- function(x) {
+  tmp <- tempfile()
+  write_dta(x, tmp)
+  read_dta(tmp)
+}
+
+roundtrip_var <- function(x) {
+  df <- list(x = x)
+  class(df) <- "data.frame"
+  attr(df, "row.names") <- .set_row_names(length(x))
+  roundtrip(df)$x
+}
+
+test_that("can roundtrip basic types", {
+  x <- runif(10)
+  expect_equal(roundtrip_var(x), x)
+  expect_equal(roundtrip_var(1:10), 1:10)
+  expect_equal(roundtrip_var(c(TRUE, FALSE)), c(1, 0))
+  expect_equal(roundtrip_var(letters), letters)
+})
+
+test_that("can rountrip dates", {
+  today <- Sys.Date()
+  expect_equal(roundtrip_var(today), today)
+})
+
+test_that("can rountrip datetimes", {
+  now <- Sys.time()
+  expect_equal(roundtrip_var(now), now)
+})
+
+test_that("can roundtrip missing values (as much as possible)", {
+  expect_equal(roundtrip_var(NA), NA_integer_)
+  expect_equal(roundtrip_var(NA_real_), NA_real_)
+  expect_equal(roundtrip_var(NA_integer_), NA_integer_)
+  expect_equal(roundtrip_var(NA_character_), "")
+  expect_equal(roundtrip_var(as.Date(NA)), as.Date(NA))
+  expect_equal(roundtrip_var(as.POSIXct(NA)), as.POSIXct(NA))
+})
+
+test_that("factors become labelleds", {
+  f <- factor(c("a", "b"), levels = letters[1:3])
+  rt <- roundtrip_var(f)
+
+  expect_is(rt, "labelled")
+  expect_equal(as.vector(rt), 1:2)
+  expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
+})
+
+test_that("labels are preserved", {
+  x <- 1:10
+  attr(x, "label") <- "abc"
+
+  expect_equal(attr(roundtrip_var(x), "label"), "abc")
+})
+
+test_that("integer labelleds are round tripped", {
+  int <- labelled(c(1L, 2L), c(a = 1L, b = 3L))
+  expect_equal(roundtrip_var(int), int)
+})
+
+test_that("non-integer labelleds are unsupported", {
+  num <- labelled(c(1, 2), c(a = 1, b = 3))
+  chr <- labelled(c("a", "b"), c(a = "b", b = "a"))
+
+  expect_warning(num_rt <- roundtrip_var(num), "(not |un)supported")
+  attributes(num) <- NULL
+  expect_equal(num_rt, num)
+
+  expect_warning(chr_rt <- roundtrip_var(chr), "(not |un)supported")
+  attributes(chr) <- NULL
+  expect_equal(chr_rt, chr)
+})
+
+test_that("factors become labelleds", {
+  f <- factor(c("a", "b"), levels = letters[1:3])
+  rt <- roundtrip_var(f)
+
+  expect_is(rt, "labelled")
+  expect_equal(as.vector(rt), 1:2)
+  expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
+})
