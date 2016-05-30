@@ -10,15 +10,13 @@
   don't support them (#149).
 
 * Removed `read_por()` since it doesn't work and I'm unlikely to have time to
-  make it work in the near future.
+  make it work in the near future (#35).
 
 * `is.labelled()` is now exported (#124).
 
 * Recognise stata "%d" format as a date (#130).
 
 * Missing strings values are now read correctly into R (#79)
-
-* `read_por()` now throws an informative error message (#35)
 
 * SAS, SPSS and Stata all allow multiple types of missingness. Now, when 
   reading external data, haven preserves all missing labels. They will be 
