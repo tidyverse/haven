@@ -44,7 +44,7 @@ labelled <- function(x, labels, is_na = NULL) {
   if (!is.numeric(x) && !is.character(x)) {
     stop("`x` must be either numeric or a character vector", call. = FALSE)
   }
-  if (typeof(x) != typeof(labels)) {
+  if (!is_coercible(x, labels)) {
     stop("`x` and `labels` must be same type", call. = FALSE)
   }
   if (is.null(labels)) {
@@ -68,6 +68,18 @@ labelled <- function(x, labels, is_na = NULL) {
 
 #' @export
 #' @rdname labelled
+is_coercible <- function(x, labels) {
+  if (typeof(x) == typeof(labels)) {
+    return(TRUE)
+  }
+
+  if (all(c(typeof(x), typeof(labels)) %in% c("integer", "double"))) {
+    return(TRUE)
+  }
+
+  FALSE
+}
+
 is.labelled <- function(x) inherits(x, "labelled")
 
 #' @export

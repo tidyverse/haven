@@ -49,3 +49,8 @@ test_that("zap_labels returns variables not of class('labelled') unmodified", {
   var <- c(1L, 98L, 99L)
   expect_equal(zap_labels(var), var)
 })
+
+test_that("integer and double labels and values are compatible", {
+  expect_that(labelled(1, c(female = 2L, male = 1L)), not(throws_error()))
+  expect_that(labelled(1L, c(female = 2, male = 1)), not(throws_error()))
+})
