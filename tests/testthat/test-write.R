@@ -31,6 +31,10 @@ test_that("can roundtrip missing values (as much as possible)", {
   expect_equal(roundtrip_var(NA_character_), "")
 })
 
+test_that("infinity gets converted to NA", {
+  expect_equal(roundtrip_var(c(Inf, 0, -Inf)), c(NA, 0, NA))
+})
+
 test_that("factors become labelleds", {
   f <- factor(c("a", "b"), levels = letters[1:3])
   rt <- roundtrip_var(f)

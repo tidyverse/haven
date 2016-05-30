@@ -1,5 +1,8 @@
 # haven 0.2.0.9000
 
+* Infinite values are now converted to missing values since SPSS and Stata
+  don't support them (#149).
+
 * Removed `read_por()` since it doesn't work and I'm unlikely to have time to
   make it work in the near future.
 
