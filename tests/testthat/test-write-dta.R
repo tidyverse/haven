@@ -74,3 +74,9 @@ test_that("labels are converted to utf-8", {
   expect_equal(names(attr(roundtrip_var(v_utf8, "dta"), "labels")), labels_utf8)
   expect_equal(names(attr(roundtrip_var(v_latin1, "dta"), "labels")), labels_utf8)
 })
+
+test_that("throws error on invalid variable names", {
+  df <- data.frame(1)
+  names(df) <- "x y"
+  expect_error(write_dta(df, tempfile()), "not valid Stata variables: `x y`")
+})

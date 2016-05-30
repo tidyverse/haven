@@ -95,5 +95,20 @@ read_stata <- function(path) {
 #' @export
 #' @rdname read_dta
 write_dta <- function(data, path) {
+  validate_dta(data)
   write_dta_(data, normalizePath(path, mustWork = FALSE))
+}
+
+validate_dta <- function(data) {
+  name_ok <- grepl(names(data), "^[a-zA-Z0-9_]+$")
+  if (any(!name_ok)) {
+    bad_names <- names(data)[!name_ok]
+
+    stop(
+      "The following variable names are not valid Stata variables: ",
+      paste(encodeString(bad_names, quote = "`"), collapse = ", "),
+      call. = FALSE
+    )
+  }
+
 }
