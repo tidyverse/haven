@@ -71,6 +71,10 @@ read_spss <- function(path) {
 #' Stata are handled in R.
 #'
 #' @inheritParams read_spss
+#' @param encoding The character encoding used for the file. This defaults to
+#'   the encoding specified in the file, or UTF-8. But older versions of Stata
+#'   (13 and earlier) did not store the encoding used, and you'll need to
+#'   specify manually. A commonly used value is "Win 1252".
 #' @return A data frame with additional "tbl_df" and "tbl" classes, which
 #'   improve printing if dplyr is loaded.
 #'
@@ -82,14 +86,17 @@ read_spss <- function(path) {
 #' write_dta(mtcars, tmp)
 #' read_dta(tmp)
 #' read_stata(tmp)
-read_dta <- function(path) {
-  df_parse_dta(clean_path(path))
+read_dta <- function(path, encoding = NULL) {
+  if (is.null(encoding)) {
+    encoding <- ""
+  }
+  df_parse_dta(clean_path(path), encoding)
 }
 
 #' @export
 #' @rdname read_dta
-read_stata <- function(path) {
-  read_dta(path)
+read_stata <- function(path, encoding = NULL) {
+  read_dta(path, encoding)
 }
 
 #' @export

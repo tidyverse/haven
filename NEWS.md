@@ -1,5 +1,9 @@
 # haven 0.2.0.9000
 
+* `read_dta()` gains an encoding parameter which you can use to override
+  the default encoding. This is particularly useful for Stata 13 and below
+  which did not store the encoding used in the file (#163).
+
 * `write_dta()` now verifies that variable names are valid Stata variables
   (#132), and throws an error if you attempt to save a labelled numeric
   vectors (#144).

@@ -5,8 +5,8 @@ df_parse_sas <- function(b7dat, b7cat) {
     .Call('haven_df_parse_sas', PACKAGE = 'haven', b7dat, b7cat)
 }
 
-df_parse_dta <- function(filename) {
-    .Call('haven_df_parse_dta', PACKAGE = 'haven', filename)
+df_parse_dta <- function(filename, encoding) {
+    .Call('haven_df_parse_dta', PACKAGE = 'haven', filename, encoding)
 }
 
 df_parse_por <- function(filename) {

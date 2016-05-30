@@ -302,7 +302,8 @@ void print_error(const char* error_message, void* ctx) {
 // Parser wrappers -------------------------------------------------------------
 
 template<typename ParseFunction>
-List df_parse(FileType type, std::string filename, ParseFunction parse_f) {
+List df_parse(FileType type, std::string filename, ParseFunction parse_f,
+              std::string encoding = "") {
   DfReader builder(type);
 
   readstat_parser_t* parser = readstat_parser_init();
@@ -311,6 +312,10 @@ List df_parse(FileType type, std::string filename, ParseFunction parse_f) {
   readstat_set_value_handler(parser, dfreader_value);
   readstat_set_value_label_handler(parser, dfreader_value_label);
   readstat_set_error_handler(parser, print_error);
+
+  if (encoding != "") {
+    readstat_set_file_character_encoding(parser, encoding.c_str());
+  }
 
   readstat_error_t result = parse_f(parser, filename.c_str(), &builder);
 
@@ -354,8 +359,8 @@ List df_parse_sas(const std::string& b7dat, const std::string& b7cat) {
 }
 
 // [[Rcpp::export]]
-List df_parse_dta(std::string filename) {
-  return df_parse(HAVEN_STATA, filename, readstat_parse_dta);
+List df_parse_dta(std::string filename, std::string encoding) {
+  return df_parse(HAVEN_STATA, filename, readstat_parse_dta, encoding);
 }
 
 // [[Rcpp::export]]

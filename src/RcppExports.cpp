@@ -19,13 +19,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // df_parse_dta
-List df_parse_dta(std::string filename);
-RcppExport SEXP haven_df_parse_dta(SEXP filenameSEXP) {
+List df_parse_dta(std::string filename, std::string encoding);
+RcppExport SEXP haven_df_parse_dta(SEXP filenameSEXP, SEXP encodingSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
-    __result = Rcpp::wrap(df_parse_dta(filename));
+    Rcpp::traits::input_parameter< std::string >::type encoding(encodingSEXP);
+    __result = Rcpp::wrap(df_parse_dta(filename, encoding));
     return __result;
 END_RCPP
 }

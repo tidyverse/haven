@@ -6,15 +6,20 @@
 \alias{write_dta}
 \title{Read and write Stata DTA files.}
 \usage{
-read_dta(path)
+read_dta(path, encoding = NULL)
 
-read_stata(path)
+read_stata(path, encoding = NULL)
 
 write_dta(data, path)
 }
 \arguments{
 \item{path}{Path to data. When reading data, if the path is a URL, the file
 will be first downloaded to a temporary location before reading.}
+
+\item{encoding}{The character encoding used for the file. This defaults to
+the encoding specified in the file, or UTF-8. But older versions of Stata
+(13 and earlier) did not store the encoding used, and you'll need to
+specify manually. A commonly used value is "Win 1252".}
 
 \item{data}{Data frame to write.}
 }
