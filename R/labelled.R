@@ -66,6 +66,8 @@ labelled <- function(x, labels, is_na = NULL) {
   )
 }
 
+#' @export
+#' @rdname labelled
 is.labelled <- function(x) inherits(x, "labelled")
 
 #' @export

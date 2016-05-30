@@ -2,11 +2,14 @@
 % Please edit documentation in R/labelled.R
 \name{labelled}
 \alias{as_factor.labelled}
+\alias{is.labelled}
 \alias{labelled}
 \alias{zap_labels}
 \title{Create a labelled vector.}
 \usage{
 labelled(x, labels, is_na = NULL)
+
+is.labelled(x)
 
 \method{as_factor}{labelled}(x, levels = c("labels", "values"),
   ordered = FALSE, drop_na = TRUE, ...)
