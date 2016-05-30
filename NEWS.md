@@ -1,5 +1,7 @@
 # haven 0.2.0.9000
 
+* Recognise stata "%d" format as a date (#130).
+
 * Missing strings values are now read correctly into R (#79)
 
 * `read_por()` now throws an informative error message (#35)
