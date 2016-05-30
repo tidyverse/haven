@@ -13,7 +13,9 @@ roundtrip_var <- function(x) {
   df <- list(x = x)
   class(df) <- "data.frame"
   attr(df, "row.names") <- .set_row_names(length(x))
-  roundtrip(df)$x
+  out <- roundtrip(df)$x
+  attr(out, "format.spss") <- NULL
+  out
 }
 
 test_that("can roundtrip basic types", {
@@ -64,4 +66,24 @@ test_that("factors become labelleds", {
   expect_is(rt, "labelled")
   expect_equal(as.vector(rt), 1:2)
   expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
+})
+
+test_that("formats roundtrip", {
+  tmp <- tempfile()
+
+  x <-
+    data.frame(a = structure(c(1, 1, 2), format.spss = "F1.0"),
+               b = structure(4:6, format.spss = "F2.1"),
+               c = structure(7:9, format.spss = "N2"),
+               d = structure(c("Text", "Text", ""), format.spss = "A100"),
+               stringsAsFactors = FALSE)
+
+  write_sav(x, tmp)
+
+  y <- read_sav(tmp)
+
+  expect_equal(x$a, y$a)
+  expect_equal(x$b, y$b)
+  expect_equal(x$c, y$c)
+  expect_equal(x$d, y$d)
 })
