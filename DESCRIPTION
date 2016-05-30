@@ -16,7 +16,8 @@ Suggests:
     dplyr,
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    covr
 LinkingTo:
     Rcpp,
     BH
