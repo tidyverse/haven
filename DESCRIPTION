@@ -25,3 +25,4 @@ LazyData: true
 URL: https://github.com/hadley/haven, https://github.com/WizardMac/ReadStat
 BugReports: https://github.com/hadley/haven/issues
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1
