@@ -81,40 +81,23 @@ public:
         switch (TYPEOF(col)) {
         case LGLSXP: {
           int val = LOGICAL(col)[i];
-          if (val == NA_LOGICAL) {
-            readstat_insert_missing_value(writer_, var);
-          } else {
-            readstat_insert_int32_value(writer_, var, val);
-          }
+          insertValue(var, val, val == NA_LOGICAL);
           break;
         }
         case INTSXP: {
           int val = INTEGER(col)[i];
-          if (val == NA_INTEGER) {
-            readstat_insert_missing_value(writer_, var);
-          } else {
-            readstat_insert_int32_value(writer_, var, val);
-          }
+          insertValue(var, val, val == NA_INTEGER);
           break;
         }
         case REALSXP: {
           double val = REAL(col)[i];
-          if (!R_finite(val)) {
-            readstat_insert_missing_value(writer_, var);
-          } else {
-            readstat_insert_double_value(writer_, var, val);
-          }
+          insertValue(var, val, !R_finite(val));
           break;
         }
         case STRSXP: {
-          if (string_is_missing(col, i)) {
-            readstat_insert_missing_value(writer_, var);
-          } else {
-            readstat_insert_string_value(writer_, var, string_utf8(col, i));
-          }
+          insertValue(var, string_utf8(col, i), string_is_missing(col, i));
           break;
         }
-          break;
         default:
           break;
         }
@@ -170,40 +153,23 @@ public:
         switch (TYPEOF(col)) {
         case LGLSXP: {
           int val = LOGICAL(col)[i];
-          if (val == NA_LOGICAL) {
-            readstat_insert_missing_value(writer_, var);
-          } else {
-            readstat_insert_int32_value(writer_, var, val);
-          }
+          insertValue(var, val, val == NA_LOGICAL);
           break;
         }
         case INTSXP: {
           int val = INTEGER(col)[i];
-          if (val == NA_INTEGER) {
-            readstat_insert_missing_value(writer_, var);
-          } else {
-            readstat_insert_int32_value(writer_, var, val);
-          }
+          insertValue(var, val, val == NA_INTEGER);
           break;
         }
         case REALSXP: {
           double val = REAL(col)[i];
-          if (!R_finite(val)) {
-            readstat_insert_missing_value(writer_, var);
-          } else {
-            readstat_insert_double_value(writer_, var, val);
-          }
+          insertValue(var, val, !R_finite(val));
           break;
         }
         case STRSXP: {
-          if (string_is_missing(col, i)) {
-            readstat_insert_missing_value(writer_, var);
-          } else {
-            readstat_insert_string_value(writer_, var, string_utf8(col, i));
-          }
+          insertValue(var, string_utf8(col, i), string_is_missing(col, i));
           break;
         }
-          break;
         default:
           break;
         }
@@ -285,6 +251,34 @@ public:
     readstat_add_variable(writer_, READSTAT_TYPE_STRING, max_length,
       name, var_label(x), format, labelSet);
   }
+
+  // Value helper -------------------------------------------------------------
+
+  void insertValue(readstat_variable_t* var, int val, bool is_missing) {
+    if (is_missing) {
+      readstat_insert_missing_value(writer_, var);
+    } else {
+      readstat_insert_int32_value(writer_, var, val);
+    }
+  }
+
+  void insertValue(readstat_variable_t* var, double val, bool is_missing) {
+    if (is_missing) {
+      readstat_insert_missing_value(writer_, var);
+    } else {
+      readstat_insert_double_value(writer_, var, val);
+    }
+  }
+
+  void insertValue(readstat_variable_t* var, const char* val, bool is_missing) {
+    if (is_missing) {
+      readstat_insert_missing_value(writer_, var);
+    } else {
+      readstat_insert_string_value(writer_, var, val);
+    }
+  }
+
+  // Misc ----------------------------------------------------------------------
 
   void checkStatus(readstat_error_t err) {
     if (err == 0) return;
