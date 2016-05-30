@@ -19,7 +19,7 @@ read_sas <- function(b7dat, b7cat = NULL) {
   df_parse_sas(clean_path(b7dat), clean_path(b7cat))
 }
 
-#' Read SPSS (POR and SAV) files. Write SAV files.
+#' Read SPSS (SAV) files. Write SAV files.
 #'
 #' Currently haven can read and write logical, integer, numeric, character
 #' and factors. See \code{\link{labelled}} for how labelled variables in
@@ -42,13 +42,6 @@ NULL
 
 #' @export
 #' @rdname read_spss
-read_por <- function(path) {
-  stop("por files are not currently supported", call. = FALSE)
-  df_parse_por(clean_path(path))
-}
-
-#' @export
-#' @rdname read_spss
 read_sav <- function(path) {
   df_parse_sav(clean_path(path))
 }
@@ -67,7 +60,6 @@ read_spss <- function(path) {
 
   switch(ext,
     sav = read_sav(path),
-    por = read_por(path),
     stop("Unknown extension '.",  ext, "'", call. = FALSE)
   )
 }

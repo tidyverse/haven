@@ -1,5 +1,8 @@
 # haven 0.2.0.9000
 
+* Removed `read_por()` since it doesn't work and I'm unlikely to have time to
+  make it work in the near future.
+
 * `is.labelled()` is now exported (#124).
 
 * Recognise stata "%d" format as a date (#130).
