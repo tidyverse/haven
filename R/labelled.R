@@ -73,7 +73,7 @@ is_coercible <- function(x, labels) {
     return(TRUE)
   }
 
-  if (all(c(typeof(x), typeof(labels)) %in% c("integer", "double"))) {
+  if (is.numeric(x) && is.numeric(labels)) {
     return(TRUE)
   }
 
