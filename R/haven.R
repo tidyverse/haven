@@ -1,5 +1,6 @@
 #' @useDynLib haven
 #' @importFrom Rcpp sourceCpp
+#' @importFrom tibble tibble
 NULL
 
 #' Read SAS files.
