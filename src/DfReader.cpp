@@ -235,6 +235,8 @@ public:
         value /= 1000;
       return value - offset * 86400;
     case HAVEN_DATE:
+      if (type_ == HAVEN_SPSS) // stored in seconds
+        value /= 86400;
       return value - offset;
     case HAVEN_TIME:
       return value;
