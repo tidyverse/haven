@@ -9,6 +9,16 @@ test_that("stata data types read into expected types (#45)", {
     vdouble = "double",
     vlong = "integer",
     vint = "integer",
-    vbyte = "integer"
+    vbyte = "integer",
+    vstr = "character",
+    vdate = "integer",
+    vdatetime = "double"
   ))
+})
+
+test_that("Stata %td (date) and %tc (datetime) read into expected classes", {
+  df <- read_stata("types.dta")
+
+  expect_is(df$vdate, "Date")
+  expect_is(df$vdatetime, "POSIXct")
 })
