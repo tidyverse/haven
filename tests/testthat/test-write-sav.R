@@ -1,30 +1,27 @@
-context("write")
-
-# writing uses exactly the same path for sav and dta, so don't need
-# to test both
+context("write_sav")
 
 test_that("can roundtrip basic types", {
   x <- runif(10)
-  expect_equal(roundtrip_var(x), x)
-  expect_equal(roundtrip_var(1:10), 1:10)
-  expect_equal(roundtrip_var(c(TRUE, FALSE)), c(1, 0))
-  expect_equal(roundtrip_var(letters), letters)
+  expect_equal(roundtrip_var(x, "sav"), x)
+  expect_equal(roundtrip_var(1:10, "sav"), 1:10)
+  expect_equal(roundtrip_var(c(TRUE, FALSE), "sav"), c(1, 0))
+  expect_equal(roundtrip_var(letters, "sav"), letters)
 })
 
 test_that("can roundtrip missing values (as much as possible)", {
-  expect_equal(roundtrip_var(NA), NA_integer_)
-  expect_equal(roundtrip_var(NA_real_), NA_real_)
-  expect_equal(roundtrip_var(NA_integer_), NA_integer_)
-  expect_equal(roundtrip_var(NA_character_), "")
+  expect_equal(roundtrip_var(NA, "sav"), NA_integer_)
+  expect_equal(roundtrip_var(NA_real_, "sav"), NA_real_)
+  expect_equal(roundtrip_var(NA_integer_, "sav"), NA_integer_)
+  expect_equal(roundtrip_var(NA_character_, "sav"), "")
 })
 
 test_that("infinity gets converted to NA", {
-  expect_equal(roundtrip_var(c(Inf, 0, -Inf)), c(NA, 0, NA))
+  expect_equal(roundtrip_var(c(Inf, 0, -Inf), "sav"), c(NA, 0, NA))
 })
 
 test_that("factors become labelleds", {
   f <- factor(c("a", "b"), levels = letters[1:3])
-  rt <- roundtrip_var(f)
+  rt <- roundtrip_var(f, "sav")
 
   expect_is(rt, "labelled")
   expect_equal(as.vector(rt), 1:2)
@@ -35,7 +32,7 @@ test_that("labels are preserved", {
   x <- 1:10
   attr(x, "label") <- "abc"
 
-  expect_equal(attr(roundtrip_var(x), "label"), "abc")
+  expect_equal(attr(roundtrip_var(x, "sav"), "label"), "abc")
 })
 
 test_that("labelleds are round tripped", {
@@ -43,14 +40,14 @@ test_that("labelleds are round tripped", {
   num <- labelled(c(1, 2), c(a = 1, b = 3))
   chr <- labelled(c("a", "b"), c(a = "b", b = "a"))
 
-  expect_equal(roundtrip_var(int), int)
-  expect_equal(roundtrip_var(num), num)
-  expect_equal(roundtrip_var(chr), chr)
+  expect_equal(roundtrip_var(int, "sav"), int)
+  expect_equal(roundtrip_var(num, "sav"), num)
+  expect_equal(roundtrip_var(chr, "sav"), chr)
 })
 
 test_that("factors become labelleds", {
   f <- factor(c("a", "b"), levels = letters[1:3])
-  rt <- roundtrip_var(f)
+  rt <- roundtrip_var(f, "sav")
 
   expect_is(rt, "labelled")
   expect_equal(as.vector(rt), 1:2)
@@ -64,6 +61,6 @@ test_that("labels are converted to utf-8", {
   v_utf8 <- labelled(3:1, setNames(1:3, labels_utf8))
   v_latin1 <- labelled(3:1, setNames(1:3, labels_latin1))
 
-  expect_equal(names(attr(roundtrip_var(v_utf8), "labels")), labels_utf8)
-  expect_equal(names(attr(roundtrip_var(v_latin1), "labels")), labels_utf8)
+  expect_equal(names(attr(roundtrip_var(v_utf8, "sav"), "labels")), labels_utf8)
+  expect_equal(names(attr(roundtrip_var(v_latin1, "sav"), "labels")), labels_utf8)
 })

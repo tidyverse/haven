@@ -18,11 +18,10 @@ inline const bool string_is_missing(SEXP x, int i) {
 class Writer {
   List x_;
   readstat_writer_t* writer_;
-  FileType type_;
   FILE* pOut_;
 
 public:
-  Writer(List x, std::string path, FileType type): x_(x), type_(type) {
+  Writer(List x, std::string path): x_(x) {
     pOut_ = fopen(path.c_str(), "wb");
     if (pOut_ == NULL)
       stop("Failed to open '%s' for writing", path);
@@ -65,21 +64,12 @@ public:
         break;
       default:
         stop("Variables of type %s not supported yet",
-          Rf_type2char(TYPEOF(col)));
+          Rf_type2str(TYPEOF(col)));
       }
     }
 
     int n = Rf_length(x_[0]);
-    switch (type_) {
-    case HAVEN_STATA:
-      readstat_begin_writing_dta(writer_, this, n);
-      break;
-    case HAVEN_SPSS:
-      readstat_begin_writing_sav(writer_, this, n);
-      break;
-    default:
-      Rcpp::stop("Not currently supported");
-    }
+    readstat_begin_writing_sav(writer_, this, n);
 
     // Write data
     for (int i = 0; i < n; ++i) {
@@ -134,6 +124,94 @@ public:
 
     readstat_end_writing(writer_);
 
+  }
+
+  void write_dta() {
+    CharacterVector names = as<CharacterVector>(x_.attr("names"));
+
+    int p = x_.size();
+    if (p == 0)
+      return;
+
+    // Define variables
+    for (int j = 0; j < p; ++j) {
+      RObject col = x_[j];
+
+      const char* name = string_utf8(names, j);
+      switch(TYPEOF(col)) {
+      case LGLSXP:
+        defineVariable(as<IntegerVector>(col), name);
+        break;
+      case INTSXP:
+        defineVariable(as<IntegerVector>(col), name);
+        break;
+      case REALSXP:
+        defineVariable(as<NumericVector>(col), name);
+        break;
+      case STRSXP:
+        defineVariable(as<CharacterVector>(col), name);
+        break;
+      default:
+        stop("Variables of type %s not supported yet",
+          Rf_type2char(TYPEOF(col)));
+      }
+    }
+
+    int n = Rf_length(x_[0]);
+    readstat_begin_writing_dta(writer_, this, n);
+
+    // Write data
+    for (int i = 0; i < n; ++i) {
+      readstat_begin_row(writer_);
+      for (int j = 0; j < p; ++j) {
+        RObject col = x_[j];
+        readstat_variable_t* var = readstat_get_variable(writer_, j);
+
+        switch (TYPEOF(col)) {
+        case LGLSXP: {
+          int val = LOGICAL(col)[i];
+          if (val == NA_LOGICAL) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_int32_value(writer_, var, val);
+          }
+          break;
+        }
+        case INTSXP: {
+          int val = INTEGER(col)[i];
+          if (val == NA_INTEGER) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_int32_value(writer_, var, val);
+          }
+          break;
+        }
+        case REALSXP: {
+          double val = REAL(col)[i];
+          if (!R_finite(val)) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_double_value(writer_, var, val);
+          }
+          break;
+        }
+        case STRSXP: {
+          if (string_is_missing(col, i)) {
+            readstat_insert_missing_value(writer_, var);
+          } else {
+            readstat_insert_string_value(writer_, var, string_utf8(col, i));
+          }
+          break;
+        }
+          break;
+        default:
+          break;
+        }
+      }
+      readstat_end_row(writer_);
+    }
+
+    readstat_end_writing(writer_);
   }
 
   // Define variables ----------------------------------------------------------
@@ -232,13 +310,12 @@ std::string rClass(RObject x) {
   CharacterVector klassv = as<Rcpp::CharacterVector>(klass_);
   return std::string(klassv[0]);
 }
-
 // [[Rcpp::export]]
 void write_sav_(List data, std::string path) {
-  Writer(data, path, HAVEN_SPSS).write_sav();
+  Writer(data, path).write_sav();
 }
 
 // [[Rcpp::export]]
 void write_dta_(List data, std::string path) {
-  Writer(data, path, HAVEN_STATA).write_sav();
+  Writer(data, path).write_dta();
 }
