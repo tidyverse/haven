@@ -26,6 +26,9 @@
 
 * fixed bug in `zap_labels()` which was leaving labelled vectors unchanged
   instead of leaving unlabelled vectors unchanged. (@markriseley, #69).
+  
+* SPSS's variables whose format is DATE, ADATE, EDATE, JDATE or SDATE are
+  now imported as `Date` variables instead of `POSIXct`.
 
 # haven 0.2.0
 
