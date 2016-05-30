@@ -49,7 +49,7 @@ devtools::install_github("hadley/haven")
 ## Usage
 
 * SAS: `read_sas("path/to/file")`
-* SPSS: `read_por("path/to/file")`, `read_sav("path/to/file")`
+* SPSS: `read_sav("path/to/file")`
 * Stata: `read_dta("path/to/file")`
 
 ## Updating readstat
