@@ -100,15 +100,18 @@ write_dta <- function(data, path) {
 }
 
 validate_dta <- function(data) {
-  name_ok <- grepl(names(data), "^[a-zA-Z0-9_]+$")
-  if (any(!name_ok)) {
-    bad_names <- names(data)[!name_ok]
-
+  # Check variable names
+  bad_names <- !grepl("^[a-zA-Z0-9_]+$", names(data))
+  if (any(bad_names)) {
     stop(
       "The following variable names are not valid Stata variables: ",
-      paste(encodeString(bad_names, quote = "`"), collapse = ", "),
+      var_names(data, bad_names),
       call. = FALSE
     )
   }
+}
 
+var_names <- function(data, i) {
+  x <- names(data)[i]
+  paste(encodeString(x, quote = "`"), collapse = ", ")
 }
