@@ -40,7 +40,7 @@ public:
     for (int j = 0; j < p; ++j) {
       RObject col = x_[j];
 
-      std::string name(Rf_translateCharUTF8(names[j]));
+      const char* name = Rf_translateCharUTF8(names[j]);
       switch(TYPEOF(col)) {
       case LGLSXP:
         defineVariable(as<IntegerVector>(col), name);
@@ -139,16 +139,16 @@ public:
     return Rf_translateCharUTF8(STRING_ELT(label, 0));
   }
 
-  void defineVariable(IntegerVector x, std::string name) {
+  void defineVariable(IntegerVector x, const char* name) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "factor") {
-      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name.c_str());
+      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
 
       CharacterVector levels = as<CharacterVector>(x.attr("levels"));
       for (int i = 0; i < levels.size(); ++i)
         readstat_label_int32_value(labelSet, i + 1, std::string(levels[i]).c_str());
     } else if (rClass(x) == "labelled") {
-      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name.c_str());
+      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
 
       IntegerVector values = as<IntegerVector>(x.attr("labels"));
       CharacterVector labels = as<CharacterVector>(values.attr("names"));
@@ -159,14 +159,14 @@ public:
       }
     }
 
-    readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name.c_str(),
+    readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name,
       var_label(x), NULL, labelSet);
   }
 
-  void defineVariable(NumericVector x, std::string name) {
+  void defineVariable(NumericVector x, const char* name) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "labelled") {
-      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name.c_str());
+      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name);
 
       NumericVector values = as<NumericVector>(x.attr("labels"));
       CharacterVector labels = as<CharacterVector>(values.attr("names"));
@@ -175,14 +175,14 @@ public:
         readstat_label_double_value(labelSet, values[i], std::string(labels[i]).c_str());
     }
 
-    readstat_add_variable(writer_, READSTAT_TYPE_DOUBLE, 0, name.c_str(),
+    readstat_add_variable(writer_, READSTAT_TYPE_DOUBLE, 0, name,
       var_label(x), NULL, labelSet);
   }
 
-  void defineVariable(CharacterVector x, std::string name) {
+  void defineVariable(CharacterVector x, const char* name) {
     readstat_label_set_t* labelSet = NULL;
     if (rClass(x) == "labelled") {
-      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name.c_str());
+      labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name);
 
       CharacterVector values = as<CharacterVector>(x.attr("labels"));
       CharacterVector labels = as<CharacterVector>(values.attr("names"));
@@ -199,7 +199,7 @@ public:
     }
 
     readstat_add_variable(writer_, READSTAT_TYPE_STRING, max_length,
-      name.c_str(), var_label(x), NULL, labelSet);
+      name, var_label(x), NULL, labelSet);
   }
 
   void checkStatus(readstat_error_t err) {
