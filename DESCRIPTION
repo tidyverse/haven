@@ -15,7 +15,8 @@ Depends: R (>= 3.1.0)
 Suggests:
     dplyr,
     testthat,
-    knitr
+    knitr,
+    rmarkdown
 LinkingTo:
     Rcpp,
     BH
