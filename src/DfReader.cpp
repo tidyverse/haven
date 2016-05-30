@@ -196,21 +196,21 @@ public:
       if (readstat_value_is_system_missing(value)) {
         col[obs_index] = NA_INTEGER;
       } else {
-        col[obs_index] = adjust_datetime(readstat_int16_value(value), var_type);
+        col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_int16_value(value));
       }
     } else if (value.type == READSTAT_TYPE_INT32) {
       IntegerVector col = output_[var_index];
       if (readstat_value_is_system_missing(value)) {
         col[obs_index] = NA_INTEGER;
       } else {
-        col[obs_index] = adjust_datetime(readstat_int32_value(value), var_type);
+        col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_int32_value(value));
       }
     } else if (value.type == READSTAT_TYPE_FLOAT) {
       NumericVector col = output_[var_index];
       if (readstat_value_is_system_missing(value)) {
         col[obs_index] = NA_REAL;
       } else {
-        col[obs_index] = adjust_datetime(readstat_float_value(value), var_type);
+        col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_float_value(value));
       }
     } else if (value.type == READSTAT_TYPE_DOUBLE) {
       NumericVector col = output_[var_index];
@@ -218,32 +218,11 @@ public:
         col[obs_index] = NA_REAL;
       } else {
         double val = readstat_double_value(value);
-        col[obs_index] = std::isnan(val) ? NA_REAL : adjust_datetime(val, var_type);
+        col[obs_index] = std::isnan(val) ? NA_REAL : adjustDatetimeToR(type_, var_type, val);
       }
     }
 
     return 0;
-  }
-
-  double adjust_datetime(double value, VarType var_type) {
-    double offset = daysOffset(type_);
-
-    switch(var_type) {
-    case HAVEN_DEFAULT:
-      return value;
-    case HAVEN_DATETIME:
-      if (type_ == HAVEN_STATA) // stored in milliseconds
-        value /= 1000;
-      return value - offset * 86400;
-    case HAVEN_DATE:
-      if (type_ == HAVEN_SPSS) // stored in seconds
-        value /= 86400;
-      return value - offset;
-    case HAVEN_TIME:
-      return value;
-    }
-
-    return value;
   }
 
   int value_label(const char *val_labels, readstat_value_t value,
