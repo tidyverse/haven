@@ -116,6 +116,7 @@ void readstat_label_double_value(readstat_label_set_t *label_set, double value, 
     }
     readstat_value_label_t *new_value_label = &label_set->value_labels[label_set->value_labels_count++];
     new_value_label->double_key = value;
+    new_value_label->int32_key = value;
     strncpy(new_value_label->label, label, sizeof(new_value_label->label));
 }
 
@@ -126,6 +127,7 @@ void readstat_label_int32_value(readstat_label_set_t *label_set, int32_t value, 
                 label_set->value_labels_capacity * sizeof(readstat_value_label_t));
     }
     readstat_value_label_t *new_value_label = &label_set->value_labels[label_set->value_labels_count++];
+    new_value_label->double_key = value;
     new_value_label->int32_key = value;
     strncpy(new_value_label->label, label, sizeof(new_value_label->label));
 }
@@ -203,9 +205,9 @@ readstat_error_t readstat_begin_row(readstat_writer_t *writer) {
         int i;
         for (i=0; i<writer->variables_count; i++) {
             readstat_variable_t *variable = readstat_get_variable(writer, i);
-            variable->width = writer->callbacks.variable_width(variable->type, variable->user_width);
+            variable->storage_width = writer->callbacks.variable_width(variable->type, variable->user_width);
             variable->offset = row_len;
-            row_len += variable->width;
+            row_len += variable->storage_width;
         }
         if (writer->callbacks.begin_data) {
             retval = writer->callbacks.begin_data(writer);

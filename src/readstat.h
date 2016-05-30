@@ -111,7 +111,7 @@ typedef struct readstat_variable_s {
     char                    label[1024];
     readstat_label_set_t   *label_set;
     off_t                   offset;
-    size_t                  width;
+    size_t                  storage_width;
     size_t                  user_width;
     readstat_missingness_t  missingness;
 } readstat_variable_t;
@@ -121,6 +121,7 @@ const char *readstat_variable_get_name(readstat_variable_t *variable);
 const char *readstat_variable_get_label(readstat_variable_t *variable);
 const char *readstat_variable_get_format(readstat_variable_t *variable);
 readstat_types_t readstat_variable_get_type(readstat_variable_t *variable);
+size_t readstat_variable_get_width(readstat_variable_t *variable);
 int readstat_variable_get_missing_ranges_count(readstat_variable_t *variable);
 readstat_value_t readstat_variable_get_missing_range_lo(readstat_variable_t *variable, int i);
 readstat_value_t readstat_variable_get_missing_range_hi(readstat_variable_t *variable, int i);
@@ -137,6 +138,36 @@ typedef int (*readstat_value_label_handler)(const char *val_labels,
 typedef void (*readstat_error_handler)(const char *error_message, void *ctx);
 typedef int (*readstat_progress_handler)(double progress, void *ctx);
 
+#if defined _WIN32 || defined __CYGWIN__
+typedef _off64_t readstat_off_t;
+#elif defined _AIX
+typedef off64_t readstat_off_t;
+#else
+typedef off_t readstat_off_t;
+#endif
+
+typedef enum readstat_io_flags_e {
+    READSTAT_SEEK_SET,
+    READSTAT_SEEK_CUR,
+    READSTAT_SEEK_END
+} readstat_io_flags_t;
+
+typedef int (*readstat_open_handler)(const char *path, void *io_ctx);
+typedef int (*readstat_close_handler)(void *io_ctx);
+typedef readstat_off_t (*readstat_seek_handler)(readstat_off_t offset, readstat_io_flags_t whence, void *io_ctx);
+typedef ssize_t (*readstat_read_handler)(void *buf, size_t nbyte, void *io_ctx);
+typedef readstat_error_t (*readstat_update_handler)(long file_size, readstat_progress_handler progress_handler, void *user_ctx, void *io_ctx);
+
+typedef struct readstat_io_s {
+    readstat_open_handler          open;
+    readstat_close_handler         close;
+    readstat_seek_handler          seek;
+    readstat_read_handler          read;
+    readstat_update_handler        update;
+    void                          *io_ctx;
+    int                            external_io;
+} readstat_io_t;
+
 typedef struct readstat_parser_s {
     readstat_info_handler          info_handler;
     readstat_variable_handler      variable_handler;
@@ -145,10 +176,14 @@ typedef struct readstat_parser_s {
     readstat_value_label_handler   value_label_handler;
     readstat_error_handler         error_handler;
     readstat_progress_handler      progress_handler;
+    readstat_io_t                 *io;
+    const char                    *input_encoding;
+    const char                    *output_encoding;
 } readstat_parser_t;
 
 readstat_parser_t *readstat_parser_init();
 void readstat_parser_free(readstat_parser_t *parser);
+void readstat_io_free(readstat_io_t *io);
 
 readstat_error_t readstat_set_info_handler(readstat_parser_t *parser, readstat_info_handler info_handler);
 readstat_error_t readstat_set_variable_handler(readstat_parser_t *parser, readstat_variable_handler variable_handler);
@@ -158,11 +193,26 @@ readstat_error_t readstat_set_value_label_handler(readstat_parser_t *parser, rea
 readstat_error_t readstat_set_error_handler(readstat_parser_t *parser, readstat_error_handler error_handler);
 readstat_error_t readstat_set_progress_handler(readstat_parser_t *parser, readstat_progress_handler progress_handler);
 
-readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *filename, void *user_ctx);
-readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *filename, void *user_ctx);
-readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filename, void *user_ctx);
-readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *filename, void *user_ctx);
-readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *filename, void *user_ctx);
+readstat_error_t readstat_set_open_handler(readstat_parser_t *parser, readstat_open_handler open_handler);
+readstat_error_t readstat_set_close_handler(readstat_parser_t *parser, readstat_close_handler close_handler);
+readstat_error_t readstat_set_seek_handler(readstat_parser_t *parser, readstat_seek_handler seek_handler);
+readstat_error_t readstat_set_read_handler(readstat_parser_t *parser, readstat_read_handler read_handler);
+readstat_error_t readstat_set_update_handler(readstat_parser_t *parser, readstat_update_handler update_handler);
+readstat_error_t readstat_set_io_ctx(readstat_parser_t *parser, void *io_ctx);
+
+// Usually inferred from the file, but sometimes a manual override is desirable.
+// In particular, pre-14 Stata uses the system encoding, which is usually Win 1252
+// but could be anything. `encoding' should be an iconv-compatible name.
+readstat_error_t readstat_set_file_character_encoding(readstat_parser_t *parser, const char *encoding);
+
+// Defaults to UTF-8. Pass in NULL to disable transliteration.
+readstat_error_t readstat_set_handler_character_encoding(readstat_parser_t *parser, const char *encoding);
+
+readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *path, void *user_ctx);
+readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path, void *user_ctx);
+readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path, void *user_ctx);
+readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *path, void *user_ctx);
+readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *path, void *user_ctx);
 
 
 /* Internal module callbacks */
@@ -282,6 +332,7 @@ typedef struct rdata_parser_s {
     rdata_text_value_handler    text_value_handler;
     rdata_text_value_handler    value_label_handler;
     readstat_error_handler      error_handler;
+    readstat_io_t              *io;
 } rdata_parser_t;
 
 rdata_parser_t *rdata_parser_init();
@@ -293,6 +344,12 @@ readstat_error_t rdata_set_column_name_handler(rdata_parser_t *parser, rdata_col
 readstat_error_t rdata_set_text_value_handler(rdata_parser_t *parser, rdata_text_value_handler text_value_handler);
 readstat_error_t rdata_set_value_label_handler(rdata_parser_t *parser, rdata_text_value_handler value_label_handler);
 readstat_error_t rdata_set_error_handler(rdata_parser_t *parser, readstat_error_handler error_handler);
+readstat_error_t rdata_set_open_handler(rdata_parser_t *parser, readstat_open_handler open_handler);
+readstat_error_t rdata_set_close_handler(rdata_parser_t *parser, readstat_close_handler close_handler);
+readstat_error_t rdata_set_seek_handler(rdata_parser_t *parser, readstat_seek_handler seek_handler);
+readstat_error_t rdata_set_read_handler(rdata_parser_t *parser, readstat_read_handler read_handler);
+readstat_error_t rdata_set_update_handler(rdata_parser_t *parser, readstat_update_handler update_handler);
+readstat_error_t rdata_set_io_ctx(rdata_parser_t *parser, void *io_ctx);
 /* rdata_parse works on RData and RDS. The table handler will be called once
  * per data frame in RData files, and zero times on RDS files. */
 readstat_error_t rdata_parse(rdata_parser_t *parser, const char *filename, void *user_ctx);

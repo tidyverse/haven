@@ -76,10 +76,13 @@ typedef struct sav_ctx_s {
     readstat_value_handler          value_handler;
     readstat_value_label_handler    value_label_handler;
     size_t                          file_size;
+    readstat_io_t                  *io;
     void                           *user_ctx;
 
     spss_varinfo_t *varinfo;
     size_t         varinfo_capacity;
+    const char    *input_encoding;
+    const char    *output_encoding;
     iconv_t        converter;
     int            var_index;
     int            var_offset;
@@ -98,11 +101,12 @@ typedef struct sav_ctx_s {
 #define SAV_RECORD_TYPE_HAS_DATA                7
 #define SAV_RECORD_TYPE_DICT_TERMINATION        999
 
-#define SAV_RECORD_SUBTYPE_INTEGER_INFO  3
-#define SAV_RECORD_SUBTYPE_FP_INFO       4
-#define SAV_RECORD_SUBTYPE_VAR_DISPLAY   11
-#define SAV_RECORD_SUBTYPE_LONG_VAR_NAME 13
-#define SAV_RECORD_SUBTYPE_VERY_LONG_STR 14
+#define SAV_RECORD_SUBTYPE_INTEGER_INFO       3
+#define SAV_RECORD_SUBTYPE_FP_INFO            4
+#define SAV_RECORD_SUBTYPE_VAR_DISPLAY       11
+#define SAV_RECORD_SUBTYPE_LONG_VAR_NAME     13
+#define SAV_RECORD_SUBTYPE_VERY_LONG_STR     14
+#define SAV_RECORD_SUBTYPE_LONG_VALUE_LABELS 21
 
 #define SAV_FLOATING_POINT_REP_IEEE      1
 #define SAV_FLOATING_POINT_REP_IBM       2
@@ -117,6 +121,6 @@ typedef struct sav_ctx_s {
 #define SAV_CHARSET_DEC_KANJI             4
 #define SAV_CHARSET_UTF8              65001
 
-sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header);
+sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io);
 void sav_ctx_free(sav_ctx_t *ctx);
 

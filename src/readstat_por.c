@@ -10,12 +10,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <stdint.h>
 #include <math.h>
 
 #include "readstat.h"
-#include "readstat_io.h"
 #include "readstat_por_parse.h"
 #include "readstat_spss.h"
 #include "CKHashTable.h"
@@ -62,7 +60,7 @@ typedef struct readstat_por_ctx_s {
     size_t                          file_size;
     void                           *user_ctx;
     int            pos;
-    int            fd;
+    readstat_io_t *io;
     unsigned char  buf[100];
     size_t         buf_used;
     size_t         buf_pos;
@@ -80,7 +78,7 @@ typedef struct readstat_por_ctx_s {
 } readstat_por_ctx_t;
 
 
-static int skip_newline(int fd);
+static int skip_newline(readstat_io_t *io);
 static int utf8_encode(const unsigned char *input, size_t input_len, char *output, size_t output_len, uint16_t lookup[256]);
 static int read_bytes(readstat_por_ctx_t *ctx, void *dst, size_t len);
 static int read_string(readstat_por_ctx_t *ctx, char *data, size_t len);
@@ -102,21 +100,19 @@ static void por_ctx_free(readstat_por_ctx_t *ctx) {
 }
 
 static readstat_error_t por_update_progress(readstat_por_ctx_t *ctx) {
-    if (!ctx->progress_handler)
-        return READSTAT_OK;
-
-    return readstat_update_progress(ctx->fd, ctx->file_size, ctx->progress_handler, ctx->user_ctx);
+    readstat_io_t *io = ctx->io;
+    return io->update(ctx->file_size, ctx->progress_handler, ctx->user_ctx, io->io_ctx);
 }
 
-static int skip_newline(int fd) {
+static int skip_newline(readstat_io_t *io) {
     char newline[1];
     
-    if (read(fd, newline, sizeof(newline)) != sizeof(newline)) {
+    if (io->read(newline, sizeof(newline), io->io_ctx) != sizeof(newline)) {
         return -1;
     }
     
     if (newline[0] == '\r') {
-        if (read(fd, newline, sizeof(newline)) != sizeof(newline)) {
+        if (io->read(newline, sizeof(newline), io->io_ctx) != sizeof(newline)) {
             return -1;
         }
     }
@@ -131,9 +127,11 @@ static int read_bytes(readstat_por_ctx_t *ctx, void *dst, size_t len) {
     int offset = 0;
     char buf[82];
     int i;
+    readstat_io_t *io = ctx->io;
+
     while (bytes_left > POR_LINE_LENGTH - ctx->pos) {
         int line_len = POR_LINE_LENGTH - ctx->pos;
-        if (read(ctx->fd, buf, line_len) == -1)
+        if (io->read(buf, line_len, io->io_ctx) == -1)
             return -1;
         
         for (i=0; i<line_len; i++) {
@@ -143,10 +141,10 @@ static int read_bytes(readstat_por_ctx_t *ctx, void *dst, size_t len) {
         }
         for (; i<line_len; i++) {
             buf[i] = ctx->space;
-            if (readstat_lseek(ctx->fd, -1, SEEK_CUR) == -1)
+            if (io->seek(-1, READSTAT_SEEK_CUR, io->io_ctx) == -1)
                 return -1;
         }
-        if (skip_newline(ctx->fd) == -1)
+        if (skip_newline(ctx->io) == -1)
             return -1;
         
         memcpy((char *)dst + offset, buf, line_len);
@@ -157,7 +155,7 @@ static int read_bytes(readstat_por_ctx_t *ctx, void *dst, size_t len) {
         bytes_left -= line_len;
     }
     if (bytes_left) {
-        if (read(ctx->fd, buf, bytes_left) == -1)
+        if (io->read(buf, bytes_left, io->io_ctx) == -1)
             return -1;
         
         for (i=0; i<bytes_left; i++) {
@@ -172,7 +170,7 @@ static int read_bytes(readstat_por_ctx_t *ctx, void *dst, size_t len) {
         }
         for (; i<bytes_left; i++) {
             buf[i] = ctx->space;
-            if (readstat_lseek(ctx->fd, -1, SEEK_CUR) == -1)
+            if (io->seek(-1, READSTAT_SEEK_CUR, io->io_ctx) == -1)
                 return -1;
         }
         memcpy((char *)dst + offset, buf, bytes_left);
@@ -180,7 +178,7 @@ static int read_bytes(readstat_por_ctx_t *ctx, void *dst, size_t len) {
         offset += bytes_left;
         
         if (ctx->pos == POR_LINE_LENGTH) {
-            if (skip_newline(ctx->fd) == -1)
+            if (skip_newline(ctx->io) == -1)
                 return -1;
             ctx->pos = 0;
         }
@@ -586,7 +584,9 @@ static readstat_error_t read_por_file_data(readstat_por_ctx_t *ctx) {
                 }
                 spss_tag_missing_double(&value, &info->missingness);
             }
-            ctx->value_handler(ctx->obs_count, i, value, ctx->user_ctx);
+            if (ctx->value_handler) {
+                ctx->value_handler(ctx->obs_count, i, value, ctx->user_ctx);
+            }
         }
         ctx->obs_count++;
 
@@ -598,8 +598,9 @@ cleanup:
     return rs_retval;
 }
 
-readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filename, void *user_ctx) {
+readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path, void *user_ctx) {
     readstat_error_t retval = READSTAT_OK;
+    readstat_io_t *io = parser->io;
     unsigned char reverse_lookup[256];
     char vanity[200];
     
@@ -614,18 +615,19 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
     ctx->error_handler = parser->error_handler;
     ctx->progress_handler = parser->progress_handler;
     ctx->user_ctx = user_ctx;
+    ctx->io = io;
     
-    if ((ctx->fd = readstat_open(filename)) == -1) {
+    if (io->open(path, io->io_ctx) == -1) {
         free(ctx);
         return READSTAT_ERROR_OPEN;
     }
 
-    if ((ctx->file_size = readstat_lseek(ctx->fd, 0, SEEK_END)) == -1) {
+    if ((ctx->file_size = io->seek(0, READSTAT_SEEK_END, io->io_ctx)) == -1) {
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
 
-    if (readstat_lseek(ctx->fd, 0, SEEK_SET) == -1) {
+    if (io->seek(0, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
@@ -757,9 +759,13 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
 
                     snprintf(label_name_buf, sizeof(label_name_buf), POR_LABEL_NAME_PREFIX "%d", info->labels_index);
 
-                    int cb_retval = ctx->variable_handler(i, variable,
-                            info->labels_index == -1 ? NULL : label_name_buf,
-                            user_ctx);
+                    int cb_retval = 0;
+                    
+                    if (ctx->variable_handler) {
+                        ctx->variable_handler(i, variable,
+                                info->labels_index == -1 ? NULL : label_name_buf,
+                                user_ctx);
+                    }
 
                     spss_free_variable(variable);
 
@@ -801,7 +807,7 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *filen
     }
     
 cleanup:
-    readstat_close(ctx->fd);
+    io->close(io->io_ctx);
     por_ctx_free(ctx);
     
     return retval;

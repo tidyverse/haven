@@ -2,19 +2,18 @@
 #line 1 "src/readstat_spss_parse.rl"
 
 #include <stdlib.h>
-#include <unistd.h>
 #include "readstat.h"
 #include "readstat_spss.h"
 #include "readstat_spss_parse.h"
 
 
-#line 12 "src/readstat_spss_parse.c"
+#line 11 "src/readstat_spss_parse.c"
 static const int spss_format_parser_start = 1;
 
 static const int spss_format_parser_en_main = 1;
 
 
-#line 11 "src/readstat_spss_parse.rl"
+#line 10 "src/readstat_spss_parse.rl"
 
 
 readstat_error_t spss_parse_format(const char *data, int count, spss_format_t *fmt) {
@@ -26,12 +25,12 @@ readstat_error_t spss_parse_format(const char *data, int count, spss_format_t *f
     int integer = 0;
 
     
-#line 30 "src/readstat_spss_parse.c"
+#line 29 "src/readstat_spss_parse.c"
 	{
 	cs = spss_format_parser_start;
 	}
 
-#line 35 "src/readstat_spss_parse.c"
+#line 34 "src/readstat_spss_parse.c"
 	{
 	if ( p == pe )
 		goto _test_eof;
@@ -90,427 +89,427 @@ case 60:
 		goto tr85;
 	goto st0;
 tr85:
-#line 38 "src/readstat_spss_parse.rl"
+#line 37 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_A; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr89:
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr91:
-#line 56 "src/readstat_spss_parse.rl"
+#line 55 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_ADATE; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr92:
-#line 39 "src/readstat_spss_parse.rl"
+#line 38 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_AHEX; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr93:
-#line 66 "src/readstat_spss_parse.rl"
+#line 65 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_CCA; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr94:
-#line 67 "src/readstat_spss_parse.rl"
+#line 66 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_CCB; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr95:
-#line 68 "src/readstat_spss_parse.rl"
+#line 67 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_CCC; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr96:
-#line 69 "src/readstat_spss_parse.rl"
+#line 68 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_CCD; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr97:
-#line 70 "src/readstat_spss_parse.rl"
+#line 69 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_CCE; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr98:
-#line 40 "src/readstat_spss_parse.rl"
+#line 39 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_COMMA; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr99:
-#line 53 "src/readstat_spss_parse.rl"
+#line 52 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_DATE; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr101:
-#line 55 "src/readstat_spss_parse.rl"
+#line 54 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_DATETIME; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr102:
-#line 41 "src/readstat_spss_parse.rl"
+#line 40 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_DOLLAR; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr103:
-#line 65 "src/readstat_spss_parse.rl"
+#line 64 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_DOT; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr104:
-#line 58 "src/readstat_spss_parse.rl"
+#line 57 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_DTIME; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr105:
-#line 52 "src/readstat_spss_parse.rl"
+#line 51 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_E; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr107:
-#line 71 "src/readstat_spss_parse.rl"
+#line 70 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_EDATE; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr108:
-#line 42 "src/readstat_spss_parse.rl"
+#line 41 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_F; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr109:
-#line 43 "src/readstat_spss_parse.rl"
+#line 42 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_IB; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr110:
-#line 57 "src/readstat_spss_parse.rl"
+#line 56 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_JDATE; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr111:
-#line 60 "src/readstat_spss_parse.rl"
+#line 59 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_MONTH; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr112:
-#line 61 "src/readstat_spss_parse.rl"
+#line 60 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_MOYR; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr113:
-#line 51 "src/readstat_spss_parse.rl"
+#line 50 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_N; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr114:
-#line 45 "src/readstat_spss_parse.rl"
+#line 44 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_P; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr118:
-#line 64 "src/readstat_spss_parse.rl"
+#line 63 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_PCT; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr119:
-#line 46 "src/readstat_spss_parse.rl"
+#line 45 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_PIB; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr121:
-#line 44 "src/readstat_spss_parse.rl"
+#line 43 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_PIBHEX; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr122:
-#line 47 "src/readstat_spss_parse.rl"
+#line 46 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_PK; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr123:
-#line 62 "src/readstat_spss_parse.rl"
+#line 61 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_QYR; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr124:
-#line 48 "src/readstat_spss_parse.rl"
+#line 47 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_RB; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr126:
-#line 49 "src/readstat_spss_parse.rl"
+#line 48 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_RBHEX; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr127:
-#line 72 "src/readstat_spss_parse.rl"
+#line 71 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_SDATE; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr128:
-#line 54 "src/readstat_spss_parse.rl"
+#line 53 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_TIME; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr129:
-#line 59 "src/readstat_spss_parse.rl"
+#line 58 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_WKDAY; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr130:
-#line 63 "src/readstat_spss_parse.rl"
+#line 62 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_WKYR; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st61;
 tr131:
-#line 50 "src/readstat_spss_parse.rl"
+#line 49 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_Z; }
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
@@ -519,14 +518,14 @@ st61:
 	if ( ++p == pe )
 		goto _test_eof61;
 case 61:
-#line 523 "src/readstat_spss_parse.c"
+#line 522 "src/readstat_spss_parse.c"
 	if ( (*p) == 46 )
 		goto tr88;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr89;
 	goto st0;
 tr88:
-#line 30 "src/readstat_spss_parse.rl"
+#line 29 "src/readstat_spss_parse.rl"
 	{
             fmt->width = integer;
         }
@@ -535,22 +534,22 @@ st2:
 	if ( ++p == pe )
 		goto _test_eof2;
 case 2:
-#line 539 "src/readstat_spss_parse.c"
+#line 538 "src/readstat_spss_parse.c"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr17;
 	goto st0;
 tr17:
-#line 22 "src/readstat_spss_parse.rl"
+#line 21 "src/readstat_spss_parse.rl"
 	{
             integer = 0;
         }
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	goto st62;
 tr90:
-#line 26 "src/readstat_spss_parse.rl"
+#line 25 "src/readstat_spss_parse.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
@@ -559,7 +558,7 @@ st62:
 	if ( ++p == pe )
 		goto _test_eof62;
 case 62:
-#line 563 "src/readstat_spss_parse.c"
+#line 562 "src/readstat_spss_parse.c"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr90;
 	goto st0;
@@ -1460,165 +1459,165 @@ case 96:
 	{
 	switch ( cs ) {
 	case 61: 
-#line 30 "src/readstat_spss_parse.rl"
+#line 29 "src/readstat_spss_parse.rl"
 	{
             fmt->width = integer;
         }
 	break;
 	case 62: 
-#line 34 "src/readstat_spss_parse.rl"
+#line 33 "src/readstat_spss_parse.rl"
 	{
             fmt->decimal_places = integer;
         }
 	break;
 	case 60: 
-#line 38 "src/readstat_spss_parse.rl"
+#line 37 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_A; }
 	break;
 	case 64: 
-#line 39 "src/readstat_spss_parse.rl"
+#line 38 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_AHEX; }
 	break;
 	case 70: 
-#line 40 "src/readstat_spss_parse.rl"
+#line 39 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_COMMA; }
 	break;
 	case 73: 
-#line 41 "src/readstat_spss_parse.rl"
+#line 40 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_DOLLAR; }
 	break;
 	case 78: 
-#line 42 "src/readstat_spss_parse.rl"
+#line 41 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_F; }
 	break;
 	case 79: 
-#line 43 "src/readstat_spss_parse.rl"
+#line 42 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_IB; }
 	break;
 	case 87: 
-#line 44 "src/readstat_spss_parse.rl"
+#line 43 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_PIBHEX; }
 	break;
 	case 84: 
-#line 45 "src/readstat_spss_parse.rl"
+#line 44 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_P; }
 	break;
 	case 86: 
-#line 46 "src/readstat_spss_parse.rl"
+#line 45 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_PIB; }
 	break;
 	case 88: 
-#line 47 "src/readstat_spss_parse.rl"
+#line 46 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_PK; }
 	break;
 	case 90: 
-#line 48 "src/readstat_spss_parse.rl"
+#line 47 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_RB; }
 	break;
 	case 91: 
-#line 49 "src/readstat_spss_parse.rl"
+#line 48 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_RBHEX; }
 	break;
 	case 96: 
-#line 50 "src/readstat_spss_parse.rl"
+#line 49 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_Z; }
 	break;
 	case 83: 
-#line 51 "src/readstat_spss_parse.rl"
+#line 50 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_N; }
 	break;
 	case 76: 
-#line 52 "src/readstat_spss_parse.rl"
+#line 51 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_E; }
 	break;
 	case 71: 
-#line 53 "src/readstat_spss_parse.rl"
+#line 52 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_DATE; }
 	break;
 	case 93: 
-#line 54 "src/readstat_spss_parse.rl"
+#line 53 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_TIME; }
 	break;
 	case 72: 
-#line 55 "src/readstat_spss_parse.rl"
+#line 54 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_DATETIME; }
 	break;
 	case 63: 
-#line 56 "src/readstat_spss_parse.rl"
+#line 55 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_ADATE; }
 	break;
 	case 80: 
-#line 57 "src/readstat_spss_parse.rl"
+#line 56 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_JDATE; }
 	break;
 	case 75: 
-#line 58 "src/readstat_spss_parse.rl"
+#line 57 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_DTIME; }
 	break;
 	case 94: 
-#line 59 "src/readstat_spss_parse.rl"
+#line 58 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_WKDAY; }
 	break;
 	case 81: 
-#line 60 "src/readstat_spss_parse.rl"
+#line 59 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_MONTH; }
 	break;
 	case 82: 
-#line 61 "src/readstat_spss_parse.rl"
+#line 60 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_MOYR; }
 	break;
 	case 89: 
-#line 62 "src/readstat_spss_parse.rl"
+#line 61 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_QYR; }
 	break;
 	case 95: 
-#line 63 "src/readstat_spss_parse.rl"
+#line 62 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_WKYR; }
 	break;
 	case 85: 
-#line 64 "src/readstat_spss_parse.rl"
+#line 63 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_PCT; }
 	break;
 	case 74: 
-#line 65 "src/readstat_spss_parse.rl"
+#line 64 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_DOT; }
 	break;
 	case 65: 
-#line 66 "src/readstat_spss_parse.rl"
+#line 65 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_CCA; }
 	break;
 	case 66: 
-#line 67 "src/readstat_spss_parse.rl"
+#line 66 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_CCB; }
 	break;
 	case 67: 
-#line 68 "src/readstat_spss_parse.rl"
+#line 67 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_CCC; }
 	break;
 	case 68: 
-#line 69 "src/readstat_spss_parse.rl"
+#line 68 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_CCD; }
 	break;
 	case 69: 
-#line 70 "src/readstat_spss_parse.rl"
+#line 69 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_CCE; }
 	break;
 	case 77: 
-#line 71 "src/readstat_spss_parse.rl"
+#line 70 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_EDATE; }
 	break;
 	case 92: 
-#line 72 "src/readstat_spss_parse.rl"
+#line 71 "src/readstat_spss_parse.rl"
 	{ fmt->type = SPSS_FORMAT_TYPE_SDATE; }
 	break;
-#line 1615 "src/readstat_spss_parse.c"
+#line 1614 "src/readstat_spss_parse.c"
 	}
 	}
 
 	_out: {}
 	}
 
-#line 85 "src/readstat_spss_parse.rl"
+#line 84 "src/readstat_spss_parse.rl"
 
 
     /* suppress warning */

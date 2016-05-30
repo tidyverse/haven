@@ -7,9 +7,9 @@
 #include <unistd.h>
 #include <time.h>
 
+#include "readstat.h"
 #include "readstat_dta.h"
 #include "readstat_writer.h"
-#include "readstat_io.h"
 
 #define DTA_DEFAULT_FORMAT_BYTE    "%8.0g"
 #define DTA_DEFAULT_FORMAT_INT16   "%8.0g"
@@ -52,7 +52,7 @@ static readstat_error_t dta_emit_typlist(readstat_writer_t *writer, dta_ctx_t *c
         } else if (user_type == READSTAT_TYPE_DOUBLE) {
             type = DTA_111_TYPE_CODE_DOUBLE;
         } else if (user_type == READSTAT_TYPE_STRING) {
-            size_t max_len = r_variable->width;
+            size_t max_len = r_variable->storage_width;
             if (max_len > 244)
                 max_len = 244;
             
@@ -284,7 +284,7 @@ static readstat_error_t dta_begin_data(void *writer_ctx) {
     readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
     readstat_error_t error = READSTAT_OK;
     
-    dta_ctx_t *ctx = NULL;
+    dta_ctx_t *ctx = dta_ctx_alloc(NULL);
     dta_header_t header;
     memset(&header, 0, sizeof(dta_header_t));
 
@@ -299,7 +299,9 @@ static readstat_error_t dta_begin_data(void *writer_ctx) {
     if (error != READSTAT_OK)
         goto cleanup;
     
-    ctx = dta_ctx_init(header.nvar, header.nobs, header.byteorder, header.ds_format);
+    error = dta_ctx_init(ctx, header.nvar, header.nobs, header.byteorder, header.ds_format, NULL, NULL);
+    if (error != READSTAT_OK)
+        goto cleanup;
     
     error = dta_emit_header_data_label(writer);
     if (error != READSTAT_OK)
@@ -375,7 +377,7 @@ static readstat_error_t dta_write_string(void *row, const readstat_variable_t *v
     if (var->type != READSTAT_TYPE_STRING) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
-    size_t value_len = var->width;
+    size_t value_len = var->storage_width;
     if (value_len > 244)
         value_len = 244;
     if (value == NULL || value[0] == '\0') {

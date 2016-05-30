@@ -3,18 +3,26 @@
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 #include "readstat_dta.h"
-#include "readstat_io.h"
 
-dta_ctx_t *dta_ctx_init(int16_t nvar, int32_t nobs, unsigned char byteorder, unsigned char ds_format) {
+dta_ctx_t *dta_ctx_alloc(readstat_io_t *io) {
     dta_ctx_t *ctx;
     if ((ctx = malloc(sizeof(dta_ctx_t))) == NULL) {
         return NULL;
     }
     memset(ctx, 0, sizeof(dta_ctx_t));
 
+    ctx->io = io;
+    ctx->initialized = 0;
+
+    return ctx;
+}
+
+readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
+        unsigned char byteorder, unsigned char ds_format,
+        const char *input_encoding, const char *output_encoding) {
+    readstat_error_t retval = READSTAT_OK;
     int machine_byteorder = DTA_HILO;
     if (machine_is_little_endian()) {
         machine_byteorder = DTA_LOHI;
@@ -107,8 +115,17 @@ dta_ctx_t *dta_ctx_init(int16_t nvar, int32_t nobs, unsigned char byteorder, uns
         ctx->file_is_xmlish = 1;
     }
 
-    if (ds_format < 118) {
-        ctx->converter = iconv_open("UTF-8", "WINDOWS-1252");
+    if (output_encoding) {
+        if (input_encoding) {
+            ctx->converter = iconv_open(output_encoding, input_encoding);
+        } else if (ds_format < 118) {
+            ctx->converter = iconv_open(output_encoding, "WINDOWS-1252");
+        }
+        if (ctx->converter == (iconv_t)-1) {
+            ctx->converter = NULL;
+            retval = READSTAT_ERROR_UNSUPPORTED_CHARSET;
+            goto cleanup;
+        }
     }
 
     ctx->typlist_len = ctx->nvar * sizeof(uint16_t);
@@ -119,32 +136,35 @@ dta_ctx_t *dta_ctx_init(int16_t nvar, int32_t nobs, unsigned char byteorder, uns
     ctx->variable_labels_len = ctx->variable_labels_entry_len * ctx->nvar * sizeof(char);
 
     if ((ctx->typlist = malloc(ctx->typlist_len)) == NULL) {
-        dta_ctx_free(ctx);
-        return NULL;
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
     }
     if ((ctx->varlist = malloc(ctx->varlist_len)) == NULL) {
-        dta_ctx_free(ctx);
-        return NULL;
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
     }
     if ((ctx->srtlist = malloc(ctx->srtlist_len)) == NULL) {
-        dta_ctx_free(ctx);
-        return NULL;
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
     }
     if ((ctx->fmtlist = malloc(ctx->fmtlist_len)) == NULL) {
-        dta_ctx_free(ctx);
-        return NULL;
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
     }
     if ((ctx->lbllist = malloc(ctx->lbllist_len)) == NULL) {
-        dta_ctx_free(ctx);
-        return NULL;
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
     }
 
     if ((ctx->variable_labels = malloc(ctx->variable_labels_len)) == NULL) {
-        dta_ctx_free(ctx);
-        return NULL;
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
     }
-    
-    return ctx;
+
+    ctx->initialized = 1;
+
+cleanup:
+    return retval;
 }
 
 void dta_ctx_free(dta_ctx_t *ctx) {

@@ -12,7 +12,6 @@
 #include "readstat_sav.h"
 #include "readstat_spss_parse.h"
 #include "readstat_writer.h"
-#include "readstat_io.h"
 
 #define READSTAT_PRODUCT_NAME       "ReadStat"
 #define READSTAT_PRODUCT_URL        "https://github.com/WizardMac/ReadStat"
@@ -37,7 +36,7 @@ static readstat_error_t sav_encode_variable_format(int32_t *out_code,
         if (r_variable->user_width) {
             spss_format.width = r_variable->user_width;
         } else {
-            spss_format.width = r_variable->width;
+            spss_format.width = r_variable->storage_width;
         }
     } else {
         spss_format.type = SPSS_FORMAT_TYPE_F;
@@ -213,7 +212,7 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
         sav_variable_record_t variable;
         memset(&variable, 0, sizeof(sav_variable_record_t));
 
-        variable.type = (r_variable->type == READSTAT_TYPE_STRING) ? r_variable->width : 0;
+        variable.type = (r_variable->type == READSTAT_TYPE_STRING) ? r_variable->storage_width : 0;
         variable.has_var_label = (r_variable->label[0] != '\0');
         variable.n_missing_values = sav_n_missing_values(r_variable); 
 
@@ -239,7 +238,7 @@ static readstat_error_t sav_emit_variable_records(readstat_writer_t *writer) {
         if (retval != READSTAT_OK)
             goto cleanup;
         
-        int extra_fields = r_variable->width / 8 - 1;
+        int extra_fields = r_variable->storage_width / 8 - 1;
         for (j=0; j<extra_fields; j++) {
             retval = readstat_write_bytes(writer, &rec_type, sizeof(rec_type));
             if (retval != READSTAT_OK)
@@ -542,16 +541,19 @@ static readstat_error_t sav_write_string(void *row, const readstat_variable_t *v
     if (var->type != READSTAT_TYPE_STRING) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
-    memset(row, ' ', var->width);
+    memset(row, ' ', var->storage_width);
     if (value != NULL && value[0] != '\0') {
-        memcpy(row, value, strlen(value));
+        size_t value_len = strlen(value);
+        if (value_len > var->storage_width)
+            value_len = var->storage_width;
+        memcpy(row, value, value_len);
     }
     return READSTAT_OK;
 }
 
 static readstat_error_t sav_write_missing(void *row, const readstat_variable_t *var) {
     if (var->type == READSTAT_TYPE_STRING) {
-        memset(row, ' ', var->width);
+        memset(row, ' ', var->storage_width);
     } else {
         uint64_t missing_val = SAV_MISSING_DOUBLE;
         memcpy(row, &missing_val, sizeof(uint64_t));

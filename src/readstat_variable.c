@@ -40,6 +40,10 @@ readstat_types_t readstat_variable_get_type(readstat_variable_t *variable) {
     return variable->type;
 }
 
+size_t readstat_variable_get_width(readstat_variable_t *variable) {
+    return variable->storage_width;
+}
+
 int readstat_variable_get_missing_ranges_count(readstat_variable_t *variable) {
     return variable->missingness.missing_ranges_count;
 }

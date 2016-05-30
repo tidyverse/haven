@@ -162,6 +162,11 @@ readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info) {
 
     variable->index = info->index;
     variable->type = info->type;
+    if (info->type == READSTAT_TYPE_LONG_STRING) {
+        variable->storage_width = info->string_length;
+    } else {
+        variable->storage_width = 8 * info->width;
+    }
 
     if (info->longname[0]) {
         snprintf(variable->name, sizeof(variable->name), "%s", info->longname);

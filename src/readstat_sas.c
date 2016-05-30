@@ -3,12 +3,10 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <unistd.h>
 #include <math.h>
 #include "readstat_sas.h"
 #include "readstat_iconv.h"
 #include "readstat_convert.h"
-#include "readstat_io.h"
 
 #define SAS_DEFAULT_STRING_ENCODING "WINDOWS-1252"
 
@@ -79,13 +77,13 @@ uint16_t sas_read2(const char *data, int bswap) {
     return bswap ? byteswap2(tmp) : tmp;
 }
 
-readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx, 
+readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo, 
         readstat_error_handler error_handler, void *user_ctx) {
     sas_header_start_t  header_start;
     sas_header_end_t    header_end;
     int retval = READSTAT_OK;
     char error_buf[1024];
-    if (read(fd, &header_start, sizeof(sas_header_start_t)) < sizeof(sas_header_start_t)) {
+    if (io->read(&header_start, sizeof(sas_header_start_t), io->io_ctx) < sizeof(sas_header_start_t)) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
@@ -95,18 +93,18 @@ readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx,
         goto cleanup;
     }
     if (header_start.a1 == SAS_ALIGNMENT_OFFSET_4) {
-        ctx->pad1 = 4;
+        hinfo->pad1 = 4;
     }
     if (header_start.a2 == SAS_ALIGNMENT_OFFSET_4) {
-        ctx->u64 = 1;
+        hinfo->u64 = 1;
     }
     int bswap = 0;
     if (header_start.endian == SAS_ENDIAN_BIG) {
         bswap = machine_is_little_endian();
-        ctx->little_endian = 0;
+        hinfo->little_endian = 0;
     } else if (header_start.endian == SAS_ENDIAN_LITTLE) {
         bswap = !machine_is_little_endian();
-        ctx->little_endian = 1;
+        hinfo->little_endian = 1;
     } else {
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
@@ -114,11 +112,11 @@ readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx,
     int i;
     for (i=0; i<sizeof(_charset_table)/sizeof(_charset_table[0]); i++) {
         if (header_start.encoding == _charset_table[i].code) {
-            ctx->encoding = _charset_table[i].name;
+            hinfo->encoding = _charset_table[i].name;
             break;
         }
     }
-    if (ctx->encoding == NULL) {
+    if (hinfo->encoding == NULL) {
         if (error_handler) {
             snprintf(error_buf, sizeof(error_buf), "Unsupported character set code: %d\n", header_start.encoding);
             error_handler(error_buf, user_ctx);
@@ -126,10 +124,10 @@ readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx,
         retval = READSTAT_ERROR_UNSUPPORTED_CHARSET;
         goto cleanup;
     }
-    if (readstat_lseek(fd, 196 + ctx->pad1, SEEK_SET) == -1) {
+    if (io->seek(196 + hinfo->pad1, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %d\n", 196 + ctx->pad1);
+            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %d\n", 196 + hinfo->pad1);
             error_handler(error_buf, user_ctx);
         }
         goto cleanup;
@@ -137,41 +135,41 @@ readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx,
 
     uint32_t header_size, page_size;
 
-    if (read(fd, &header_size, sizeof(uint32_t)) < sizeof(uint32_t)) {
+    if (io->read(&header_size, sizeof(uint32_t), io->io_ctx) < sizeof(uint32_t)) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
-    if (read(fd, &page_size, sizeof(uint32_t)) < sizeof(uint32_t)) {
+    if (io->read(&page_size, sizeof(uint32_t), io->io_ctx) < sizeof(uint32_t)) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
 
-    ctx->header_size = bswap ? byteswap4(header_size) : header_size;
+    hinfo->header_size = bswap ? byteswap4(header_size) : header_size;
 
-    ctx->page_size = bswap ? byteswap4(page_size) : page_size;
+    hinfo->page_size = bswap ? byteswap4(page_size) : page_size;
 
-    if (ctx->header_size < 1024) {
+    if (hinfo->header_size < 1024) {
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
     }
 
-    if (ctx->u64) {
+    if (hinfo->u64) {
         uint64_t page_count;
-        if (read(fd, &page_count, sizeof(uint64_t)) < sizeof(uint64_t)) {
+        if (io->read(&page_count, sizeof(uint64_t), io->io_ctx) < sizeof(uint64_t)) {
             retval = READSTAT_ERROR_READ;
             goto cleanup;
         }
-        ctx->page_count = bswap ? byteswap8(page_count) : page_count;
+        hinfo->page_count = bswap ? byteswap8(page_count) : page_count;
     } else {
         uint32_t page_count;
-        if (read(fd, &page_count, sizeof(uint32_t)) < sizeof(uint32_t)) {
+        if (io->read(&page_count, sizeof(uint32_t), io->io_ctx) < sizeof(uint32_t)) {
             retval = READSTAT_ERROR_READ;
             goto cleanup;
         }
-        ctx->page_count = bswap ? byteswap4(page_count) : page_count;
+        hinfo->page_count = bswap ? byteswap4(page_count) : page_count;
     }
     
-    if (readstat_lseek(fd, 8, SEEK_CUR) == -1) {
+    if (io->seek(8, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (error_handler) {
             snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek forward by %d\n", 8);
@@ -179,20 +177,20 @@ readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx,
         }
         goto cleanup;
     }
-    if (read(fd, &header_end, sizeof(sas_header_end_t)) < sizeof(sas_header_end_t)) {
+    if (io->read(&header_end, sizeof(sas_header_end_t), io->io_ctx) < sizeof(sas_header_end_t)) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
     if (strncmp(header_end.release, "9.0000M0", sizeof(header_end.release)) == 0) {
         /* A bit of a hack, but most SAS installations are running a minor update */
-        ctx->vendor = READSTAT_VENDOR_STAT_TRANSFER;
+        hinfo->vendor = READSTAT_VENDOR_STAT_TRANSFER;
     } else {
-        ctx->vendor = READSTAT_VENDOR_SAS;
+        hinfo->vendor = READSTAT_VENDOR_SAS;
     }
-    if (readstat_lseek(fd, ctx->header_size, SEEK_SET) == -1) {
+    if (io->seek(hinfo->header_size, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %lld\n", ctx->header_size);
+            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %lld\n", hinfo->header_size);
             error_handler(error_buf, user_ctx);
         }
         goto cleanup;
@@ -201,4 +199,3 @@ readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx,
 cleanup:
     return retval;
 }
-

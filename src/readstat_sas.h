@@ -50,4 +50,4 @@ enum {
 uint64_t sas_read8(const char *data, int bswap);
 uint32_t sas_read4(const char *data, int bswap);
 uint16_t sas_read2(const char *data, int bswap);
-readstat_error_t sas_read_header(int fd, sas_header_info_t *ctx, readstat_error_handler error_handler, void *user_ctx);
+readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *ctx, readstat_error_handler error_handler, void *user_ctx);
