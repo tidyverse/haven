@@ -157,7 +157,8 @@ public:
       col.attr("class") = "Date";
       break;
     case HAVEN_TIME:
-      col.attr("class") = "hms";
+      col.attr("class") = CharacterVector::create("hms", "difftime");
+      col.attr("units") = "secs";
       break;
     case HAVEN_DATETIME:
       col.attr("class") = CharacterVector::create("POSIXct", "POSIXt");

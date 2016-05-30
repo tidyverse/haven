@@ -22,7 +22,8 @@ LinkingTo:
     Rcpp,
     BH
 Imports:
-    Rcpp (>= 0.11.4)
+    Rcpp (>= 0.11.4),
+    hms
 LazyData: true
 URL: https://github.com/hadley/haven, https://github.com/WizardMac/ReadStat
 BugReports: https://github.com/hadley/haven/issues

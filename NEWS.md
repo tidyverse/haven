@@ -1,5 +1,9 @@
 # haven 0.2.0.9000
 
+* Support for `hms()` has been moved into the hms package (#162).
+  Time varibles now have class `c("hms", "difftime")` and a `units` attribute
+  with value "secs" (#162).
+
 * Infinite values are now converted to missing values since SPSS and Stata
   don't support them (#149).
 
