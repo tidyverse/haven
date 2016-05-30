@@ -7,47 +7,51 @@
 using namespace Rcpp;
 
 // df_parse_sas
-List df_parse_sas(const std::string& b7dat, const std::string& b7cat);
-RcppExport SEXP haven_df_parse_sas(SEXP b7datSEXP, SEXP b7catSEXP) {
+List df_parse_sas(const std::string& b7dat, const std::string& b7cat, int normalise_na);
+RcppExport SEXP haven_df_parse_sas(SEXP b7datSEXP, SEXP b7catSEXP, SEXP normalise_naSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< const std::string& >::type b7dat(b7datSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type b7cat(b7catSEXP);
-    __result = Rcpp::wrap(df_parse_sas(b7dat, b7cat));
+    Rcpp::traits::input_parameter< int >::type normalise_na(normalise_naSEXP);
+    __result = Rcpp::wrap(df_parse_sas(b7dat, b7cat, normalise_na));
     return __result;
 END_RCPP
 }
 // df_parse_dta
-List df_parse_dta(std::string filename);
-RcppExport SEXP haven_df_parse_dta(SEXP filenameSEXP) {
+List df_parse_dta(std::string filename, int normalise_na);
+RcppExport SEXP haven_df_parse_dta(SEXP filenameSEXP, SEXP normalise_naSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
-    __result = Rcpp::wrap(df_parse_dta(filename));
+    Rcpp::traits::input_parameter< int >::type normalise_na(normalise_naSEXP);
+    __result = Rcpp::wrap(df_parse_dta(filename, normalise_na));
     return __result;
 END_RCPP
 }
 // df_parse_por
-List df_parse_por(std::string filename);
-RcppExport SEXP haven_df_parse_por(SEXP filenameSEXP) {
+List df_parse_por(std::string filename, int normalise_na);
+RcppExport SEXP haven_df_parse_por(SEXP filenameSEXP, SEXP normalise_naSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
-    __result = Rcpp::wrap(df_parse_por(filename));
+    Rcpp::traits::input_parameter< int >::type normalise_na(normalise_naSEXP);
+    __result = Rcpp::wrap(df_parse_por(filename, normalise_na));
     return __result;
 END_RCPP
 }
 // df_parse_sav
-List df_parse_sav(std::string filename);
-RcppExport SEXP haven_df_parse_sav(SEXP filenameSEXP) {
+List df_parse_sav(std::string filename, int normalise_na);
+RcppExport SEXP haven_df_parse_sav(SEXP filenameSEXP, SEXP normalise_naSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
-    __result = Rcpp::wrap(df_parse_sav(filename));
+    Rcpp::traits::input_parameter< int >::type normalise_na(normalise_naSEXP);
+    __result = Rcpp::wrap(df_parse_sav(filename, normalise_na));
     return __result;
 END_RCPP
 }

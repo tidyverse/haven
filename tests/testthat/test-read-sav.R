@@ -24,7 +24,7 @@ test_that("value labels read in as same type as vector", {
 })
 
 test_that("labels as missing values preserved", {
-  num <- read_sav("labelled-num-na.sav")[[1]]
+  num <- read_sav("labelled-num-na.sav", FALSE)[[1]]
 
   expect_equal(num[[2]], 9)
 })

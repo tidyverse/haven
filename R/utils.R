@@ -10,3 +10,11 @@ clean_path <- function(path) {
     normalizePath(path, mustWork = TRUE)
   }
 }
+
+`%||%` <- function(x, y) {
+  if (is.null(x)) y else x
+}
+
+autoname <- function(x) {
+  stats::setNames(x, x)
+}

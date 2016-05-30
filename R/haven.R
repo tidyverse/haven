@@ -7,6 +7,7 @@ NULL
 #' This supports both b7dat files and the accompanying b7cat files
 #' that are SAS's equivalent of factor labels.
 #'
+#' @inheritParams read_spss
 #' @param b7dat,b7cat Path to data and catalog files. If the path is a URL, the
 #'   file will be first download to a temporary location before reading.
 #' @return A data frame with additional "tbl_df" and "tbl" classes, which
@@ -17,8 +18,8 @@ NULL
 #' @export
 #' @examples
 #' read_sas("http://crn.cancer.gov/resources/ctcodes-procedures.sas7bdat")
-read_sas <- function(b7dat, b7cat = NULL) {
-  df_parse_sas(clean_path(b7dat), clean_path(b7cat))
+read_sas <- function(b7dat, b7cat = NULL, normalise_na = TRUE) {
+  df_parse_sas(clean_path(b7dat), clean_path(b7cat), normalise_na)
 }
 
 #' Read SPSS (POR and SAV) files. Write SAV files.
@@ -30,6 +31,9 @@ read_sas <- function(b7dat, b7cat = NULL) {
 #' @param path Path to data. When reading data, if the path is a URL, the file
 #'   will be first downloaded to a temporary location before reading.
 #' @param data Data frame to write.
+#' @param normalise_na When \code{TRUE} (the default), the
+#'   pseudo-missing values are imported as \code{NA}. When
+#'   \code{FALSE}, they are imported literally.
 #' @return A data frame with additional "tbl_df" and "tbl" classes, which
 #'   improve printing if dplyr is loaded.
 #'
@@ -44,15 +48,15 @@ NULL
 
 #' @export
 #' @rdname read_spss
-read_por <- function(path) {
+read_por <- function(path, normalise_na = TRUE) {
   stop("por files are not currently supported", call. = FALSE)
-  df_parse_por(clean_path(path))
+  df_parse_por(clean_path(path), normalise_na)
 }
 
 #' @export
 #' @rdname read_spss
-read_sav <- function(path) {
-  df_parse_sav(clean_path(path))
+read_sav <- function(path, normalise_na = TRUE) {
+  df_parse_sav(clean_path(path), normalise_na)
 }
 
 #' @export
@@ -64,12 +68,12 @@ write_sav <- function(data, path) {
 
 #' @export
 #' @rdname read_spss
-read_spss <- function(path) {
+read_spss <- function(path, normalise_na = TRUE) {
   ext <- tolower(tools::file_ext(path))
 
   switch(ext,
-    sav = read_sav(path),
-    por = read_por(path),
+    sav = read_sav(path, normalise_na),
+    por = read_por(path, normalise_na),
     stop("Unknown extension '.",  ext, "'", call. = FALSE)
   )
 }
@@ -92,14 +96,14 @@ read_spss <- function(path) {
 #' write_dta(mtcars, tmp)
 #' read_dta(tmp)
 #' read_stata(tmp)
-read_dta <- function(path) {
-  df_parse_dta(clean_path(path))
+read_dta <- function(path, normalise_na = TRUE) {
+  df_parse_dta(clean_path(path), normalise_na)
 }
 
 #' @export
 #' @rdname read_dta
-read_stata <- function(path) {
-  read_dta(path)
+read_stata <- function(path, normalise_na = TRUE) {
+  read_dta(path, normalise_na)
 }
 
 #' @export
