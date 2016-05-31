@@ -66,8 +66,6 @@ labelled <- function(x, labels, is_na = NULL) {
   )
 }
 
-#' @export
-#' @rdname labelled
 is_coercible <- function(x, labels) {
   if (typeof(x) == typeof(labels)) {
     return(TRUE)
@@ -80,6 +78,8 @@ is_coercible <- function(x, labels) {
   FALSE
 }
 
+#' @export
+#' @rdname labelled
 is.labelled <- function(x) inherits(x, "labelled")
 
 #' @export
