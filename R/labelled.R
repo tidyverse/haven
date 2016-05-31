@@ -50,13 +50,13 @@
 #' zap_labels(x)
 labelled <- function(x, labels) {
   if (!is.numeric(x) && !is.character(x)) {
-    stop("`x` must be either numeric or a character vector", call. = FALSE)
+    stop("`x` must be a numeric or a character vector", call. = FALSE)
   }
   if (!is_coercible(x, labels)) {
     stop("`x` and `labels` must be same type", call. = FALSE)
   }
-  if (is.null(labels)) {
-    stop("`labels` must be a named vector", call. = FALSE)
+  if (is.null(names(labels))) {
+    stop("`labels` must have names", call. = FALSE)
   }
 
   structure(x,
