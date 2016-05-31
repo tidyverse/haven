@@ -106,18 +106,31 @@ as.data.frame.labelled <- function(x, ...) {
 #'   for nominal factors.
 #' @rdname labelled
 #' @export
-as_factor.labelled <- function(x, levels = c("labels", "values"),
+as_factor.labelled <- function(x, levels = c("default", "labels", "values"),
                                ordered = FALSE, ...) {
   levels <- match.arg(levels)
-
   labels <- attr(x, "labels")
 
-  levs <- unname(labels)
-  labs <- switch(levels,
-    labels = names(labels),
-    values = levs
-  )
-  factor(x, levs, labels = labs, ordered = ordered)
+  if (levels == "default") {
+    # Replace each value with its label
+    levs <- replace_with(sort(unique(x)), unname(labels), names(labels))
+    x <- replace_with(x, unname(labels), names(labels))
+
+    factor(x, levels = levs, ordered = ordered)
+  } else {
+    levs <- unname(labels)
+    labs <- switch(levels,
+      labels = names(labels),
+      values = levs
+    )
+    factor(x, levs, labels = labs, ordered = ordered)
+  }
+
+}
+
+replace_with <- function(x, from, to) {
+  matches <- match(x, from)
+  ifelse(is.na(matches), as.character(x), to[matches])
 }
 
 #' @export
