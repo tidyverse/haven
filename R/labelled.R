@@ -158,3 +158,12 @@ zap_labels <- function(x) {
   x[labelled] <- NA
   x
 }
+
+
+label_length <- function(x) {
+  if (!is.labelled(x)) {
+    0L
+  } else {
+    max(nchar(names(attr(x, "labels"))))
+  }
+}

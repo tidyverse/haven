@@ -84,5 +84,5 @@ test_that("throws error on labelled numerics", {
   df <- data.frame(labelled(c(1, 2, 3), c("a" = 1)))
   names(df) <- "x"
 
-  expect_error(write_dta(df, tempfile()), "labelled double vectors: `x`")
+  expect_error(write_dta(df, tempfile()), "Problems: `x`")
 })

@@ -119,11 +119,11 @@ validate_dta <- function(data) {
 
   # Check for labelled double vectors
   is_labelled <- vapply(data, is.labelled, logical(1))
-  is_numeric <- vapply(data, typeof, character(1)) == "double"
-  bad_labels <- is_labelled && is_numeric
+  is_integer <- vapply(data, typeof, character(1)) == "integer"
+  bad_labels <- is_labelled && !is_integer
   if (any(bad_labels)) {
     stop(
-      "Stata does not support labelled double vectors: ",
+      "Stata only supports labelled integers.\nProblems: ",
       var_names(data, bad_labels),
       call. = FALSE
     )
