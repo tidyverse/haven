@@ -131,17 +131,12 @@ as_factor.labelled <- function(x, levels = c("labels", "values"),
     labels <- labels[!attr(x, "is_na")]
   }
 
-  if (is.character(x)) {
-    levs <- unname(labels)
-    labs <- switch(levels,
-      labels = names(labels),
-      values = levs
-    )
-    factor(x, levs, labels = labs, ordered = ordered)
-  } else {
-    factor(x, levels = unname(labels), labels = names(labels))
-  }
-
+  levs <- unname(labels)
+  labs <- switch(levels,
+    labels = names(labels),
+    values = levs
+  )
+  factor(x, levs, labels = labs, ordered = ordered)
 }
 
 #' @export
