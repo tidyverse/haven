@@ -25,6 +25,14 @@ test_that("character labelled converts to factor", {
   expect_equal(as_factor(s1), exp)
 })
 
+# Both
+
+test_that("both combines values and levels", {
+  s1 <- labelled(2:1, c("A" = 1))
+  exp <- factor(c("2", "[1] A"), levels = c("[1] A", "2"))
+  expect_equal(as_factor(s1, "both"), exp)
+})
+
 # Values
 
 test_that("character labelled uses values when requested", {

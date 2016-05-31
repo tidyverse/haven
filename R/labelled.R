@@ -11,8 +11,14 @@
 #' @param labels A named vector. The vector should be the same type as
 #'   x. Unlike factors, labels don't need to be exhaustive: only a fraction
 #'   of the values might be labelled.
-#' @param levels When coercing a labelled character vector to a factor, you
-#'   can choose whether to use the labels or the values as the factor levels.
+#' @param levels How to create the levels of the generated factor.
+#'
+#'   \itemize{
+#'   \item "default": uses labels where available, otherwise the values.
+#'   \item "both": like "default", but pastes together the level and value
+#'   \item "label": use only the labels; unlabelled values become \code{NA}
+#'   \item "values: use only the values
+#'   }
 #' @param ... Ignored
 #' @export
 #' @examples
@@ -106,12 +112,16 @@ as.data.frame.labelled <- function(x, ...) {
 #'   for nominal factors.
 #' @rdname labelled
 #' @export
-as_factor.labelled <- function(x, levels = c("default", "labels", "values"),
+as_factor.labelled <- function(x, levels = c("default", "labels", "values", "both"),
                                ordered = FALSE, ...) {
   levels <- match.arg(levels)
   labels <- attr(x, "labels")
 
-  if (levels == "default") {
+  if (levels == "default" || levels == "both") {
+    if (levels == "both") {
+      names(labels) <- paste0("[", labels, "] ", names(labels))
+    }
+
     # Replace each value with its label
     levs <- replace_with(sort(unique(x)), unname(labels), names(labels))
     x <- replace_with(x, unname(labels), names(labels))

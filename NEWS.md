@@ -3,7 +3,8 @@
 * `as_factor()` gains a new `levels = "default"` mechanism. This uses the
   labels where present, and otherwise uses the labels. This is now the
   default, as it seems to map better to the semantics of labelled values
-  in other statistical packages (#81).
+  in other statistical packages (#81). You can also use `levels = "both"`
+  to combine the value and the label into a single string (#82).
 
 * New `vignette("semantics", package = "haven")` discusses the semantics
   of missing values and labelling in SAS, SPSS, and Stata, and how that

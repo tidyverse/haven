@@ -11,8 +11,8 @@ labelled(x, labels)
 
 is.labelled(x)
 
-\method{as_factor}{labelled}(x, levels = c("labels", "values"),
-  ordered = FALSE, ...)
+\method{as_factor}{labelled}(x, levels = c("default", "labels", "values",
+  "both"), ordered = FALSE, ...)
 
 zap_labels(x)
 }
@@ -24,8 +24,14 @@ character.}
 x. Unlike factors, labels don't need to be exhaustive: only a fraction
 of the values might be labelled.}
 
-\item{levels}{When coercing a labelled character vector to a factor, you
-can choose whether to use the labels or the values as the factor levels.}
+\item{levels}{How to create the levels of the generated factor.
+
+  \itemize{
+  \item "default": uses labels where available, otherwise the values.
+  \item "both": like "default", but pastes together the level and value
+  \item "label": use only the labels; unlabelled values become \code{NA}
+  \item "values: use only the values
+  }}
 
 \item{ordered}{If \code{TRUE} for ordinal factors, \code{FALSE} (the default)
 for nominal factors.}
