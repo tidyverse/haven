@@ -5,4 +5,4 @@ sudo: false
 cache: packages
 
 after_success:
-  - Rscript -e 'covr::codecov()'
+  - Rscript -e 'covr::codecov(line_exclusions = dir("src", pattern = "^readstat|CKHash", full.names = TRUE))'
