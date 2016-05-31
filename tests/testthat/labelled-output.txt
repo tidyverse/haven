@@ -1,0 +1,7 @@
+<Labelled>
+[1] 1 2 3 4 5
+
+Labels:
+ value label
+     1  Good
+     5   Bad
