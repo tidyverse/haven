@@ -1,0 +1,41 @@
+---
+title: "Conversion semantics"
+author: "Hadley Wickham"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+There are some differences between the way that R, SAS, SPSS, and Stata represented labelled (qualitative data) and missing values. While SAS, SPSS, and Stata share some obvious similarities, R is rather different. This vignette explores the differences, with an eye to creating a data structure for haven, `labelled()`, that helps to bridge the gap.
+
+## Missing values
+
+All three tools provide a global "system missing value" which is displayed as `.`. This is roughly equivalent to R's `NA`, although neither Stata nor SAS propagate missingness in numeric comparisons. SAS treats the missing value as the smallest possible number (i.e. `-inf`), and Stata treated it as the largest possible number (i.e. `inf`). 
+
+Each tool also provides a mechanism for recording multiple types of missingness:
+
+* Stata has "extended" missing values, `.A` through `.Z`.
+
+* SAS has "special" missing values, `.A` through `.Z` plus `._`.
+
+* SPSS has per-column "user" missing values. Each column can declare 
+  up to three distinct values or a range of values (plus one distinct
+  value) that should be treated as missing.
+
+Generally, operations involving a user-missing type return a system missing value.
+
+## Value labels
+
+Base R has one data type that effectively maintains a mapping between integers and character labels: the factor. This however, is not the primary use of factors: they are instead designed to automatically generate useful contrasts for linear models. Factors differ from the labelled values provided by the other tools in important ways:
+
+* SPSS and SAS can label numeric and character values, not just
+  integer values.
+  
+* The value do not need to be exhaustive. It is common to label the
+  special missing values (e.g. `.D` = did not respond, `.N` = 
+  not applicable), while leaving other values as is.
+
+Value labels in SAS are a little different again. In SAS, labels are just special case of general formats. Formats include currencies and dates, but user-defined just assigns labels to individual values (including special missings value). Formats have names and existing independently of the variables they are associated with. You create a named format with `PROC FORMAT` and then associated with variables in a `DATA` step (the names of character formats always start with `$`). 

@@ -1,5 +1,9 @@
 # haven 0.2.0.9000
 
+* New `vignette("semantics", package = "haven")` discusses the semantics
+  of missing values and labelling in SAS, SPSS, and Stata, and how that
+  translate 
+
 * `labelled()` is less strict with its checks: you can mix double and integer
   value and labels (#86, #110, @lionel-).
 
