@@ -1,8 +1,8 @@
 context("Labelled")
 
-test_that("zap_labels replaces labels with NAs for labelled variable", {
+test_that("zap_labels strips labelled attributes", {
   var <- labelled(c(1L, 98L, 99L),  c(not_answered = 98L, not_applicable = 99L))
-  exp <- c(1L,NA,NA)
+  exp <- c(1L,98L,99L)
   expect_equal(zap_labels(var), exp)
 })
 
