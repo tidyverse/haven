@@ -13,8 +13,6 @@
 #'   of the values might be labelled.
 #' @param levels When coercing a labelled character vector to a factor, you
 #'   can choose whether to use the labels or the values as the factor levels.
-#' @param is_na Optionally, a logical vector describing which levels should
-#'   be translated to missing values.
 #' @param ... Ignored
 #' @export
 #' @examples
@@ -29,18 +27,17 @@
 #'
 #' # Other statistical software supports multiple types of missing values
 #' s3 <- labelled(c("M", "M", "F", "X", "N/A"),
-#'   c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A"),
-#'   c(FALSE, FALSE, TRUE, TRUE)
+#'   c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A")
 #' )
 #' s3
 #' as_factor(s3)
 #'
 #' # Often when you have a partially labelled numeric vector, labelled values
-#' # are special types of missing. Use XXX to replace labels with missing
+#' # are special types of missing. Use zap_labels to replace labels with missing
 #' # values
 #' x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 #' zap_labels(x)
-labelled <- function(x, labels, is_na = NULL) {
+labelled <- function(x, labels) {
   if (!is.numeric(x) && !is.character(x)) {
     stop("`x` must be either numeric or a character vector", call. = FALSE)
   }
@@ -50,18 +47,9 @@ labelled <- function(x, labels, is_na = NULL) {
   if (is.null(labels)) {
     stop("`labels` must be a named vector", call. = FALSE)
   }
-  if (is.null(is_na)) {
-    is_na <- rep(FALSE, length(labels))
-  } else {
-    if (!is.logical(is_na) || length(is_na) != length(labels)) {
-      stop("`is_na` must be a logical vector the same length as `labels`",
-        call. = FALSE)
-    }
-  }
 
   structure(x,
     labels = labels,
-    is_na = is_na,
     class = "labelled"
   )
 }
@@ -84,7 +72,7 @@ is.labelled <- function(x) inherits(x, "labelled")
 
 #' @export
 `[.labelled` <- function(x, ...) {
-  labelled(NextMethod(), attr(x, "labels"), attr(x, "is_na"))
+  labelled(NextMethod(), attr(x, "labels"))
 }
 
 #' @export
@@ -93,12 +81,11 @@ print.labelled <- function(x, ...) {
 
   xx <- unclass(x)
   attr(xx, "labels") <- NULL
-  attr(xx, "is_na") <- NULL
   print(xx, quote = FALSE)
 
   cat("\nLabels:\n")
   labels <- attr(x, "labels")
-  lab_df <- data.frame(value = unname(labels), label = names(labels), is_na = attr(x, "is_na"))
+  lab_df <- data.frame(value = unname(labels), label = names(labels))
   print(lab_df, row.names = FALSE)
 
   invisible()
@@ -117,19 +104,13 @@ as.data.frame.labelled <- function(x, ...) {
 
 #' @param ordered If \code{TRUE} for ordinal factors, \code{FALSE} (the default)
 #'   for nominal factors.
-#' @param drop_na If \code{TRUE}, the default, all types are missing value are
-#'   converted into \code{NA}. If \code{FALSE}, missing values will be left as
-#'   their original codes.
 #' @rdname labelled
 #' @export
 as_factor.labelled <- function(x, levels = c("labels", "values"),
-                               ordered = FALSE, drop_na = TRUE, ...) {
+                               ordered = FALSE, ...) {
   levels <- match.arg(levels)
 
   labels <- attr(x, "labels")
-  if (drop_na) {
-    labels <- labels[!attr(x, "is_na")]
-  }
 
   levs <- unname(labels)
   labs <- switch(levels,
@@ -147,7 +128,6 @@ zap_labels <- function(x) {
 
   labelled <- x %in% attr(x, "labels")
   attr(x, "labels") <- NULL
-  attr(x, "is_na") <- NULL
   class(x) <- NULL
 
   x[labelled] <- NA

@@ -7,12 +7,12 @@
 \alias{zap_labels}
 \title{Create a labelled vector.}
 \usage{
-labelled(x, labels, is_na = NULL)
+labelled(x, labels)
 
 is.labelled(x)
 
 \method{as_factor}{labelled}(x, levels = c("labels", "values"),
-  ordered = FALSE, drop_na = TRUE, ...)
+  ordered = FALSE, ...)
 
 zap_labels(x)
 }
@@ -24,18 +24,11 @@ character.}
 x. Unlike factors, labels don't need to be exhaustive: only a fraction
 of the values might be labelled.}
 
-\item{is_na}{Optionally, a logical vector describing which levels should
-be translated to missing values.}
-
 \item{levels}{When coercing a labelled character vector to a factor, you
 can choose whether to use the labels or the values as the factor levels.}
 
 \item{ordered}{If \code{TRUE} for ordinal factors, \code{FALSE} (the default)
 for nominal factors.}
-
-\item{drop_na}{If \code{TRUE}, the default, all types are missing value are
-converted into \code{NA}. If \code{FALSE}, missing values will be left as
-their original codes.}
 
 \item{...}{Ignored}
 }
@@ -58,14 +51,13 @@ as_factor(s2)
 
 # Other statistical software supports multiple types of missing values
 s3 <- labelled(c("M", "M", "F", "X", "N/A"),
-  c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A"),
-  c(FALSE, FALSE, TRUE, TRUE)
+  c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A")
 )
 s3
 as_factor(s3)
 
 # Often when you have a partially labelled numeric vector, labelled values
-# are special types of missing. Use XXX to replace labels with missing
+# are special types of missing. Use zap_labels to replace labels with missing
 # values
 x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 zap_labels(x)

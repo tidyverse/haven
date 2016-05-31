@@ -27,18 +27,6 @@ test_that("integer labels that are larger then label list work", {
   expect_equal(as_factor(var), factor("female", levels = c("female", "male")))
 })
 
-test_that("multiple NA values turned into NA", {
-  var <- labelled(c("a", "b", "c"), c(A = "a", B = "b", C = "c"),
-    c(FALSE, TRUE, TRUE))
-  expect_equal(as_factor(var), factor(c("A", NA, NA)))
-})
-
-test_that("multiple NA values preserved if drop_NA = FALSE", {
-  var <- labelled(c("a", "b", "c"), c(A = "a", B = "b", C = "c"),
-    c(FALSE, TRUE, TRUE))
-  expect_equal(as_factor(var, drop_na = FALSE), factor(c("A", "B", "C")))
-})
-
 test_that("zap_labels replaces labels with NAs for labelled variable", {
   var <- labelled(c(1L, 98L, 99L),  c(not_answered = 98L, not_applicable = 99L))
   exp <- c(1L,NA,NA)

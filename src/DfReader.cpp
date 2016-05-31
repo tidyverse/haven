@@ -267,7 +267,6 @@ public:
       RObject col = output_[i];
       col.attr("class") = "labelled";
       col.attr("labels") = label_sets_[label].labels();
-      col.attr("is_na") = rep(false, label_sets_[label].size());
     }
 
     output_.attr("names") = names_;
