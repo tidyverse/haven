@@ -261,8 +261,23 @@ static readstat_error_t sav_emit_value_label_records(readstat_writer_t *writer) 
     int i, j;
     for (i=0; i<writer->label_sets_count; i++) {
         readstat_label_set_t *r_label_set = readstat_get_label_set(writer, i);
+        readstat_types_t user_type = r_label_set->type;
         int32_t label_count = r_label_set->value_labels_count;
         int32_t rec_type = 0;
+
+        int wont_fit = 0; /* Need long value labels record */
+        if (user_type == READSTAT_TYPE_STRING) {
+            for (j=0; j<label_count; j++) {
+                readstat_value_label_t *r_value_label = readstat_get_value_label(r_label_set, j);
+                if (r_value_label->string_key_len > 8 || r_value_label->label_len > 255) {
+                    wont_fit = 1;
+                    break;
+                }
+            }
+        }
+        if (wont_fit)
+            continue;
+
         if (label_count) {
             rec_type = SAV_RECORD_TYPE_VALUE_LABEL;
 
@@ -274,18 +289,12 @@ static readstat_error_t sav_emit_value_label_records(readstat_writer_t *writer) 
             if (retval != READSTAT_OK)
                 goto cleanup;
             
-            readstat_types_t user_type = r_label_set->type;
             for (j=0; j<label_count; j++) {
                 readstat_value_label_t *r_value_label = readstat_get_value_label(r_label_set, j);
                 char value[8];
                 if (user_type == READSTAT_TYPE_STRING) {
-                    const char *txt_value = r_value_label->string_key;
-                    size_t txt_len = strlen(txt_value);
-                    if (txt_len > 8)
-                        txt_len = 8;
-
                     memset(value, ' ', sizeof(value));
-                    memcpy(value, txt_value, txt_len);
+                    memcpy(value, r_value_label->string_key, r_value_label->string_key_len);
                 } else if (user_type == READSTAT_TYPE_DOUBLE) {
                     double num_val = r_value_label->double_key;
                     memcpy(value, &num_val, sizeof(double));
@@ -296,9 +305,7 @@ static readstat_error_t sav_emit_value_label_records(readstat_writer_t *writer) 
                 retval = readstat_write_bytes(writer, value, sizeof(value));
                 
                 const char *label_data = r_value_label->label;
-                size_t label_data_len = strlen(label_data);
-                if (label_data_len > 255)
-                    label_data_len = 255;
+                size_t label_data_len = r_value_label->label_len;
                 
                 char label_len = label_data_len;
                 retval = readstat_write_bytes(writer, &label_len, sizeof(label_len));
@@ -483,6 +490,104 @@ cleanup:
     return retval;
 }
 
+static readstat_error_t sav_emit_long_value_labels_records(readstat_writer_t *writer) {
+    readstat_error_t retval = READSTAT_OK;
+    int i, j, k;
+    sav_info_record_t info_header;
+    memset(&info_header, 0, sizeof(sav_info_record_t));
+
+    info_header.rec_type = SAV_RECORD_TYPE_HAS_DATA;
+    info_header.subtype = SAV_RECORD_SUBTYPE_LONG_VALUE_LABELS;
+    info_header.size = 1;
+    info_header.count = 0;
+
+    for (i=0; i<writer->label_sets_count; i++) {
+        readstat_label_set_t *r_label_set = readstat_get_label_set(writer, i);
+        readstat_types_t user_type = r_label_set->type;
+        int32_t label_count = r_label_set->value_labels_count;
+        int32_t rec_type = 0;
+
+        int wont_fit = 0;
+        if (user_type == READSTAT_TYPE_STRING) {
+            for (j=0; j<label_count; j++) {
+                readstat_value_label_t *r_value_label = readstat_get_value_label(r_label_set, j);
+                if (r_value_label->string_key_len > 8 || r_value_label->label_len > 255) {
+                    wont_fit = 1;
+                    break;
+                }
+            }
+        }
+        if (wont_fit) { // hooray
+            int32_t var_count = r_label_set->variables_count;
+            
+            for (k=0; k<var_count; k++) {
+                info_header.count = 0;
+
+                readstat_variable_t *r_variable = readstat_get_label_set_variable(r_label_set, k);
+                int32_t name_len = strlen(r_variable->name);
+                int32_t storage_width = readstat_variable_get_width(r_variable);
+
+                info_header.count += sizeof(int32_t); // name length
+                info_header.count += name_len;
+                info_header.count += sizeof(int32_t); // variable width
+                info_header.count += sizeof(int32_t); // label count
+
+                for (j=0; j<label_count; j++) {
+                    readstat_value_label_t *r_value_label = readstat_get_value_label(r_label_set, j);
+                    info_header.count += sizeof(int32_t); // value length
+                    info_header.count += r_value_label->string_key_len;
+                    info_header.count += sizeof(int32_t); // label length
+                    info_header.count += r_value_label->label_len;
+                }
+
+                retval = readstat_write_bytes(writer, &info_header, sizeof(info_header));
+                if (retval != READSTAT_OK)
+                    goto cleanup;
+
+                retval = readstat_write_bytes(writer, &name_len, sizeof(int32_t));
+                if (retval != READSTAT_OK)
+                    goto cleanup;
+
+                retval = readstat_write_bytes(writer, r_variable->name, name_len);
+                if (retval != READSTAT_OK)
+                    goto cleanup;
+
+                retval = readstat_write_bytes(writer, &storage_width, sizeof(int32_t));
+                if (retval != READSTAT_OK)
+                    goto cleanup;
+
+                retval = readstat_write_bytes(writer, &label_count, sizeof(int32_t));
+                if (retval != READSTAT_OK)
+                    goto cleanup;
+
+                for (j=0; j<label_count; j++) {
+                    readstat_value_label_t *r_value_label = readstat_get_value_label(r_label_set, j);
+                    int32_t value_len = r_value_label->string_key_len;
+                    int32_t label_len = r_value_label->label_len;
+
+                    retval = readstat_write_bytes(writer, &value_len, sizeof(int32_t));
+                    if (retval != READSTAT_OK)
+                        goto cleanup;
+
+                    retval = readstat_write_bytes(writer, r_value_label->string_key, value_len);
+                    if (retval != READSTAT_OK)
+                        goto cleanup;
+
+                    retval = readstat_write_bytes(writer, &label_len, sizeof(int32_t));
+                    if (retval != READSTAT_OK)
+                        goto cleanup;
+
+                    retval = readstat_write_bytes(writer, r_value_label->label, label_len);
+                    if (retval != READSTAT_OK)
+                        goto cleanup;
+                }
+            }
+        }
+    }
+cleanup:
+    return retval;
+}
+
 static readstat_error_t sav_emit_termination_record(readstat_writer_t *writer) {
     sav_dictionary_termination_record_t termination_record;
     memset(&termination_record, 0, sizeof(sav_dictionary_termination_record_t));
@@ -595,6 +700,10 @@ static readstat_error_t sav_begin_data(void *writer_ctx) {
         goto cleanup;
 
     retval = sav_emit_long_var_name_record(writer);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    retval = sav_emit_long_value_labels_records(writer);
     if (retval != READSTAT_OK)
         goto cleanup;
 

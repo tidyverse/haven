@@ -185,8 +185,7 @@ static readstat_error_t dta_emit_value_labels(readstat_writer_t *writer, dta_ctx
         int32_t txtlen = 0;
         for (j=0; j<n; j++) {
             readstat_value_label_t *value_label = readstat_get_value_label(r_label_set, j);
-            const char *label = value_label->label;
-            txtlen += strlen(label) + 1;
+            txtlen += value_label->label_len + 1;
         }
         dta_value_label_table_header_t table_header;
         memset(&table_header, 0, sizeof(dta_value_label_table_header_t));
@@ -219,7 +218,7 @@ static readstat_error_t dta_emit_value_labels(readstat_writer_t *writer, dta_ctx
         for (j=0; j<n; j++) {
             readstat_value_label_t *value_label = readstat_get_value_label(r_label_set, j);
             const char *label = value_label->label;
-            size_t label_data_len = strlen(label);
+            size_t label_data_len = value_label->label_len;
             off[j] = offset;
             val[j] = value_label->int32_key;
             memcpy(txt + offset, label, label_data_len);

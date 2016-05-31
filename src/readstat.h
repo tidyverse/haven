@@ -80,9 +80,12 @@ char *readstat_string_value(readstat_value_t value);
 typedef struct readstat_value_label_s {
     double      double_key;
     int32_t     int32_key;
-    char        string_key[16];
 
-    char        label[256];
+    char       *string_key;
+    size_t      string_key_len;
+
+    char       *label;
+    size_t      label_len;
 } readstat_value_label_t;
 
 typedef struct readstat_label_set_s {
