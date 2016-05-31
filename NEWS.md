@@ -1,5 +1,8 @@
 # haven 0.2.0.9000
 
+* `zap_labels()` now just drops label attributes; it no longer replaces
+  labelled values with `NA`s.
+
 * `as_factor()` gains a new `levels = "default"` mechanism. This uses the
   labels where present, and otherwise uses the labels. This is now the
   default, as it seems to map better to the semantics of labelled values

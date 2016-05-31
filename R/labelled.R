@@ -154,11 +154,9 @@ zap_labels <- function(x) {
   if (!is.labelled(x))
     return(x)
 
-  labelled <- x %in% attr(x, "labels")
   attr(x, "labels") <- NULL
   class(x) <- NULL
 
-  x[labelled] <- NA
   x
 }
 
