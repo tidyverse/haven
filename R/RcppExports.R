@@ -9,10 +9,6 @@ df_parse_dta <- function(filename, encoding) {
     .Call('haven_df_parse_dta', PACKAGE = 'haven', filename, encoding)
 }
 
-df_parse_por <- function(filename) {
-    .Call('haven_df_parse_por', PACKAGE = 'haven', filename)
-}
-
 df_parse_sav <- function(filename) {
     .Call('haven_df_parse_sav', PACKAGE = 'haven', filename)
 }

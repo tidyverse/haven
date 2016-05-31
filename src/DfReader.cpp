@@ -364,11 +364,6 @@ List df_parse_dta(std::string filename, std::string encoding) {
 }
 
 // [[Rcpp::export]]
-List df_parse_por(std::string filename) {
-  return df_parse(HAVEN_SPSS, filename, readstat_parse_por);
-}
-
-// [[Rcpp::export]]
 List df_parse_sav(std::string filename) {
   return df_parse(HAVEN_SPSS, filename, readstat_parse_sav);
 }
