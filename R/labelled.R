@@ -1,17 +1,22 @@
 #' Create a labelled vector.
 #'
 #' A labelled vector is a common data structure in other statistical
-#' environments. This class makes it possible to import such labelled vectors
-#' in to without loss of fidelity. This class provides few methods, as I
+#' environments, allowing you to assign text labels to specific values.
+#' This class makes it possible to import such labelled vectors in to R
+#' without loss of fidelity. This class provides few methods, as I
 #' expect you'll coerce to a standard R class (e.g. a \code{\link{factor}})
 #' soon after importing.
+#'
+#' \code{as_factor()} converts to a factor. \code{zap_labels()} removes
+#' labels, leaving unlabelled vectors as is. Use this if you want to simply
+#' drop all labelling from a data frame.
 #'
 #' @param x A vector to label. Must be either numeric (integer or double) or
 #'   character.
 #' @param labels A named vector. The vector should be the same type as
-#'   x. Unlike factors, labels don't need to be exhaustive: only a fraction
+#'   \code{x}. Unlike factors, labels don't need to be exhaustive: only a fraction
 #'   of the values might be labelled.
-#' @param levels How to create the levels of the generated factor.
+#' @param levels How to create the levels of the generated factor:
 #'
 #'   \itemize{
 #'   \item "default": uses labels where available, otherwise the values.
