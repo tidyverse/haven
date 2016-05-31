@@ -186,35 +186,35 @@ public:
       col[obs_index] = str_value == NULL ? NA_STRING : Rf_mkCharCE(str_value, CE_UTF8);
     } else if (value.type == READSTAT_TYPE_CHAR) {
       IntegerVector col = output_[var_index];
-      if (readstat_value_is_system_missing(value)) {
+      if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_INTEGER;
       } else {
         col[obs_index] = readstat_char_value(value);
       }
     } else if (value.type == READSTAT_TYPE_INT16) {
       IntegerVector col = output_[var_index];
-      if (readstat_value_is_system_missing(value)) {
+      if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_INTEGER;
       } else {
         col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_int16_value(value));
       }
     } else if (value.type == READSTAT_TYPE_INT32) {
       IntegerVector col = output_[var_index];
-      if (readstat_value_is_system_missing(value)) {
+      if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_INTEGER;
       } else {
         col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_int32_value(value));
       }
     } else if (value.type == READSTAT_TYPE_FLOAT) {
       NumericVector col = output_[var_index];
-      if (readstat_value_is_system_missing(value)) {
+      if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_REAL;
       } else {
         col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_float_value(value));
       }
     } else if (value.type == READSTAT_TYPE_DOUBLE) {
       NumericVector col = output_[var_index];
-      if (readstat_value_is_system_missing(value)) {
+      if (readstat_value_is_missing(value)) {
         col[obs_index] = NA_REAL;
       } else {
         double val = readstat_double_value(value);
@@ -230,7 +230,7 @@ public:
     LabelSet& label_set = label_sets_[val_labels];
     std::string label_s(label);
 
-    bool is_missing = readstat_value_is_considered_missing(value);
+    bool is_missing = readstat_value_is_missing(value);
 
     switch(value.type) {
     case READSTAT_TYPE_STRING:

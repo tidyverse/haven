@@ -23,10 +23,10 @@ test_that("value labels read in as same type as vector", {
   expect_equal(typeof(str[[1]]), typeof(attr(str[[1]], "labels")))
 })
 
-test_that("labels as missing values preserved", {
+test_that("tagged missing values preserved", {
   num <- read_spss("labelled-num-na.sav")[[1]]
 
-  expect_equal(num[[2]], 9)
+  expect_equal(num[[2]], NA_real_)
 })
 
 test_that("non-ASCII labels converted to utf-8", {
