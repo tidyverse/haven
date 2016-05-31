@@ -87,8 +87,8 @@ test_that("throws error on labelled numerics", {
   expect_error(write_dta(df, tempfile()), "Problems: `x`")
 })
 
-test_that("throws error on labelled numerics", {
-  df <- data.frame(labelled(c(1, 2, 3), c("0123456789012345678901234567890123456789" = 1)))
+test_that("throws error on labelled integers", {
+  df <- data.frame(labelled(c(1L, 2L, 3L), c("0123456789012345678901234567890123456789" = 1L)))
   names(df) <- "x"
 
   expect_error(write_dta(df, tempfile()), "Problems: `x`")
