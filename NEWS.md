@@ -1,63 +1,5 @@
 # haven 0.2.0.9000
 
-* `zap_labels()` becomes generic and gains a data frame method that zaps
-  the labels from every column.
-
-* `write_sav()` now sets the "measure" type for exported variables (#133).
-
-* Reader functions now handle connections and compressed files
-  (@lionel-, #109)
-
-* `zap_labels()` now just drops label attributes; it no longer replaces
-  labelled values with `NA`s.
-
-* `as_factor()` gains a new `levels = "default"` mechanism. This uses the
-  labels where present, and otherwise uses the labels. This is now the
-  default, as it seems to map better to the semantics of labelled values
-  in other statistical packages (#81). You can also use `levels = "both"`
-  to combine the value and the label into a single string (#82).
-
-* New `vignette("semantics", package = "haven")` discusses the semantics
-  of missing values and labelling in SAS, SPSS, and Stata, and how that
-  translate 
-
-* `labelled()` is less strict with its checks: you can mix double and integer
-  value and labels (#86, #110, @lionel-).
-
-* `read_dta()` gains an encoding parameter which you can use to override
-  the default encoding. This is particularly useful for Stata 13 and below
-  which did not store the encoding used in the file (#163).
-
-* `write_dta()` now verifies that variable names are valid Stata variables
-  (#132), and throws an error if you attempt to save a labelled vector that
-  is not an integer (#144).
-
-* `write_dta()` and `write_sav()` supports writing date and date/times 
-  (#25, #139, #145). `write_sav()` also supports writes hms.
-
-* Labelled values are always converted to UTF-8 before being written out (#87).
-
-* Support for `hms()` has been moved into the hms package (#162).
-  Time varibles now have class `c("hms", "difftime")` and a `units` attribute
-  with value "secs" (#162).
-
-* Infinite values are now converted to missing values since SPSS and Stata
-  don't support them (#149).
-
-* Removed `read_por()` since it doesn't work and I'm unlikely to have time to
-  make it work in the near future (#35).
-
-* `is.labelled()` is now exported (#124).
-
-* Recognise stata "%d" format as a date (#130).
-
-* Missing strings values are now read correctly into R (#79)
-
-* Writer functions use a better test for missing values (#70).
-
-* `read_spss()` now correctly recognises EDATE and JDATE formats as dates (#72).
-  `read_stata()` now correctly recognises custom date types (#80).
-
 * Update to latest ReadStat (#65). Includes: 
 
     * Support for binary (aka Ross) compression for SAS (#31)
@@ -66,11 +8,58 @@
     * Support for SPSS value labels with more than 8 characters (#157)
     * Fix crash when writing `.sav` (#171).
 
-* fixed bug in `zap_labels()` which was leaving labelled vectors unchanged
-  instead of leaving unlabelled vectors unchanged. (@markriseley, #69).
+* `as_factor()` gains a new `levels = "default"` mechanism. This uses the
+  labels where present, and otherwise uses the labels. This is now the
+  default, as it seems to map better to the semantics of labelled values
+  in other statistical packages (#81). You can also use `levels = "both"`
+  to combine the value and the label into a single string (#82).
+
+* New `vignette("semantics", package = "haven")` discusses the semantics
+  of missing values and labelling in SAS, SPSS, and Stata, and how they
+  are translated into R.
+
+* Support for `hms()` has been moved into the hms package (#162).
+  Time varibles now have class `c("hms", "difftime")` and a `units` attribute
+  with value "secs" (#162).
+
+* `labelled()` is less strict with its checks: you can mix double and integer
+  value and labels (#86, #110, @lionel-), and `is.labelled()` is now exported 
+  (#124).
+
+* `read_dta()` now recognises "%d" and custom date types (#80, #130).
+  It also gains an encoding parameter which you can use to override
+  the default encoding. This is particularly useful for Stata 13 and below
+  which did not store the encoding used in the file (#163).
+
+* `read_por()` has been removed since it doesn't work and I'm unlikely to have 
+  time to make it work in the near future (#35). It also doesn't seem to
+  be commonly used in practice.
+
+* `read_sav()` now correctly recognises EDATE and JDATE formats as dates (#72).
+  Variables with format DATE, ADATE, EDATE, JDATE or SDATE are imported as 
+  `Date` variables instead of `POSIXct`. 
+
+* `read_dta()`, `read_sas()`, and `read_sav()` have a better test for missing
+  string values (#79). They can all read from connections and compressed files
+  (@lionel-, #109)
+
+* `write_dta()` now verifies that variable names are valid Stata variables
+  (#132), and throws an error if you attempt to save a labelled vector that
+  is not an integer (#144).
+
+* `write_sav()` writes hms variables to SPSS time variables, and the
+  "measure" type is set for each variable (#133).
+
+* `write_dta()` and `write_sav()` support writing date and date/times
+  (#25, #139, #145). Labelled values are always converted to UTF-8 before 
+  being written out (#87). Infinite values are now converted to missing values 
+  since SPSS and Stata don't support them (#149). Both use a better test 
+  for missing values (#70).
   
-* SPSS's variables whose format is DATE, ADATE, EDATE, JDATE or SDATE are
-  now imported as `Date` variables instead of `POSIXct`.
+* `zap_labels()` has been completely overhauled. It now works 
+  (@markriseley, #69), and only drops label attributes; it no longer replaces
+  labelled values with `NA`s. It also gains a data frame method that zaps
+  the labels from every column.
 
 # haven 0.2.0
 
