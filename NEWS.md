@@ -1,5 +1,8 @@
 # haven 0.2.0.9000
 
+* Reader functions now handle connections and compressed files
+  (@lionel-, #109)
+
 * `zap_labels()` now just drops label attributes; it no longer replaces
   labelled values with `NA`s.
 

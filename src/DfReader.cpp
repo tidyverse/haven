@@ -1,4 +1,8 @@
 #include <Rcpp.h>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+
 using namespace Rcpp;
 #include "readstat.h"
 #include "haven_types.h"
@@ -298,71 +302,221 @@ void print_error(const char* error_message, void* ctx) {
   Rcout << error_message << "\n";
 }
 
+
+// IO handling -----------------------------------------------------------
+
+class DfReaderInput {
+public:
+  virtual ~DfReaderInput() {};
+
+  virtual int open(void* io_ctx) = 0;
+  virtual int close(void* io_ctx) = 0;
+  virtual readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence, void *io_ctx) = 0;
+  virtual ssize_t read(void *buf, size_t nbyte, void *io_ctx) = 0;
+};
+
+template <typename Stream>
+class DfReaderInputStream : public DfReaderInput {
+protected:
+  Stream file_;
+
+public:
+  readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence, void *io_ctx) {
+    std::ios_base::seekdir dir;
+    switch(whence) {
+    case READSTAT_SEEK_SET:
+      dir = std::ios::beg;
+      break;
+    case READSTAT_SEEK_CUR:
+      dir = std::ios::cur;
+      break;
+    case READSTAT_SEEK_END:
+      dir = std::ios::end;
+      break;
+    }
+
+    file_.seekg(offset, dir);
+    return file_.tellg();
+  }
+
+  ssize_t read(void *buf, size_t nbyte, void *io_ctx) {
+    file_.read((char*) buf, nbyte);
+    return (file_.good() || file_.eof()) ? file_.gcount() : -1;
+  }
+};
+
+class DfReaderInputFile : public DfReaderInputStream<std::ifstream> {
+  std::string filename_;
+
+public:
+  DfReaderInputFile(Rcpp::List spec) {
+    filename_ = as<std::string>(spec[0]);
+  }
+
+  int open(void* io_ctx) {
+    file_.open(filename_.c_str());
+    return file_.is_open() ? 0 : -1;
+  }
+
+  int close(void* io_ctx) {
+    file_.close();
+    return file_.is_open() ? -1 : 0;
+  }
+};
+
+class DfReaderInputRaw : public DfReaderInputStream<std::stringstream> {
+public:
+  DfReaderInputRaw(Rcpp::List spec) {
+    Rcpp::RawVector raw_data(spec[0]);
+    std::string string_data((char*) RAW(raw_data), Rf_length(raw_data));
+    file_.str(string_data);
+  }
+
+  int open(void* io_ctx) {
+    return 0;
+  }
+
+  int close(void* io_ctx) {
+    return 0;
+  }
+};
+
+
+int dfreader_open(const char* path, void *io_ctx) {
+  return ((DfReaderInput*) io_ctx)->open(io_ctx);
+}
+int dfreader_close(void *io_ctx) {
+  return ((DfReaderInput*) io_ctx)->close(io_ctx);
+}
+readstat_off_t dfreader_seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) {
+  return ((DfReaderInput*) io_ctx)->seek(offset, whence, io_ctx);
+}
+ssize_t dfreader_read(void* buf, size_t nbyte, void* io_ctx) {
+  return ((DfReaderInput*) io_ctx)->read(buf, nbyte, io_ctx);
+}
+readstat_error_t dfreader_update(long file_size, readstat_progress_handler progress_handler, void *user_ctx, void *io_ctx) {
+  return READSTAT_OK;
+}
+
+
 // Parser wrappers -------------------------------------------------------------
 
-template<typename ParseFunction>
-List df_parse(FileType type, std::string filename, ParseFunction parse_f,
-              std::string encoding = "") {
-  DfReader builder(type);
-
+readstat_parser_t* haven_init_parser(std::string encoding = "") {
   readstat_parser_t* parser = readstat_parser_init();
   readstat_set_info_handler(parser, dfreader_info);
   readstat_set_variable_handler(parser, dfreader_variable);
   readstat_set_value_handler(parser, dfreader_value);
   readstat_set_value_label_handler(parser, dfreader_value_label);
   readstat_set_error_handler(parser, print_error);
-
   if (encoding != "") {
     readstat_set_file_character_encoding(parser, encoding.c_str());
   }
+  return parser;
+}
 
-  readstat_error_t result = parse_f(parser, filename.c_str(), &builder);
+template<typename InputClass>
+void haven_init_io(readstat_parser_t* parser, InputClass &builder_input) {
+  readstat_set_open_handler(parser, dfreader_open);
+  readstat_set_close_handler(parser, dfreader_close);
+  readstat_set_seek_handler(parser, dfreader_seek);
+  readstat_set_read_handler(parser, dfreader_read);
+  readstat_set_update_handler(parser, dfreader_update);
+  readstat_set_io_ctx(parser, (void*) &builder_input);
+}
+
+std::string haven_error_message(Rcpp::List spec) {
+  std::string source_class(as<CharacterVector>(spec.attr("class"))[0]);
+  if (source_class == "source_raw")
+    return "file";
+  else
+    return as<std::string>(spec[0]);
+}
+
+template<typename InputClass, typename ParseFunction>
+List df_parse(FileType type, Rcpp::List spec, ParseFunction parse_f,
+              std::string encoding = "") {
+  DfReader builder(type);
+  InputClass builder_input(spec);
+
+  readstat_parser_t* parser = haven_init_parser(encoding);
+  haven_init_io(parser, builder_input);
+
+  readstat_error_t result = parse_f(parser, "", &builder);
+  readstat_parser_free(parser);
 
   if (result != 0) {
-    readstat_parser_free(parser);
-    stop("Failed to parse %s: %s.", filename, readstat_error_message(result));
+    stop("Failed to parse %s: %s.", haven_error_message(spec),
+         readstat_error_message(result));
   }
 
-  readstat_parser_free(parser);
   return builder.output();
 }
 
-// [[Rcpp::export]]
-List df_parse_sas(const std::string& b7dat, const std::string& b7cat) {
+template<typename InputClass>
+List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat) {
   DfReader builder(HAVEN_SAS);
+  InputClass builder_input_dat(spec_b7dat);
 
-  readstat_parser_t* parser = readstat_parser_init();
-  readstat_set_info_handler(parser, dfreader_info);
-  readstat_set_variable_handler(parser, dfreader_variable);
-  readstat_set_value_handler(parser, dfreader_value);
-  readstat_set_value_label_handler(parser, dfreader_value_label);
-  readstat_set_error_handler(parser, print_error);
+  readstat_parser_t* parser = haven_init_parser();
+  haven_init_io(parser, builder_input_dat);
 
-  if (b7cat != "") {
-    readstat_error_t result = readstat_parse_sas7bcat(parser, b7cat.c_str(), &builder);
+  if (spec_b7cat.size() != 0) {
+    InputClass builder_input_cat(spec_b7cat);
+    readstat_set_io_ctx(parser, (void*) &builder_input_cat);
+
+    readstat_error_t result = readstat_parse_sas7bcat(parser, "", &builder);
+
     if (result != 0) {
       readstat_parser_free(parser);
-      stop("Failed to parse %s: %s.", b7cat.c_str(), readstat_error_message(result));
+      stop("Failed to parse %s: %s.", haven_error_message(spec_b7cat),
+           readstat_error_message(result));
     }
   }
 
-  readstat_error_t result = readstat_parse_sas7bdat(parser, b7dat.c_str(), &builder);
+  readstat_set_io_ctx(parser, (void*) &builder_input_dat);
+  readstat_error_t result = readstat_parse_sas7bdat(parser, "", &builder);
+  readstat_parser_free(parser);
+
   if (result != 0) {
-    readstat_parser_free(parser);
-    stop("Failed to parse %s: %s.", b7dat.c_str(), readstat_error_message(result));
+    stop("Failed to parse %s: %s.", haven_error_message(spec_b7dat),
+         readstat_error_message(result));
   }
 
-
-  readstat_parser_free(parser);
   return builder.output();
 }
 
 // [[Rcpp::export]]
-List df_parse_dta(std::string filename, std::string encoding) {
-  return df_parse(HAVEN_STATA, filename, readstat_parse_dta, encoding);
+List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat) {
+  return df_parse_sas<DfReaderInputFile>(spec_b7dat, spec_b7cat);
+}
+// [[Rcpp::export]]
+List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat) {
+  return df_parse_sas<DfReaderInputRaw>(spec_b7dat, spec_b7cat);
 }
 
 // [[Rcpp::export]]
-List df_parse_sav(std::string filename) {
-  return df_parse(HAVEN_SPSS, filename, readstat_parse_sav);
+List df_parse_dta_file(Rcpp::List spec, std::string encoding) {
+  return df_parse<DfReaderInputFile>(HAVEN_STATA, spec, readstat_parse_dta, encoding);
+}
+// [[Rcpp::export]]
+List df_parse_dta_raw(Rcpp::List spec, std::string encoding) {
+  return df_parse<DfReaderInputRaw>(HAVEN_STATA, spec, readstat_parse_dta, encoding);
+}
+
+// [[Rcpp::export]]
+List df_parse_por_file(Rcpp::List spec) {
+  return df_parse<DfReaderInputFile>(HAVEN_SPSS, spec, readstat_parse_por);
+}
+// [[Rcpp::export]]
+List df_parse_por_raw(Rcpp::List spec) {
+  return df_parse<DfReaderInputRaw>(HAVEN_SPSS, spec, readstat_parse_por);
+}
+
+// [[Rcpp::export]]
+List df_parse_sav_file(Rcpp::List spec) {
+  return df_parse<DfReaderInputFile>(HAVEN_SPSS, spec, readstat_parse_sav);
+}
+// [[Rcpp::export]]
+List df_parse_sav_raw(Rcpp::List spec) {
+  return df_parse<DfReaderInputRaw>(HAVEN_SPSS, spec, readstat_parse_sav);
 }

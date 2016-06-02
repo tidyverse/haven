@@ -7,8 +7,8 @@
 read_sas(b7dat, b7cat = NULL)
 }
 \arguments{
-\item{b7dat, b7cat}{Path to data and catalog files. If the path is a URL, the
-file will be first download to a temporary location before reading.}
+\item{b7dat, b7cat}{Path to data and catalog files. The files are
+processed with \code{\link[readr]{datasource}()}.}
 }
 \value{
 A data frame with additional "tbl_df" and "tbl" classes, which

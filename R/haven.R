@@ -7,8 +7,8 @@ NULL
 #' This supports both b7dat files and the accompanying b7cat files
 #' that are SAS's equivalent of factor labels.
 #'
-#' @param b7dat,b7cat Path to data and catalog files. If the path is a URL, the
-#'   file will be first download to a temporary location before reading.
+#' @param b7dat,b7cat Path to data and catalog files. The files are
+#'   processed with \code{\link[readr]{datasource}()}.
 #' @return A data frame with additional "tbl_df" and "tbl" classes, which
 #'   improve printing if dplyr is loaded.
 #'
@@ -16,7 +16,17 @@ NULL
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #' @export
 read_sas <- function(b7dat, b7cat = NULL) {
-  df_parse_sas(clean_path(b7dat), clean_path(b7cat))
+  spec_b7dat <- readr::datasource(b7dat)
+  if (is.null(b7cat)) {
+    spec_b7cat <- list()
+  } else {
+    spec_b7cat <- readr::datasource(b7cat)
+  }
+  switch(class(spec_b7dat)[1],
+    source_file = df_parse_sas_file(spec_b7dat, spec_b7cat),
+    source_raw = df_parse_sas_raw(spec_b7dat, spec_b7cat),
+    stop("This kind of input is not handled", call. = FALSE)
+  )
 }
 
 #' Read SPSS (SAV) files. Write SAV files.
@@ -25,8 +35,8 @@ read_sas <- function(b7dat, b7cat = NULL) {
 #' and factors. See \code{\link{labelled}} for how labelled variables in
 #' Stata are handled in R. \code{read_spss} is an alias for \code{read_sav}.
 #'
-#' @param path Path to data. When reading data, if the path is a URL, the file
-#'   will be first downloaded to a temporary location before reading.
+#' @inheritParams readr::datasource
+#' @param path Path to a file where the data will be written.
 #' @param data Data frame to write.
 #' @return A data frame with additional "tbl_df" and "tbl" classes, which
 #'   improve printing if dplyr is loaded.
@@ -42,8 +52,15 @@ NULL
 
 #' @export
 #' @rdname read_spss
-read_sav <- function(path) {
-  df_parse_sav(clean_path(path))
+#' @export
+#' @rdname read_spss
+read_sav <- function(file) {
+  spec <- readr::datasource(file)
+  switch(class(spec)[1],
+    source_file = df_parse_sav_file(spec),
+    source_raw = df_parse_sav_raw(spec),
+    stop("This kind of input is not handled", call. = FALSE)
+  )
 }
 
 #' @export
@@ -55,11 +72,11 @@ write_sav <- function(data, path) {
 
 #' @export
 #' @rdname read_spss
-read_spss <- function(path) {
-  ext <- tolower(tools::file_ext(path))
+read_spss <- function(file) {
+  ext <- tolower(tools::file_ext(file))
 
   switch(ext,
-    sav = read_sav(path),
+    sav = read_sav(file),
     stop("Unknown extension '.",  ext, "'", call. = FALSE)
   )
 }
@@ -70,6 +87,7 @@ read_spss <- function(path) {
 #' and factors. See \code{\link{labelled}} for how labelled variables in
 #' Stata are handled in R.
 #'
+#' @inheritParams readr::datasource
 #' @inheritParams read_spss
 #' @param encoding The character encoding used for the file. This defaults to
 #'   the encoding specified in the file, or UTF-8. But older versions of Stata
@@ -86,17 +104,23 @@ read_spss <- function(path) {
 #' write_dta(mtcars, tmp)
 #' read_dta(tmp)
 #' read_stata(tmp)
-read_dta <- function(path, encoding = NULL) {
+read_dta <- function(file, encoding = NULL) {
   if (is.null(encoding)) {
     encoding <- ""
   }
-  df_parse_dta(clean_path(path), encoding)
+
+  spec <- readr::datasource(file)
+  switch(class(spec)[1],
+    source_file = df_parse_dta_file(spec, encoding),
+    source_raw = df_parse_dta_raw(spec, encoding),
+    stop("This kind of input is not handled", call. = FALSE)
+  )
 }
 
 #' @export
 #' @rdname read_dta
-read_stata <- function(path, encoding = NULL) {
-  read_dta(path, encoding)
+read_stata <- function(file, encoding = NULL) {
+  read_dta(file, encoding)
 }
 
 #' @export
