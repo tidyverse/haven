@@ -15,6 +15,26 @@ inline const bool string_is_missing(SEXP x, int i) {
 }
 
 
+inline readstat_measure_e measureType(SEXP x) {
+  if (Rf_inherits(x, "ordered")) {
+    return READSTAT_MEASURE_ORDINAL;
+  } else if (Rf_inherits(x, "factor")) {
+    return READSTAT_MEASURE_NOMINAL;
+  } else {
+    switch(TYPEOF(x)) {
+    case INTSXP:
+    case REALSXP:
+      return READSTAT_MEASURE_INTERVAL;
+    case LGLSXP:
+    case STRSXP:
+      return READSTAT_MEASURE_NOMINAL;
+    default:
+      return READSTAT_MEASURE_UNKNOWN;
+    }
+  }
+}
+
+
 class Writer {
   List x_;
   readstat_writer_t* writer_;
@@ -237,6 +257,7 @@ public:
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
+    readstat_variable_set_measure(var, measureType(x));
   }
 
   void defineVariable(NumericVector x, const char* name, const char* format = NULL) {
@@ -256,6 +277,7 @@ public:
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
+    readstat_variable_set_measure(var, measureType(x));
   }
 
   void defineVariable(CharacterVector x, const char* name, const char* format = NULL) {
@@ -282,6 +304,7 @@ public:
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
+    readstat_variable_set_measure(var, measureType(x));
   }
 
   // Value helper -------------------------------------------------------------

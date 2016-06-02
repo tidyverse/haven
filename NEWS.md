@@ -1,5 +1,7 @@
 # haven 0.2.0.9000
 
+* `write_sav()` now sets the "measure" type for exported variables (#133).
+
 * Reader functions now handle connections and compressed files
   (@lionel-, #109)
 
