@@ -97,6 +97,15 @@ static readstat_variable_t *dta_init_variable(dta_ctx_t *ctx, int i, readstat_ty
         readstat_convert(variable->format, sizeof(variable->format),
                 &ctx->fmtlist[ctx->fmtlist_entry_len*i],
                 ctx->fmtlist_entry_len, ctx->converter);
+        if (variable->format[0] == '%') {
+            if (variable->format[1] == '-') {
+                variable->alignment = READSTAT_ALIGNMENT_LEFT;
+            } else if (variable->format[1] == '~') {
+                variable->alignment = READSTAT_ALIGNMENT_CENTER;
+            } else {
+                variable->alignment = READSTAT_ALIGNMENT_RIGHT;
+            }
+        }
     }
 
     return variable;

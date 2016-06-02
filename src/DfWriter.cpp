@@ -232,8 +232,11 @@ public:
         readstat_label_int32_value(labelSet, values[i], string_utf8(labels, i));
     }
 
-    readstat_add_variable(writer_, READSTAT_TYPE_INT32, 0, name,
-      var_label(x), format, labelSet);
+    readstat_variable_t* var =
+      readstat_add_variable(writer_, name, READSTAT_TYPE_INT32, 0);
+    readstat_variable_set_format(var, format);
+    readstat_variable_set_label(var, var_label(x));
+    readstat_variable_set_label_set(var, labelSet);
   }
 
   void defineVariable(NumericVector x, const char* name, const char* format = NULL) {
@@ -248,8 +251,11 @@ public:
         readstat_label_double_value(labelSet, values[i], string_utf8(labels, i));
     }
 
-    readstat_add_variable(writer_, READSTAT_TYPE_DOUBLE, 0, name,
-      var_label(x), format, labelSet);
+    readstat_variable_t* var =
+      readstat_add_variable(writer_, name, READSTAT_TYPE_DOUBLE, 0);
+    readstat_variable_set_format(var, format);
+    readstat_variable_set_label(var, var_label(x));
+    readstat_variable_set_label_set(var, labelSet);
   }
 
   void defineVariable(CharacterVector x, const char* name, const char* format = NULL) {
@@ -271,8 +277,11 @@ public:
         max_length = length;
     }
 
-    readstat_add_variable(writer_, READSTAT_TYPE_STRING, max_length,
-      name, var_label(x), format, labelSet);
+    readstat_variable_t* var =
+      readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, max_length);
+    readstat_variable_set_format(var, format);
+    readstat_variable_set_label(var, var_label(x));
+    readstat_variable_set_label_set(var, labelSet);
   }
 
   // Value helper -------------------------------------------------------------

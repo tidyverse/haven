@@ -180,10 +180,55 @@ readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info) {
     spss_format(variable->format, sizeof(variable->format), &info->print_format);
 
     variable->missingness = info->missingness;
+    variable->measure = info->measure;
 
     return variable;
 }
 
 void spss_free_variable(readstat_variable_t *variable) {
     free(variable);
+}
+
+int32_t spss_measure_from_readstat_measure(readstat_measure_t measure) {
+    int32_t sav_measure = SAV_MEASURE_UNKNOWN;
+    if (measure == READSTAT_MEASURE_NOMINAL) {
+        sav_measure = SAV_MEASURE_NOMINAL;
+    } else if (measure == READSTAT_MEASURE_ORDINAL) {
+        sav_measure = SAV_MEASURE_ORDINAL;
+    } else if (measure == READSTAT_MEASURE_INTERVAL || measure == READSTAT_MEASURE_RATIO) {
+        sav_measure = SAV_MEASURE_SCALE;
+    }
+    return sav_measure;
+}
+
+readstat_measure_t spss_measure_to_readstat_measure(int32_t sav_measure) {
+    if (sav_measure == SAV_MEASURE_NOMINAL)
+        return READSTAT_MEASURE_NOMINAL;
+    if (sav_measure == SAV_MEASURE_ORDINAL)
+        return READSTAT_MEASURE_ORDINAL;
+    if (sav_measure == SAV_MEASURE_SCALE)
+        return READSTAT_MEASURE_INTERVAL;
+    return READSTAT_MEASURE_UNKNOWN;
+}
+
+int32_t spss_alignment_from_readstat_alignment(readstat_alignment_t alignment) {
+    int32_t sav_alignment = 0;
+    if (alignment == READSTAT_ALIGNMENT_LEFT) {
+        sav_alignment = SAV_ALIGNMENT_LEFT;
+    } else if (alignment == READSTAT_ALIGNMENT_CENTER) {
+        sav_alignment = SAV_ALIGNMENT_CENTER;
+    } else if (alignment == READSTAT_ALIGNMENT_RIGHT) {
+        sav_alignment = SAV_ALIGNMENT_RIGHT;
+    }
+    return sav_alignment;
+}
+
+readstat_alignment_t spss_alignment_to_readstat_alignment(int32_t sav_alignment) {
+    if (sav_alignment == SAV_ALIGNMENT_LEFT)
+        return READSTAT_ALIGNMENT_LEFT;
+    if (sav_alignment == SAV_ALIGNMENT_CENTER)
+        return READSTAT_ALIGNMENT_CENTER;
+    if (sav_alignment == SAV_ALIGNMENT_RIGHT)
+        return READSTAT_ALIGNMENT_RIGHT;
+    return READSTAT_ALIGNMENT_UNKNOWN;
 }

@@ -50,6 +50,15 @@
 #define SAV_MISSING_DOUBLE   0xFFEFFFFFFFFFFFFFUL
 #define SAV_LOWEST_DOUBLE    0xFFEFFFFFFFFFFFFEUL
 
+#define SAV_MEASURE_UNKNOWN     0
+#define SAV_MEASURE_NOMINAL     1
+#define SAV_MEASURE_ORDINAL     2
+#define SAV_MEASURE_SCALE       3
+
+#define SAV_ALIGNMENT_LEFT      1
+#define SAV_ALIGNMENT_RIGHT     2
+#define SAV_ALIGNMENT_CENTER    3
+
 typedef struct spss_format_s {
     int          type;
     int          width;
@@ -72,7 +81,9 @@ typedef struct spss_varinfo_s {
     char             name[8*4+1];
     char             longname[64*4+1];
     char            *label;
-    readstat_missingness_t missingness;
+    readstat_missingness_t  missingness;
+    readstat_measure_t      measure;
+    readstat_alignment_t    alignment;
 } spss_varinfo_t;
 
 int spss_format(char *buffer, size_t len, spss_format_t *format);
@@ -84,3 +95,8 @@ readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info);
 void spss_free_variable(readstat_variable_t *);
 
 uint64_t spss_64bit_value(readstat_value_t value);
+
+int32_t spss_measure_from_readstat_measure(readstat_measure_t measure);
+readstat_measure_t spss_measure_to_readstat_measure(int32_t sav_measure);
+int32_t spss_alignment_from_readstat_alignment(readstat_alignment_t alignment);
+readstat_alignment_t spss_alignment_to_readstat_alignment(int32_t sav_alignment);

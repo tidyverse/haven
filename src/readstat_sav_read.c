@@ -127,7 +127,7 @@ static readstat_error_t sav_read_value_label_record(sav_ctx_t *ctx);
 static readstat_error_t sav_read_dictionary_termination_record(sav_ctx_t *ctx);
 
 static readstat_error_t sav_parse_machine_floating_point_record(void *data, sav_ctx_t *ctx);
-static readstat_error_t sav_parse_variable_display_parameter_record(void *data, sav_ctx_t *ctx);
+static readstat_error_t sav_parse_variable_display_parameter_record(void *data, long count, sav_ctx_t *ctx);
 static readstat_error_t sav_parse_machine_integer_info_record(void *data, size_t data_len, sav_ctx_t *ctx);
 static readstat_error_t sav_parse_long_value_labels_record(void *data, size_t data_len, sav_ctx_t *ctx);
 
@@ -856,7 +856,33 @@ static readstat_error_t sav_parse_machine_floating_point_record(void *data, sav_
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_parse_variable_display_parameter_record(void *data, sav_ctx_t *ctx) {
+static readstat_error_t sav_parse_variable_display_parameter_record(void *data, long count, sav_ctx_t *ctx) {
+    int i;
+    char *data_ptr = data;
+    long var_count = 0;
+    for (i=0; i<ctx->var_index;) {
+        spss_varinfo_t *info = &ctx->varinfo[i];
+        i += info->n_segments;
+        var_count++;
+    }
+    if (count != 2 * var_count && count != 3 * var_count) {
+        return READSTAT_ERROR_PARSE;
+    }
+    long field_count = count / var_count;
+    for (i=0; i<ctx->var_index;) {
+        int32_t measure = 0, alignment = 0;
+        spss_varinfo_t *info = &ctx->varinfo[i];
+
+        memcpy(&measure, data_ptr, sizeof(int32_t));
+        info->measure = spss_measure_to_readstat_measure(measure);
+        data_ptr += (field_count - 1) * sizeof(int32_t);
+
+        memcpy(&alignment, data_ptr, sizeof(int32_t));
+        info->alignment = spss_alignment_to_readstat_alignment(alignment);
+        data_ptr += sizeof(int32_t);
+
+        i += info->n_segments;
+    }
     return READSTAT_OK;
 }
 
@@ -1160,7 +1186,7 @@ static readstat_error_t sav_parse_records_pass2(sav_ctx_t *ctx) {
                             goto cleanup;
                         break;
                     case SAV_RECORD_SUBTYPE_VAR_DISPLAY:
-                        retval = sav_parse_variable_display_parameter_record(data_buf, ctx);
+                        retval = sav_parse_variable_display_parameter_record(data_buf, count, ctx);
                         if (retval != READSTAT_OK)
                             goto cleanup;
                         break;

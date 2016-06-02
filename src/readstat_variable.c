@@ -44,6 +44,14 @@ size_t readstat_variable_get_width(readstat_variable_t *variable) {
     return variable->storage_width;
 }
 
+readstat_measure_t readstat_variable_get_measure(readstat_variable_t *variable) {
+    return variable->measure;
+}
+
+readstat_alignment_t readstat_variable_get_alignment(readstat_variable_t *variable) {
+    return variable->alignment;
+}
+
 int readstat_variable_get_missing_ranges_count(readstat_variable_t *variable) {
     return variable->missingness.missing_ranges_count;
 }

@@ -46,6 +46,18 @@ static void readstat_copy_label(readstat_value_label_t *value_label, const char 
     }
 }
 
+static readstat_value_label_t *readstat_add_value_label(readstat_label_set_t *label_set, const char *label) {
+    if (label_set->value_labels_count == label_set->value_labels_capacity) {
+        label_set->value_labels_capacity *= 2;
+        label_set->value_labels = realloc(label_set->value_labels, 
+                label_set->value_labels_capacity * sizeof(readstat_value_label_t));
+    }
+    readstat_value_label_t *new_value_label = &label_set->value_labels[label_set->value_labels_count++];
+    memset(new_value_label, 0, sizeof(readstat_value_label_t));
+    readstat_copy_label(new_value_label, label);
+    return new_value_label;
+}
+
 void readstat_writer_free(readstat_writer_t *writer) {
     int i;
     if (writer) {
@@ -125,46 +137,27 @@ readstat_variable_t *readstat_get_label_set_variable(readstat_label_set_t *label
 }
 
 void readstat_label_double_value(readstat_label_set_t *label_set, double value, const char *label) {
-    if (label_set->value_labels_count == label_set->value_labels_capacity) {
-        label_set->value_labels_capacity *= 2;
-        label_set->value_labels = realloc(label_set->value_labels, 
-                label_set->value_labels_capacity * sizeof(readstat_value_label_t));
-    }
-    readstat_value_label_t *new_value_label = &label_set->value_labels[label_set->value_labels_count++];
+    readstat_value_label_t *new_value_label = readstat_add_value_label(label_set, label);
     new_value_label->double_key = value;
     new_value_label->int32_key = value;
-    readstat_copy_label(new_value_label, label);
 }
 
 void readstat_label_int32_value(readstat_label_set_t *label_set, int32_t value, const char *label) {
-    if (label_set->value_labels_count == label_set->value_labels_capacity) {
-        label_set->value_labels_capacity *= 2;
-        label_set->value_labels = realloc(label_set->value_labels, 
-                label_set->value_labels_capacity * sizeof(readstat_value_label_t));
-    }
-    readstat_value_label_t *new_value_label = &label_set->value_labels[label_set->value_labels_count++];
+    readstat_value_label_t *new_value_label = readstat_add_value_label(label_set, label);
     new_value_label->double_key = value;
     new_value_label->int32_key = value;
-    readstat_copy_label(new_value_label, label);
 }
 
 void readstat_label_string_value(readstat_label_set_t *label_set, const char *value, const char *label) {
-    if (label_set->value_labels_count == label_set->value_labels_capacity) {
-        label_set->value_labels_capacity *= 2;
-        label_set->value_labels = realloc(label_set->value_labels, 
-                label_set->value_labels_capacity * sizeof(readstat_value_label_t));
-    }
-    readstat_value_label_t *new_value_label = &label_set->value_labels[label_set->value_labels_count++];
+    readstat_value_label_t *new_value_label = readstat_add_value_label(label_set, label);
     if (value && strlen(value)) {
         new_value_label->string_key_len = strlen(value);
         new_value_label->string_key = malloc(new_value_label->string_key_len);
         strncpy(new_value_label->string_key, value, new_value_label->string_key_len);
     }
-    readstat_copy_label(new_value_label, label);
 }
 
-readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, readstat_types_t type, size_t width,
-        const char *name, const char *label, const char *format, readstat_label_set_t *label_set) {
+readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char *name, readstat_types_t type, size_t width) {
     if (writer->variables_count == writer->variables_capacity) {
         writer->variables_capacity *= 2;
         writer->variables = realloc(writer->variables,
@@ -178,29 +171,50 @@ readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, readstat_t
 
     new_variable->user_width = width;
     new_variable->type = type;
+    new_variable->alignment = READSTAT_ALIGNMENT_UNKNOWN;
+    new_variable->measure = READSTAT_MEASURE_UNKNOWN;
 
     if (name) {
         snprintf(new_variable->name, sizeof(new_variable->name), "%s", name);
     }
 
+    return new_variable;
+}
+
+void readstat_variable_set_label(readstat_variable_t *variable, const char *label) {
     if (label) {
-        snprintf(new_variable->label, sizeof(new_variable->label), "%s", label);
+        snprintf(variable->label, sizeof(variable->label), "%s", label);
+    } else {
+        memset(variable->label, '\0', sizeof(variable->label));
     }
+}
 
+void readstat_variable_set_format(readstat_variable_t *variable, const char *format) {
     if (format) {
-        snprintf(new_variable->format, sizeof(new_variable->format), "%s", format);
+        snprintf(variable->format, sizeof(variable->format), "%s", format);
+    } else {
+        memset(variable->format, '\0', sizeof(variable->format));
     }
+}
 
+void readstat_variable_set_measure(readstat_variable_t *variable, readstat_measure_t measure) {
+    variable->measure = measure;
+}
+
+void readstat_variable_set_alignment(readstat_variable_t *variable, readstat_alignment_t alignment) {
+    variable->alignment = alignment;
+}
+
+void readstat_variable_set_label_set(readstat_variable_t *variable, readstat_label_set_t *label_set) {
+    variable->label_set = label_set;
     if (label_set) {
         if (label_set->variables_count == label_set->variables_capacity) {
             label_set->variables_capacity *= 2;
             label_set->variables = realloc(label_set->variables,
                     label_set->variables_capacity * sizeof(readstat_variable_t *));
         }
-        new_variable->label_set = label_set;
-        ((readstat_variable_t **)label_set->variables)[label_set->variables_count++] = new_variable;
+        ((readstat_variable_t **)label_set->variables)[label_set->variables_count++] = variable;
     }
-    return new_variable;
 }
 
 readstat_variable_t *readstat_get_variable(readstat_writer_t *writer, int index) {

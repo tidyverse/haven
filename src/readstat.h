@@ -19,7 +19,7 @@ extern "C" {
 #include <math.h>
 #include <stdio.h>
 
-typedef enum readstat_types_e {
+typedef enum readstat_type_e {
     READSTAT_TYPE_STRING,
     READSTAT_TYPE_CHAR,
     READSTAT_TYPE_INT16,
@@ -28,6 +28,21 @@ typedef enum readstat_types_e {
     READSTAT_TYPE_DOUBLE,
     READSTAT_TYPE_LONG_STRING
 } readstat_types_t;
+
+typedef enum readstat_measure_e {
+    READSTAT_MEASURE_UNKNOWN,
+    READSTAT_MEASURE_NOMINAL = 1,
+    READSTAT_MEASURE_ORDINAL,
+    READSTAT_MEASURE_INTERVAL,
+    READSTAT_MEASURE_RATIO
+} readstat_measure_t;
+
+typedef enum readstat_alignment_e {
+    READSTAT_ALIGNMENT_UNKNOWN,
+    READSTAT_ALIGNMENT_LEFT = 1,
+    READSTAT_ALIGNMENT_CENTER,
+    READSTAT_ALIGNMENT_RIGHT
+} readstat_alignment_t;
 
 typedef enum readstat_error_e {
     READSTAT_OK,
@@ -57,7 +72,7 @@ typedef struct readstat_value_s {
         int32_t     i32_value;
         char       *string_value;
     } v;
-    readstat_types_t        type;
+    readstat_types_t         type;
     char                    tag;
     unsigned int            is_system_missing:1;
     unsigned int            is_considered_missing:1;
@@ -107,7 +122,7 @@ typedef struct readstat_missingness_s {
 } readstat_missingness_t;
 
 typedef struct readstat_variable_s {
-    readstat_types_t        type;
+    readstat_types_t         type;
     int                     index;
     char                    name[256];
     char                    format[256];
@@ -117,6 +132,8 @@ typedef struct readstat_variable_s {
     size_t                  storage_width;
     size_t                  user_width;
     readstat_missingness_t  missingness;
+    readstat_measure_t      measure;
+    readstat_alignment_t    alignment;
 } readstat_variable_t;
 
 /* Accessor methods for use inside a variable handler */
@@ -125,6 +142,9 @@ const char *readstat_variable_get_label(readstat_variable_t *variable);
 const char *readstat_variable_get_format(readstat_variable_t *variable);
 readstat_types_t readstat_variable_get_type(readstat_variable_t *variable);
 size_t readstat_variable_get_width(readstat_variable_t *variable);
+readstat_measure_t readstat_variable_get_measure(readstat_variable_t *variable);
+readstat_alignment_t readstat_variable_get_alignment(readstat_variable_t *variable);
+
 int readstat_variable_get_missing_ranges_count(readstat_variable_t *variable);
 readstat_value_t readstat_variable_get_missing_range_lo(readstat_variable_t *variable, int i);
 readstat_value_t readstat_variable_get_missing_range_hi(readstat_variable_t *variable, int i);
@@ -289,8 +309,12 @@ void readstat_label_int32_value(readstat_label_set_t *label_set, int32_t value, 
 void readstat_label_string_value(readstat_label_set_t *label_set, const char *value, const char *label);
 
 // Now define your variables. Note that `width' is only used for READSTAT_TYPE_STRING variables.
-readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, readstat_types_t type, size_t width,
-        const char *name, const char *label, const char *format, readstat_label_set_t *label_set);
+readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char *name, readstat_types_t type, size_t width);
+void readstat_variable_set_label(readstat_variable_t *variable, const char *label);
+void readstat_variable_set_format(readstat_variable_t *variable, const char *format);
+void readstat_variable_set_label_set(readstat_variable_t *variable, readstat_label_set_t *label_set);
+void readstat_variable_set_measure(readstat_variable_t *variable, readstat_measure_t measure);
+void readstat_variable_set_alignment(readstat_variable_t *variable, readstat_alignment_t alignment);
 void readstat_variable_add_missing_double_value(readstat_variable_t *variable, double value);
 void readstat_variable_add_missing_double_range(readstat_variable_t *variable, double lo, double hi);
 readstat_variable_t *readstat_get_variable(readstat_writer_t *writer, int index);

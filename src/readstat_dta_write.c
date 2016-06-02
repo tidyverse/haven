@@ -11,11 +11,11 @@
 #include "readstat_dta.h"
 #include "readstat_writer.h"
 
-#define DTA_DEFAULT_FORMAT_BYTE    "%8.0g"
-#define DTA_DEFAULT_FORMAT_INT16   "%8.0g"
-#define DTA_DEFAULT_FORMAT_INT32  "%12.0g"
-#define DTA_DEFAULT_FORMAT_FLOAT   "%9.0g"
-#define DTA_DEFAULT_FORMAT_DOUBLE "%10.0g"
+#define DTA_DEFAULT_FORMAT_BYTE    "8.0g"
+#define DTA_DEFAULT_FORMAT_INT16   "8.0g"
+#define DTA_DEFAULT_FORMAT_INT32  "12.0g"
+#define DTA_DEFAULT_FORMAT_FLOAT   "9.0g"
+#define DTA_DEFAULT_FORMAT_DOUBLE "10.0g"
 
 static readstat_error_t dta_emit_header_data_label(readstat_writer_t *writer) {
     char data_label[81];
@@ -96,18 +96,22 @@ static readstat_error_t dta_emit_fmtlist(readstat_writer_t *writer, dta_ctx_t *c
             strncpy(&ctx->fmtlist[ctx->fmtlist_entry_len*i],
                     r_variable->format, ctx->fmtlist_entry_len);
         } else {
-            char *format = "%9s";
+            char *format_spec = "9s";
             if (r_variable->type == READSTAT_TYPE_CHAR) {
-                format = DTA_DEFAULT_FORMAT_BYTE;
+                format_spec = DTA_DEFAULT_FORMAT_BYTE;
             } else if (r_variable->type == READSTAT_TYPE_INT16) {
-                format = DTA_DEFAULT_FORMAT_INT16;
+                format_spec = DTA_DEFAULT_FORMAT_INT16;
             } else if (r_variable->type == READSTAT_TYPE_INT32) {
-                format = DTA_DEFAULT_FORMAT_INT32;
+                format_spec = DTA_DEFAULT_FORMAT_INT32;
             } else if (r_variable->type == READSTAT_TYPE_FLOAT) {
-                format = DTA_DEFAULT_FORMAT_FLOAT;
+                format_spec = DTA_DEFAULT_FORMAT_FLOAT;
             } else if (r_variable->type == READSTAT_TYPE_DOUBLE) {
-                format = DTA_DEFAULT_FORMAT_DOUBLE;
+                format_spec = DTA_DEFAULT_FORMAT_DOUBLE;
             }
+            char format[64];
+            sprintf(format, "%%%s%s", 
+                    r_variable->alignment == READSTAT_ALIGNMENT_LEFT ? "-" : "",
+                    format_spec);
             strncpy(&ctx->fmtlist[ctx->fmtlist_entry_len*i],
                     format, ctx->fmtlist_entry_len);
         }

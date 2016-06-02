@@ -59,6 +59,7 @@
     * Support extended ASCII encoding for Stata (#71)
     * Support for Stata 14 files (#75)
     * Support for SPSS value labels with more than 8 characters (#157)
+    * Fix crash when writing `.sav` (#171).
 
 * fixed bug in `zap_labels()` which was leaving labelled vectors unchanged
   instead of leaving unlabelled vectors unchanged. (@markriseley, #69).
