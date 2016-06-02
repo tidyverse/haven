@@ -174,15 +174,27 @@ replace_with <- function(x, from, to) {
 #' @export
 #' @rdname labelled
 zap_labels <- function(x) {
-  if (!is.labelled(x))
-    return(x)
+  UseMethod("zap_labels")
+}
 
+#' @export
+zap_labels.default <- function(x) {
+  x
+}
+
+#' @export
+zap_labels.labelled <- function(x) {
   attr(x, "labels") <- NULL
   class(x) <- NULL
 
   x
 }
 
+#' @export
+zap_labels.data.frame <- function(x) {
+  x[] <- lapply(x, zap_labels)
+  x
+}
 
 label_length <- function(x) {
   if (!is.labelled(x)) {

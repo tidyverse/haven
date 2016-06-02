@@ -1,5 +1,8 @@
 # haven 0.2.0.9000
 
+* `zap_labels()` becomes generic and gains a data frame method that zaps
+  the labels from every column.
+
 * `write_sav()` now sets the "measure" type for exported variables (#133).
 
 * Reader functions now handle connections and compressed files
