@@ -30,8 +30,7 @@ read_spss(file)
 \item{path}{Path to a file where the data will be written.}
 }
 \value{
-A data frame with additional "tbl_df" and "tbl" classes, which
-  improve printing if dplyr is loaded.
+A tibble, data frame variant with nice defaults.
 
   Variable labels are stored in the "label" attribute of each variable.
   It is not printed on the console, but the RStudio viewer will show it.

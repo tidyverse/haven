@@ -1,5 +1,6 @@
 #' @useDynLib haven
 #' @importFrom Rcpp sourceCpp
+#' @importFrom tibble tibble
 NULL
 
 #' Read SAS files.
@@ -9,8 +10,7 @@ NULL
 #'
 #' @param b7dat,b7cat Path to data and catalog files. The files are
 #'   processed with \code{\link[readr]{datasource}()}.
-#' @return A data frame with additional "tbl_df" and "tbl" classes, which
-#'   improve printing if dplyr is loaded.
+#' @return A tibble, data frame variant with nice defaults.
 #'
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
@@ -38,8 +38,7 @@ read_sas <- function(b7dat, b7cat = NULL) {
 #' @inheritParams readr::datasource
 #' @param path Path to a file where the data will be written.
 #' @param data Data frame to write.
-#' @return A data frame with additional "tbl_df" and "tbl" classes, which
-#'   improve printing if dplyr is loaded.
+#' @return A tibble, data frame variant with nice defaults.
 #'
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
@@ -93,8 +92,7 @@ read_spss <- function(file) {
 #'   the encoding specified in the file, or UTF-8. But older versions of Stata
 #'   (13 and earlier) did not store the encoding used, and you'll need to
 #'   specify manually. A commonly used value is "Win 1252".
-#' @return A data frame with additional "tbl_df" and "tbl" classes, which
-#'   improve printing if dplyr is loaded.
+#' @return A tibble, data frame variant with nice defaults.
 #'
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.

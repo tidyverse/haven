@@ -1,5 +1,7 @@
 # haven 0.2.0.9000
 
+* Import tibble so that tibbles are printed consistently (#154, @krlmlr).
+
 * Update to latest ReadStat (#65). Includes: 
 
     * Support for binary (aka Ross) compression for SAS (#31)
