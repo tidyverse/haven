@@ -40,7 +40,7 @@ readstat_types_t readstat_variable_get_type(readstat_variable_t *variable) {
     return variable->type;
 }
 
-size_t readstat_variable_get_width(readstat_variable_t *variable) {
+size_t readstat_variable_get_storage_width(readstat_variable_t *variable) {
     return variable->storage_width;
 }
 
@@ -50,6 +50,10 @@ readstat_measure_t readstat_variable_get_measure(readstat_variable_t *variable) 
 
 readstat_alignment_t readstat_variable_get_alignment(readstat_variable_t *variable) {
     return variable->alignment;
+}
+
+int readstat_variable_get_display_width(readstat_variable_t *variable) {
+    return variable->display_width;
 }
 
 int readstat_variable_get_missing_ranges_count(readstat_variable_t *variable) {

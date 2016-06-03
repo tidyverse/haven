@@ -519,8 +519,8 @@ static readstat_error_t sav_read_data(sav_ctx_t *ctx) {
     if (retval != READSTAT_OK)
         goto done;
 
-    if (ctx->record_count != -1 && rows != ctx->record_count) {
-        retval = READSTAT_ERROR_PARSE;
+    if (ctx->record_count != -1 && rows != ctx->row_limit) {
+        retval = READSTAT_ERROR_ROW_COUNT_MISMATCH;
     }
 
 done:
@@ -615,6 +615,9 @@ static readstat_error_t sav_read_uncompressed_data(size_t longest_string,
             col = 0;
             var_index = 0;
             row++;
+        }
+        if (row == ctx->row_limit) {
+            goto done;
         }
         data_offset += 8;
     }
@@ -795,6 +798,8 @@ static readstat_error_t sav_read_compressed_data(size_t longest_string,
                 var_index = 0;
                 row++;
             }
+            if (row == ctx->row_limit)
+                goto done;
         }
     }
 done:
@@ -868,14 +873,20 @@ static readstat_error_t sav_parse_variable_display_parameter_record(void *data, 
     if (count != 2 * var_count && count != 3 * var_count) {
         return READSTAT_ERROR_PARSE;
     }
-    long field_count = count / var_count;
+    int has_display_width = (count / var_count == 3);
     for (i=0; i<ctx->var_index;) {
-        int32_t measure = 0, alignment = 0;
+        int32_t measure = 0, display_width = 0, alignment = 0;
         spss_varinfo_t *info = &ctx->varinfo[i];
 
         memcpy(&measure, data_ptr, sizeof(int32_t));
         info->measure = spss_measure_to_readstat_measure(measure);
-        data_ptr += (field_count - 1) * sizeof(int32_t);
+        data_ptr += sizeof(int32_t);
+
+        if (has_display_width) {
+            memcpy(&display_width, data_ptr, sizeof(int32_t));
+            info->display_width = display_width;
+            data_ptr += sizeof(int32_t);
+        }
 
         memcpy(&alignment, data_ptr, sizeof(int32_t));
         info->alignment = spss_alignment_to_readstat_alignment(alignment);
@@ -1325,6 +1336,12 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
     ctx->output_encoding = parser->output_encoding;
     ctx->user_ctx = user_ctx;
     ctx->file_size = file_size;
+    if (ctx->record_count == -1 ||
+            (parser->row_limit > 0 && parser->row_limit < ctx->record_count)) {
+        ctx->row_limit = parser->row_limit;
+    } else {
+        ctx->row_limit = ctx->record_count;
+    }
     
     if ((retval = sav_parse_records_pass1(ctx)) != READSTAT_OK)
         goto cleanup;
@@ -1343,7 +1360,8 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
     sav_set_n_segments_and_var_count(ctx);
 
     if (parser->info_handler) {
-        if (parser->info_handler(ctx->record_count, ctx->var_count, ctx->user_ctx)) {
+        if (parser->info_handler(ctx->record_count == -1 ? -1 : ctx->row_limit,
+                    ctx->var_count, ctx->user_ctx)) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }

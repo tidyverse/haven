@@ -133,6 +133,7 @@ typedef struct readstat_variable_s {
     readstat_missingness_t  missingness;
     readstat_measure_t      measure;
     readstat_alignment_t    alignment;
+    int                     display_width;
 } readstat_variable_t;
 
 /* Accessor methods for use inside a variable handler */
@@ -140,7 +141,8 @@ const char *readstat_variable_get_name(readstat_variable_t *variable);
 const char *readstat_variable_get_label(readstat_variable_t *variable);
 const char *readstat_variable_get_format(readstat_variable_t *variable);
 readstat_types_t readstat_variable_get_type(readstat_variable_t *variable);
-size_t readstat_variable_get_width(readstat_variable_t *variable);
+size_t readstat_variable_get_storage_width(readstat_variable_t *variable);
+int readstat_variable_get_display_width(readstat_variable_t *variable);
 readstat_measure_t readstat_variable_get_measure(readstat_variable_t *variable);
 readstat_alignment_t readstat_variable_get_alignment(readstat_variable_t *variable);
 
@@ -201,6 +203,7 @@ typedef struct readstat_parser_s {
     readstat_io_t                 *io;
     const char                    *input_encoding;
     const char                    *output_encoding;
+    long                           row_limit;
 } readstat_parser_t;
 
 readstat_parser_t *readstat_parser_init();
@@ -229,6 +232,8 @@ readstat_error_t readstat_set_file_character_encoding(readstat_parser_t *parser,
 
 // Defaults to UTF-8. Pass in NULL to disable transliteration.
 readstat_error_t readstat_set_handler_character_encoding(readstat_parser_t *parser, const char *encoding);
+
+readstat_error_t readstat_set_row_limit(readstat_parser_t *parser, long row_limit);
 
 readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *path, void *user_ctx);
 readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path, void *user_ctx);
@@ -307,13 +312,15 @@ void readstat_label_double_value(readstat_label_set_t *label_set, double value, 
 void readstat_label_int32_value(readstat_label_set_t *label_set, int32_t value, const char *label);
 void readstat_label_string_value(readstat_label_set_t *label_set, const char *value, const char *label);
 
-// Now define your variables. Note that `width' is only used for READSTAT_TYPE_STRING variables.
-readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char *name, readstat_types_t type, size_t width);
+// Now define your variables. Note that `storage_width' is only used for READSTAT_TYPE_STRING variables.
+readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char *name, readstat_types_t type, 
+        size_t storage_width);
 void readstat_variable_set_label(readstat_variable_t *variable, const char *label);
 void readstat_variable_set_format(readstat_variable_t *variable, const char *format);
 void readstat_variable_set_label_set(readstat_variable_t *variable, readstat_label_set_t *label_set);
 void readstat_variable_set_measure(readstat_variable_t *variable, readstat_measure_t measure);
 void readstat_variable_set_alignment(readstat_variable_t *variable, readstat_alignment_t alignment);
+void readstat_variable_set_display_width(readstat_variable_t *variable, int display_width);
 void readstat_variable_add_missing_double_value(readstat_variable_t *variable, double value);
 void readstat_variable_add_missing_double_range(readstat_variable_t *variable, double lo, double hi);
 readstat_variable_t *readstat_get_variable(readstat_writer_t *writer, int index);

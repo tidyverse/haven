@@ -445,7 +445,9 @@ static readstat_error_t sav_emit_variable_display_record(readstat_writer_t *writ
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        int32_t sav_display_width = 8;
+        int32_t sav_display_width = readstat_variable_get_display_width(r_variable);
+        if (sav_display_width <= 0)
+            sav_display_width = 8;
 
         retval = readstat_write_bytes(writer, &sav_display_width, sizeof(int32_t));
         if (retval != READSTAT_OK)
@@ -572,7 +574,7 @@ static readstat_error_t sav_emit_long_value_labels_records(readstat_writer_t *wr
 
             readstat_variable_t *r_variable = readstat_get_label_set_variable(r_label_set, k);
             int32_t name_len = strlen(r_variable->name);
-            int32_t storage_width = readstat_variable_get_width(r_variable);
+            int32_t storage_width = readstat_variable_get_storage_width(r_variable);
             if (storage_width <= 8)
                 continue;
 

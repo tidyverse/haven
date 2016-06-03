@@ -181,6 +181,7 @@ readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info) {
 
     variable->missingness = info->missingness;
     variable->measure = info->measure;
+    variable->display_width = info->display_width;
 
     return variable;
 }

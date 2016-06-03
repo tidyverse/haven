@@ -73,6 +73,7 @@ typedef struct readstat_por_ctx_s {
     int            obs_count;
     int            var_count;
     int            var_offset;
+    int            row_limit;
     spss_varinfo_t *varinfo;
     ck_hash_table_t *var_dict;
 } readstat_por_ctx_t;
@@ -593,6 +594,9 @@ static readstat_error_t read_por_file_data(readstat_por_ctx_t *ctx) {
         rs_retval = por_update_progress(ctx);
         if (rs_retval != READSTAT_OK)
             break;
+
+        if (ctx->obs_count == ctx->row_limit)
+            break;
     }
 cleanup:
     return rs_retval;
@@ -616,6 +620,7 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
     ctx->progress_handler = parser->progress_handler;
     ctx->user_ctx = user_ctx;
     ctx->io = io;
+    ctx->row_limit = parser->row_limit;
     
     if (io->open(path, io->io_ctx) == -1) {
         free(ctx);

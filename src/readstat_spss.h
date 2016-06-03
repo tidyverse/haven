@@ -84,6 +84,7 @@ typedef struct spss_varinfo_s {
     readstat_missingness_t  missingness;
     readstat_measure_t      measure;
     readstat_alignment_t    alignment;
+    int                     display_width;
 } spss_varinfo_t;
 
 int spss_format(char *buffer, size_t len, spss_format_t *format);

@@ -75,12 +75,18 @@ typedef struct dta_ctx_s {
 
     int            nvar;
     int            nobs;
+    size_t         record_len;
+    int            row_limit;
+
     int            machine_needs_byte_swap;
     int            machine_is_twos_complement;
     int            file_is_xmlish;
 
     iconv_t        converter;
     readstat_progress_handler progress_handler;
+    readstat_variable_handler variable_handler;
+    readstat_value_handler value_handler;
+    readstat_value_label_handler value_label_handler;
     size_t                    file_size;
     void                     *user_ctx;
     readstat_io_t            *io;

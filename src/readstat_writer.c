@@ -171,6 +171,7 @@ readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char
 
     new_variable->user_width = width;
     new_variable->type = type;
+
     if (type == READSTAT_TYPE_STRING || type == READSTAT_TYPE_LONG_STRING) {
         new_variable->alignment = READSTAT_ALIGNMENT_LEFT;
     } else {
@@ -207,6 +208,10 @@ void readstat_variable_set_measure(readstat_variable_t *variable, readstat_measu
 
 void readstat_variable_set_alignment(readstat_variable_t *variable, readstat_alignment_t alignment) {
     variable->alignment = alignment;
+}
+
+void readstat_variable_set_display_width(readstat_variable_t *variable, int display_width) {
+    variable->display_width = display_width;
 }
 
 void readstat_variable_set_label_set(readstat_variable_t *variable, readstat_label_set_t *label_set) {

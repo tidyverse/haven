@@ -99,6 +99,11 @@ readstat_error_t readstat_set_handler_character_encoding(readstat_parser_t *pars
     return READSTAT_OK;
 }
 
+readstat_error_t readstat_set_row_limit(readstat_parser_t *parser, long row_limit) {
+    parser->row_limit = row_limit;
+    return READSTAT_OK;
+}
+
 rdata_parser_t *rdata_parser_init() {
     rdata_parser_t *parser = calloc(1, sizeof(rdata_parser_t));
     parser->io = calloc(1, sizeof(readstat_io_t));
