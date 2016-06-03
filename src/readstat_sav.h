@@ -90,8 +90,8 @@ typedef struct sav_ctx_s {
     int            record_count;
     int            value_labels_count;
     int            fweight_index;
-    int            data_is_compressed:1;
-    int            machine_needs_byte_swap:1;
+    unsigned int   data_is_compressed:1;
+    unsigned int   machine_needs_byte_swap:1;
 } sav_ctx_t;
 
 #define SAV_RECORD_TYPE_VARIABLE                2

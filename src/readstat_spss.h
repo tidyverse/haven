@@ -55,9 +55,9 @@
 #define SAV_MEASURE_ORDINAL     2
 #define SAV_MEASURE_SCALE       3
 
-#define SAV_ALIGNMENT_LEFT      1
-#define SAV_ALIGNMENT_RIGHT     2
-#define SAV_ALIGNMENT_CENTER    3
+#define SAV_ALIGNMENT_LEFT      0
+#define SAV_ALIGNMENT_RIGHT     1
+#define SAV_ALIGNMENT_CENTER    2
 
 typedef struct spss_format_s {
     int          type;

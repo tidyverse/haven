@@ -195,7 +195,7 @@ int32_t spss_measure_from_readstat_measure(readstat_measure_t measure) {
         sav_measure = SAV_MEASURE_NOMINAL;
     } else if (measure == READSTAT_MEASURE_ORDINAL) {
         sav_measure = SAV_MEASURE_ORDINAL;
-    } else if (measure == READSTAT_MEASURE_INTERVAL || measure == READSTAT_MEASURE_RATIO) {
+    } else if (measure == READSTAT_MEASURE_SCALE) {
         sav_measure = SAV_MEASURE_SCALE;
     }
     return sav_measure;
@@ -207,7 +207,7 @@ readstat_measure_t spss_measure_to_readstat_measure(int32_t sav_measure) {
     if (sav_measure == SAV_MEASURE_ORDINAL)
         return READSTAT_MEASURE_ORDINAL;
     if (sav_measure == SAV_MEASURE_SCALE)
-        return READSTAT_MEASURE_INTERVAL;
+        return READSTAT_MEASURE_SCALE;
     return READSTAT_MEASURE_UNKNOWN;
 }
 

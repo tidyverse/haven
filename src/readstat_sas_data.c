@@ -390,13 +390,15 @@ cleanup:
 static readstat_error_t sas_parse_single_row(const char *data, sas_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     int j;
-    ctx->scratch_buffer_len = 4*ctx->max_col_width+1;
-    ctx->scratch_buffer = realloc(ctx->scratch_buffer, ctx->scratch_buffer_len);
-    for (j=0; j<ctx->column_count; j++) {
-        col_info_t *col_info = &ctx->col_info[j];
-        retval = handle_data_value(&data[col_info->offset], col_info, ctx);
-        if (retval != READSTAT_OK) {
-            goto cleanup;
+    if (ctx->value_handler) {
+        ctx->scratch_buffer_len = 4*ctx->max_col_width+1;
+        ctx->scratch_buffer = realloc(ctx->scratch_buffer, ctx->scratch_buffer_len);
+        for (j=0; j<ctx->column_count; j++) {
+            col_info_t *col_info = &ctx->col_info[j];
+            retval = handle_data_value(&data[col_info->offset], col_info, ctx);
+            if (retval != READSTAT_OK) {
+                goto cleanup;
+            }
         }
     }
     ctx->parsed_row_count++;

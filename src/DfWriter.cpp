@@ -24,7 +24,7 @@ inline readstat_measure_e measureType(SEXP x) {
     switch(TYPEOF(x)) {
     case INTSXP:
     case REALSXP:
-      return READSTAT_MEASURE_INTERVAL;
+      return READSTAT_MEASURE_SCALE;
     case LGLSXP:
     case STRSXP:
       return READSTAT_MEASURE_NOMINAL;

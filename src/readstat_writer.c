@@ -171,7 +171,11 @@ readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char
 
     new_variable->user_width = width;
     new_variable->type = type;
-    new_variable->alignment = READSTAT_ALIGNMENT_UNKNOWN;
+    if (type == READSTAT_TYPE_STRING || type == READSTAT_TYPE_LONG_STRING) {
+        new_variable->alignment = READSTAT_ALIGNMENT_LEFT;
+    } else {
+        new_variable->alignment = READSTAT_ALIGNMENT_RIGHT;
+    }
     new_variable->measure = READSTAT_MEASURE_UNKNOWN;
 
     if (name) {
