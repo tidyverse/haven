@@ -9,9 +9,13 @@
 // * 1  bit : sign
 // * 11 bits: exponent
 // * 52 bits: significand
-
+//
 // R stores the value "1954" in the last 32 bits: this payload marks
 // the value as a NA, not a regular NaN.
+//
+// (Note that this discussion like most discussion of FP on the web, assumes
+// a big-endian architecture - in little endian the sign bit is the last
+// bit)
 
 typedef union {
   double value;           // 8 bytes
