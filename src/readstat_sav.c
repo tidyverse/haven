@@ -67,6 +67,9 @@ void sav_ctx_free(sav_ctx_t *ctx) {
     if (ctx->converter) {
         iconv_close(ctx->converter);
     }
+    if (ctx->variable_display_values) {
+        free(ctx->variable_display_values);
+    }
     free(ctx);
 }
 

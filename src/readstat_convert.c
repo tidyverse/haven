@@ -1,4 +1,5 @@
 
+#include <errno.h>
 #include "readstat.h"
 #include "readstat_iconv.h"
 #include "readstat_convert.h"
@@ -22,7 +23,14 @@ readstat_error_t readstat_convert(char *dst, size_t dst_len, const char *src, si
         char *dst_end = dst;
         size_t status = iconv(converter, (readstat_iconv_inbuf_t)&src, &src_len, &dst_end, &dst_left);
         if (status == (size_t)-1) {
-            return READSTAT_ERROR_PARSE;
+            if (errno == E2BIG) {
+                return READSTAT_ERROR_CONVERT_LONG_STRING;
+            } else if (errno == EILSEQ) {
+                return READSTAT_ERROR_CONVERT_BAD_STRING;
+            } else if (errno == EINVAL) {
+                return READSTAT_ERROR_CONVERT_SHORT_STRING;
+            }
+            return READSTAT_ERROR_CONVERT;
         }
         unpad(dst, dst_len - dst_left);
     } else {

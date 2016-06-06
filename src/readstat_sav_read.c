@@ -126,10 +126,11 @@ static readstat_error_t sav_read_value_label_record(sav_ctx_t *ctx);
 
 static readstat_error_t sav_read_dictionary_termination_record(sav_ctx_t *ctx);
 
-static readstat_error_t sav_parse_machine_floating_point_record(void *data, sav_ctx_t *ctx);
-static readstat_error_t sav_parse_variable_display_parameter_record(void *data, long count, sav_ctx_t *ctx);
-static readstat_error_t sav_parse_machine_integer_info_record(void *data, size_t data_len, sav_ctx_t *ctx);
-static readstat_error_t sav_parse_long_value_labels_record(void *data, size_t data_len, sav_ctx_t *ctx);
+static readstat_error_t sav_parse_machine_floating_point_record(const void *data, sav_ctx_t *ctx);
+static readstat_error_t sav_store_variable_display_parameter_record(const void *data, int count, sav_ctx_t *ctx);
+static readstat_error_t sav_parse_variable_display_parameter_record(sav_ctx_t *ctx);
+static readstat_error_t sav_parse_machine_integer_info_record(const void *data, size_t data_len, sav_ctx_t *ctx);
+static readstat_error_t sav_parse_long_value_labels_record(const void *data, size_t data_len, sav_ctx_t *ctx);
 
 static readstat_error_t sav_update_progress(sav_ctx_t *ctx) {
     readstat_io_t *io = ctx->io;
@@ -437,13 +438,16 @@ static readstat_error_t sav_read_value_label_record(sav_ctx_t *ctx) {
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;
     }
-    
     if (io->read(vars, var_count * sizeof(int32_t), io->io_ctx) < var_count * sizeof(int32_t)) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
     for (i=0; i<var_count; i++) {
-        int var_offset = vars[i]-1; // Why subtract 1????
+        int var_offset = vars[i];
+        if (ctx->machine_needs_byte_swap)
+            var_offset = byteswap4(var_offset);
+
+        var_offset--; // Why subtract 1????
         spss_varinfo_t *var = bsearch(&var_offset, ctx->varinfo, ctx->var_index, sizeof(spss_varinfo_t),
                 &spss_varinfo_compare);
         if (var) {
@@ -815,7 +819,7 @@ done:
     return retval;
 }
 
-static readstat_error_t sav_parse_machine_integer_info_record(void *data, size_t data_len, sav_ctx_t *ctx) {
+static readstat_error_t sav_parse_machine_integer_info_record(const void *data, size_t data_len, sav_ctx_t *ctx) {
     if (data_len != 32)
         return READSTAT_ERROR_PARSE;
 
@@ -857,47 +861,52 @@ static readstat_error_t sav_parse_machine_integer_info_record(void *data, size_t
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_parse_machine_floating_point_record(void *data, sav_ctx_t *ctx) {
+static readstat_error_t sav_parse_machine_floating_point_record(const void *data, sav_ctx_t *ctx) {
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_parse_variable_display_parameter_record(void *data, long count, sav_ctx_t *ctx) {
+/* We don't yet know how many real variables there are, so store the values in the record
+ * and make sense of them later. */
+static readstat_error_t sav_store_variable_display_parameter_record(const void *data, int count, sav_ctx_t *ctx) {
+    const int32_t *data_ptr = data;
     int i;
-    char *data_ptr = data;
-    long var_count = 0;
-    for (i=0; i<ctx->var_index;) {
-        spss_varinfo_t *info = &ctx->varinfo[i];
-        i += info->n_segments;
-        var_count++;
+
+    ctx->variable_display_values = realloc(ctx->variable_display_values, count * sizeof(int32_t));
+    if (ctx->variable_display_values == NULL)
+        return READSTAT_ERROR_MALLOC;
+
+    ctx->variable_display_values_count = count;
+    for (i=0; i<count; i++) {
+        ctx->variable_display_values[i] = ctx->machine_needs_byte_swap ? byteswap4(data_ptr[i]) : data_ptr[i];
     }
-    if (count != 2 * var_count && count != 3 * var_count) {
+    return READSTAT_OK;
+}
+
+static readstat_error_t sav_parse_variable_display_parameter_record(sav_ctx_t *ctx) {
+    if (!ctx->variable_display_values)
+        return READSTAT_OK;
+
+    int i;
+    long count = ctx->variable_display_values_count;
+    if (count != 2 * ctx->var_count && count != 3 * ctx->var_count) {
         return READSTAT_ERROR_PARSE;
     }
-    int has_display_width = (count / var_count == 3);
+    int has_display_width = (count / ctx->var_count == 3);
+    int offset = 0;
     for (i=0; i<ctx->var_index;) {
-        int32_t measure = 0, display_width = 0, alignment = 0;
         spss_varinfo_t *info = &ctx->varinfo[i];
-
-        memcpy(&measure, data_ptr, sizeof(int32_t));
-        info->measure = spss_measure_to_readstat_measure(measure);
-        data_ptr += sizeof(int32_t);
-
+        info->measure = spss_measure_to_readstat_measure(ctx->variable_display_values[offset++]);
         if (has_display_width) {
-            memcpy(&display_width, data_ptr, sizeof(int32_t));
-            info->display_width = display_width;
-            data_ptr += sizeof(int32_t);
+            info->display_width = ctx->variable_display_values[offset++];
         }
-
-        memcpy(&alignment, data_ptr, sizeof(int32_t));
-        info->alignment = spss_alignment_to_readstat_alignment(alignment);
-        data_ptr += sizeof(int32_t);
+        info->alignment = spss_alignment_to_readstat_alignment(ctx->variable_display_values[offset++]);
 
         i += info->n_segments;
     }
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_parse_long_value_labels_record(void *data, size_t data_len, sav_ctx_t *ctx) {
+static readstat_error_t sav_parse_long_value_labels_record(const void *data, size_t data_len, sav_ctx_t *ctx) {
     if (!ctx->value_label_handler)
         return READSTAT_OK;
 
@@ -905,8 +914,8 @@ static readstat_error_t sav_parse_long_value_labels_record(void *data, size_t da
     int32_t label_name_len = 0;
     int32_t label_count = 0;
     int32_t i = 0;
-    char *data_ptr = data;
-    char *data_end = data_ptr + data_len;
+    const char *data_ptr = data;
+    const char *data_end = data_ptr + data_len;
     char var_name_buf[256*4+1];
     char label_name_buf[256];
     char *value_buffer = NULL;
@@ -982,6 +991,10 @@ static readstat_error_t sav_parse_long_value_labels_record(void *data, size_t da
 
         value_buffer_len = value_len*4+1;
         value_buffer = realloc(value_buffer, value_buffer_len);
+        if (value_buffer == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
 
         if (data_ptr + value_len > data_end) {
             retval = READSTAT_ERROR_PARSE;
@@ -1007,6 +1020,10 @@ static readstat_error_t sav_parse_long_value_labels_record(void *data, size_t da
 
         label_buffer_len = label_len*4+1;
         label_buffer = realloc(label_buffer, label_buffer_len);
+        if (label_buffer == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
 
         if (data_ptr + label_len > data_end) {
             retval = READSTAT_ERROR_PARSE;
@@ -1197,7 +1214,7 @@ static readstat_error_t sav_parse_records_pass2(sav_ctx_t *ctx) {
                             goto cleanup;
                         break;
                     case SAV_RECORD_SUBTYPE_VAR_DISPLAY:
-                        retval = sav_parse_variable_display_parameter_record(data_buf, count, ctx);
+                        retval = sav_store_variable_display_parameter_record(data_buf, count, ctx);
                         if (retval != READSTAT_OK)
                             goto cleanup;
                         break;
@@ -1235,6 +1252,7 @@ cleanup:
 
 static void sav_set_n_segments_and_var_count(sav_ctx_t *ctx) {
     int i;
+    ctx->var_count = 0;
     for (i=0; i<ctx->var_index;) {
         spss_varinfo_t *info = &ctx->varinfo[i];
         if (info->string_length) {
@@ -1366,6 +1384,9 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
             goto cleanup;
         }
     }
+
+    sav_parse_variable_display_parameter_record(ctx);
+
     if ((retval = sav_handle_variables(parser, ctx)) != READSTAT_OK)
         goto cleanup;
 

@@ -567,7 +567,6 @@ static readstat_error_t sav_emit_long_value_labels_records(readstat_writer_t *wr
 
         int32_t label_count = r_label_set->value_labels_count;
         int32_t var_count = r_label_set->variables_count;
-        int32_t rec_type = 0;
         
         for (k=0; k<var_count; k++) {
             info_header.count = 0;

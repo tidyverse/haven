@@ -55,7 +55,7 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 123,   .name = "BIG-5" },
     { .code = 125,   .name = "EUC-CN" },
     { .code = 134,   .name = "EUC-JP" },
-    { .code = 138,   .name = "SHIFT-JIS" },
+    { .code = 138,   .name = "CP932" }, // is this the right shift-jis?
     { .code = 140,   .name = "EUC-KR" }
 };
 
