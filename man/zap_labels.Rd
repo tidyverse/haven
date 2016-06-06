@@ -13,4 +13,8 @@ zap_labels(x)
 Removes labels, leaving unlabelled vectors as is. Use this if you want to
 simply drop all labelling from a data frame.
 }
+\seealso{
+Other zappers: \code{\link{zap_empty}},
+  \code{\link{zap_formats}}
+}
 

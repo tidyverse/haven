@@ -4,6 +4,7 @@
 #' simply drop all labelling from a data frame.
 #'
 #' @param x A vector or data frame
+#' @family zappers
 #' @export
 zap_labels <- function(x) {
   UseMethod("zap_labels")

@@ -6,6 +6,7 @@
 #' code, you can get rid of them with \code{zap_formats}.
 #'
 #' @param x A vector or data frame.
+#' @family zappers
 #' @export
 zap_formats <- function(x) {
   UseMethod("zap_formats")

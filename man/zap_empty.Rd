@@ -19,4 +19,8 @@ Convert empty strings into missing values.
 x <- c("a", "", "c")
 zap_empty(x)
 }
+\seealso{
+Other zappers: \code{\link{zap_formats}},
+  \code{\link{zap_labels}}
+}
 
