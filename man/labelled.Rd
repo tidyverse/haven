@@ -30,8 +30,8 @@ of the values might be labelled.}
   \item "values: use only the values
   }}
 
-\item{ordered}{If \code{TRUE} for ordinal factors, \code{FALSE} (the default)
-for nominal factors.}
+\item{ordered}{If \code{TRUE} create an ordered (ordinal) factor, if
+\code{FALSE} (the default) create a regular (nominal) factor.}
 
 \item{...}{Ignored}
 }
