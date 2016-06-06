@@ -7,8 +7,6 @@
 #' expect you'll coerce to a standard R class (e.g. a \code{\link{factor}})
 #' soon after importing.
 #'
-#' \code{as_factor()} converts to a factor.
-#'
 #' @param x A vector to label. Must be either numeric (integer or double) or
 #'   character.
 #' @param labels A named vector. The vector should be the same type as
@@ -124,49 +122,6 @@ as.data.frame.labelled <- function(x, ...) {
   attr(df, "row.names") <- .set_row_names(length(x))
 
   df
-}
-
-#' @param ordered If \code{TRUE} create an ordered (ordinal) factor, if
-#'   \code{FALSE} (the default) create a regular (nominal) factor.
-#' @param levels How to create the levels of the generated factor:
-#'
-#'   \itemize{
-#'   \item "default": uses labels where available, otherwise the values.
-#'   \item "both": like "default", but pastes together the level and value
-#'   \item "label": use only the labels; unlabelled values become \code{NA}
-#'   \item "values: use only the values
-#'   }
-#' @rdname labelled
-#' @export
-as_factor.labelled <- function(x, levels = c("default", "labels", "values", "both"),
-                               ordered = FALSE, ...) {
-  levels <- match.arg(levels)
-  labels <- attr(x, "labels")
-
-  if (levels == "default" || levels == "both") {
-    if (levels == "both") {
-      names(labels) <- paste0("[", labels, "] ", names(labels))
-    }
-
-    # Replace each value with its label
-    levs <- replace_with(sort(unique(x)), unname(labels), names(labels))
-    x <- replace_with(x, unname(labels), names(labels))
-
-    factor(x, levels = levs, ordered = ordered)
-  } else {
-    levs <- unname(labels)
-    labs <- switch(levels,
-      labels = names(labels),
-      values = levs
-    )
-    factor(x, levs, labels = labs, ordered = ordered)
-  }
-
-}
-
-replace_with <- function(x, from, to) {
-  matches <- match(x, from)
-  ifelse(is.na(matches), as.character(x), to[matches])
 }
 
 label_length <- function(x) {

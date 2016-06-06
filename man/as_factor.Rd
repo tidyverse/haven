@@ -2,18 +2,52 @@
 % Please edit documentation in R/as_factor.R
 \name{as_factor}
 \alias{as_factor}
+\alias{as_factor.character}
+\alias{as_factor.factor}
+\alias{as_factor.labelled}
 \title{Convert input to a factor.}
 \usage{
 as_factor(x, ...)
+
+\method{as_factor}{factor}(x, ...)
+
+\method{as_factor}{character}(x, ...)
+
+\method{as_factor}{labelled}(x, levels = c("default", "labels", "values",
+  "both"), ordered = FALSE, ...)
 }
 \arguments{
 \item{x}{Object to coerce to a factor.}
 
 \item{...}{Other arguments passed down to method.}
+
+\item{levels}{How to create the levels of the generated factor:
+
+  \itemize{
+  \item "default": uses labels where available, otherwise the values.
+  \item "both": like "default", but pastes together the level and value
+  \item "label": use only the labels; unlabelled values become \code{NA}
+  \item "values: use only the values
+  }}
+
+\item{ordered}{If \code{TRUE} create an ordered (ordinal) factor, if
+\code{FALSE} (the default) create a regular (nominal) factor.}
 }
 \description{
 The base function \code{as.factor()} is not a generic, but this variant
 is. Methods are provided for factors, character vectors and labelled
 vectors.
+}
+\examples{
+x <- labelled(sample(5, 10, replace = TRUE), c(Bad = 1, Good = 5))
+
+# Default method uses values where available
+as_factor(x)
+# You can also extract just the labels
+as_factor(x, "labels")
+# Or just the values
+as_factor(x, "values")
+# Or combine value and label
+as_factor(x, "both")
 }
 
