@@ -14,14 +14,6 @@
 #' @param labels A named vector. The vector should be the same type as
 #'   \code{x}. Unlike factors, labels don't need to be exhaustive: only a fraction
 #'   of the values might be labelled.
-#' @param levels How to create the levels of the generated factor:
-#'
-#'   \itemize{
-#'   \item "default": uses labels where available, otherwise the values.
-#'   \item "both": like "default", but pastes together the level and value
-#'   \item "label": use only the labels; unlabelled values become \code{NA}
-#'   \item "values: use only the values
-#'   }
 #' @param ... Ignored
 #' @export
 #' @examples
@@ -136,6 +128,14 @@ as.data.frame.labelled <- function(x, ...) {
 
 #' @param ordered If \code{TRUE} for ordinal factors, \code{FALSE} (the default)
 #'   for nominal factors.
+#' @param levels How to create the levels of the generated factor:
+#'
+#'   \itemize{
+#'   \item "default": uses labels where available, otherwise the values.
+#'   \item "both": like "default", but pastes together the level and value
+#'   \item "label": use only the labels; unlabelled values become \code{NA}
+#'   \item "values: use only the values
+#'   }
 #' @rdname labelled
 #' @export
 as_factor.labelled <- function(x, levels = c("default", "labels", "values", "both"),
