@@ -126,8 +126,8 @@ as.data.frame.labelled <- function(x, ...) {
   df
 }
 
-#' @param ordered If \code{TRUE} for ordinal factors, \code{FALSE} (the default)
-#'   for nominal factors.
+#' @param ordered If \code{TRUE} create an ordered (ordinal) factor, if
+#'   \code{FALSE} (the default) create a regular (nominal) factor.
 #' @param levels How to create the levels of the generated factor:
 #'
 #'   \itemize{
