@@ -4,7 +4,7 @@
 \alias{is_tagged_na}
 \alias{na_tag}
 \alias{tagged_na}
-\title{Create a "tagged" missing value}
+\title{"Tagged" missing values}
 \usage{
 tagged_na(x)
 
@@ -15,6 +15,8 @@ is_tagged_na(x, tag = NULL)
 \arguments{
 \item{x}{A vector of single characters. The letter will be used to
 "tag" the missing value.}
+
+\item{tag}{If \code{NULL}, will only return true if the tag has this value.}
 }
 \description{
 "Tagged" missing values work exactly like regular R missing values except
@@ -23,11 +25,21 @@ a letter ("A" to "Z").
 }
 \examples{
 x <- c(1:5, tagged_na("a"), tagged_na("z"), NA)
+
+# Tagged NA's work identically to regular NAs
 x
+is.na(x)
+
+# To see that they're special, you need to use na_tag() or
+# is_tagged_na():
+is_tagged_na(x)
 na_tag(x)
 
-is.na(x)
-is_tagged_na(x)
+# You can test for specific tagged NAs with the second argument
 is_tagged_na(x, "a")
+
+# Because the support for tagged's NAs is somewhat tagged on to R,
+# the left-most NA will tend to be preserved in arithmetic operations.
+na_tag(tagged_na("a") + tagged_na("z"))
 }
 
