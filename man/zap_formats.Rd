@@ -15,4 +15,8 @@ and R, haven stores variable formats in an attribute: \code{format.stata},
 \code{format.spss}, or \code{format.sas}. If this causes problems for your
 code, you can get rid of them with \code{zap_formats}.
 }
+\seealso{
+Other zappers: \code{\link{zap_empty}},
+  \code{\link{zap_labels}}
+}
 
