@@ -152,6 +152,7 @@ as_factor.labelled <- function(x, levels = c("default", "labels", "values", "bot
 
     # Replace each value with its label
     levs <- replace_with(sort(unique(x)), unname(labels), names(labels))
+    levs <- unique(c(names(labels), levs))
     x <- replace_with(x, unname(labels), names(labels))
 
     factor(x, levels = levs, ordered = ordered)
