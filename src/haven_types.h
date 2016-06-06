@@ -32,6 +32,14 @@ inline VarType numType(SEXP x) {
   }
 }
 
+inline std::string formatAttribute(FileType type) {
+  switch (type) {
+  case HAVEN_STATA: return "format.stata";
+  case HAVEN_SPSS:  return "format.spss";
+  case HAVEN_SAS:   return "format.sas";
+  }
+}
+
 
 inline VarType numType(FileType type, const char* var_format) {
   if (var_format == NULL)

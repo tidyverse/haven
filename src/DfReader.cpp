@@ -153,6 +153,7 @@ public:
       val_labels_[index] = val_labels;
 
     const char* var_format = readstat_variable_get_format(variable);
+
     VarType var_type = numType(type_, var_format);
     // Rcout << var_name << ": " << var_format << " [" << var_type << "]\n";
     var_types_[index] = var_type;
@@ -170,6 +171,11 @@ public:
       break;
     default:
       break;
+    }
+
+    // Store original format as attribute
+    if (var_format != NULL && strcmp(var_format, "") != 0) {
+      col.attr(formatAttribute(type_)) = Rf_ScalarString(Rf_mkCharCE(var_format, CE_UTF8));
     }
 
     return 0;

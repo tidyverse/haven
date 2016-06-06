@@ -69,30 +69,31 @@ public:
       RObject col = x_[j];
 
       const char* name = string_utf8(names, j);
+      const char* format = var_format(col, HAVEN_STATA);
 
       switch(numType(col)) {
       case HAVEN_DATETIME:
-        defineVariable(as<NumericVector>(col), name, "DATETIME");
+        defineVariable(as<NumericVector>(col), name, (format == NULL) ? "DATETIME" : format);
         break;
       case HAVEN_DATE:
-        defineVariable(as<NumericVector>(col), name, "DATE");
+        defineVariable(as<NumericVector>(col), name, (format == NULL) ? "DATE" : format);
         break;
       case HAVEN_TIME:
-        defineVariable(as<NumericVector>(col), name, "TIME");
+        defineVariable(as<NumericVector>(col), name, (format == NULL) ? "TIME" : format);
         break;
       case HAVEN_DEFAULT:
         switch(TYPEOF(col)) {
         case LGLSXP:
-          defineVariable(as<IntegerVector>(col), name);
+          defineVariable(as<IntegerVector>(col), name, format);
           break;
         case INTSXP:
-          defineVariable(as<IntegerVector>(col), name);
+          defineVariable(as<IntegerVector>(col), name, format);
           break;
         case REALSXP:
-          defineVariable(as<NumericVector>(col), name);
+          defineVariable(as<NumericVector>(col), name, format);
           break;
         case STRSXP:
-          defineVariable(as<CharacterVector>(col), name);
+          defineVariable(as<CharacterVector>(col), name, format);
           break;
         default:
           stop("Variables of type %s not supported yet",
@@ -153,28 +154,29 @@ public:
     for (int j = 0; j < p; ++j) {
       RObject col = x_[j];
       const char* name = string_utf8(names, j);
+      const char* format = var_format(col, HAVEN_STATA);
 
       switch(numType(col)) {
       case HAVEN_DATETIME:
-        defineVariable(as<NumericVector>(col), name, "%tc");
+        defineVariable(as<NumericVector>(col), name, (format == NULL) ? "%tc" : format);
         break;
       case HAVEN_DATE:
-        defineVariable(as<NumericVector>(col), name, "%td");
+        defineVariable(as<NumericVector>(col), name, (format == NULL) ? "%td" : format);
         break;
       case HAVEN_TIME: // Stata doesn't have a pure time variable
       case HAVEN_DEFAULT:
         switch(TYPEOF(col)) {
         case LGLSXP:
-          defineVariable(as<IntegerVector>(col), name);
+          defineVariable(as<IntegerVector>(col), name, format);
           break;
         case INTSXP:
-          defineVariable(as<IntegerVector>(col), name);
+          defineVariable(as<IntegerVector>(col), name, format);
           break;
         case REALSXP:
-          defineVariable(as<NumericVector>(col), name);
+          defineVariable(as<NumericVector>(col), name, format);
           break;
         case STRSXP:
-          defineVariable(as<CharacterVector>(col), name);
+          defineVariable(as<CharacterVector>(col), name, format);
           break;
         default:
           stop("Variables of type %s not supported yet",
@@ -232,6 +234,15 @@ public:
       return NULL;
 
     return string_utf8(label, 0);
+  }
+
+  const char* var_format(RObject x, FileType type) {
+    RObject format = x.attr(formatAttribute(type));
+
+    if (format == R_NilValue)
+      return NULL;
+
+    return string_utf8(format, 0);
   }
 
   void defineVariable(IntegerVector x, const char* name, const char* format = NULL) {

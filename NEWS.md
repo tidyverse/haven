@@ -10,6 +10,11 @@
     * Support for SPSS value labels with more than 8 characters (#157)
     * Fix crash when writing `.sav` (#171).
 
+* Added support for reading and writing variable formats. Similarly to 
+  to variable labels, formats are stored as an attribute on the vector.
+  Use `zap_formats()` if you want to remove these attributes.
+  (@gorcha, #119, #123).
+
 * `as_factor()` gains a new `levels = "default"` mechanism. This uses the
   labels where present, and otherwise uses the labels. This is now the
   default, as it seems to map better to the semantics of labelled values

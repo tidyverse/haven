@@ -25,6 +25,6 @@ test_that("Stata %td (date) and %tc (datetime) read into expected classes", {
 
 
 test_that("Old %d format read into Date class", {
-  df <- read_stata(test_path("datetime-d.dta"))
+  df <- zap_formats(read_stata(test_path("datetime-d.dta")))
   expect_equal(df$date, as.Date("2015-11-02"))
 })

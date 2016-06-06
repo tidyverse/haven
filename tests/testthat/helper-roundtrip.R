@@ -4,7 +4,7 @@ roundtrip_sav <- function(x) {
   on.exit(unlink(tmp))
 
   write_sav(x, tmp)
-  read_sav(tmp)
+  zap_formats(read_sav(tmp))
 }
 
 roundtrip_dta <- function(x) {
@@ -12,7 +12,7 @@ roundtrip_dta <- function(x) {
   on.exit(unlink(tmp))
 
   write_dta(x, tmp)
-  read_dta(tmp)
+  zap_formats(read_dta(tmp))
 }
 
 roundtrip_var <- function(x, type = "sav") {

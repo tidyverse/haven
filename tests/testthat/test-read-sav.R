@@ -6,8 +6,8 @@ test_that("variable label stored as attributes", {
 })
 
 test_that("value labels stored as labelled class", {
-  num <- read_spss("labelled-num.sav")
-  str <- read_spss("labelled-str.sav")
+  num <- zap_formats(read_spss(test_path("labelled-num.sav")))
+  str <- zap_formats(read_spss(test_path("labelled-str.sav")))
 
   expect_equal(num[[1]], labelled(1, c("This is one" = 1)))
   expect_equal(str[[1]], labelled(c("M", "F"), c(Female = "F", Male = "M")))
@@ -48,4 +48,24 @@ test_that("datetime values correctly imported (offset)", {
   expect_equal(df$date[1], as.Date("2014-09-22d"))
   expect_equal(df$date.posix[2], as.POSIXct("2014-09-23 15:59:20", tz = "UTC"))
   expect_equal(as.integer(df$time[1]), 43870)
+})
+
+test_that("formats roundtrip", {
+  df <- tibble::data_frame(
+    a = structure(c(1, 1, 2), format.spss = "F1.0"),
+    b = structure(4:6, format.spss = "F2.1"),
+    c = structure(7:9, format.spss = "N2"),
+    d = structure(c("Text", "Text", ""), format.spss = "A100")
+  )
+
+  tmp <- tempfile()
+  on.exit(unlink(tmp))
+
+  write_sav(df, tmp)
+  df2 <- read_sav(tmp)
+
+  expect_equal(df$a, df$a)
+  expect_equal(df$b, df$b)
+  expect_equal(df$c, df$c)
+  expect_equal(df$d, df$d)
 })
