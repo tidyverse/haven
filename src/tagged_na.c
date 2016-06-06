@@ -47,8 +47,15 @@ inline char tagged_na_value(double x) {
   return y.byte[TAG_BYTE];
 }
 
-// TODO: add helper for extracting first character from first element
-// in character vector. Needs to check for NA and zero length strings
+char first_char(SEXP x) {
+  if (TYPEOF(x) != CHARSXP)
+    return '\0';
+
+  if (x == NA_STRING)
+    return '\0';
+
+  return CHAR(x)[0];
+}
 
 // Vectorised wrappers -----------------------------------------------------
 
@@ -60,13 +67,8 @@ SEXP tagged_na_(SEXP x) {
   SEXP out = PROTECT(Rf_allocVector(REALSXP, n));
 
   for (int i = 0; i < n; ++i) {
-    if (STRING_ELT(x, i) == NA_STRING) {
-      REAL(out)[i] = NA_REAL;
-    } else {
-      const char* xi = CHAR(STRING_ELT(x, i));
-
-      REAL(out)[i] = make_tagged_na(xi[0]);
-    }
+    char xi = first_char(STRING_ELT(x, i));
+    REAL(out)[i] = make_tagged_na(xi);
   }
 
   UNPROTECT(1);
@@ -109,8 +111,10 @@ SEXP is_tagged_na_(SEXP x, SEXP tag_) {
     has_tag = false;
     check_tag = '\0';
   } else if (TYPEOF(tag_) == STRSXP) {
+    if (Rf_length(tag_) != 1)
+      Rf_errorcall(R_NilValue, "`tag` must be a character vector of length 1");
     has_tag = true;
-    check_tag = CHAR(STRING_ELT(tag_, 0))[0];
+    check_tag = first_char(STRING_ELT(tag_, 0));
   } else {
     Rf_errorcall(R_NilValue, "`tag` must be NULL or a character vector");
   }
