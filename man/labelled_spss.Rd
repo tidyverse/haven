@@ -16,8 +16,8 @@ of the values might be labelled.}
 
 \item{na_values}{A vector of values that should also be considered as missing.}
 
-\item{na_range}{A numeric vector of length two giving the extents of
-the range. Use \code{-Inf} and \code{Inf} if you want the range to be
+\item{na_range}{A numeric vector of length two giving the (inclusive) extents
+of the range. Use \code{-Inf} and \code{Inf} if you want the range to be
 open ended.}
 }
 \description{
@@ -28,6 +28,9 @@ three distinct values, or for numeric vectors a range.
 }
 \examples{
 x1 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_values = c(9, 10))
-x1 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf))
+is.na(x1)
+
+x2 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf))
+is.na(x2)
 }
 
