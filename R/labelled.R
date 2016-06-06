@@ -7,9 +7,7 @@
 #' expect you'll coerce to a standard R class (e.g. a \code{\link{factor}})
 #' soon after importing.
 #'
-#' \code{as_factor()} converts to a factor. \code{zap_labels()} removes
-#' labels, leaving unlabelled vectors as is. Use this if you want to simply
-#' drop all labelling from a data frame.
+#' \code{as_factor()} converts to a factor.
 #'
 #' @param x A vector to label. Must be either numeric (integer or double) or
 #'   character.
@@ -169,31 +167,6 @@ as_factor.labelled <- function(x, levels = c("default", "labels", "values", "bot
 replace_with <- function(x, from, to) {
   matches <- match(x, from)
   ifelse(is.na(matches), as.character(x), to[matches])
-}
-
-#' @export
-#' @rdname labelled
-zap_labels <- function(x) {
-  UseMethod("zap_labels")
-}
-
-#' @export
-zap_labels.default <- function(x) {
-  x
-}
-
-#' @export
-zap_labels.labelled <- function(x) {
-  attr(x, "labels") <- NULL
-  class(x) <- NULL
-
-  x
-}
-
-#' @export
-zap_labels.data.frame <- function(x) {
-  x[] <- lapply(x, zap_labels)
-  x
 }
 
 label_length <- function(x) {

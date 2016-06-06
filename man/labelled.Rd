@@ -4,7 +4,6 @@
 \alias{as_factor.labelled}
 \alias{is.labelled}
 \alias{labelled}
-\alias{zap_labels}
 \title{Create a labelled vector.}
 \usage{
 labelled(x, labels)
@@ -13,8 +12,6 @@ is.labelled(x)
 
 \method{as_factor}{labelled}(x, levels = c("default", "labels", "values",
   "both"), ordered = FALSE, ...)
-
-zap_labels(x)
 }
 \arguments{
 \item{x}{A vector to label. Must be either numeric (integer or double) or
@@ -47,9 +44,7 @@ expect you'll coerce to a standard R class (e.g. a \code{\link{factor}})
 soon after importing.
 }
 \details{
-\code{as_factor()} converts to a factor. \code{zap_labels()} removes
-labels, leaving unlabelled vectors as is. Use this if you want to simply
-drop all labelling from a data frame.
+\code{as_factor()} converts to a factor.
 }
 \examples{
 s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
