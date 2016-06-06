@@ -22,12 +22,20 @@ typedef union {
   char byte[8];           // 8 * 1 bytes
 } ieee_double;
 
-// TODO: this will only work with little-Endian systems
+
+#ifdef WORDS_BIGENDIAN
+// First two bytes are sign & expoonent
+// Last four bytes are 1954
+const int TAG_BYTE = 3;
+#else
+const int TAG_BYTE = 4;
+#endif
+
 inline double make_tagged_na(char x) {
   ieee_double y;
 
   y.value = NA_REAL;
-  y.byte[4] = x;
+  y.byte[TAG_BYTE] = x;
 
   return y.value;
 }
@@ -36,7 +44,7 @@ inline char tagged_na_value(double x) {
   ieee_double y;
   y.value = x;
 
-  return y.byte[4];
+  return y.byte[TAG_BYTE];
 }
 
 // TODO: add helper for extracting first character from first element
