@@ -14,6 +14,10 @@
   to variable labels, formats are stored as an attribute on the vector.
   Use `zap_formats()` if you want to remove these attributes.
   (@gorcha, #119, #123).
+  
+* New `labelled_spss()` is a subclass of `labelled()` that can model
+  user missing values from SPSS. These can either be a set of distinct
+  values, or for numeric vectors, a range.
 
 * `as_factor()` gains a new `levels = "default"` mechanism. This uses the
   labels where present, and otherwise uses the labels. This is now the
