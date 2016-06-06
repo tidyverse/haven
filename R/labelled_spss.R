@@ -6,14 +6,17 @@
 #' three distinct values, or for numeric vectors a range.
 #'
 #' @param na_values A vector of values that should also be considered as missing.
-#' @param na_range A numeric vector of length two giving the extents of
-#'   the range. Use \code{-Inf} and \code{Inf} if you want the range to be
+#' @param na_range A numeric vector of length two giving the (inclusive) extents
+#'   of the range. Use \code{-Inf} and \code{Inf} if you want the range to be
 #'   open ended.
 #' @inheritParams labelled
 #' @export
 #' @examples
 #' x1 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_values = c(9, 10))
-#' x1 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf))
+#' is.na(x1)
+#'
+#' x2 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf))
+#' is.na(x2)
 labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL) {
   if (!is.null(na_values)) {
     if (!is_coercible(x, na_values)) {
@@ -32,4 +35,22 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL) {
     na_range = na_range,
     class = c("labelled_spss", "labelled")
   )
+}
+
+
+#' @export
+is.na.labelled_spss <- function(x) {
+  miss <- NextMethod()
+
+  na_values <- attr(x, "na_values")
+  if (!is.null(na_values)) {
+    miss <- miss | x %in% na_values
+  }
+
+  na_range <- attr(x, "na_range")
+  if (!is.null(na_range)) {
+    miss <- miss | (x >= na_range[1] & x <= na_range[2])
+  }
+
+  miss
 }
