@@ -53,11 +53,11 @@ NULL
 #' @rdname read_spss
 #' @export
 #' @rdname read_spss
-read_sav <- function(file) {
+read_sav <- function(file, user_na = FALSE) {
   spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_sav_file(spec),
-    source_raw = df_parse_sav_raw(spec),
+    source_file = df_parse_sav_file(spec, user_na),
+    source_raw = df_parse_sav_raw(spec, user_na),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
@@ -71,11 +71,12 @@ write_sav <- function(data, path) {
 
 #' @export
 #' @rdname read_spss
-read_spss <- function(file) {
+#' @param user_na If \code{TRUE} variables with user defined missing
+read_spss <- function(file, user_na = FALSE) {
   ext <- tolower(tools::file_ext(file))
 
   switch(ext,
-    sav = read_sav(file),
+    sav = read_sav(file, user_na = user_na),
     stop("Unknown extension '.",  ext, "'", call. = FALSE)
   )
 }
