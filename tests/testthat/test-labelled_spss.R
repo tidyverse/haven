@@ -9,6 +9,15 @@ test_that("constructor checks na_range", {
   expect_error(labelled_spss(1:10, na_range = 1:3), "of length two")
 })
 
+test_that("printed output is stable", {
+  x <- labelled_spss(1:5, c("Good" = 1, "Bad" = 5),
+    na_value = c(1,2),
+    na_range = c(3, Inf)
+  )
+  expect_output_file(print(x), "labelled-spss-output.txt")
+})
+
+
 # is.na -------------------------------------------------------------------
 
 test_that("values in na_range flagged as missing", {

@@ -39,6 +39,31 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL) {
 
 
 #' @export
+print.labelled_spss <- function(x, ...) {
+  cat("<Labelled SPSS>\n")
+
+  xx <- unclass(x)
+  attr(xx, "labels") <- NULL
+  attr(xx, "na_values") <- NULL
+  attr(xx, "na_range") <- NULL
+  print(xx, quote = FALSE)
+
+  na_values <- attr(x, "na_values")
+  if (!is.null(na_values)) {
+    cat("Missing values: ", paste(na_values, collapse = ", "), "\n", sep = "")
+  }
+
+  na_range <- attr(x, "na_range")
+  if (!is.null(na_range)) {
+    cat("Missing range:  [", paste(na_range, collapse = ", "), "]\n", sep = "")
+  }
+
+  print_labels(x)
+  invisible()
+}
+
+
+#' @export
 is.na.labelled_spss <- function(x) {
   miss <- NextMethod()
 
