@@ -30,3 +30,11 @@ test_that("date times are converted into corresponding R types", {
   expect_equal(df$VAR5[1], hms::hms(52932))
 
 })
+
+test_that("tagged missings are read correctly", {
+  x <- read_sas(test_path("tagged-na.sas7bdat"), test_path("tagged-na.sas7bcat"))$x
+  expect_equal(na_tag(x), c(rep(NA, 5), "A", "H", "Z"))
+
+  labels <- attr(x, "labels")
+  expect_equal(na_tag(labels), c("A", "Z"))
+})
