@@ -1,6 +1,6 @@
 #include <iconv.h>
 
-#ifdef WIN32
+#ifdef WINICONV_CONST
 typedef const char ** readstat_iconv_inbuf_t;
 #else
 typedef char ** readstat_iconv_inbuf_t;

@@ -15,6 +15,12 @@
   Use `zap_formats()` if you want to remove these attributes.
   (@gorcha, #119, #123).
   
+* Added support for "tagged" missing values (in Stata these are called 
+  "extended" and in SAS these are called "special") which carry an extra
+  byte of information: a character label from "a" to "z". The downside of
+  this change is that all integer columns are now converted to doubles, 
+  to support the encoding of the tag in the payload of a NaN.
+  
 * New `labelled_spss()` is a subclass of `labelled()` that can model
   user missing values from SPSS. These can either be a set of distinct
   values, or for numeric vectors, a range. `zap_labels()` strips labels,

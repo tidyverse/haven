@@ -35,17 +35,19 @@ int unistd_close_handler(void *io_ctx) {
 
 readstat_off_t unistd_seek_handler(readstat_off_t offset,
         readstat_io_flags_t whence, void *io_ctx) {
-    int flag;
+    int flag = 0;
     switch(whence) {
-    case READSTAT_SEEK_SET:
-        flag = SEEK_SET;
-        break;
-    case READSTAT_SEEK_CUR:
-        flag = SEEK_CUR;
-        break;
-    case READSTAT_SEEK_END:
-        flag = SEEK_END;
-        break;
+        case READSTAT_SEEK_SET:
+            flag = SEEK_SET;
+            break;
+        case READSTAT_SEEK_CUR:
+            flag = SEEK_CUR;
+            break;
+        case READSTAT_SEEK_END:
+            flag = SEEK_END;
+            break;
+        default:
+            return -1;
     }
     int fd = ((unistd_io_ctx_t*) io_ctx)->fd;
     return lseek(fd, offset, flag);

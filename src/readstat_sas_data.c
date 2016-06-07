@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <string.h>
 #include <math.h>
+#include <inttypes.h>
 #include "readstat_sas.h"
 #include "readstat_iconv.h"
 #include "readstat_convert.h"
@@ -646,19 +647,16 @@ static readstat_error_t sas_parse_page_pass1(const char *page, size_t page_size,
         uint64_t offset = 0, len = 0;
         uint32_t signature = 0;
         unsigned char compression = 0;
-        unsigned char is_compressed_data = 0;
         int lshp = 0;
         if (ctx->u64) {
             offset = sas_read8(&shp[0], ctx->bswap);
             len = sas_read8(&shp[8], ctx->bswap);
             compression = shp[16];
-            is_compressed_data = shp[17];
             lshp = 24;
         } else {
             offset = sas_read4(&shp[0], ctx->bswap);
             len = sas_read4(&shp[4], ctx->bswap);
             compression = shp[8];
-            is_compressed_data = shp[9];
             lshp = 12;
         }
 
@@ -820,7 +818,8 @@ static readstat_error_t parse_meta_pages_pass1(sas_ctx_t *ctx, int64_t *outLastE
         if (io->seek(ctx->header_size + i*ctx->page_size, READSTAT_SEEK_SET, io->io_ctx) == -1) {
             retval = READSTAT_ERROR_SEEK;
             if (ctx->error_handler) {
-                snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %lld (= %lld + %lld*%lld)",
+                snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %" PRId64 
+                        " (= %" PRId64 " + %" PRId64 "*%" PRId64 ")",
                         ctx->header_size + i*ctx->page_size, ctx->header_size, i, ctx->page_size);
                 ctx->error_handler(error_buf, ctx->user_ctx);
             }
@@ -855,7 +854,7 @@ static readstat_error_t parse_meta_pages_pass1(sas_ctx_t *ctx, int64_t *outLastE
             if (ctx->error_handler && retval != READSTAT_ERROR_USER_ABORT) {
                 int64_t pos = io->seek(0, READSTAT_SEEK_CUR, io->io_ctx);
                 snprintf(error_buf, sizeof(error_buf), 
-                        "ReadStat: Error parsing page %lld, bytes %lld-%lld\n", 
+                        "ReadStat: Error parsing page %" PRId64 ", bytes %" PRId64 "-%" PRId64 "\n", 
                         i, pos - ctx->page_size, pos-1);
                 ctx->error_handler(error_buf, ctx->user_ctx);
             }
@@ -885,7 +884,8 @@ static readstat_error_t parse_amd_pages_pass1(int64_t last_examined_page_pass1, 
         if (io->seek(ctx->header_size + i*ctx->page_size, READSTAT_SEEK_SET, io->io_ctx) == -1) {
             retval = READSTAT_ERROR_SEEK;
             if (ctx->error_handler) {
-                snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %lld (= %lld + %lld*%lld)",
+                snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %" PRId64 
+                        " (= %" PRId64 " + %" PRId64 "*%" PRId64 ")",
                         ctx->header_size + i*ctx->page_size, ctx->header_size, i, ctx->page_size);
                 ctx->error_handler(error_buf, ctx->user_ctx);
             }
@@ -924,7 +924,7 @@ static readstat_error_t parse_amd_pages_pass1(int64_t last_examined_page_pass1, 
             if (ctx->error_handler && retval != READSTAT_ERROR_USER_ABORT) {
                 int64_t pos = io->seek(0, READSTAT_SEEK_CUR, io->io_ctx);
                 snprintf(error_buf, sizeof(error_buf), 
-                        "ReadStat: Error parsing page %lld, bytes %lld-%lld\n", 
+                        "ReadStat: Error parsing page %" PRId64 ", bytes %" PRId64 "-%" PRId64 "\n", 
                         i, pos - ctx->page_size, pos-1);
                 ctx->error_handler(error_buf, ctx->user_ctx);
             }
@@ -961,7 +961,7 @@ static readstat_error_t parse_all_pages_pass2(sas_ctx_t *ctx) {
             if (ctx->error_handler && retval != READSTAT_ERROR_USER_ABORT) {
                 int64_t pos = io->seek(0, READSTAT_SEEK_CUR, io->io_ctx);
                 snprintf(error_buf, sizeof(error_buf), 
-                        "ReadStat: Error parsing page %lld, bytes %lld-%lld\n", 
+                        "ReadStat: Error parsing page %" PRId64 ", bytes %" PRId64 "-%" PRId64 "\n", 
                         i, pos - ctx->page_size, pos-1);
                 ctx->error_handler(error_buf, ctx->user_ctx);
             }
@@ -1055,7 +1055,8 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
     if (io->seek(ctx->header_size, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (ctx->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %lld\n", ctx->header_size);
+            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %" PRId64 "\n", 
+                    ctx->header_size);
             ctx->error_handler(error_buf, ctx->user_ctx);
         }
         goto cleanup;
