@@ -31,7 +31,7 @@ const int TAG_BYTE = 3;
 const int TAG_BYTE = 4;
 #endif
 
-inline double make_tagged_na(char x) {
+double make_tagged_na(char x) {
   ieee_double y;
 
   y.value = NA_REAL;
@@ -40,7 +40,7 @@ inline double make_tagged_na(char x) {
   return y.value;
 }
 
-inline char tagged_na_value(double x) {
+char tagged_na_value(double x) {
   ieee_double y;
   y.value = x;
 

@@ -6,6 +6,29 @@
 using namespace Rcpp;
 #include "readstat.h"
 #include "haven_types.h"
+#include "tagged_na.h"
+
+// Wrappers around readstat_*_value that convert missing values to appropriate
+// R sentinel values -----------------------------------------------------------
+
+double haven_double_value(readstat_value_t value) {
+  if (readstat_value_is_missing(value)) {
+    return make_tagged_na(readstat_value_tag(value));
+  } else {
+    return readstat_double_value(value);
+  }
+}
+
+double haven_float_value(readstat_value_t value) {
+  if (readstat_value_is_missing(value)) {
+    return make_tagged_na(readstat_value_tag(value));
+  } else {
+    return readstat_float_value(value);
+  }
+}
+
+
+// LabelSet -------------------------------------------------------------------
 
 class LabelSet {
   std::vector<std::string> labels_;
@@ -96,6 +119,8 @@ public:
     return wrap(is_missing_);
   }
 };
+
+// DfReader ------------------------------------------------------------------
 
 class DfReader {
   FileType type_;
@@ -218,19 +243,10 @@ public:
       }
     } else if (value.type == READSTAT_TYPE_FLOAT) {
       NumericVector col = output_[var_index];
-      if (readstat_value_is_missing(value)) {
-        col[obs_index] = NA_REAL;
-      } else {
-        col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_float_value(value));
-      }
+      col[obs_index] = adjustDatetimeToR(type_, var_type, haven_float_value(value));
     } else if (value.type == READSTAT_TYPE_DOUBLE) {
       NumericVector col = output_[var_index];
-      if (readstat_value_is_missing(value)) {
-        col[obs_index] = NA_REAL;
-      } else {
-        double val = readstat_double_value(value);
-        col[obs_index] = std::isnan(val) ? NA_REAL : adjustDatetimeToR(type_, var_type, val);
-      }
+      col[obs_index] = adjustDatetimeToR(type_, var_type, haven_double_value(value));
     }
 
     return 0;
@@ -258,7 +274,7 @@ public:
       label_set.add(readstat_int32_value(value), label_s, is_missing);
       break;
     case READSTAT_TYPE_DOUBLE:
-      label_set.add(readstat_double_value(value), label_s, is_missing);
+      label_set.add(haven_double_value(value), label_s, is_missing);
       break;
     default:
       Rf_warning("Unsupported label type: %s", value.type);
