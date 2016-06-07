@@ -44,5 +44,17 @@ const char *readstat_error_message(readstat_error_t error_code) {
     if (error_code == READSTAT_ERROR_SEEK)
         return "Unable to seek within file";
 
+    if (error_code == READSTAT_ERROR_CONVERT)
+        return "Unable to convert string to the requested encoding";
+
+    if (error_code == READSTAT_ERROR_CONVERT_BAD_STRING)
+        return "Unable to convert string to the requested encoding (invalid byte sequence)";
+
+    if (error_code == READSTAT_ERROR_CONVERT_SHORT_STRING)
+        return "Unable to convert string to the requested encoding (incomplete byte sequence)";
+
+    if (error_code == READSTAT_ERROR_CONVERT_LONG_STRING)
+        return "Unable to convert string to the requested encoding (output buffer too small)";
+
     return "Unknown error";
 }

@@ -8,9 +8,6 @@ using namespace Rcpp;
 #include "haven_types.h"
 #include "tagged_na.h"
 
-// Wrappers around readstat_*_value that convert missing values to appropriate
-// R sentinel values -----------------------------------------------------------
-
 double haven_double_value(readstat_value_t value) {
   if (readstat_value_is_missing(value)) {
     return make_tagged_na(readstat_value_tag(value));
@@ -19,15 +16,6 @@ double haven_double_value(readstat_value_t value) {
   }
 }
 
-double haven_float_value(readstat_value_t value) {
-  if (readstat_value_is_missing(value)) {
-    return make_tagged_na(readstat_value_tag(value));
-  } else {
-    return readstat_float_value(value);
-  }
-}
-
-
 // LabelSet -------------------------------------------------------------------
 
 class LabelSet {
@@ -35,37 +23,33 @@ class LabelSet {
   std::vector<std::string> values_s_;
   std::vector<int> values_i_;
   std::vector<double> values_d_;
-  std::vector<bool> is_missing_;
 
 public:
   LabelSet() {}
 
-  void add(char* value, std::string label, bool missing) {
+  void add(char* value, std::string label) {
     if (values_i_.size() > 0 || values_d_.size() > 0)
       stop("Can't add string to integer/double labelset");
 
     std::string string(value);
     values_s_.push_back(string);
     labels_.push_back(label);
-    is_missing_.push_back(missing);
   }
 
-  void add(int value, std::string label, bool missing) {
+  void add(int value, std::string label) {
     if (values_d_.size() > 0 || values_s_.size() > 0)
       stop("Can't add integer to string/double labelset");
 
     values_i_.push_back(value);
     labels_.push_back(label);
-    is_missing_.push_back(missing);
   }
 
-  void add(double value, std::string label, bool missing) {
+  void add(double value, std::string label) {
     if (values_i_.size() > 0 || values_s_.size() > 0)
       stop("Can't add double to integer/string labelset");
 
     values_d_.push_back(value);
     labels_.push_back(label);
-    is_missing_.push_back(missing);
   }
 
   size_t size() const {
@@ -114,10 +98,6 @@ public:
 
     return out;
   }
-
-  RObject is_missing() {
-    return wrap(is_missing_);
-  }
 };
 
 // DfReader ------------------------------------------------------------------
@@ -160,8 +140,6 @@ public:
     case READSTAT_TYPE_CHAR:
     case READSTAT_TYPE_INT16:
     case READSTAT_TYPE_INT32:
-      output_[index] = IntegerVector(nrows_);
-      break;
     case READSTAT_TYPE_FLOAT:
     case READSTAT_TYPE_DOUBLE:
       output_[index] = NumericVector(nrows_);
@@ -214,39 +192,27 @@ public:
       checkUserInterrupt();
 
     VarType var_type = var_types_[var_index];
-    if (value.type == READSTAT_TYPE_LONG_STRING || value.type == READSTAT_TYPE_STRING) {
-      // Missing strings and "" are identical in other systems
+
+    switch(value.type) {
+    case READSTAT_TYPE_LONG_STRING:
+    case READSTAT_TYPE_STRING:
+    {
       CharacterVector col = output_[var_index];
 
       char* str_value = readstat_string_value(value);
       col[obs_index] = str_value == NULL ? NA_STRING : Rf_mkCharCE(str_value, CE_UTF8);
-    } else if (value.type == READSTAT_TYPE_CHAR) {
-      IntegerVector col = output_[var_index];
-      if (readstat_value_is_missing(value)) {
-        col[obs_index] = NA_INTEGER;
-      } else {
-        col[obs_index] = readstat_char_value(value);
-      }
-    } else if (value.type == READSTAT_TYPE_INT16) {
-      IntegerVector col = output_[var_index];
-      if (readstat_value_is_missing(value)) {
-        col[obs_index] = NA_INTEGER;
-      } else {
-        col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_int16_value(value));
-      }
-    } else if (value.type == READSTAT_TYPE_INT32) {
-      IntegerVector col = output_[var_index];
-      if (readstat_value_is_missing(value)) {
-        col[obs_index] = NA_INTEGER;
-      } else {
-        col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_int32_value(value));
-      }
-    } else if (value.type == READSTAT_TYPE_FLOAT) {
-      NumericVector col = output_[var_index];
-      col[obs_index] = adjustDatetimeToR(type_, var_type, haven_float_value(value));
-    } else if (value.type == READSTAT_TYPE_DOUBLE) {
+      break;
+    }
+    case READSTAT_TYPE_CHAR:
+    case READSTAT_TYPE_INT16:
+    case READSTAT_TYPE_INT32:
+    case READSTAT_TYPE_FLOAT:
+    case READSTAT_TYPE_DOUBLE:
+    {
       NumericVector col = output_[var_index];
       col[obs_index] = adjustDatetimeToR(type_, var_type, haven_double_value(value));
+      break;
+    }
     }
 
     return 0;
@@ -257,24 +223,16 @@ public:
     LabelSet& label_set = label_sets_[val_labels];
     std::string label_s(label);
 
-    bool is_missing = readstat_value_is_missing(value);
-
     switch(value.type) {
     case READSTAT_TYPE_STRING:
       // Encoded to utf-8 on output
-      label_set.add(readstat_string_value(value), label_s, is_missing);
+      label_set.add(readstat_string_value(value), label_s);
       break;
     case READSTAT_TYPE_CHAR:
-      label_set.add(readstat_char_value(value), label_s, is_missing);
-      break;
     case READSTAT_TYPE_INT16:
-      label_set.add(readstat_int16_value(value), label_s, is_missing);
-      break;
     case READSTAT_TYPE_INT32:
-      label_set.add(readstat_int32_value(value), label_s, is_missing);
-      break;
     case READSTAT_TYPE_DOUBLE:
-      label_set.add(haven_double_value(value), label_s, is_missing);
+      label_set.add(haven_double_value(value), label_s);
       break;
     default:
       Rf_warning("Unsupported label type: %s", value.type);
