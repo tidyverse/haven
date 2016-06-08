@@ -117,7 +117,7 @@ public:
   DfReader(FileType type, bool user_na = false): type_(type), nrows_(0), ncols_(0), user_na_(user_na) {
   }
 
-  int info(int obs_count, int var_count) {
+  void setInfo(int obs_count, int var_count) {
     nrows_ = obs_count;
     ncols_ = var_count;
 
@@ -125,10 +125,9 @@ public:
     names_ = CharacterVector(ncols_);
     val_labels_.resize(ncols_);
     var_types_.resize(ncols_);
-    return 0;
   }
 
-  int variable(int index, readstat_variable_t *variable, const char *val_labels) {
+  void createVariable(int index, readstat_variable_t *variable, const char *val_labels) {
 
     names_[index] = readstat_variable_get_name(variable);
 
@@ -181,16 +180,9 @@ public:
     if (var_format != NULL && strcmp(var_format, "") != 0) {
       col.attr(formatAttribute(type_)) = Rf_ScalarString(Rf_mkCharCE(var_format, CE_UTF8));
     }
-
-    return 0;
   }
 
-  int value(int obs_index, int var_index, readstat_value_t value) {
-
-    // Check for user interrupts every 1000 rows or cols
-    if ((obs_index + 1) % 10000 == 0 || (var_index + 1) % 10000 == 0)
-      checkUserInterrupt();
-
+  void setValue(int obs_index, int var_index, readstat_value_t value) {
     VarType var_type = var_types_[var_index];
 
     switch(value.type) {
@@ -214,12 +206,10 @@ public:
       break;
     }
     }
-
-    return 0;
   }
 
-  int value_label(const char *val_labels, readstat_value_t value,
-                  const char *label) {
+  void setValueLabels(const char *val_labels, readstat_value_t value,
+                     const char *label) {
     LabelSet& label_set = label_sets_[val_labels];
     std::string label_s(label);
 
@@ -237,8 +227,6 @@ public:
     default:
       Rf_warning("Unsupported label type: %s", value.type);
     }
-
-    return 0;
   }
 
   List output() {
@@ -264,19 +252,27 @@ public:
 };
 
 int dfreader_info(int obs_count, int var_count, void *ctx) {
-  return ((DfReader*) ctx)->info(obs_count, var_count);
+  ((DfReader*) ctx)->setInfo(obs_count, var_count);
+  return 0;
 }
 int dfreader_variable(int index, readstat_variable_t *variable,
                       const char *val_labels, void *ctx) {
-  return ((DfReader*) ctx)->variable(index, variable, val_labels);
+  ((DfReader*) ctx)->createVariable(index, variable, val_labels);
+  return 0;
 }
 int dfreader_value(int obs_index, int var_index, readstat_value_t value,
                    void *ctx) {
-  return ((DfReader*) ctx)->value(obs_index, var_index, value);
+  // Check for user interrupts every 10,000 rows or cols
+  if ((obs_index + 1) % 10000 == 0 || (var_index + 1) % 10000 == 0)
+    checkUserInterrupt();
+
+  ((DfReader*) ctx)->setValue(obs_index, var_index, value);
+  return 0;
 }
 int dfreader_value_label(const char *val_labels, readstat_value_t value,
                          const char *label, void *ctx) {
-  return ((DfReader*) ctx)->value_label(val_labels, value, label);
+  ((DfReader*) ctx)->setValueLabels(val_labels, value, label);
+  return 0;
 }
 
 void print_error(const char* error_message, void* ctx) {
