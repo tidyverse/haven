@@ -360,7 +360,7 @@ public:
   }
 
   int open(void* io_ctx) {
-    file_.open(filename_.c_str());
+    file_.open(filename_.c_str(), std::ifstream::binary);
     return file_.is_open() ? 0 : -1;
   }
 
