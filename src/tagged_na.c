@@ -101,9 +101,19 @@ SEXP na_tag_(SEXP x) {
   return out;
 }
 
+SEXP falses(int n) {
+  SEXP out = PROTECT(Rf_allocVector(LGLSXP, n));
+  for (int i = 0; i < n; ++i)
+    LOGICAL(out)[i] = 0;
+
+  UNPROTECT(1);
+  return out;
+}
+
 SEXP is_tagged_na_(SEXP x, SEXP tag_) {
-  if (TYPEOF(x) != REALSXP)
-    Rf_errorcall(R_NilValue, "`x` must be a double vector");
+  if (TYPEOF(x) != REALSXP) {
+    return falses(Rf_length(x));
+  }
 
   bool has_tag;
   char check_tag;
