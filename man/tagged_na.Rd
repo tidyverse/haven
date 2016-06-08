@@ -31,7 +31,8 @@ print_tagged_na(x, digits = getOption("digits"))
 \description{
 "Tagged" missing values work exactly like regular R missing values except
 that they store one additional byte of information a tag, which is usually
-a letter ("A" to "Z").
+a letter ("a" to "z"). When by loading a SAS and Stata file, the tagged
+missing values always use lower case values.
 }
 \details{
 \code{format_tagged_na()} and \code{print_tagged_na()} format tagged

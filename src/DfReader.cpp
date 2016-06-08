@@ -10,7 +10,7 @@ using namespace Rcpp;
 
 double haven_double_value(readstat_value_t value) {
   if (readstat_value_is_system_missing(value)) {
-    return make_tagged_na(readstat_value_tag(value));
+    return make_tagged_na(tolower(readstat_value_tag(value)));
   } else {
     return readstat_double_value(value);
   }

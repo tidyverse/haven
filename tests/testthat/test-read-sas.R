@@ -33,8 +33,8 @@ test_that("date times are converted into corresponding R types", {
 
 test_that("tagged missings are read correctly", {
   x <- read_sas(test_path("tagged-na.sas7bdat"), test_path("tagged-na.sas7bcat"))$x
-  expect_equal(na_tag(x), c(rep(NA, 5), "A", "H", "Z"))
+  expect_equal(na_tag(x), c(rep(NA, 5), "a", "h", "z"))
 
   labels <- attr(x, "labels")
-  expect_equal(na_tag(labels), c("A", "Z"))
+  expect_equal(na_tag(labels), c("a", "z"))
 })
