@@ -9,7 +9,7 @@ using namespace Rcpp;
 #include "tagged_na.h"
 
 double haven_double_value(readstat_value_t value) {
-  if (readstat_value_is_missing(value)) {
+  if (readstat_value_is_system_missing(value)) {
     return make_tagged_na(readstat_value_tag(value));
   } else {
     return readstat_double_value(value);
