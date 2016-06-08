@@ -58,6 +58,9 @@ as_factor.labelled <- function(x, levels = c("default", "labels", "values", "bot
 
     # Replace each value with its label
     levs <- replace_with(sort(unique(x)), unname(labels), names(labels))
+    # Ensure all labels are preserved
+    levs <- union(levs, names(labels))
+
     x <- replace_with(x, unname(labels), names(labels))
 
     factor(x, levels = levs, ordered = ordered)
@@ -73,6 +76,21 @@ as_factor.labelled <- function(x, levels = c("default", "labels", "values", "bot
 }
 
 replace_with <- function(x, from, to) {
-  matches <- match(x, from)
-  ifelse(is.na(matches), as.character(x), to[matches])
+  stopifnot(length(from) == length(to))
+
+  out <- x
+  # First replace regular values
+  matches <- match(x, from, incomparables = NA)
+  out[!is.na(matches)] <- to[matches[!is.na(matches)]]
+
+  # Then tagged missing values
+  tagged <- is_tagged_na(x)
+  if (!any(tagged)) {
+    return(out)
+  }
+
+  matches <- match(na_tag(x), na_tag(from), incomparables = NA)
+  out[!is.na(matches)] <- to[matches[!is.na(matches)]]
+
+  out
 }

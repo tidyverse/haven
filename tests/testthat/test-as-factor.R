@@ -25,6 +25,12 @@ test_that("character labelled converts to factor", {
   expect_equal(as_factor(s1), exp)
 })
 
+test_that("converts tagged NAs", {
+  s1 <- labelled(c(1:2, tagged_na("a", "b")), c("Apple" = tagged_na("a")))
+  exp <- factor(c("1", "2", "Apple", NA))
+  expect_equal(as_factor(s1), exp)
+})
+
 # Both
 
 test_that("both combines values and levels", {
