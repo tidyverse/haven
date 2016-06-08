@@ -17,6 +17,14 @@ test_that("labels must have names", {
 # methods -----------------------------------------------------------------
 
 test_that("printed output is stable", {
-  x <- labelled(1:5, c("Good" = 1, "Bad" = 5))
+  x <- labelled(c(1:5, NA, tagged_na("x", "y", "z")),
+    c(
+      Good = 1,
+      Bad = 5,
+      "Not Applicable" = tagged_na("x"),
+      "Refused to answer" = tagged_na("y")
+    )
+  )
+
   expect_output_file(print(x), "labelled-output.txt")
 })

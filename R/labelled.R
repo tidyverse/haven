@@ -75,12 +75,17 @@ is.labelled <- function(x) inherits(x, "labelled")
 }
 
 #' @export
-print.labelled <- function(x, ...) {
+print.labelled <- function(x, ..., digits = getOption("digits")) {
   cat("<Labelled>\n")
 
-  xx <- unclass(x)
-  attr(xx, "labels") <- NULL
-  print(xx, quote = FALSE)
+  if (is.double(x)) {
+    print_tagged_na(x, digits = digits)
+  } else {
+    xx <- x
+    mostattributes(xx) <- NULL
+    print.default(xx, quote = FALSE)
+  }
+
   print_labels(x)
 
   invisible()
@@ -108,7 +113,9 @@ print_labels <- function(x, name = NULL) {
   cat("\nLabels:", name, "\n", sep = "")
 
   labels <- attr(x, "labels")
-  lab_df <- data.frame(value = unname(labels), label = names(labels))
+  value <- if (is.double(labels)) format_tagged_na(labels) else unname(labels)
+
+  lab_df <- data.frame(value = value, label = names(labels))
   print(lab_df, row.names = FALSE)
 
   invisible(x)
