@@ -34,6 +34,13 @@
     `user_na = TRUE` (normally user-defined missings are converted to
     NA). 
 
+* `as_factor()` no longer drops the `label` attribute (variable label) when
+   used (#177, @itsdalmo).
+
+* Using `as_factor()` with `levels = "default` or `levels = "both"` preserves
+  unused labels (implicit missing) when converting (#172, @itsdalmo). Labels 
+  (and the resulting factor levels) are always sorted by values.
+
 * `as_factor()` gains a new `levels = "default"` mechanism. This uses the
   labels where present, and otherwise uses the labels. This is now the
   default, as it seems to map better to the semantics of labelled values
