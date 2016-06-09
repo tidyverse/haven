@@ -229,17 +229,22 @@ public:
     }
   }
 
+  bool hasLabel(int var_index) {
+    std::string label = val_labels_[var_index];
+    if (label == "")
+      return false;
+
+    return label_sets_.count(label) > 0;
+  }
+
   List output() {
     for (int i = 0; i < output_.size(); ++i) {
-      std::string label = val_labels_[i];
-      if (label == "")
-        continue;
-      if (label_sets_.count(label) == 0)
-        continue;
-
       RObject col = output_[i];
-      col.attr("class") = "labelled";
-      col.attr("labels") = label_sets_[label].labels();
+
+      if (hasLabel(i)) {
+        col.attr("class") = "labelled";
+        col.attr("labels") = label_sets_[val_labels_[i]].labels();
+      }
     }
 
     output_.attr("names") = names_;
