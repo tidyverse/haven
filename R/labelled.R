@@ -110,9 +110,13 @@ print_labels <- function(x, name = NULL) {
   if (!is.labelled(x)) {
     stop("x must be a labelled vector", call. = FALSE)
   }
+  labels <- attr(x, "labels")
+  if (length(labels) == 0) {
+    return(invisible(x))
+  }
+
   cat("\nLabels:", name, "\n", sep = "")
 
-  labels <- attr(x, "labels")
   value <- if (is.double(labels)) format_tagged_na(labels) else unname(labels)
 
   lab_df <- data.frame(value = value, label = names(labels))

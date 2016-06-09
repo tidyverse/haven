@@ -24,7 +24,8 @@
 * New `labelled_spss()` is a subclass of `labelled()` that can model
   user missing values from SPSS. These can either be a set of distinct
   values, or for numeric vectors, a range. `zap_labels()` strips labels,
-  and replaces user-defined missing values with `NA`.
+  and replaces user-defined missing values with `NA`. New `zap_missing()`
+  just replaces user-defined missing vlaues with `NA`.
 
 * `as_factor()` gains a new `levels = "default"` mechanism. This uses the
   labels where present, and otherwise uses the labels. This is now the
