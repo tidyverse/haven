@@ -29,7 +29,7 @@ as_factor(x, ...)
 \item{levels}{How to create the levels of the generated factor:
 
   \itemize{
-  \item "default": uses labels where available, otherwise the values.
+  \item "default": uses labels where available, otherwise the values. Labels are sorted by value.
   \item "both": like "default", but pastes together the level and value
   \item "label": use only the labels; unlabelled values become \code{NA}
   \item "values: use only the values

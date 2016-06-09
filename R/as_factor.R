@@ -33,7 +33,7 @@ as_factor.factor <- function(x, ...) {
 #' @rdname as_factor
 #' @export
 as_factor.character <- function(x, ...) {
-  factor(x, ...)
+  structure(factor(x, ...), label = attr(x, "label", exact = TRUE))
 }
 
 #' @rdname as_factor
@@ -54,7 +54,7 @@ as_factor.data.frame <- function(x, ..., only_labelled = TRUE) {
 #' @param levels How to create the levels of the generated factor:
 #'
 #'   \itemize{
-#'   \item "default": uses labels where available, otherwise the values.
+#'   \item "default": uses labels where available, otherwise the values. Labels are sorted by value.
 #'   \item "both": like "default", but pastes together the level and value
 #'   \item "label": use only the labels; unlabelled values become \code{NA}
 #'   \item "values: use only the values
@@ -64,30 +64,34 @@ as_factor.data.frame <- function(x, ..., only_labelled = TRUE) {
 as_factor.labelled <- function(x, levels = c("default", "labels", "values", "both"),
                                ordered = FALSE, ...) {
   levels <- match.arg(levels)
+  label <- attr(x, "label", exact = TRUE)
   labels <- attr(x, "labels")
-
+  
   if (levels == "default" || levels == "both") {
     if (levels == "both") {
       names(labels) <- paste0("[", labels, "] ", names(labels))
     }
-
+    
     # Replace each value with its label
-    levs <- replace_with(sort(unique(x)), unname(labels), names(labels))
+    vals <- unique(x)
+    levs <- replace_with(vals, unname(labels), names(labels))
     # Ensure all labels are preserved
-    levs <- union(levs, names(labels))
-
+    levs <- sort(c(stats::setNames(vals, levs), labels), na.last = TRUE)
+    levs <- unique(names(levs))
+    
     x <- replace_with(x, unname(labels), names(labels))
-
-    factor(x, levels = levs, ordered = ordered)
+    
+    x <- factor(x, levels = levs, ordered = ordered)
   } else {
     levs <- unname(labels)
     labs <- switch(levels,
-      labels = names(labels),
-      values = levs
+                   labels = names(labels),
+                   values = levs
     )
-    factor(x, levs, labels = labs, ordered = ordered)
+    x <- factor(x, levs, labels = labs, ordered = ordered)
   }
-
+  
+  structure(x, label = label)
 }
 
 replace_with <- function(x, from, to) {
