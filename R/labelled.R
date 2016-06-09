@@ -144,6 +144,7 @@ label_length <- function(x) {
 }
 
 #' @export
+#' @importFrom tibble type_sum
 type_sum.labelled <- function(x) {
   paste0(tibble::type_sum(unclass(x)), "+lbl")
 }
