@@ -8,9 +8,11 @@ using namespace Rcpp;
 #include "haven_types.h"
 #include "tagged_na.h"
 
-double haven_double_value(readstat_value_t value) {
+double haven_double_value(readstat_value_t value, bool user_na) {
   if (readstat_value_is_system_missing(value)) {
     return make_tagged_na(tolower(readstat_value_tag(value)));
+  } else if (!user_na & readstat_value_is_considered_missing(value)) {
+    return NA_REAL;
   } else {
     return readstat_double_value(value);
   }
@@ -176,6 +178,65 @@ public:
       break;
     }
 
+    // User defined missing values
+    int n_ranges = readstat_variable_get_missing_ranges_count(variable);
+    if (user_na_ && n_ranges > 0) {
+      switch(readstat_variable_get_type(variable)) {
+      case READSTAT_TYPE_LONG_STRING:
+      case READSTAT_TYPE_STRING:
+      {
+        CharacterVector na_values(n_ranges);
+
+        for (int i = 0; i < n_ranges; ++i) {
+          readstat_value_t value = readstat_variable_get_missing_range_lo(variable, i);
+          char* str_value = readstat_string_value(value);
+          na_values[0] = str_value == NULL ? NA_STRING : Rf_mkCharCE(str_value, CE_UTF8);
+        }
+
+        col.attr("na_values") = na_values;
+        break;
+      }
+      case READSTAT_TYPE_CHAR:
+      case READSTAT_TYPE_INT16:
+      case READSTAT_TYPE_INT32:
+      case READSTAT_TYPE_FLOAT:
+      case READSTAT_TYPE_DOUBLE:
+      {
+        std::vector<double> na_values;
+        NumericVector na_range(2);
+        bool has_range = false;
+
+        for (int i = 0; i < n_ranges; ++i) {
+          readstat_value_t
+            lo_value = readstat_variable_get_missing_range_lo(variable, i),
+            hi_value = readstat_variable_get_missing_range_hi(variable, i);
+
+          double
+            lo = readstat_double_value(lo_value),
+            hi = readstat_double_value(hi_value);
+
+          if (lo == hi) {
+            // Single value
+            na_values.push_back(lo);
+          } else {
+            has_range = true;
+            // Can only ever be one range
+            na_range[0] = lo;
+            na_range[1] = hi;
+          }
+        }
+
+        if (na_values.size() > 0)
+          col.attr("na_values") = Rcpp::wrap(na_values);
+        if (has_range)
+          col.attr("na_range") = na_range;
+
+      }
+      }
+      col.attr("class") = CharacterVector::create("labelled_spss", "labelled");
+    }
+
+
     // Store original format as attribute
     if (var_format != NULL && strcmp(var_format, "") != 0) {
       col.attr(formatAttribute(type_)) = Rf_ScalarString(Rf_mkCharCE(var_format, CE_UTF8));
@@ -202,7 +263,7 @@ public:
     case READSTAT_TYPE_DOUBLE:
     {
       NumericVector col = output_[var_index];
-      col[obs_index] = adjustDatetimeToR(type_, var_type, haven_double_value(value));
+      col[obs_index] = adjustDatetimeToR(type_, var_type, haven_double_value(value, user_na_));
       break;
     }
     }
@@ -222,14 +283,14 @@ public:
     case READSTAT_TYPE_INT16:
     case READSTAT_TYPE_INT32:
     case READSTAT_TYPE_DOUBLE:
-      label_set.add(haven_double_value(value), label_s);
+      label_set.add(haven_double_value(value, true), label_s);
       break;
     default:
       Rf_warning("Unsupported label type: %s", value.type);
     }
   }
 
-  bool hasLabel(int var_index) {
+  bool hasLabel(int var_index) const {
     std::string label = val_labels_[var_index];
     if (label == "")
       return false;
@@ -242,7 +303,9 @@ public:
       RObject col = output_[i];
 
       if (hasLabel(i)) {
-        col.attr("class") = "labelled";
+        if (col.attr("class") == R_NilValue) {
+          col.attr("class") = "labelled";
+        }
         col.attr("labels") = label_sets_[val_labels_[i]].labels();
       }
     }

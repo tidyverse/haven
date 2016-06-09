@@ -23,11 +23,6 @@ test_that("value labels read in as same type as vector", {
   expect_equal(typeof(str[[1]]), typeof(attr(str[[1]], "labels")))
 })
 
-test_that("tagged missing values kept as is", {
-  num <- read_spss(test_path("labelled-num-na.sav"))[[1]]
-  expect_equal(num[[2]], 9)
-})
-
 test_that("non-ASCII labels converted to utf-8", {
   x <- read_spss("umlauts.sav")[[1]]
 
@@ -68,3 +63,23 @@ test_that("formats roundtrip", {
   expect_equal(df$c, df$c)
   expect_equal(df$d, df$d)
 })
+
+# User-defined missings ---------------------------------------------------
+
+test_that("user-defined missing values read as missing by default", {
+  num <- read_spss(test_path("labelled-num-na.sav"))[[1]]
+  expect_equal(num[[2]], NA_real_)
+})
+
+test_that("user-defined missing values can be preserved", {
+  num <- read_spss(test_path("labelled-num-na.sav"), user_na = TRUE)[[1]]
+
+  expect_s3_class(num, "labelled_spss")
+  expect_equal(num[[2]], 9)
+
+  expect_equal(attr(num, "na_values"), 9)
+  expect_equal(attr(num, "na_range"), NULL)
+
+  num
+})
+

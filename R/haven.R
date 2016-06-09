@@ -51,8 +51,6 @@ NULL
 
 #' @export
 #' @rdname read_spss
-#' @export
-#' @rdname read_spss
 read_sav <- function(file, user_na = FALSE) {
   spec <- readr::datasource(file)
   switch(class(spec)[1],
@@ -71,7 +69,9 @@ write_sav <- function(data, path) {
 
 #' @export
 #' @rdname read_spss
-#' @param user_na If \code{TRUE} variables with user defined missing
+#' @param user_na If \code{TRUE} variables with user defined missing will
+#'   be read into \code{\link{labelled_spss}} objects. If \code{FALSE}, the
+#'   default, user-defined missings will be converted to \code{NA}.
 read_spss <- function(file, user_na = FALSE) {
   ext <- tolower(tools::file_ext(file))
 

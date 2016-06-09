@@ -25,7 +25,9 @@ read_spss(file, user_na = FALSE)
    Literal data is most useful for examples and tests. It must contain at
    least one new line to be recognised as data (instead of a path).}
 
-\item{user_na}{If \code{TRUE} variables with user defined missing}
+\item{user_na}{If \code{TRUE} variables with user defined missing will
+be read into \code{\link{labelled_spss}} objects. If \code{FALSE}, the
+default, user-defined missings will be converted to \code{NA}.}
 
 \item{data}{Data frame to write.}
 

@@ -25,7 +25,14 @@
   user missing values from SPSS. These can either be a set of distinct
   values, or for numeric vectors, a range. `zap_labels()` strips labels,
   and replaces user-defined missing values with `NA`. New `zap_missing()`
-  just replaces user-defined missing vlaues with `NA`.
+  just replaces user-defined missing vlaues with `NA`. 
+  
+    `labelled_spss()` is potential dangerous to work with in R because
+    base functions don't know about `labelled_spss()` functions so will 
+    return the wrong result in the presence of user-defined missing values.
+    For this reason, they will only be created by `read_spss()` when
+    `user_na = TRUE` (normally user-defined missings are converted to
+    NA). 
 
 * `as_factor()` gains a new `levels = "default"` mechanism. This uses the
   labels where present, and otherwise uses the labels. This is now the
@@ -50,7 +57,7 @@
 * `read_dta()` now recognises "%d" and custom date types (#80, #130).
   It also gains an encoding parameter which you can use to override
   the default encoding. This is particularly useful for Stata 13 and below
-  which did not store the encoding used in the file (#163).
+  which did not store the encoding used in the file (#163). 
 
 * `read_por()` has been removed since it doesn't work and I'm unlikely to have 
   time to make it work in the near future (#35). It also doesn't seem to
@@ -58,7 +65,9 @@
 
 * `read_sav()` now correctly recognises EDATE and JDATE formats as dates (#72).
   Variables with format DATE, ADATE, EDATE, JDATE or SDATE are imported as 
-  `Date` variables instead of `POSIXct`. 
+  `Date` variables instead of `POSIXct`. You can now set `user_na = TRUE` to 
+  preserve user defined missing values: they will be given class 
+  `labelled_spss`.
 
 * `read_dta()`, `read_sas()`, and `read_sav()` have a better test for missing
   string values (#79). They can all read from connections and compressed files
