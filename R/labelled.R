@@ -82,7 +82,7 @@ print.labelled <- function(x, ..., digits = getOption("digits")) {
     print_tagged_na(x, digits = digits)
   } else {
     xx <- x
-    mostattributes(xx) <- NULL
+    attributes(xx) <- NULL
     print.default(xx, quote = FALSE)
   }
 
