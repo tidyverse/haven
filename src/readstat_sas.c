@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <string.h>
 #include <math.h>
+#include <inttypes.h>
 #include "readstat_sas.h"
 #include "readstat_iconv.h"
 #include "readstat_convert.h"
@@ -190,7 +191,8 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
     if (io->seek(hinfo->header_size, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %lld\n", hinfo->header_size);
+            snprintf(error_buf, sizeof(error_buf), 
+                    "ReadStat: Failed to seek to position %" PRId64 "\n", hinfo->header_size);
             error_handler(error_buf, user_ctx);
         }
         goto cleanup;

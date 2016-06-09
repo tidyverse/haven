@@ -7,23 +7,11 @@
 #' expect you'll coerce to a standard R class (e.g. a \code{\link{factor}})
 #' soon after importing.
 #'
-#' \code{as_factor()} converts to a factor. \code{zap_labels()} removes
-#' labels, leaving unlabelled vectors as is. Use this if you want to simply
-#' drop all labelling from a data frame.
-#'
 #' @param x A vector to label. Must be either numeric (integer or double) or
 #'   character.
 #' @param labels A named vector. The vector should be the same type as
 #'   \code{x}. Unlike factors, labels don't need to be exhaustive: only a fraction
 #'   of the values might be labelled.
-#' @param levels How to create the levels of the generated factor:
-#'
-#'   \itemize{
-#'   \item "default": uses labels where available, otherwise the values.
-#'   \item "both": like "default", but pastes together the level and value
-#'   \item "label": use only the labels; unlabelled values become \code{NA}
-#'   \item "values: use only the values
-#'   }
 #' @param ... Ignored
 #' @export
 #' @examples
@@ -87,12 +75,17 @@ is.labelled <- function(x) inherits(x, "labelled")
 }
 
 #' @export
-print.labelled <- function(x, ...) {
+print.labelled <- function(x, ..., digits = getOption("digits")) {
   cat("<Labelled>\n")
 
-  xx <- unclass(x)
-  attr(xx, "labels") <- NULL
-  print(xx, quote = FALSE)
+  if (is.double(x)) {
+    print_tagged_na(x, digits = digits)
+  } else {
+    xx <- x
+    mostattributes(xx) <- NULL
+    print.default(xx, quote = FALSE)
+  }
+
   print_labels(x)
 
   invisible()
@@ -120,7 +113,9 @@ print_labels <- function(x, name = NULL) {
   cat("\nLabels:", name, "\n", sep = "")
 
   labels <- attr(x, "labels")
-  lab_df <- data.frame(value = unname(labels), label = names(labels))
+  value <- if (is.double(labels)) format_tagged_na(labels) else unname(labels)
+
+  lab_df <- data.frame(value = value, label = names(labels))
   print(lab_df, row.names = FALSE)
 
   invisible(x)
@@ -134,66 +129,6 @@ as.data.frame.labelled <- function(x, ...) {
   attr(df, "row.names") <- .set_row_names(length(x))
 
   df
-}
-
-#' @param ordered If \code{TRUE} for ordinal factors, \code{FALSE} (the default)
-#'   for nominal factors.
-#' @rdname labelled
-#' @export
-as_factor.labelled <- function(x, levels = c("default", "labels", "values", "both"),
-                               ordered = FALSE, ...) {
-  levels <- match.arg(levels)
-  labels <- attr(x, "labels")
-
-  if (levels == "default" || levels == "both") {
-    if (levels == "both") {
-      names(labels) <- paste0("[", labels, "] ", names(labels))
-    }
-
-    # Replace each value with its label
-    levs <- replace_with(sort(unique(x)), unname(labels), names(labels))
-    x <- replace_with(x, unname(labels), names(labels))
-
-    factor(x, levels = levs, ordered = ordered)
-  } else {
-    levs <- unname(labels)
-    labs <- switch(levels,
-      labels = names(labels),
-      values = levs
-    )
-    factor(x, levs, labels = labs, ordered = ordered)
-  }
-
-}
-
-replace_with <- function(x, from, to) {
-  matches <- match(x, from)
-  ifelse(is.na(matches), as.character(x), to[matches])
-}
-
-#' @export
-#' @rdname labelled
-zap_labels <- function(x) {
-  UseMethod("zap_labels")
-}
-
-#' @export
-zap_labels.default <- function(x) {
-  x
-}
-
-#' @export
-zap_labels.labelled <- function(x) {
-  attr(x, "labels") <- NULL
-  class(x) <- NULL
-
-  x
-}
-
-#' @export
-zap_labels.data.frame <- function(x) {
-  x[] <- lapply(x, zap_labels)
-  x
 }
 
 label_length <- function(x) {

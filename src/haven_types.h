@@ -2,6 +2,7 @@
 #define __HAVEN_TYPES__
 
 #include <Rcpp.h>
+#include <cmath>
 
 enum FileType {
   HAVEN_SPSS,
@@ -94,6 +95,9 @@ inline int daysOffset(FileType type) {
 }
 
 inline double adjustDatetimeToR(FileType file, VarType var, double value) {
+  if (std::isnan(value))
+    return value;
+
   double offset = daysOffset(file);
 
   switch(var) {
@@ -111,6 +115,9 @@ inline double adjustDatetimeToR(FileType file, VarType var, double value) {
 }
 
 inline double adjustDatetimeFromR(FileType file, SEXP col, double value) {
+  if (std::isnan(value))
+    return value;
+
   double offset = daysOffset(file);
 
   switch(numType(col)) {

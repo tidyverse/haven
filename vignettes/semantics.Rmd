@@ -25,6 +25,8 @@ Each tool also provides a mechanism for recording multiple types of missingness:
   up to three distinct values or a range of values (plus one distinct
   value) that should be treated as missing.
 
+Stata and SAS only support tagged missing values for numeric columns. SPSS supports up to three distinct values for character columns.
+
 Generally, operations involving a user-missing type return a system missing value.
 
 ## Value labels

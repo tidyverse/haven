@@ -6,43 +6,50 @@
 using namespace Rcpp;
 #include "readstat.h"
 #include "haven_types.h"
+#include "tagged_na.h"
+
+double haven_double_value(readstat_value_t value) {
+  if (readstat_value_is_missing(value)) {
+    return make_tagged_na(readstat_value_tag(value));
+  } else {
+    return readstat_double_value(value);
+  }
+}
+
+// LabelSet -------------------------------------------------------------------
 
 class LabelSet {
   std::vector<std::string> labels_;
   std::vector<std::string> values_s_;
   std::vector<int> values_i_;
   std::vector<double> values_d_;
-  std::vector<bool> is_missing_;
 
 public:
   LabelSet() {}
 
-  void add(char* value, std::string label, bool missing) {
+  void add(char* value, std::string label) {
     if (values_i_.size() > 0 || values_d_.size() > 0)
       stop("Can't add string to integer/double labelset");
 
     std::string string(value);
     values_s_.push_back(string);
     labels_.push_back(label);
-    is_missing_.push_back(missing);
   }
 
-  void add(int value, std::string label, bool missing) {
+  void add(int value, std::string label) {
     if (values_d_.size() > 0 || values_s_.size() > 0)
       stop("Can't add integer to string/double labelset");
 
     values_i_.push_back(value);
     labels_.push_back(label);
-    is_missing_.push_back(missing);
   }
 
-  void add(double value, std::string label, bool missing) {
+  void add(double value, std::string label) {
     if (values_i_.size() > 0 || values_s_.size() > 0)
       stop("Can't add double to integer/string labelset");
 
     values_d_.push_back(value);
     labels_.push_back(label);
-    is_missing_.push_back(missing);
   }
 
   size_t size() const {
@@ -91,24 +98,23 @@ public:
 
     return out;
   }
-
-  RObject is_missing() {
-    return wrap(is_missing_);
-  }
 };
+
+// DfReader ------------------------------------------------------------------
 
 class DfReader {
   FileType type_;
   int nrows_, ncols_;
   List output_;
   CharacterVector names_;
+  bool user_na_;
 
   std::vector<std::string> val_labels_;
   std::map<std::string, LabelSet> label_sets_;
   std::vector<VarType> var_types_;
 
 public:
-  DfReader(FileType type): type_(type), nrows_(0), ncols_(0) {
+  DfReader(FileType type, bool user_na = false): type_(type), nrows_(0), ncols_(0), user_na_(user_na) {
   }
 
   int info(int obs_count, int var_count) {
@@ -134,8 +140,6 @@ public:
     case READSTAT_TYPE_CHAR:
     case READSTAT_TYPE_INT16:
     case READSTAT_TYPE_INT32:
-      output_[index] = IntegerVector(nrows_);
-      break;
     case READSTAT_TYPE_FLOAT:
     case READSTAT_TYPE_DOUBLE:
       output_[index] = NumericVector(nrows_);
@@ -188,48 +192,27 @@ public:
       checkUserInterrupt();
 
     VarType var_type = var_types_[var_index];
-    if (value.type == READSTAT_TYPE_LONG_STRING || value.type == READSTAT_TYPE_STRING) {
-      // Missing strings and "" are identical in other systems
+
+    switch(value.type) {
+    case READSTAT_TYPE_LONG_STRING:
+    case READSTAT_TYPE_STRING:
+    {
       CharacterVector col = output_[var_index];
 
       char* str_value = readstat_string_value(value);
       col[obs_index] = str_value == NULL ? NA_STRING : Rf_mkCharCE(str_value, CE_UTF8);
-    } else if (value.type == READSTAT_TYPE_CHAR) {
-      IntegerVector col = output_[var_index];
-      if (readstat_value_is_missing(value)) {
-        col[obs_index] = NA_INTEGER;
-      } else {
-        col[obs_index] = readstat_char_value(value);
-      }
-    } else if (value.type == READSTAT_TYPE_INT16) {
-      IntegerVector col = output_[var_index];
-      if (readstat_value_is_missing(value)) {
-        col[obs_index] = NA_INTEGER;
-      } else {
-        col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_int16_value(value));
-      }
-    } else if (value.type == READSTAT_TYPE_INT32) {
-      IntegerVector col = output_[var_index];
-      if (readstat_value_is_missing(value)) {
-        col[obs_index] = NA_INTEGER;
-      } else {
-        col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_int32_value(value));
-      }
-    } else if (value.type == READSTAT_TYPE_FLOAT) {
+      break;
+    }
+    case READSTAT_TYPE_CHAR:
+    case READSTAT_TYPE_INT16:
+    case READSTAT_TYPE_INT32:
+    case READSTAT_TYPE_FLOAT:
+    case READSTAT_TYPE_DOUBLE:
+    {
       NumericVector col = output_[var_index];
-      if (readstat_value_is_missing(value)) {
-        col[obs_index] = NA_REAL;
-      } else {
-        col[obs_index] = adjustDatetimeToR(type_, var_type, readstat_float_value(value));
-      }
-    } else if (value.type == READSTAT_TYPE_DOUBLE) {
-      NumericVector col = output_[var_index];
-      if (readstat_value_is_missing(value)) {
-        col[obs_index] = NA_REAL;
-      } else {
-        double val = readstat_double_value(value);
-        col[obs_index] = std::isnan(val) ? NA_REAL : adjustDatetimeToR(type_, var_type, val);
-      }
+      col[obs_index] = adjustDatetimeToR(type_, var_type, haven_double_value(value));
+      break;
+    }
     }
 
     return 0;
@@ -240,24 +223,16 @@ public:
     LabelSet& label_set = label_sets_[val_labels];
     std::string label_s(label);
 
-    bool is_missing = readstat_value_is_missing(value);
-
     switch(value.type) {
     case READSTAT_TYPE_STRING:
       // Encoded to utf-8 on output
-      label_set.add(readstat_string_value(value), label_s, is_missing);
+      label_set.add(readstat_string_value(value), label_s);
       break;
     case READSTAT_TYPE_CHAR:
-      label_set.add(readstat_char_value(value), label_s, is_missing);
-      break;
     case READSTAT_TYPE_INT16:
-      label_set.add(readstat_int16_value(value), label_s, is_missing);
-      break;
     case READSTAT_TYPE_INT32:
-      label_set.add(readstat_int32_value(value), label_s, is_missing);
-      break;
     case READSTAT_TYPE_DOUBLE:
-      label_set.add(readstat_double_value(value), label_s, is_missing);
+      label_set.add(haven_double_value(value), label_s);
       break;
     default:
       Rf_warning("Unsupported label type: %s", value.type);
@@ -407,7 +382,6 @@ readstat_error_t dfreader_update(long file_size, readstat_progress_handler progr
   return READSTAT_OK;
 }
 
-
 // Parser wrappers -------------------------------------------------------------
 
 readstat_parser_t* haven_init_parser(std::string encoding = "") {
@@ -441,16 +415,34 @@ std::string haven_error_message(Rcpp::List spec) {
     return as<std::string>(spec[0]);
 }
 
-template<typename InputClass, typename ParseFunction>
-List df_parse(FileType type, Rcpp::List spec, ParseFunction parse_f,
-              std::string encoding = "") {
-  DfReader builder(type);
+template<typename InputClass>
+List df_parse_sav(Rcpp::List spec, bool user_na = false) {
+  DfReader builder(HAVEN_SPSS, user_na);
+  InputClass builder_input(spec);
+
+  readstat_parser_t* parser = haven_init_parser();
+  haven_init_io(parser, builder_input);
+
+  readstat_error_t result = readstat_parse_sav(parser, "", &builder);
+  readstat_parser_free(parser);
+
+  if (result != 0) {
+    stop("Failed to parse %s: %s.", haven_error_message(spec),
+         readstat_error_message(result));
+  }
+
+  return builder.output();
+}
+
+template<typename InputClass>
+List df_parse_dta(Rcpp::List spec, std::string encoding = "") {
+  DfReader builder(HAVEN_STATA);
   InputClass builder_input(spec);
 
   readstat_parser_t* parser = haven_init_parser(encoding);
   haven_init_io(parser, builder_input);
 
-  readstat_error_t result = parse_f(parser, "", &builder);
+  readstat_error_t result = readstat_parse_dta(parser, "", &builder);
   readstat_parser_free(parser);
 
   if (result != 0) {
@@ -461,6 +453,7 @@ List df_parse(FileType type, Rcpp::List spec, ParseFunction parse_f,
 
   return builder.output();
 }
+
 
 template<typename InputClass>
 List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat) {
@@ -506,27 +499,18 @@ List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat) {
 
 // [[Rcpp::export]]
 List df_parse_dta_file(Rcpp::List spec, std::string encoding) {
-  return df_parse<DfReaderInputFile>(HAVEN_STATA, spec, readstat_parse_dta, encoding);
+  return df_parse_dta<DfReaderInputFile>(spec, encoding);
 }
 // [[Rcpp::export]]
 List df_parse_dta_raw(Rcpp::List spec, std::string encoding) {
-  return df_parse<DfReaderInputRaw>(HAVEN_STATA, spec, readstat_parse_dta, encoding);
+  return df_parse_dta<DfReaderInputRaw>(spec, encoding);
 }
 
 // [[Rcpp::export]]
-List df_parse_por_file(Rcpp::List spec) {
-  return df_parse<DfReaderInputFile>(HAVEN_SPSS, spec, readstat_parse_por);
+List df_parse_sav_file(Rcpp::List spec, bool user_na) {
+  return df_parse_sav<DfReaderInputFile>(spec, user_na);
 }
 // [[Rcpp::export]]
-List df_parse_por_raw(Rcpp::List spec) {
-  return df_parse<DfReaderInputRaw>(HAVEN_SPSS, spec, readstat_parse_por);
-}
-
-// [[Rcpp::export]]
-List df_parse_sav_file(Rcpp::List spec) {
-  return df_parse<DfReaderInputFile>(HAVEN_SPSS, spec, readstat_parse_sav);
-}
-// [[Rcpp::export]]
-List df_parse_sav_raw(Rcpp::List spec) {
-  return df_parse<DfReaderInputRaw>(HAVEN_SPSS, spec, readstat_parse_sav);
+List df_parse_sav_raw(Rcpp::List spec, bool user_na) {
+  return df_parse_sav<DfReaderInputRaw>(spec, user_na);
 }

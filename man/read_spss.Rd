@@ -6,11 +6,11 @@
 \alias{write_sav}
 \title{Read SPSS (SAV) files. Write SAV files.}
 \usage{
-read_sav(file)
+read_sav(file, user_na = FALSE)
 
 write_sav(data, path)
 
-read_spss(file)
+read_spss(file, user_na = FALSE)
 }
 \arguments{
 \item{file}{Either a path to a file, a connection, or literal data
@@ -24,6 +24,8 @@ read_spss(file)
 
    Literal data is most useful for examples and tests. It must contain at
    least one new line to be recognised as data (instead of a path).}
+
+\item{user_na}{If \code{TRUE} variables with user defined missing}
 
 \item{data}{Data frame to write.}
 

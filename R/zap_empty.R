@@ -2,6 +2,7 @@
 #'
 #' @param x A character vector
 #' @return A character vector with empty strings replaced by missing values.
+#' @family zappers
 #' @export
 #' @examples
 #' x <- c("a", "", "c")
