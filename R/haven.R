@@ -1,6 +1,5 @@
 #' @useDynLib haven
 #' @importFrom Rcpp sourceCpp
-#' @importFrom stats setNames
 #' @importFrom tibble tibble
 NULL
 

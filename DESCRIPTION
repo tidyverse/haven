@@ -24,7 +24,6 @@ Imports:
     Rcpp (>= 0.11.4),
     readr (>= 0.1.0),
     hms,
-    stats,
     tibble
 LazyData: true
 URL: https://github.com/hadley/haven, https://github.com/WizardMac/ReadStat
