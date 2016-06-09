@@ -24,6 +24,9 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL) {
     }
   }
   if (!is.null(na_range)) {
+    if (!is.numeric(x))  {
+      stop("`na_range` is only applicable for labelled numeric vectors", call. = FALSE)
+    }
     if (!is.numeric(na_range) || length(na_range) != 2) {
       stop("`na_range` must be a numeric vector of length two.", call. = FALSE)
     }
