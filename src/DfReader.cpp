@@ -313,7 +313,10 @@ public:
     }
 
     file_.seekg(offset, dir);
-    return file_.tellg();
+    if (file_.fail())
+      return -1;
+    else
+      return file_.tellg();
   }
 
   ssize_t read(void *buf, size_t nbyte, void *io_ctx) {
@@ -331,7 +334,7 @@ public:
   }
 
   int open(void* io_ctx) {
-    file_.open(filename_.c_str());
+    file_.open(filename_.c_str(), std::ifstream::binary);
     return file_.is_open() ? 0 : -1;
   }
 
@@ -439,7 +442,8 @@ List df_parse_dta(Rcpp::List spec, std::string encoding = "") {
   readstat_parser_free(parser);
 
   if (result != 0) {
-    stop("Failed to parse %s: %s.", haven_error_message(spec),
+    stop("Failed to parse %s: %s.",
+         haven_error_message(spec),
          readstat_error_message(result));
   }
 
