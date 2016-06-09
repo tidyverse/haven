@@ -13,6 +13,12 @@ test_that("converts characters to factors", {
 
 # Labelled values ---------------------------------------------------------
 
+test_that("labels are preserved even if they are not present in values #172", {
+  s1 <- labelled(rep(1, 3), c("A" = 1, "B" = 2, "C" = 3))
+  exp <- factor(rep("A", 3), levels = c("A", "B", "C"))
+  expect_equal(as_factor(s1), exp)
+})
+
 test_that("all values are preserved", {
   s1 <- labelled(1:3, c("A" = 2))
   exp <- factor(c("1", "A", "3"), levels = c("1", "A", "3"))
