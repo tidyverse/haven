@@ -1,11 +1,13 @@
 #' Convert input to a factor.
 #'
 #' The base function \code{as.factor()} is not a generic, but this variant
-#' is. Methods are provided for factors, character vectors and labelled
-#' vectors.
+#' is. Methods are provided for factors, character vectors, labelled
+#' vectors, and data frames. By default, when applied to a data frame,
+#' it only affects \code{labelled} columns.
 #'
 #' @param x Object to coerce to a factor.
 #' @param ... Other arguments passed down to method.
+#' @param only_labelled Only apply to labelled columns?
 #' @export
 #' @examples
 #' x <- labelled(sample(5, 10, replace = TRUE), c(Bad = 1, Good = 5))
@@ -32,6 +34,19 @@ as_factor.factor <- function(x, ...) {
 #' @export
 as_factor.character <- function(x, ...) {
   factor(x, ...)
+}
+
+#' @rdname as_factor
+#' @export
+as_factor.data.frame <- function(x, ..., only_labelled = TRUE) {
+  if (only_labelled) {
+    labelled <- vapply(x, is.labelled, logical(1))
+    x[labelled] <- lapply(x[labelled], as_factor)
+  } else {
+    x[] <- lapply(x, as_factor)
+  }
+
+  x
 }
 
 #' @param ordered If \code{TRUE} create an ordered (ordinal) factor, if

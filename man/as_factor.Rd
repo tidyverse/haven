@@ -3,6 +3,7 @@
 \name{as_factor}
 \alias{as_factor}
 \alias{as_factor.character}
+\alias{as_factor.data.frame}
 \alias{as_factor.factor}
 \alias{as_factor.labelled}
 \title{Convert input to a factor.}
@@ -13,6 +14,8 @@ as_factor(x, ...)
 
 \method{as_factor}{character}(x, ...)
 
+\method{as_factor}{data.frame}(x, ..., only_labelled = TRUE)
+
 \method{as_factor}{labelled}(x, levels = c("default", "labels", "values",
   "both"), ordered = FALSE, ...)
 }
@@ -20,6 +23,8 @@ as_factor(x, ...)
 \item{x}{Object to coerce to a factor.}
 
 \item{...}{Other arguments passed down to method.}
+
+\item{only_labelled}{Only apply to labelled columns?}
 
 \item{levels}{How to create the levels of the generated factor:
 
@@ -35,8 +40,9 @@ as_factor(x, ...)
 }
 \description{
 The base function \code{as.factor()} is not a generic, but this variant
-is. Methods are provided for factors, character vectors and labelled
-vectors.
+is. Methods are provided for factors, character vectors, labelled
+vectors, and data frames. By default, when applied to a data frame,
+it only affects \code{labelled} columns.
 }
 \examples{
 x <- labelled(sample(5, 10, replace = TRUE), c(Bad = 1, Good = 5))

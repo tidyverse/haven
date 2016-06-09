@@ -30,7 +30,9 @@
   labels where present, and otherwise uses the labels. This is now the
   default, as it seems to map better to the semantics of labelled values
   in other statistical packages (#81). You can also use `levels = "both"`
-  to combine the value and the label into a single string (#82).
+  to combine the value and the label into a single string (#82). It also
+  gains a method for data frames, so you can easily convert every labelled
+  column to a factor in one function call.
 
 * New `vignette("semantics", package = "haven")` discusses the semantics
   of missing values and labelling in SAS, SPSS, and Stata, and how they
