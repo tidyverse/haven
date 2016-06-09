@@ -63,6 +63,9 @@
   string values (#79). They can all read from connections and compressed files
   (@lionel-, #109)
 
+* Added `type_sum()` method for labelled objects so they print nicely in
+  tibbles.
+
 * `write_dta()` now verifies that variable names are valid Stata variables
   (#132), and throws an error if you attempt to save a labelled vector that
   is not an integer (#144).

@@ -138,3 +138,8 @@ label_length <- function(x) {
     max(nchar(names(attr(x, "labels"))))
   }
 }
+
+#' @export
+type_sum.labelled <- function(x) {
+  paste0(tibble::type_sum(unclass(x)), "+lbl")
+}
