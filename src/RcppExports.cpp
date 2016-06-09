@@ -7,26 +7,28 @@
 using namespace Rcpp;
 
 // df_parse_sas_file
-List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat);
-RcppExport SEXP haven_df_parse_sas_file(SEXP spec_b7datSEXP, SEXP spec_b7catSEXP) {
+List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat, std::string encoding);
+RcppExport SEXP haven_df_parse_sas_file(SEXP spec_b7datSEXP, SEXP spec_b7catSEXP, SEXP encodingSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< Rcpp::List >::type spec_b7dat(spec_b7datSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type spec_b7cat(spec_b7catSEXP);
-    __result = Rcpp::wrap(df_parse_sas_file(spec_b7dat, spec_b7cat));
+    Rcpp::traits::input_parameter< std::string >::type encoding(encodingSEXP);
+    __result = Rcpp::wrap(df_parse_sas_file(spec_b7dat, spec_b7cat, encoding));
     return __result;
 END_RCPP
 }
 // df_parse_sas_raw
-List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat);
-RcppExport SEXP haven_df_parse_sas_raw(SEXP spec_b7datSEXP, SEXP spec_b7catSEXP) {
+List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat, std::string encoding);
+RcppExport SEXP haven_df_parse_sas_raw(SEXP spec_b7datSEXP, SEXP spec_b7catSEXP, SEXP encodingSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< Rcpp::List >::type spec_b7dat(spec_b7datSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type spec_b7cat(spec_b7catSEXP);
-    __result = Rcpp::wrap(df_parse_sas_raw(spec_b7dat, spec_b7cat));
+    Rcpp::traits::input_parameter< std::string >::type encoding(encodingSEXP);
+    __result = Rcpp::wrap(df_parse_sas_raw(spec_b7dat, spec_b7cat, encoding));
     return __result;
 END_RCPP
 }

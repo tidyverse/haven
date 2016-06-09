@@ -4,11 +4,15 @@
 \alias{read_sas}
 \title{Read SAS files.}
 \usage{
-read_sas(b7dat, b7cat = NULL)
+read_sas(b7dat, b7cat = NULL, encoding = NULL)
 }
 \arguments{
 \item{b7dat, b7cat}{Path to data and catalog files. The files are
 processed with \code{\link[readr]{datasource}()}.}
+
+\item{encoding}{The character encoding used for the file. This defaults to
+the encoding specified in the file, or UTF-8. You can use this argument
+to override the value stored in the file if it is correct}
 }
 \value{
 A tibble, data frame variant with nice defaults.

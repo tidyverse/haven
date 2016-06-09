@@ -520,11 +520,12 @@ List df_parse_dta(Rcpp::List spec, std::string encoding = "") {
 
 
 template<typename InputClass>
-List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat) {
+List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
+                  std::string encoding) {
   DfReader builder(HAVEN_SAS);
   InputClass builder_input_dat(spec_b7dat);
 
-  readstat_parser_t* parser = haven_init_parser();
+  readstat_parser_t* parser = haven_init_parser(encoding);
   haven_init_io(parser, builder_input_dat);
 
   if (spec_b7cat.size() != 0) {
@@ -553,12 +554,14 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat) {
 }
 
 // [[Rcpp::export]]
-List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat) {
-  return df_parse_sas<DfReaderInputFile>(spec_b7dat, spec_b7cat);
+List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
+                       std::string encoding) {
+  return df_parse_sas<DfReaderInputFile>(spec_b7dat, spec_b7cat, encoding);
 }
 // [[Rcpp::export]]
-List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat) {
-  return df_parse_sas<DfReaderInputRaw>(spec_b7dat, spec_b7cat);
+List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
+                      std::string encoding) {
+  return df_parse_sas<DfReaderInputRaw>(spec_b7dat, spec_b7cat, encoding);
 }
 
 // [[Rcpp::export]]

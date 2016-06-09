@@ -73,6 +73,9 @@
   string values (#79). They can all read from connections and compressed files
   (@lionel-, #109)
 
+* `read_sas()` gains an encoding parameter to overide the encoding stored
+  in the file if it is incorrect (#176).
+
 * Added `type_sum()` method for labelled objects so they print nicely in
   tibbles.
 

@@ -10,12 +10,19 @@ NULL
 #'
 #' @param b7dat,b7cat Path to data and catalog files. The files are
 #'   processed with \code{\link[readr]{datasource}()}.
+#' @param encoding The character encoding used for the file. This defaults to
+#'   the encoding specified in the file, or UTF-8. You can use this argument
+#'   to override the value stored in the file if it is correct
 #' @return A tibble, data frame variant with nice defaults.
 #'
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #' @export
-read_sas <- function(b7dat, b7cat = NULL) {
+read_sas <- function(b7dat, b7cat = NULL, encoding = NULL) {
+  if (is.null(encoding)) {
+    encoding <- ""
+  }
+
   spec_b7dat <- readr::datasource(b7dat)
   if (is.null(b7cat)) {
     spec_b7cat <- list()
@@ -23,8 +30,8 @@ read_sas <- function(b7dat, b7cat = NULL) {
     spec_b7cat <- readr::datasource(b7cat)
   }
   switch(class(spec_b7dat)[1],
-    source_file = df_parse_sas_file(spec_b7dat, spec_b7cat),
-    source_raw = df_parse_sas_raw(spec_b7dat, spec_b7cat),
+    source_file = df_parse_sas_file(spec_b7dat, spec_b7cat, encoding = encoding),
+    source_raw = df_parse_sas_raw(spec_b7dat, spec_b7cat, encoding = encoding),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
