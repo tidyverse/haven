@@ -45,10 +45,8 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL) {
 print.labelled_spss <- function(x, ...) {
   cat("<Labelled SPSS>\n")
 
-  xx <- unclass(x)
-  attr(xx, "labels") <- NULL
-  attr(xx, "na_values") <- NULL
-  attr(xx, "na_range") <- NULL
+  xx <- x
+  attributes(xx) <- NULL
   print(xx, quote = FALSE)
 
   na_values <- attr(x, "na_values")
