@@ -45,6 +45,9 @@ and factors. See \code{\link{labelled}} for how labelled variables in
 Stata are handled in R. \code{read_spss} is an alias for \code{read_sav}.
 }
 \examples{
+path <- system.file("examples", "iris.sav", package = "haven")
+read_sav(path)
+
 tmp <- tempfile(fileext = ".sav")
 write_sav(mtcars, tmp)
 read_sav(tmp)

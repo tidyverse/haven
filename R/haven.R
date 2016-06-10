@@ -18,6 +18,9 @@ NULL
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #' @export
+#' @examples
+#' path <- system.file("examples", "iris.sas7bdat", package = "haven")
+#' read_sas(path)
 read_sas <- function(b7dat, b7cat = NULL, encoding = NULL) {
   if (is.null(encoding)) {
     encoding <- ""
@@ -51,6 +54,9 @@ read_sas <- function(b7dat, b7cat = NULL, encoding = NULL) {
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #' @name read_spss
 #' @examples
+#' path <- system.file("examples", "iris.sav", package = "haven")
+#' read_sav(path)
+#'
 #' tmp <- tempfile(fileext = ".sav")
 #' write_sav(mtcars, tmp)
 #' read_sav(tmp)
@@ -106,6 +112,9 @@ read_spss <- function(file, user_na = FALSE) {
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #' @export
 #' @examples
+#' path <- system.file("examples", "iris.dta", package = "haven")
+#' read_dta(path)
+#'
 #' tmp <- tempfile(fileext = ".dta")
 #' write_dta(mtcars, tmp)
 #' read_dta(tmp)

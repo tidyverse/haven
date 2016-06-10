@@ -46,6 +46,9 @@ and factors. See \code{\link{labelled}} for how labelled variables in
 Stata are handled in R.
 }
 \examples{
+path <- system.file("examples", "iris.dta", package = "haven")
+read_dta(path)
+
 tmp <- tempfile(fileext = ".dta")
 write_dta(mtcars, tmp)
 read_dta(tmp)

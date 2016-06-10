@@ -24,4 +24,8 @@ A tibble, data frame variant with nice defaults.
 This supports both b7dat files and the accompanying b7cat files
 that are SAS's equivalent of factor labels.
 }
+\examples{
+path <- system.file("examples", "iris.sas7bdat", package = "haven")
+read_sas(path)
+}
 
