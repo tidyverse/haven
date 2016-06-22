@@ -76,7 +76,7 @@ is.labelled <- function(x) inherits(x, "labelled")
 
 #' @export
 print.labelled <- function(x, ..., digits = getOption("digits")) {
-  cat("<Labelled>\n")
+  cat("<Labelled ", typeof(x), ">\n", sep = "")
 
   if (is.double(x)) {
     print_tagged_na(x, digits = digits)
