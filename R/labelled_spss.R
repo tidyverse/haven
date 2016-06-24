@@ -43,7 +43,7 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL) {
 
 #' @export
 print.labelled_spss <- function(x, ...) {
-  cat("<Labelled SPSS>\n")
+  cat("<Labelled SPSS ", typeof(x), ">\n", sep = "")
 
   xx <- x
   attributes(xx) <- NULL
