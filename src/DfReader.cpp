@@ -131,7 +131,7 @@ public:
 
   void createVariable(int index, readstat_variable_t *variable, const char *val_labels) {
 
-    names_[index] = readstat_variable_get_name(variable);
+    names_[index] = Rf_mkCharCE(readstat_variable_get_name(variable), CE_UTF8);
 
     switch(readstat_variable_get_type(variable)) {
     case READSTAT_TYPE_LONG_STRING:
