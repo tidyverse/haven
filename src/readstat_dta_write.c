@@ -843,16 +843,14 @@ static readstat_error_t dta_emit_map(readstat_writer_t *writer, dta_ctx_t *ctx) 
 static readstat_error_t dta_begin_data(void *writer_ctx) {
     readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
     readstat_error_t error = READSTAT_OK;
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     
     dta_ctx_t *ctx = dta_ctx_alloc(NULL);
     dta_header_t header;
     memset(&header, 0, sizeof(dta_header_t));
 
-    if (writer->version) {
-        header.ds_format = writer->version;
-    } else {
-        header.ds_format = DTA_DEFAULT_FILE_VERSION;
-    }
+    header.ds_format = writer->version;
     header.byteorder = machine_is_little_endian() ? DTA_LOHI : DTA_HILO;
     header.filetype  = 0x01;
     header.unused    = 0x00;
@@ -1007,11 +1005,14 @@ static readstat_error_t dta_old_write_string(void *row, const readstat_variable_
 static readstat_error_t dta_write_numeric_missing(void *row, const readstat_variable_t *var) {
     readstat_error_t retval = READSTAT_OK;
     if (var->type == READSTAT_TYPE_CHAR) {
-        retval = dta_write_char(row, var, DTA_MISSING_CHAR);
+        int8_t val_c = DTA_MISSING_CHAR;
+        memcpy(row, &val_c, sizeof(int8_t));
     } else if (var->type == READSTAT_TYPE_INT16) {
-        retval = dta_write_int16(row, var, DTA_MISSING_INT16);
+        int16_t val_s = DTA_MISSING_INT16;
+        memcpy(row, &val_s, sizeof(int16_t));
     } else if (var->type == READSTAT_TYPE_INT32) {
-        retval = dta_write_int32(row, var, DTA_MISSING_INT32);
+        int32_t val_i = DTA_MISSING_INT32;
+        memcpy(row, &val_i, sizeof(int32_t));
     } else if (var->type == READSTAT_TYPE_FLOAT) {
         int32_t val_i = DTA_MISSING_FLOAT;
         memcpy(row, &val_i, sizeof(int32_t));
@@ -1069,10 +1070,19 @@ static readstat_error_t dta_write_tagged_missing(void *row, const readstat_varia
     return retval;
 }
 
+static readstat_error_t dta_write_tagged_missing_illegally(void *row, const readstat_variable_t *var, char tag) {
+    /* Write it anyway, but return an error */
+    dta_write_numeric_missing(row, var);
+    return READSTAT_ERROR_TAGGED_VALUES_NOT_SUPPORTED;
+}
+
 static readstat_error_t dta_end_data(void *writer_ctx) {
     readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
     dta_ctx_t *ctx = writer->module_ctx;
     readstat_error_t error = READSTAT_OK;
+
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
 
     error = dta_write_tag(writer, ctx, "</data>");
     if (error != READSTAT_OK)
@@ -1101,6 +1111,9 @@ readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *use
     writer->row_count = row_count;
     writer->user_ctx = user_ctx;
 
+    if (writer->version == 0)
+        writer->version = DTA_DEFAULT_FILE_VERSION;
+
     if (writer->version >= 119 || writer->version < 104) {
         return READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION;
     } else if (writer->version >= 117) {
@@ -1121,9 +1134,14 @@ readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *use
     writer->callbacks.write_int32 = &dta_write_int32;
     writer->callbacks.write_float = &dta_write_float;
     writer->callbacks.write_double = &dta_write_double;
-    writer->callbacks.write_tagged_missing = &dta_write_tagged_missing;
+    if (writer->version >= 113) {
+        writer->callbacks.write_tagged_missing = &dta_write_tagged_missing;
+    } else {
+        writer->callbacks.write_tagged_missing = &dta_write_tagged_missing_illegally;
+    }
     writer->callbacks.begin_data = &dta_begin_data;
     writer->callbacks.end_data = &dta_end_data;
+    writer->initialized = 1;
 
     return READSTAT_OK;
 }

@@ -255,6 +255,9 @@ readstat_error_t readstat_writer_set_file_format_version(readstat_writer_t *writ
 
 readstat_error_t readstat_begin_row(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
     if (writer->current_row == 0) {
         size_t row_len = 0;
         int i;
@@ -275,43 +278,73 @@ readstat_error_t readstat_begin_row(readstat_writer_t *writer) {
 
 // Then call one of these for each variable
 readstat_error_t readstat_insert_char_value(readstat_writer_t *writer, const readstat_variable_t *variable, char value) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
     return writer->callbacks.write_char(&writer->row[variable->offset], variable, value);
 }
 
 readstat_error_t readstat_insert_int16_value(readstat_writer_t *writer, const readstat_variable_t *variable, int16_t value) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
     return writer->callbacks.write_int16(&writer->row[variable->offset], variable, value);
 }
 
 readstat_error_t readstat_insert_int32_value(readstat_writer_t *writer, const readstat_variable_t *variable, int32_t value) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
     return writer->callbacks.write_int32(&writer->row[variable->offset], variable, value);
 }
 
 readstat_error_t readstat_insert_float_value(readstat_writer_t *writer, const readstat_variable_t *variable, float value) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
     return writer->callbacks.write_float(&writer->row[variable->offset], variable, value);
 }
 
 readstat_error_t readstat_insert_double_value(readstat_writer_t *writer, const readstat_variable_t *variable, double value) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
     return writer->callbacks.write_double(&writer->row[variable->offset], variable, value);
 }
 
 readstat_error_t readstat_insert_string_value(readstat_writer_t *writer, const readstat_variable_t *variable, const char *value) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
     return writer->callbacks.write_string(&writer->row[variable->offset], variable, value);
 }
 
 readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
     return writer->callbacks.write_missing(&writer->row[variable->offset], variable);
 }
 
 readstat_error_t readstat_insert_tagged_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable, char tag) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
     return writer->callbacks.write_tagged_missing(&writer->row[variable->offset], variable, tag);
 }
 
 readstat_error_t readstat_end_row(readstat_writer_t *writer) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
     writer->current_row++;
     return readstat_write_bytes(writer, writer->row, writer->row_len);
 }
 
 readstat_error_t readstat_end_writing(readstat_writer_t *writer) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
     if (writer->current_row != writer->row_count) {
         return READSTAT_ERROR_ROW_COUNT_MISMATCH;
     }

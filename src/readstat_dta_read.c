@@ -530,7 +530,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
                 }
                 if (byte > DTA_MAX_CHAR) {
                     value.is_system_missing = 1;
-                    if (byte > DTA_MISSING_CHAR) {
+                    if (byte > DTA_MISSING_CHAR && ctx->supports_tagged_missing) {
                         value.tag = 'a' + (byte - DTA_MISSING_CHAR_A);
                     }
                 }
@@ -545,7 +545,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
                 }
                 if (num > DTA_MAX_INT16) {
                     value.is_system_missing = 1;
-                    if (num > DTA_MISSING_INT16) {
+                    if (num > DTA_MISSING_INT16 && ctx->supports_tagged_missing) {
                         value.tag = 'a' + (num - DTA_MISSING_INT16_A);
                     }
                 }
@@ -560,7 +560,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
                 }
                 if (num > DTA_MAX_INT32) {
                     value.is_system_missing = 1;
-                    if (num > DTA_MISSING_INT32) {
+                    if (num > DTA_MISSING_INT32 && ctx->supports_tagged_missing) {
                         value.tag = 'a' + (num - DTA_MISSING_INT32_A);
                     }
                 }
@@ -573,7 +573,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
                 }
                 if (num > DTA_MAX_FLOAT) {
                     value.is_system_missing = 1;
-                    if (num > DTA_MISSING_FLOAT) {
+                    if (num > DTA_MISSING_FLOAT && ctx->supports_tagged_missing) {
                         value.tag = 'a' + ((num - DTA_MISSING_FLOAT_A) >> 11);
                     }
                 } else {
@@ -588,7 +588,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
                 }
                 if (num > DTA_MAX_DOUBLE) {
                     value.is_system_missing = 1;
-                    if (num > DTA_MISSING_DOUBLE) {
+                    if (num > DTA_MISSING_DOUBLE && ctx->supports_tagged_missing) {
                         value.tag = 'a' + ((num - DTA_MISSING_DOUBLE_A) >> 40);
                     }
                 } else {
@@ -732,7 +732,7 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
                     readstat_value_t value = { .v = { .i32_value = val[i] }, .type = READSTAT_TYPE_INT32 };
                     if (val[i] > DTA_MAX_INT32) {
                         value.is_system_missing = 1;
-                        if (val[i] > DTA_MISSING_INT32) {
+                        if (val[i] > DTA_MISSING_INT32 && ctx->supports_tagged_missing) {
                             value.tag = 'a' + (val[i] - DTA_MISSING_INT32_A);
                         }
                     }

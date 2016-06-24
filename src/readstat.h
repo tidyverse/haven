@@ -57,6 +57,7 @@ typedef enum readstat_error_e {
     READSTAT_ERROR_BAD_FORMAT_STRING,
     READSTAT_ERROR_VALUE_TYPE_MISMATCH,
     READSTAT_ERROR_WRITE,
+    READSTAT_ERROR_WRITER_NOT_INITIALIZED,
     READSTAT_ERROR_SEEK,
     READSTAT_ERROR_CONVERT,
     READSTAT_ERROR_CONVERT_BAD_STRING,
@@ -308,6 +309,8 @@ typedef struct readstat_writer_s {
     readstat_writer_callbacks_t callbacks;
     void                       *module_ctx;
     void                       *user_ctx;
+
+    int                         initialized;
 } readstat_writer_t;
 
 /* Writer API */

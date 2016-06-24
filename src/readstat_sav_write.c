@@ -745,6 +745,8 @@ static size_t sav_variable_width(readstat_types_t type, size_t user_width) {
 static readstat_error_t sav_begin_data(void *writer_ctx) {
     readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
     readstat_error_t retval = READSTAT_OK;
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
 
     retval = sav_emit_header(writer);
     if (retval != READSTAT_OK)
@@ -800,6 +802,7 @@ readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *use
     writer->callbacks.write_missing = &sav_write_missing;
     writer->callbacks.write_tagged_missing = &sav_write_tagged_missing;
     writer->callbacks.begin_data = &sav_begin_data;
+    writer->initialized = 1;
 
     return READSTAT_OK;
 }

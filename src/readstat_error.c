@@ -40,6 +40,9 @@ const char *readstat_error_message(readstat_error_t error_code) {
 
     if (error_code == READSTAT_ERROR_WRITE)
         return "Unable to write data";
+    
+    if (error_code == READSTAT_ERROR_WRITER_NOT_INITIALIZED)
+        return "The writer object was not properly initialized (call and check return value of readstat_begin_writing_XXX)";
 
     if (error_code == READSTAT_ERROR_SEEK)
         return "Unable to seek within file";

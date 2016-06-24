@@ -103,7 +103,7 @@ public:
     }
 
     int n = Rf_length(x_[0]);
-    readstat_begin_writing_sav(writer_, this, n);
+    checkStatus(readstat_begin_writing_sav(writer_, this, n));
 
     // Write data
     for (int i = 0; i < n; ++i) {
@@ -136,10 +136,10 @@ public:
           break;
         }
       }
-      readstat_end_row(writer_);
+      checkStatus(readstat_end_row(writer_));
     }
 
-    readstat_end_writing(writer_);
+    checkStatus(readstat_end_writing(writer_));
 
   }
 
@@ -186,7 +186,7 @@ public:
     }
 
     int n = Rf_length(x_[0]);
-    readstat_begin_writing_dta(writer_, this, n);
+    checkStatus(readstat_begin_writing_dta(writer_, this, n));
 
     // Write data
     for (int i = 0; i < n; ++i) {
@@ -219,10 +219,10 @@ public:
           break;
         }
       }
-      readstat_end_row(writer_);
+      checkStatus(readstat_end_row(writer_));
     }
 
-    readstat_end_writing(writer_);
+    checkStatus(readstat_end_writing(writer_));
   }
 
   // Define variables ----------------------------------------------------------
@@ -322,25 +322,25 @@ public:
 
   void insertValue(readstat_variable_t* var, int val, bool is_missing) {
     if (is_missing) {
-      readstat_insert_missing_value(writer_, var);
+      checkStatus(readstat_insert_missing_value(writer_, var));
     } else {
-      readstat_insert_int32_value(writer_, var, val);
+      checkStatus(readstat_insert_int32_value(writer_, var, val));
     }
   }
 
   void insertValue(readstat_variable_t* var, double val, bool is_missing) {
     if (is_missing) {
-      readstat_insert_missing_value(writer_, var);
+      checkStatus(readstat_insert_missing_value(writer_, var));
     } else {
-      readstat_insert_double_value(writer_, var, val);
+      checkStatus(readstat_insert_double_value(writer_, var, val));
     }
   }
 
   void insertValue(readstat_variable_t* var, const char* val, bool is_missing) {
     if (is_missing) {
-      readstat_insert_missing_value(writer_, var);
+      checkStatus(readstat_insert_missing_value(writer_, var));
     } else {
-      readstat_insert_string_value(writer_, var, val);
+      checkStatus(readstat_insert_string_value(writer_, var, val));
     }
   }
 

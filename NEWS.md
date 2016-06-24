@@ -9,6 +9,8 @@
     * Support for Stata 14 files (#75)
     * Support for SPSS value labels with more than 8 characters (#157)
     * Fix crash when writing `.sav` (#171).
+    * More likely to get an error when attempting to create an invalid
+      output file.
 
 * Added support for reading and writing variable formats. Similarly to 
   to variable labels, formats are stored as an attribute on the vector.

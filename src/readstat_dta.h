@@ -75,6 +75,7 @@ typedef struct dta_ctx_s {
     int            machine_needs_byte_swap;
     int            machine_is_twos_complement;
     int            file_is_xmlish;
+    int            supports_tagged_missing;
 
     iconv_t        converter;
     readstat_progress_handler progress_handler;

@@ -6,6 +6,9 @@
 
 #include "readstat_dta.h"
 
+#define DTA_MIN_VERSION 104
+#define DTA_MAX_VERSION 118
+
 dta_ctx_t *dta_ctx_alloc(readstat_io_t *io) {
     dta_ctx_t *ctx;
     if ((ctx = malloc(sizeof(dta_ctx_t))) == NULL) {
@@ -24,6 +27,9 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
         const char *input_encoding, const char *output_encoding) {
     readstat_error_t retval = READSTAT_OK;
     int machine_byteorder = DTA_HILO;
+    if (ds_format < DTA_MIN_VERSION || ds_format > DTA_MAX_VERSION)
+        return READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION;
+
     if (machine_is_little_endian()) {
         machine_byteorder = DTA_LOHI;
     }
@@ -36,6 +42,7 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
     ctx->nobs = ctx->machine_needs_byte_swap ? byteswap4(nobs) : nobs;
     
     ctx->machine_is_twos_complement = READSTAT_MACHINE_IS_TWOS_COMPLEMENT;
+    ctx->supports_tagged_missing = (ds_format >= 113);
 
     if (ds_format < 105) {
         ctx->fmtlist_entry_len = 7;
