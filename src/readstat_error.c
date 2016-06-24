@@ -56,5 +56,23 @@ const char *readstat_error_message(readstat_error_t error_code) {
     if (error_code == READSTAT_ERROR_CONVERT_LONG_STRING)
         return "Unable to convert string to the requested encoding (output buffer too small)";
 
+    if (error_code == READSTAT_ERROR_VALUE_OUT_OF_RANGE)
+        return "A provided value was outside the range of representable values in the specified file format";
+
+    if (error_code == READSTAT_ERROR_TAGGED_VALUES_NOT_SUPPORTED)
+        return "The file format does not supported character tags for missing values";
+
+    if (error_code == READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION)
+        return "This version of the file format is not supported";
+
+    if (error_code == READSTAT_ERROR_NAME_BEGINS_WITH_ILLEGAL_CHARACTER)
+        return "A provided column name begins with an illegal character (must be a letter or underscore)";
+
+    if (error_code == READSTAT_ERROR_NAME_CONTAINS_ILLEGAL_CHARACTER)
+        return "A provided column name contains an illegal character (must be a letter, number, or underscore)";
+
+    if (error_code == READSTAT_ERROR_NAME_IS_RESERVED_WORD)
+        return "A provided column name is a reserved word";
+
     return "Unknown error";
 }

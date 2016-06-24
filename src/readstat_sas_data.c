@@ -503,7 +503,7 @@ static readstat_error_t sas_parse_subheader_rle(const char *subheader, size_t le
         if (ctx->error_handler) {
             snprintf(error_buf, sizeof(error_buf), 
                     "ReadStat: Row #%d decompressed to %ld bytes (expected %d bytes)\n",
-                    ctx->parsed_row_count, output - buffer, ctx->row_length);
+                    ctx->parsed_row_count, (long)(output - buffer), ctx->row_length);
             ctx->error_handler(error_buf, ctx->user_ctx);
         }
         goto cleanup;

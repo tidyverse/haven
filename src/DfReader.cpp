@@ -29,7 +29,7 @@ class LabelSet {
 public:
   LabelSet() {}
 
-  void add(char* value, std::string label) {
+  void add(const char* value, std::string label) {
     if (values_i_.size() > 0 || values_d_.size() > 0)
       stop("Can't add string to integer/double labelset");
 
@@ -189,7 +189,7 @@ public:
 
         for (int i = 0; i < n_ranges; ++i) {
           readstat_value_t value = readstat_variable_get_missing_range_lo(variable, i);
-          char* str_value = readstat_string_value(value);
+          const char* str_value = readstat_string_value(value);
           na_values[0] = str_value == NULL ? NA_STRING : Rf_mkCharCE(str_value, CE_UTF8);
         }
 
@@ -252,7 +252,7 @@ public:
     {
       CharacterVector col = output_[var_index];
 
-      char* str_value = readstat_string_value(value);
+      const char* str_value = readstat_string_value(value);
       col[obs_index] = str_value == NULL ? NA_STRING : Rf_mkCharCE(str_value, CE_UTF8);
       break;
     }

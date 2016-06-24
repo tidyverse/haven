@@ -8,7 +8,6 @@
 #include "readstat_convert.h"
 
 static readstat_error_t dta_update_progress(dta_ctx_t *ctx);
-static inline readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx);
 static readstat_error_t dta_read_descriptors(dta_ctx_t *ctx);
 static readstat_error_t dta_read_tag(dta_ctx_t *ctx, const char *tag);
 static readstat_error_t dta_read_long_string(dta_ctx_t *ctx, int v, int o, char **long_string_out);
@@ -18,62 +17,6 @@ static readstat_error_t dta_skip_expansion_fields(dta_ctx_t *ctx);
 static readstat_error_t dta_update_progress(dta_ctx_t *ctx) {
     readstat_io_t *io = ctx->io;
     return io->update(ctx->file_size, ctx->progress_handler, ctx->user_ctx, io->io_ctx);
-}
-
-static inline readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx) {
-    size_t len = 0;
-    readstat_types_t type = READSTAT_TYPE_STRING;
-    if (ctx->typlist_version == 111) {
-        switch (typecode) {
-            case DTA_111_TYPE_CODE_CHAR:
-                len = 1; type = READSTAT_TYPE_CHAR; break;
-            case DTA_111_TYPE_CODE_INT16:
-                len = 2; type = READSTAT_TYPE_INT16; break;
-            case DTA_111_TYPE_CODE_INT32:
-                len = 4; type = READSTAT_TYPE_INT32; break;
-            case DTA_111_TYPE_CODE_FLOAT:
-                len = 4; type = READSTAT_TYPE_FLOAT; break;
-            case DTA_111_TYPE_CODE_DOUBLE:
-                len = 8; type = READSTAT_TYPE_DOUBLE; break;
-            default:
-                len = typecode; type = READSTAT_TYPE_STRING; break;
-        }
-    } else if (ctx->typlist_version == 117) {
-        switch (typecode) {
-            case DTA_117_TYPE_CODE_CHAR:
-                len = 1; type = READSTAT_TYPE_CHAR; break;
-            case DTA_117_TYPE_CODE_INT16:
-                len = 2; type = READSTAT_TYPE_INT16; break;
-            case DTA_117_TYPE_CODE_INT32:
-                len = 4; type = READSTAT_TYPE_INT32; break;
-            case DTA_117_TYPE_CODE_FLOAT:
-                len = 4; type = READSTAT_TYPE_FLOAT; break;
-            case DTA_117_TYPE_CODE_DOUBLE:
-                len = 8; type = READSTAT_TYPE_DOUBLE; break;
-            case DTA_117_TYPE_CODE_STRL:
-                len = 8; type = READSTAT_TYPE_LONG_STRING; break;
-            default:
-                len = typecode; type = READSTAT_TYPE_STRING; break;
-        }
-    } else {
-        switch (typecode) {
-            case DTA_OLD_TYPE_CODE_CHAR:
-                len = 1; type = READSTAT_TYPE_CHAR; break;
-            case DTA_OLD_TYPE_CODE_INT16:
-                len = 2; type = READSTAT_TYPE_INT16; break;
-            case DTA_OLD_TYPE_CODE_INT32:
-                len = 4; type = READSTAT_TYPE_INT32; break;
-            case DTA_OLD_TYPE_CODE_FLOAT:
-                len = 4; type = READSTAT_TYPE_FLOAT; break;
-            case DTA_OLD_TYPE_CODE_DOUBLE:
-                len = 8; type = READSTAT_TYPE_DOUBLE; break;
-            default:
-                len = typecode - 0x7F; type = READSTAT_TYPE_STRING; break;
-        }
-    }
-    
-    *max_len = len;
-    return type;
 }
 
 static readstat_variable_t *dta_init_variable(dta_ctx_t *ctx, int i, readstat_types_t type, size_t max_len) {
@@ -143,7 +86,7 @@ cleanup:
 
 static readstat_error_t dta_read_map(dta_ctx_t *ctx) {
     if (!ctx->file_is_xmlish)
-        return 0;
+        return READSTAT_OK;
 
     readstat_error_t retval = READSTAT_OK;
     uint64_t map_buffer[14];

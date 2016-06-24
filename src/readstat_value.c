@@ -111,7 +111,7 @@ double readstat_double_value(readstat_value_t value) {
     return NAN;
 }
 
-char *readstat_string_value(readstat_value_t value) {
+const char *readstat_string_value(readstat_value_t value) {
     if (value.type == READSTAT_TYPE_STRING || value.type == READSTAT_TYPE_LONG_STRING)
         return value.v.string_value;
 

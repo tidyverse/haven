@@ -69,7 +69,7 @@ readstat_error_t unistd_update_handler(long file_size,
     long current_offset = lseek(fd, 0, SEEK_CUR);
 
     if (current_offset == -1)
-        return READSTAT_ERROR_READ;
+        return READSTAT_ERROR_SEEK;
 
     if (progress_handler(1.0 * current_offset / file_size, user_ctx))
         return READSTAT_ERROR_USER_ABORT;

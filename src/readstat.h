@@ -61,7 +61,13 @@ typedef enum readstat_error_e {
     READSTAT_ERROR_CONVERT,
     READSTAT_ERROR_CONVERT_BAD_STRING,
     READSTAT_ERROR_CONVERT_SHORT_STRING,
-    READSTAT_ERROR_CONVERT_LONG_STRING
+    READSTAT_ERROR_CONVERT_LONG_STRING,
+    READSTAT_ERROR_VALUE_OUT_OF_RANGE,
+    READSTAT_ERROR_TAGGED_VALUES_NOT_SUPPORTED,
+    READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION,
+    READSTAT_ERROR_NAME_BEGINS_WITH_ILLEGAL_CHARACTER,
+    READSTAT_ERROR_NAME_CONTAINS_ILLEGAL_CHARACTER,
+    READSTAT_ERROR_NAME_IS_RESERVED_WORD
 } readstat_error_t;
 
 const char *readstat_error_message(readstat_error_t error_code);
@@ -73,7 +79,7 @@ typedef struct readstat_value_s {
         double      double_value;
         int16_t     i16_value;
         int32_t     i32_value;
-        char       *string_value;
+        const char *string_value;
     } v;
     readstat_types_t         type;
     char                    tag;
@@ -92,7 +98,7 @@ int16_t readstat_int16_value(readstat_value_t value);
 int32_t readstat_int32_value(readstat_value_t value);
 float readstat_float_value(readstat_value_t value);
 double readstat_double_value(readstat_value_t value);
-char *readstat_string_value(readstat_value_t value);
+const char *readstat_string_value(readstat_value_t value);
 
 /* Internal data structures */
 typedef struct readstat_value_label_s {
@@ -269,6 +275,7 @@ typedef struct readstat_writer_callbacks_s {
     readstat_write_double_callback  write_double;
     readstat_write_string_callback  write_string;
     readstat_write_missing_callback write_missing;
+    readstat_write_char_callback    write_tagged_missing;
     readstat_begin_data_callback    begin_data;
     readstat_end_data_callback      end_data;
 } readstat_writer_callbacks_t;
@@ -279,6 +286,8 @@ typedef ssize_t (*readstat_data_writer)(const void *data, size_t len, void *ctx)
 
 typedef struct readstat_writer_s {
     readstat_data_writer        data_writer;
+    size_t                      bytes_written;
+    long                        version;
 
     readstat_variable_t       **variables;
     long                        variables_count;
@@ -330,8 +339,10 @@ void readstat_variable_add_missing_double_range(readstat_variable_t *variable, d
 readstat_variable_t *readstat_get_variable(readstat_writer_t *writer, int index);
 
 // Optional metadata
-void readstat_writer_set_file_label(readstat_writer_t *writer, const char *file_label);
-void readstat_writer_set_fweight_variable(readstat_writer_t *writer, const readstat_variable_t *variable);
+readstat_error_t readstat_writer_set_file_label(readstat_writer_t *writer, const char *file_label);
+readstat_error_t readstat_writer_set_fweight_variable(readstat_writer_t *writer, const readstat_variable_t *variable);
+readstat_error_t readstat_writer_set_file_format_version(readstat_writer_t *writer, 
+        long file_format_version); // e.g. 104-118 for DTA
 
 // Call one of these at any time before the first invocation of readstat_begin_row
 readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *user_ctx, long row_count);
@@ -348,6 +359,7 @@ readstat_error_t readstat_insert_float_value(readstat_writer_t *writer, const re
 readstat_error_t readstat_insert_double_value(readstat_writer_t *writer, const readstat_variable_t *variable, double value);
 readstat_error_t readstat_insert_string_value(readstat_writer_t *writer, const readstat_variable_t *variable, const char *value);
 readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable);
+readstat_error_t readstat_insert_tagged_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable, char tag);
 
 // Finally, close out the row
 readstat_error_t readstat_end_row(readstat_writer_t *writer);

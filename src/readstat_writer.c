@@ -90,7 +90,12 @@ readstat_error_t readstat_write_bytes(readstat_writer_t *writer, const void *byt
     if (bytes_written < len) {
         return READSTAT_ERROR_WRITE;
     }
+    writer->bytes_written += bytes_written;
     return READSTAT_OK;
+}
+
+readstat_error_t readstat_write_string(readstat_writer_t *writer, const char *bytes) {
+    return readstat_write_bytes(writer, bytes, strlen(bytes));
 }
 
 readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat_types_t type, const char *name) {
@@ -233,12 +238,19 @@ readstat_variable_t *readstat_get_variable(readstat_writer_t *writer, int index)
     return NULL;
 }
 
-void readstat_writer_set_file_label(readstat_writer_t *writer, const char *file_label) {
+readstat_error_t readstat_writer_set_file_label(readstat_writer_t *writer, const char *file_label) {
     snprintf(writer->file_label, sizeof(writer->file_label), "%s", file_label);
+    return READSTAT_OK;
 }
 
-void readstat_writer_set_fweight_variable(readstat_writer_t *writer, const readstat_variable_t *variable) {
+readstat_error_t readstat_writer_set_fweight_variable(readstat_writer_t *writer, const readstat_variable_t *variable) {
     writer->fweight_variable = variable;
+    return READSTAT_OK;
+}
+
+readstat_error_t readstat_writer_set_file_format_version(readstat_writer_t *writer, long version) {
+    writer->version = version;
+    return READSTAT_OK;
 }
 
 readstat_error_t readstat_begin_row(readstat_writer_t *writer) {
@@ -290,16 +302,29 @@ readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, const 
     return writer->callbacks.write_missing(&writer->row[variable->offset], variable);
 }
 
+readstat_error_t readstat_insert_tagged_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable, char tag) {
+    return writer->callbacks.write_tagged_missing(&writer->row[variable->offset], variable, tag);
+}
+
 readstat_error_t readstat_end_row(readstat_writer_t *writer) {
     writer->current_row++;
     return readstat_write_bytes(writer, writer->row, writer->row_len);
 }
 
 readstat_error_t readstat_end_writing(readstat_writer_t *writer) {
-    readstat_error_t retval = READSTAT_OK;
     if (writer->current_row != writer->row_count) {
-        retval = READSTAT_ERROR_ROW_COUNT_MISMATCH;
-    } else if (writer->callbacks.end_data) {
+        return READSTAT_ERROR_ROW_COUNT_MISMATCH;
+    }
+
+    readstat_error_t retval = READSTAT_OK;
+
+    if (writer->row_count == 0 && writer->callbacks.begin_data) {
+        retval = writer->callbacks.begin_data(writer);
+    }
+    if (retval != READSTAT_OK)
+        return retval;
+
+    if (writer->callbacks.end_data) {
         retval = writer->callbacks.end_data(writer);
     }
     return retval;

@@ -120,6 +120,8 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
             ctx->converter = iconv_open(output_encoding, input_encoding);
         } else if (ds_format < 118) {
             ctx->converter = iconv_open(output_encoding, "WINDOWS-1252");
+        } else if (strcmp(output_encoding, "UTF-8") != 0) {
+            ctx->converter = iconv_open(output_encoding, "UTF-8");
         }
         if (ctx->converter == (iconv_t)-1) {
             ctx->converter = NULL;
@@ -184,3 +186,60 @@ void dta_ctx_free(dta_ctx_t *ctx) {
         iconv_close(ctx->converter);
     free(ctx);
 }
+
+readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx) {
+    size_t len = 0;
+    readstat_types_t type = READSTAT_TYPE_STRING;
+    if (ctx->typlist_version == 111) {
+        switch (typecode) {
+            case DTA_111_TYPE_CODE_CHAR:
+                len = 1; type = READSTAT_TYPE_CHAR; break;
+            case DTA_111_TYPE_CODE_INT16:
+                len = 2; type = READSTAT_TYPE_INT16; break;
+            case DTA_111_TYPE_CODE_INT32:
+                len = 4; type = READSTAT_TYPE_INT32; break;
+            case DTA_111_TYPE_CODE_FLOAT:
+                len = 4; type = READSTAT_TYPE_FLOAT; break;
+            case DTA_111_TYPE_CODE_DOUBLE:
+                len = 8; type = READSTAT_TYPE_DOUBLE; break;
+            default:
+                len = typecode; type = READSTAT_TYPE_STRING; break;
+        }
+    } else if (ctx->typlist_version == 117) {
+        switch (typecode) {
+            case DTA_117_TYPE_CODE_CHAR:
+                len = 1; type = READSTAT_TYPE_CHAR; break;
+            case DTA_117_TYPE_CODE_INT16:
+                len = 2; type = READSTAT_TYPE_INT16; break;
+            case DTA_117_TYPE_CODE_INT32:
+                len = 4; type = READSTAT_TYPE_INT32; break;
+            case DTA_117_TYPE_CODE_FLOAT:
+                len = 4; type = READSTAT_TYPE_FLOAT; break;
+            case DTA_117_TYPE_CODE_DOUBLE:
+                len = 8; type = READSTAT_TYPE_DOUBLE; break;
+            case DTA_117_TYPE_CODE_STRL:
+                len = 8; type = READSTAT_TYPE_LONG_STRING; break;
+            default:
+                len = typecode; type = READSTAT_TYPE_STRING; break;
+        }
+    } else {
+        switch (typecode) {
+            case DTA_OLD_TYPE_CODE_CHAR:
+                len = 1; type = READSTAT_TYPE_CHAR; break;
+            case DTA_OLD_TYPE_CODE_INT16:
+                len = 2; type = READSTAT_TYPE_INT16; break;
+            case DTA_OLD_TYPE_CODE_INT32:
+                len = 4; type = READSTAT_TYPE_INT32; break;
+            case DTA_OLD_TYPE_CODE_FLOAT:
+                len = 4; type = READSTAT_TYPE_FLOAT; break;
+            case DTA_OLD_TYPE_CODE_DOUBLE:
+                len = 8; type = READSTAT_TYPE_DOUBLE; break;
+            default:
+                len = typecode - 0x7F; type = READSTAT_TYPE_STRING; break;
+        }
+    }
+    
+    *max_len = len;
+    return type;
+}
+
