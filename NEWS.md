@@ -105,6 +105,8 @@
   (@markriseley, #69), and only drops label attributes; it no longer replaces
   labelled values with `NA`s. It also gains a data frame method that zaps
   the labels from every column.
+  
+* `print.labelled()` and `print.labelled_spss()` now display the type.
 
 # haven 0.2.0
 
