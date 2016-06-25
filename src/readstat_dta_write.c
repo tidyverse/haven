@@ -23,7 +23,7 @@
 #define DTA_111_MAX_WIDTH    244
 #define DTA_117_MAX_WIDTH   2045
 
-static readstat_error_t dta_write_numeric_missing(void *row, const readstat_variable_t *var);
+static readstat_error_t dta_113_write_missing_numeric(void *row, const readstat_variable_t *var);
 
 static readstat_error_t dta_write_tag(readstat_writer_t *writer, dta_ctx_t *ctx, const char *tag) {
     if (!ctx->file_is_xmlish)
@@ -96,18 +96,20 @@ static readstat_error_t dta_emit_header_time_stamp(readstat_writer_t *writer, dt
     time_t now = time(NULL);
     struct tm *time_s = localtime(&now);
     char *time_stamp = calloc(1, ctx->time_stamp_len);
-    strftime(time_stamp, ctx->time_stamp_len, "%d %b %Y %H:%M", time_s);
+    uint8_t actual_time_stamp_len = strftime(time_stamp, ctx->time_stamp_len, "%d %b %Y %H:%M", time_s);
+    if (actual_time_stamp_len == 0) {
+        error = READSTAT_ERROR_WRITE;
+        goto cleanup;
+    }
 
     if (ctx->file_is_xmlish) {
-        uint8_t time_stamp_len = ctx->time_stamp_len;
-
         if ((error = dta_write_tag(writer, ctx, "<timestamp>")) != READSTAT_OK)
             goto cleanup;
 
-        if ((error = readstat_write_bytes(writer, &time_stamp_len, sizeof(uint8_t))) != READSTAT_OK)
+        if ((error = readstat_write_bytes(writer, &actual_time_stamp_len, sizeof(uint8_t))) != READSTAT_OK)
             goto cleanup;
 
-        if ((error = readstat_write_bytes(writer, time_stamp, time_stamp_len)) != READSTAT_OK)
+        if ((error = readstat_write_bytes(writer, time_stamp, actual_time_stamp_len)) != READSTAT_OK)
             goto cleanup;
 
         if ((error = dta_write_tag(writer, ctx, "</timestamp>")) != READSTAT_OK)
@@ -895,37 +897,94 @@ cleanup:
     return error;
 }
 
-static readstat_error_t dta_write_char(void *row, const readstat_variable_t *var, char value) {
-    if (var->type != READSTAT_TYPE_CHAR) {
-        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
-    }
-    if (value > DTA_MAX_CHAR) {
-        return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
-    }
+static readstat_error_t dta_write_raw_char(void *row, char value) {
     memcpy(row, &value, sizeof(char));
     return READSTAT_OK;
 }
 
-static readstat_error_t dta_write_int16(void *row, const readstat_variable_t *var, int16_t value) {
-    if (var->type != READSTAT_TYPE_INT16) {
-        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
-    }
-    if (value > DTA_MAX_INT16) {
-        return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
-    }
+static readstat_error_t dta_write_raw_int16(void *row, int16_t value) {
     memcpy(row, &value, sizeof(int16_t));
     return READSTAT_OK;
 }
 
-static readstat_error_t dta_write_int32(void *row, const readstat_variable_t *var, int32_t value) {
+static readstat_error_t dta_write_raw_int32(void *row, int32_t value) {
+    memcpy(row, &value, sizeof(int32_t));
+    return READSTAT_OK;
+}
+
+static readstat_error_t dta_write_raw_int64(void *row, int64_t value) {
+    memcpy(row, &value, sizeof(int64_t));
+    return READSTAT_OK;
+}
+
+static readstat_error_t dta_write_raw_float(void *row, float value) {
+    memcpy(row, &value, sizeof(float));
+    return READSTAT_OK;
+}
+
+static readstat_error_t dta_write_raw_double(void *row, double value) {
+    memcpy(row, &value, sizeof(double));
+    return READSTAT_OK;
+}
+
+static readstat_error_t dta_113_write_char(void *row, const readstat_variable_t *var, char value) {
+    if (var->type != READSTAT_TYPE_CHAR) {
+        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
+    }
+    if (value > DTA_113_MAX_CHAR) {
+        return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
+    }
+    return dta_write_raw_char(row, value);
+}
+
+static readstat_error_t dta_old_write_char(void *row, const readstat_variable_t *var, char value) {
+    if (var->type != READSTAT_TYPE_CHAR) {
+        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
+    }
+    if (value > DTA_OLD_MAX_CHAR) {
+        return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
+    }
+    return dta_write_raw_char(row, value);
+}
+
+static readstat_error_t dta_113_write_int16(void *row, const readstat_variable_t *var, int16_t value) {
+    if (var->type != READSTAT_TYPE_INT16) {
+        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
+    }
+    if (value > DTA_113_MAX_INT16) {
+        return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
+    }
+    return dta_write_raw_int16(row, value);
+}
+
+static readstat_error_t dta_old_write_int16(void *row, const readstat_variable_t *var, int16_t value) {
+    if (var->type != READSTAT_TYPE_INT16) {
+        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
+    }
+    if (value > DTA_OLD_MAX_INT16) {
+        return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
+    }
+    return dta_write_raw_int16(row, value);
+}
+
+static readstat_error_t dta_113_write_int32(void *row, const readstat_variable_t *var, int32_t value) {
     if (var->type != READSTAT_TYPE_INT32) {
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
-    if (value > DTA_MAX_INT32) {
+    if (value > DTA_113_MAX_INT32) {
         return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
     }
-    memcpy(row, &value, sizeof(int32_t));
-    return READSTAT_OK;
+    return dta_write_raw_int32(row, value);
+}
+
+static readstat_error_t dta_old_write_int32(void *row, const readstat_variable_t *var, int32_t value) {
+    if (var->type != READSTAT_TYPE_INT32) {
+        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
+    }
+    if (value > DTA_OLD_MAX_INT32) {
+        return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
+    }
+    return dta_write_raw_int32(row, value);
 }
 
 static readstat_error_t dta_write_float(void *row, const readstat_variable_t *var, float value) {
@@ -933,15 +992,15 @@ static readstat_error_t dta_write_float(void *row, const readstat_variable_t *va
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
 
-    int32_t max_flt_i32 = DTA_MAX_FLOAT;
-    if (value > *((float *)&max_flt_i32)) {
+    int32_t max_flt_i32 = DTA_113_MAX_FLOAT;
+    float max_flt;
+    memcpy(&max_flt, &max_flt_i32, sizeof(float));
+    if (value > max_flt) {
         return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
     } else if (isnan(value)) {
-        return dta_write_numeric_missing(row, var);
+        return dta_113_write_missing_numeric(row, var);
     }
-
-    memcpy(row, &value, sizeof(float));
-    return READSTAT_OK;
+    return dta_write_raw_float(row, value);
 }
 
 static readstat_error_t dta_write_double(void *row, const readstat_variable_t *var, double value) {
@@ -949,15 +1008,15 @@ static readstat_error_t dta_write_double(void *row, const readstat_variable_t *v
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
     }
 
-    int64_t max_dbl_i64 = DTA_MAX_DOUBLE;
-    if (value > *((double *)&max_dbl_i64)) {
+    int64_t max_dbl_i64 = DTA_113_MAX_DOUBLE;
+    double max_dbl;
+    memcpy(&max_dbl, &max_dbl_i64, sizeof(double));
+    if (value > max_dbl) {
         return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
     } else if (isnan(value)) {
-        return dta_write_numeric_missing(row, var);
+        return dta_113_write_missing_numeric(row, var);
     }
-
-    memcpy(row, &value, sizeof(double));
-    return READSTAT_OK;
+    return dta_write_raw_double(row, value);
 }
 
 static readstat_error_t dta_write_string(void *row, const char *value, size_t max_len) {
@@ -1002,77 +1061,74 @@ static readstat_error_t dta_old_write_string(void *row, const readstat_variable_
     return dta_write_string(row, value, value_len);
 }
 
-static readstat_error_t dta_write_numeric_missing(void *row, const readstat_variable_t *var) {
+static readstat_error_t dta_113_write_missing_numeric(void *row, const readstat_variable_t *var) {
     readstat_error_t retval = READSTAT_OK;
     if (var->type == READSTAT_TYPE_CHAR) {
-        int8_t val_c = DTA_MISSING_CHAR;
-        memcpy(row, &val_c, sizeof(int8_t));
+        retval = dta_write_raw_char(row, DTA_113_MISSING_CHAR);
     } else if (var->type == READSTAT_TYPE_INT16) {
-        int16_t val_s = DTA_MISSING_INT16;
-        memcpy(row, &val_s, sizeof(int16_t));
+        retval = dta_write_raw_int16(row, DTA_113_MISSING_INT16);
     } else if (var->type == READSTAT_TYPE_INT32) {
-        int32_t val_i = DTA_MISSING_INT32;
-        memcpy(row, &val_i, sizeof(int32_t));
+        retval = dta_write_raw_int32(row, DTA_113_MISSING_INT32);
     } else if (var->type == READSTAT_TYPE_FLOAT) {
-        int32_t val_i = DTA_MISSING_FLOAT;
-        memcpy(row, &val_i, sizeof(int32_t));
+        retval = dta_write_raw_int32(row, DTA_113_MISSING_FLOAT);
     } else if (var->type == READSTAT_TYPE_DOUBLE) {
-        int64_t val_l = DTA_MISSING_DOUBLE;
-        memcpy(row, &val_l, sizeof(int64_t));
+        retval = dta_write_raw_int64(row, DTA_113_MISSING_DOUBLE);
     }
     return retval;
 }
 
-static readstat_error_t dta_111_write_missing(void *row, const readstat_variable_t *var) {
-    if (var->type == READSTAT_TYPE_STRING) {
-        return dta_111_write_string(row, var, NULL);
+static readstat_error_t dta_old_write_missing_numeric(void *row, const readstat_variable_t *var) {
+    readstat_error_t retval = READSTAT_OK;
+    if (var->type == READSTAT_TYPE_CHAR) {
+        retval = dta_write_raw_char(row, DTA_OLD_MISSING_CHAR);
+    } else if (var->type == READSTAT_TYPE_INT16) {
+        retval = dta_write_raw_int16(row, DTA_OLD_MISSING_INT16);
+    } else if (var->type == READSTAT_TYPE_INT32) {
+        retval = dta_write_raw_int32(row, DTA_OLD_MISSING_INT32);
+    } else if (var->type == READSTAT_TYPE_FLOAT) {
+        retval = dta_write_raw_int32(row, DTA_OLD_MISSING_FLOAT);
+    } else if (var->type == READSTAT_TYPE_DOUBLE) {
+        retval = dta_write_raw_int64(row, DTA_OLD_MISSING_DOUBLE);
     }
-    return dta_write_numeric_missing(row, var);
+    return retval;
 }
 
-static readstat_error_t dta_117_write_missing(void *row, const readstat_variable_t *var) {
-    if (var->type == READSTAT_TYPE_STRING) {
-        return dta_117_write_string(row, var, NULL);
-    }
-    return dta_write_numeric_missing(row, var);
+static readstat_error_t dta_111_write_missing_string(void *row, const readstat_variable_t *var) {
+    return dta_111_write_string(row, var, NULL);
 }
 
-static readstat_error_t dta_old_write_missing(void *row, const readstat_variable_t *var) {
-    if (var->type == READSTAT_TYPE_STRING) {
-        return dta_old_write_string(row, var, NULL);
-    }
-    return dta_write_numeric_missing(row, var);
+static readstat_error_t dta_117_write_missing_string(void *row, const readstat_variable_t *var) {
+    return dta_117_write_string(row, var, NULL);
 }
 
-static readstat_error_t dta_write_tagged_missing(void *row, const readstat_variable_t *var, char tag) {
+static readstat_error_t dta_old_write_missing_string(void *row, const readstat_variable_t *var) {
+    return dta_old_write_string(row, var, NULL);
+}
+
+static readstat_error_t dta_113_write_missing_tagged(void *row, const readstat_variable_t *var, char tag) {
     readstat_error_t retval = READSTAT_OK;
     if (tag < 'a' || tag > 'z')
         return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
 
     if (var->type == READSTAT_TYPE_CHAR) {
-        int8_t val_c = DTA_MISSING_CHAR_A + (tag - 'a');
-        memcpy(row, &val_c, sizeof(int8_t));
+        retval = dta_write_raw_char(row, DTA_113_MISSING_CHAR_A + (tag - 'a'));
     } else if (var->type == READSTAT_TYPE_INT16) {
-        int16_t val_s = DTA_MISSING_INT16_A + (tag - 'a');
-        memcpy(row, &val_s, sizeof(int16_t));
+        retval = dta_write_raw_int16(row, DTA_113_MISSING_INT16_A + (tag - 'a'));
     } else if (var->type == READSTAT_TYPE_INT32) {
-        int32_t val_i = DTA_MISSING_INT32_A + (tag - 'a');
-        memcpy(row, &val_i, sizeof(int32_t));
+        retval = dta_write_raw_int32(row, DTA_113_MISSING_INT32_A + (tag - 'a'));
     } else if (var->type == READSTAT_TYPE_FLOAT) {
-        int32_t val_i = DTA_MISSING_FLOAT_A + ((tag - 'a') << 11);
-        memcpy(row, &val_i, sizeof(int32_t));
+        retval = dta_write_raw_int32(row, DTA_113_MISSING_FLOAT_A + ((tag - 'a') << 11));
     } else if (var->type == READSTAT_TYPE_DOUBLE) {
-        int64_t val_l = DTA_MISSING_DOUBLE_A + ((int64_t)(tag - 'a') << 40);
-        memcpy(row, &val_l, sizeof(int64_t));
+        retval = dta_write_raw_int64(row, DTA_113_MISSING_DOUBLE_A + ((int64_t)(tag - 'a') << 40));
     } else {
         retval = READSTAT_ERROR_TAGGED_VALUES_NOT_SUPPORTED;
     }
     return retval;
 }
 
-static readstat_error_t dta_write_tagged_missing_illegally(void *row, const readstat_variable_t *var, char tag) {
+static readstat_error_t dta_old_write_missing_tagged(void *row, const readstat_variable_t *var, char tag) {
     /* Write it anyway, but return an error */
-    dta_write_numeric_missing(row, var);
+    dta_old_write_missing_numeric(row, var);
     return READSTAT_ERROR_TAGGED_VALUES_NOT_SUPPORTED;
 }
 
@@ -1119,26 +1175,34 @@ readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *use
     } else if (writer->version >= 117) {
         writer->callbacks.variable_width = &dta_117_variable_width;
         writer->callbacks.write_string = &dta_117_write_string;
-        writer->callbacks.write_missing = &dta_117_write_missing;
+        writer->callbacks.write_missing_string = &dta_117_write_missing_string;
     } else if (writer->version >= 111) {
         writer->callbacks.variable_width = &dta_111_variable_width;
         writer->callbacks.write_string = &dta_111_write_string;
-        writer->callbacks.write_missing = &dta_111_write_missing;
+        writer->callbacks.write_missing_string = &dta_111_write_missing_string;
     } else {
         writer->callbacks.variable_width = &dta_old_variable_width;
         writer->callbacks.write_string = &dta_old_write_string;
-        writer->callbacks.write_missing = &dta_old_write_missing;
+        writer->callbacks.write_missing_string = &dta_old_write_missing_string;
     }
-    writer->callbacks.write_char = &dta_write_char;
-    writer->callbacks.write_int16 = &dta_write_int16;
-    writer->callbacks.write_int32 = &dta_write_int32;
+
+    if (writer->version >= 113) {
+        writer->callbacks.write_char = &dta_113_write_char;
+        writer->callbacks.write_int16 = &dta_113_write_int16;
+        writer->callbacks.write_int32 = &dta_113_write_int32;
+        writer->callbacks.write_missing_number = &dta_113_write_missing_numeric;
+        writer->callbacks.write_missing_tagged = &dta_113_write_missing_tagged;
+    } else {
+        writer->callbacks.write_char = &dta_old_write_char;
+        writer->callbacks.write_int16 = &dta_old_write_int16;
+        writer->callbacks.write_int32 = &dta_old_write_int32;
+        writer->callbacks.write_missing_number = &dta_old_write_missing_numeric;
+        writer->callbacks.write_missing_tagged = &dta_old_write_missing_tagged;
+    }
+
     writer->callbacks.write_float = &dta_write_float;
     writer->callbacks.write_double = &dta_write_double;
-    if (writer->version >= 113) {
-        writer->callbacks.write_tagged_missing = &dta_write_tagged_missing;
-    } else {
-        writer->callbacks.write_tagged_missing = &dta_write_tagged_missing_illegally;
-    }
+
     writer->callbacks.begin_data = &dta_begin_data;
     writer->callbacks.end_data = &dta_end_data;
     writer->initialized = 1;

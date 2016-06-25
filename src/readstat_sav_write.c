@@ -719,17 +719,18 @@ static readstat_error_t sav_write_string(void *row, const readstat_variable_t *v
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_write_missing(void *row, const readstat_variable_t *var) {
-    if (var->type == READSTAT_TYPE_STRING) {
-        memset(row, ' ', var->storage_width);
-    } else {
-        uint64_t missing_val = SAV_MISSING_DOUBLE;
-        memcpy(row, &missing_val, sizeof(uint64_t));
-    }
+static readstat_error_t sav_write_missing_string(void *row, const readstat_variable_t *var) {
+    memset(row, ' ', var->storage_width);
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_write_tagged_missing(void *row, const readstat_variable_t *var, char tag) {
+static readstat_error_t sav_write_missing_number(void *row, const readstat_variable_t *var) {
+    uint64_t missing_val = SAV_MISSING_DOUBLE;
+    memcpy(row, &missing_val, sizeof(uint64_t));
+    return READSTAT_OK;
+}
+
+static readstat_error_t sav_write_missing_tagged(void *row, const readstat_variable_t *var, char tag) {
     return READSTAT_ERROR_TAGGED_VALUES_NOT_SUPPORTED;
 }
 
@@ -799,8 +800,9 @@ readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *use
     writer->callbacks.write_float = &sav_write_float;
     writer->callbacks.write_double = &sav_write_double;
     writer->callbacks.write_string = &sav_write_string;
-    writer->callbacks.write_missing = &sav_write_missing;
-    writer->callbacks.write_tagged_missing = &sav_write_tagged_missing;
+    writer->callbacks.write_missing_string = &sav_write_missing_string;
+    writer->callbacks.write_missing_number = &sav_write_missing_number;
+    writer->callbacks.write_missing_tagged = &sav_write_missing_tagged;
     writer->callbacks.begin_data = &sav_begin_data;
     writer->initialized = 1;
 

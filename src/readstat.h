@@ -275,8 +275,9 @@ typedef struct readstat_writer_callbacks_s {
     readstat_write_float_callback   write_float;
     readstat_write_double_callback  write_double;
     readstat_write_string_callback  write_string;
-    readstat_write_missing_callback write_missing;
-    readstat_write_char_callback    write_tagged_missing;
+    readstat_write_missing_callback write_missing_string;
+    readstat_write_missing_callback write_missing_number;
+    readstat_write_char_callback    write_missing_tagged;
     readstat_begin_data_callback    begin_data;
     readstat_end_data_callback      end_data;
 } readstat_writer_callbacks_t;

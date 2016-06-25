@@ -323,14 +323,17 @@ readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, const 
     if (!writer->initialized)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
 
-    return writer->callbacks.write_missing(&writer->row[variable->offset], variable);
+    if (variable->type == READSTAT_TYPE_STRING || variable->type == READSTAT_TYPE_LONG_STRING)
+        return writer->callbacks.write_missing_string(&writer->row[variable->offset], variable);
+
+    return writer->callbacks.write_missing_number(&writer->row[variable->offset], variable);
 }
 
 readstat_error_t readstat_insert_tagged_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable, char tag) {
     if (!writer->initialized)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
 
-    return writer->callbacks.write_tagged_missing(&writer->row[variable->offset], variable, tag);
+    return writer->callbacks.write_missing_tagged(&writer->row[variable->offset], variable, tag);
 }
 
 readstat_error_t readstat_end_row(readstat_writer_t *writer) {

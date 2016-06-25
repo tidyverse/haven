@@ -77,6 +77,12 @@ typedef struct dta_ctx_s {
     int            file_is_xmlish;
     int            supports_tagged_missing;
 
+    char           max_char;
+    int16_t        max_int16;
+    int32_t        max_int32;
+    int32_t        max_float;
+    int64_t        max_double;
+
     iconv_t        converter;
     readstat_progress_handler progress_handler;
     readstat_variable_handler variable_handler;
@@ -91,23 +97,35 @@ typedef struct dta_ctx_s {
 #define DTA_HILO  0x01
 #define DTA_LOHI  0x02
 
-#define DTA_MAX_CHAR                 0x64
-#define DTA_MAX_INT16              0x7fe4
-#define DTA_MAX_INT32          0x7fffffe4
-#define DTA_MAX_FLOAT          0x7effffff // +1.7e38f
-#define DTA_MAX_DOUBLE 0x7fdfffffffffffffL // +8.9e307
+#define DTA_OLD_MAX_CHAR                     0x7e
+#define DTA_OLD_MAX_INT16                  0x7ffe
+#define DTA_OLD_MAX_INT32              0x7ffffffe
+#define DTA_OLD_MAX_FLOAT              0x7effffff // +1.7e38f
+#define DTA_OLD_MAX_DOUBLE     0x7fdfffffffffffffL // +8.9e307
 
-#define DTA_MISSING_CHAR                 0x65
-#define DTA_MISSING_INT16              0x7FE5
-#define DTA_MISSING_INT32          0x7FFFFFE5
-#define DTA_MISSING_FLOAT          0x7F000000
-#define DTA_MISSING_DOUBLE 0x7FE0000000000000L
+#define DTA_OLD_MISSING_CHAR                 0x7F
+#define DTA_OLD_MISSING_INT16              0x7FFF
+#define DTA_OLD_MISSING_INT32          0x7FFFFFFF
+#define DTA_OLD_MISSING_FLOAT          0x7F000000
+#define DTA_OLD_MISSING_DOUBLE 0x7FE0000000000000L
 
-#define DTA_MISSING_CHAR_A    (DTA_MISSING_CHAR+1)
-#define DTA_MISSING_INT16_A   (DTA_MISSING_INT16+1)
-#define DTA_MISSING_INT32_A   (DTA_MISSING_INT32+1)
-#define DTA_MISSING_FLOAT_A   (DTA_MISSING_FLOAT+0x0800)
-#define DTA_MISSING_DOUBLE_A  (DTA_MISSING_DOUBLE+0x010000000000)
+#define DTA_113_MAX_CHAR                    0x64
+#define DTA_113_MAX_INT16                 0x7fe4
+#define DTA_113_MAX_INT32             0x7fffffe4
+#define DTA_113_MAX_FLOAT             0x7effffff // +1.7e38f
+#define DTA_113_MAX_DOUBLE    0x7fdfffffffffffffL // +8.9e307
+
+#define DTA_113_MISSING_CHAR                 0x65
+#define DTA_113_MISSING_INT16              0x7FE5
+#define DTA_113_MISSING_INT32          0x7FFFFFE5
+#define DTA_113_MISSING_FLOAT          0x7F000000
+#define DTA_113_MISSING_DOUBLE 0x7FE0000000000000L
+
+#define DTA_113_MISSING_CHAR_A    (DTA_113_MISSING_CHAR+1)
+#define DTA_113_MISSING_INT16_A   (DTA_113_MISSING_INT16+1)
+#define DTA_113_MISSING_INT32_A   (DTA_113_MISSING_INT32+1)
+#define DTA_113_MISSING_FLOAT_A   (DTA_113_MISSING_FLOAT+0x0800)
+#define DTA_113_MISSING_DOUBLE_A  (DTA_113_MISSING_DOUBLE+0x010000000000)
 
 #define DTA_GSO_TYPE_BINARY        0x81
 #define DTA_GSO_TYPE_ASCII         0x82

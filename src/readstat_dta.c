@@ -42,7 +42,6 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
     ctx->nobs = ctx->machine_needs_byte_swap ? byteswap4(nobs) : nobs;
     
     ctx->machine_is_twos_complement = READSTAT_MACHINE_IS_TWOS_COMPLEMENT;
-    ctx->supports_tagged_missing = (ds_format >= 113);
 
     if (ds_format < 105) {
         ctx->fmtlist_entry_len = 7;
@@ -120,6 +119,22 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
     } else {
         ctx->typlist_entry_len = 2;
         ctx->file_is_xmlish = 1;
+    }
+
+    if (ds_format < 113) {
+        ctx->max_char = DTA_OLD_MAX_CHAR;
+        ctx->max_int16 = DTA_OLD_MAX_INT16;
+        ctx->max_int32 = DTA_OLD_MAX_INT32;
+        ctx->max_float = DTA_OLD_MAX_FLOAT;
+        ctx->max_double = DTA_OLD_MAX_DOUBLE;
+    } else {
+        ctx->max_char = DTA_113_MAX_CHAR;
+        ctx->max_int16 = DTA_113_MAX_INT16;
+        ctx->max_int32 = DTA_113_MAX_INT32;
+        ctx->max_float = DTA_113_MAX_FLOAT;
+        ctx->max_double = DTA_113_MAX_DOUBLE;
+
+        ctx->supports_tagged_missing = 1;
     }
 
     if (output_encoding) {
