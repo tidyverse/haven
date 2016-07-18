@@ -15,8 +15,6 @@ NULL
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #' @export
-#' @examples
-#' read_sas("http://crn.cancer.gov/resources/ctcodes-procedures.sas7bdat")
 read_sas <- function(b7dat, b7cat = NULL) {
   df_parse_sas(clean_path(b7dat), clean_path(b7cat))
 }

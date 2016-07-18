@@ -1,3 +1,7 @@
+# haven 0.2.1
+
+* Fixes to cleanly pass R CMD check.
+
 # haven 0.2.0
 
 * `zap_labels()` now leaves unlabelled vectors unchanged, making it easier

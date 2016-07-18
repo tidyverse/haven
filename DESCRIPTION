@@ -1,9 +1,9 @@
 Package: haven
-Version: 0.2.0
-Title: Import SPSS, Stata and SAS Files
+Version: 0.2.1
+Title: Import 'SPSS', 'Stata' and 'SAS' Files
 Description: Import foreign statistical formats into R via the embedded
-    ReadStat C library (https://github.com/WizardMac/ReadStat). Package includes
-    preliminary support for writing Stata and SPSS formats.
+    'ReadStat' C library (https://github.com/WizardMac/ReadStat). Package includes
+    preliminary support for writing 'Stata' and 'SPSS' formats.
 License: MIT + file LICENSE
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
@@ -11,13 +11,13 @@ Authors@R: c(
       comment = "Author of included ReadStat code"),
     person("RStudio", role = "cph")
   )
-Depends: R (>= 3.1.0)
+Depends:
+    R (>= 3.1.0)
 Suggests:
     dplyr,
     testthat,
     knitr
-LinkingTo:
-    Rcpp,
+LinkingTo: Rcpp,
     BH
 Imports:
     Rcpp (>= 0.11.4)
@@ -25,3 +25,4 @@ LazyData: true
 URL: https://github.com/hadley/haven, https://github.com/WizardMac/ReadStat
 BugReports: https://github.com/hadley/haven/issues
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1
