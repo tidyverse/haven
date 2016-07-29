@@ -138,7 +138,7 @@ public:
     case READSTAT_TYPE_STRING:
       output_[index] = CharacterVector(nrows_);
       break;
-    case READSTAT_TYPE_CHAR:
+    case READSTAT_TYPE_INT8:
     case READSTAT_TYPE_INT16:
     case READSTAT_TYPE_INT32:
     case READSTAT_TYPE_FLOAT:
@@ -196,7 +196,7 @@ public:
         col.attr("na_values") = na_values;
         break;
       }
-      case READSTAT_TYPE_CHAR:
+      case READSTAT_TYPE_INT8:
       case READSTAT_TYPE_INT16:
       case READSTAT_TYPE_INT32:
       case READSTAT_TYPE_FLOAT:
@@ -256,7 +256,7 @@ public:
       col[obs_index] = str_value == NULL ? NA_STRING : Rf_mkCharCE(str_value, CE_UTF8);
       break;
     }
-    case READSTAT_TYPE_CHAR:
+    case READSTAT_TYPE_INT8:
     case READSTAT_TYPE_INT16:
     case READSTAT_TYPE_INT32:
     case READSTAT_TYPE_FLOAT:
@@ -279,7 +279,7 @@ public:
       // Encoded to utf-8 on output
       label_set.add(readstat_string_value(value), label_s);
       break;
-    case READSTAT_TYPE_CHAR:
+    case READSTAT_TYPE_INT8:
     case READSTAT_TYPE_INT16:
     case READSTAT_TYPE_INT32:
     case READSTAT_TYPE_DOUBLE:

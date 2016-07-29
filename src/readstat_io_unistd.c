@@ -14,7 +14,7 @@
 #define UNISTD_OPEN_OPTIONS O_RDONLY
 #endif
 
-#if defined _WIN32 || defined __CYGWIN__ || defined _AIX
+#if defined _WIN32 || defined _AIX
 #define lseek lseek64
 #endif
 

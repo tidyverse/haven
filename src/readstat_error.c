@@ -26,6 +26,9 @@ const char *readstat_error_message(readstat_error_t error_code) {
     if (error_code == READSTAT_ERROR_UNSUPPORTED_CHARSET)
         return "File has an unsupported character set";
 
+    if (error_code == READSTAT_ERROR_COLUMN_COUNT_MISMATCH)
+        return "File did not contain the expected number of columns";
+
     if (error_code == READSTAT_ERROR_ROW_COUNT_MISMATCH)
         return "File did not contain the expected number of rows";
 
@@ -76,6 +79,15 @@ const char *readstat_error_message(readstat_error_t error_code) {
 
     if (error_code == READSTAT_ERROR_NAME_IS_RESERVED_WORD)
         return "A provided column name is a reserved word";
+
+    if (error_code == READSTAT_ERROR_NAME_IS_TOO_LONG)
+        return "A provided column name is too long for the file format";
+
+    if (error_code == READSTAT_ERROR_BAD_TIMESTAMP)
+        return "The file's timestamp string is invalid";
+
+    if (error_code == READSTAT_ERROR_BAD_FREQUENCY_WEIGHT)
+        return "The provided variable can't be used as a frequency weight";
 
     return "Unknown error";
 }

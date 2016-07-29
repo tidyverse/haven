@@ -11,6 +11,7 @@
 #define SAS_CATALOG_USELESS_PAGES    3
 
 typedef struct sas_catalog_ctx_s {
+    readstat_metadata_handler      metadata_handler;
     readstat_value_label_handler   value_label_handler;
     void          *user_ctx;
     readstat_io_t *io;
@@ -250,6 +251,7 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
     ctx->block_pointers = malloc((ctx->block_pointers_capacity = 200) * sizeof(uint64_t));
 
     ctx->value_label_handler = parser->value_label_handler;
+    ctx->metadata_handler = parser->metadata_handler;
     ctx->input_encoding = parser->input_encoding;
     ctx->output_encoding = parser->output_encoding;
     ctx->user_ctx = user_ctx;
@@ -286,6 +288,20 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
             goto cleanup;
         }
         ctx->converter = converter;
+    }
+
+    if (parser->metadata_handler) {
+        char file_label[4*64+1];
+        retval = readstat_convert(file_label, sizeof(file_label), 
+                hinfo->file_label, sizeof(hinfo->file_label), ctx->converter);
+        if (retval != READSTAT_OK)
+            goto cleanup;
+
+        if (ctx->metadata_handler(file_label, hinfo->modification_time, 
+                    10000 * hinfo->major_version + hinfo->minor_version, ctx->user_ctx)) {
+            retval = READSTAT_ERROR_USER_ABORT;
+            goto cleanup;
+        }
     }
 
     if ((page = malloc(ctx->page_size)) == NULL) {

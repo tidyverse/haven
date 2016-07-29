@@ -4,6 +4,7 @@
 
 #include "readstat.h"
 #include "readstat_spss.h"
+#include "readstat_spss_parse.h"
 
 typedef struct spss_type_s {
     int     type;
@@ -232,4 +233,38 @@ readstat_alignment_t spss_alignment_to_readstat_alignment(int32_t sav_alignment)
     if (sav_alignment == SAV_ALIGNMENT_RIGHT)
         return READSTAT_ALIGNMENT_RIGHT;
     return READSTAT_ALIGNMENT_UNKNOWN;
+}
+
+readstat_error_t spss_format_for_variable(readstat_variable_t *r_variable,
+        spss_format_t *spss_format) {
+    readstat_error_t retval = READSTAT_OK;
+
+    memset(spss_format, 0, sizeof(spss_format_t));
+
+    if (r_variable->type == READSTAT_TYPE_STRING) {
+        spss_format->type = SPSS_FORMAT_TYPE_A;
+        if (r_variable->user_width) {
+            spss_format->width = r_variable->user_width;
+        } else {
+            spss_format->width = r_variable->storage_width;
+        }
+    } else {
+        spss_format->type = SPSS_FORMAT_TYPE_F;
+        spss_format->width = 8;
+        if (r_variable->type == READSTAT_TYPE_DOUBLE ||
+                r_variable->type == READSTAT_TYPE_FLOAT) {
+            spss_format->decimal_places = 2;
+        }
+    }
+
+    if (r_variable->format[0]) {
+        const char *fmt = r_variable->format;
+        if (spss_parse_format(fmt, strlen(fmt), spss_format) != READSTAT_OK) {
+            retval = READSTAT_ERROR_BAD_FORMAT_STRING;
+            goto cleanup;
+        }
+    }
+
+cleanup:
+    return retval;
 }

@@ -24,6 +24,11 @@ readstat_error_t readstat_set_info_handler(readstat_parser_t *parser, readstat_i
     return READSTAT_OK;
 }
 
+readstat_error_t readstat_set_metadata_handler(readstat_parser_t *parser, readstat_metadata_handler metadata_handler) {
+    parser->metadata_handler = metadata_handler;
+    return READSTAT_OK;
+}
+
 readstat_error_t readstat_set_variable_handler(readstat_parser_t *parser, readstat_variable_handler variable_handler) {
     parser->variable_handler = variable_handler;
     return READSTAT_OK;

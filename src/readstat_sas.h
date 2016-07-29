@@ -16,8 +16,9 @@ typedef struct sas_header_start_s {
     unsigned char mystery4[30];
     unsigned char encoding;
     unsigned char mystery5[13];
-    char          type[8];
-    char          dataset[64];
+    char          file_type[8];
+    char          file_label[64];
+    char          file_info[8];
 } sas_header_start_t;
 
 typedef struct sas_header_end_s {
@@ -35,17 +36,72 @@ typedef struct sas_header_info_s {
     int      little_endian;
     int      u64;
     int      vendor;
+    int      major_version;
+    int      minor_version;
+    int      revision;
     int      pad1;
     int64_t  page_size;
+    int64_t  page_header_size;
+    int64_t  subheader_pointer_size;
     int64_t  page_count;
     int64_t  header_size;
+    time_t   creation_time;
+    time_t   modification_time;
+    char     file_label[64];
     char    *encoding;
 } sas_header_info_t;
+
 
 enum {
     READSTAT_VENDOR_STAT_TRANSFER,
     READSTAT_VENDOR_SAS
 };
+
+typedef struct sas_text_ref_s {
+    uint16_t    index;
+    uint16_t    offset;
+    uint16_t    length;
+} sas_text_ref_t;
+
+#define SAS_ENDIAN_BIG       0x00
+#define SAS_ENDIAN_LITTLE    0x01
+
+#define SAS_FILE_FORMAT_UNIX    '1'
+#define SAS_FILE_FORMAT_WINDOWS '2'
+
+#define SAS_ALIGNMENT_OFFSET_0  0x22
+#define SAS_ALIGNMENT_OFFSET_4  0x33
+
+#define SAS_COLUMN_TYPE_NUM  0x01
+#define SAS_COLUMN_TYPE_CHR  0x02
+
+#define SAS_SUBHEADER_SIGNATURE_ROW_SIZE       0xF7F7F7F7
+#define SAS_SUBHEADER_SIGNATURE_COLUMN_SIZE    0xF6F6F6F6
+#define SAS_SUBHEADER_SIGNATURE_COUNTS         0xFFFFFC00
+#define SAS_SUBHEADER_SIGNATURE_COLUMN_FORMAT  0xFFFFFBFE
+#define SAS_SUBHEADER_SIGNATURE_COLUMN_UNKNOWN 0xFFFFFFFA
+#define SAS_SUBHEADER_SIGNATURE_COLUMN_ATTRS   0xFFFFFFFC
+#define SAS_SUBHEADER_SIGNATURE_COLUMN_TEXT    0xFFFFFFFD
+#define SAS_SUBHEADER_SIGNATURE_COLUMN_LIST    0xFFFFFFFE
+#define SAS_SUBHEADER_SIGNATURE_COLUMN_NAME    0xFFFFFFFF
+
+#define SAS_PAGE_TYPE_META   0x0000
+#define SAS_PAGE_TYPE_DATA   0x0100
+#define SAS_PAGE_TYPE_MIX    0x0200
+#define SAS_PAGE_TYPE_AMD    0x0400
+#define SAS_PAGE_TYPE_MASK   0x0F00
+
+#define SAS_PAGE_TYPE_META2  0x4000
+#define SAS_PAGE_TYPE_COMP   0x9000
+
+#define SAS_SUBHEADER_POINTER_SIZE_32BIT    12
+#define SAS_SUBHEADER_POINTER_SIZE_64BIT    24
+
+#define SAS_PAGE_HEADER_SIZE_32BIT  24
+#define SAS_PAGE_HEADER_SIZE_64BIT  40
+
+extern unsigned char sas7bdat_magic_number[32];
+extern unsigned char sas7bcat_magic_number[32];
 
 uint64_t sas_read8(const char *data, int bswap);
 uint32_t sas_read4(const char *data, int bswap);

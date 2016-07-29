@@ -98,12 +98,12 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
     }
 
     if (ds_format < 105) {
-        ctx->time_stamp_len = 0;
+        ctx->timestamp_len = 0;
         ctx->value_label_table_len_len = 2;
         ctx->value_label_table_labname_len = 12;
         ctx->value_label_table_padding_len = 2;
     } else {
-        ctx->time_stamp_len = 18;
+        ctx->timestamp_len = 18;
         ctx->value_label_table_len_len = 4;
         if (ds_format < 118) {
             ctx->value_label_table_labname_len = 33;
@@ -122,13 +122,13 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
     }
 
     if (ds_format < 113) {
-        ctx->max_char = DTA_OLD_MAX_CHAR;
+        ctx->max_int8 = DTA_OLD_MAX_INT8;
         ctx->max_int16 = DTA_OLD_MAX_INT16;
         ctx->max_int32 = DTA_OLD_MAX_INT32;
         ctx->max_float = DTA_OLD_MAX_FLOAT;
         ctx->max_double = DTA_OLD_MAX_DOUBLE;
     } else {
-        ctx->max_char = DTA_113_MAX_CHAR;
+        ctx->max_int8 = DTA_113_MAX_INT8;
         ctx->max_int16 = DTA_113_MAX_INT16;
         ctx->max_int32 = DTA_113_MAX_INT32;
         ctx->max_float = DTA_113_MAX_FLOAT;
@@ -206,16 +206,18 @@ void dta_ctx_free(dta_ctx_t *ctx) {
         free(ctx->variable_labels);
     if (ctx->converter)
         iconv_close(ctx->converter);
+    if (ctx->data_label)
+        free(ctx->data_label);
     free(ctx);
 }
 
-readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx) {
+readstat_type_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx) {
     size_t len = 0;
-    readstat_types_t type = READSTAT_TYPE_STRING;
+    readstat_type_t type = READSTAT_TYPE_STRING;
     if (ctx->typlist_version == 111) {
         switch (typecode) {
-            case DTA_111_TYPE_CODE_CHAR:
-                len = 1; type = READSTAT_TYPE_CHAR; break;
+            case DTA_111_TYPE_CODE_INT8:
+                len = 1; type = READSTAT_TYPE_INT8; break;
             case DTA_111_TYPE_CODE_INT16:
                 len = 2; type = READSTAT_TYPE_INT16; break;
             case DTA_111_TYPE_CODE_INT32:
@@ -229,8 +231,8 @@ readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ct
         }
     } else if (ctx->typlist_version == 117) {
         switch (typecode) {
-            case DTA_117_TYPE_CODE_CHAR:
-                len = 1; type = READSTAT_TYPE_CHAR; break;
+            case DTA_117_TYPE_CODE_INT8:
+                len = 1; type = READSTAT_TYPE_INT8; break;
             case DTA_117_TYPE_CODE_INT16:
                 len = 2; type = READSTAT_TYPE_INT16; break;
             case DTA_117_TYPE_CODE_INT32:
@@ -246,8 +248,8 @@ readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ct
         }
     } else {
         switch (typecode) {
-            case DTA_OLD_TYPE_CODE_CHAR:
-                len = 1; type = READSTAT_TYPE_CHAR; break;
+            case DTA_OLD_TYPE_CODE_INT8:
+                len = 1; type = READSTAT_TYPE_INT8; break;
             case DTA_OLD_TYPE_CODE_INT16:
                 len = 2; type = READSTAT_TYPE_INT16; break;
             case DTA_OLD_TYPE_CODE_INT32:

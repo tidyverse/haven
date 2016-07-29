@@ -1,7 +1,7 @@
 
 #include "readstat.h"
 
-readstat_types_t readstat_value_type(readstat_value_t value) {
+readstat_type_t readstat_value_type(readstat_value_t value) {
     return value.type;
 }
 
@@ -21,7 +21,7 @@ int readstat_value_is_considered_missing(readstat_value_t value) {
     return (value.is_considered_missing);
 }
 
-char readstat_char_value(readstat_value_t value) {
+char readstat_int8_value(readstat_value_t value) {
     if (readstat_value_is_system_missing(value))
         return 0;
 
@@ -33,8 +33,8 @@ char readstat_char_value(readstat_value_t value) {
         return value.v.i32_value;
     if (value.type == READSTAT_TYPE_INT16)
         return value.v.i16_value;
-    if (value.type == READSTAT_TYPE_CHAR)
-        return value.v.char_value;
+    if (value.type == READSTAT_TYPE_INT8)
+        return value.v.i8_value;
 
     return 0;
 }
@@ -51,8 +51,8 @@ int16_t readstat_int16_value(readstat_value_t value) {
         return value.v.i32_value;
     if (value.type == READSTAT_TYPE_INT16)
         return value.v.i16_value;
-    if (value.type == READSTAT_TYPE_CHAR)
-        return value.v.char_value;
+    if (value.type == READSTAT_TYPE_INT8)
+        return value.v.i8_value;
 
     return 0;
 }
@@ -69,8 +69,8 @@ int32_t readstat_int32_value(readstat_value_t value) {
         return value.v.i32_value;
     if (value.type == READSTAT_TYPE_INT16)
         return value.v.i16_value;
-    if (value.type == READSTAT_TYPE_CHAR)
-        return value.v.char_value;
+    if (value.type == READSTAT_TYPE_INT8)
+        return value.v.i8_value;
 
     return 0;
 }
@@ -87,8 +87,8 @@ float readstat_float_value(readstat_value_t value) {
         return value.v.i32_value;
     if (value.type == READSTAT_TYPE_INT16)
         return value.v.i16_value;
-    if (value.type == READSTAT_TYPE_CHAR)
-        return value.v.char_value;
+    if (value.type == READSTAT_TYPE_INT8)
+        return value.v.i8_value;
 
     return value.v.float_value;
 }
@@ -105,8 +105,8 @@ double readstat_double_value(readstat_value_t value) {
         return value.v.i32_value;
     if (value.type == READSTAT_TYPE_INT16)
         return value.v.i16_value;
-    if (value.type == READSTAT_TYPE_CHAR)
-        return value.v.char_value;
+    if (value.type == READSTAT_TYPE_INT8)
+        return value.v.i8_value;
 
     return NAN;
 }

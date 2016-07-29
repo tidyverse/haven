@@ -66,7 +66,7 @@ typedef struct spss_format_s {
 } spss_format_t;
 
 typedef struct spss_varinfo_s {
-    readstat_types_t type;
+    readstat_type_t  type;
     int              labels_index;
     int              index;
     int              offset;
@@ -101,3 +101,5 @@ int32_t spss_measure_from_readstat_measure(readstat_measure_t measure);
 readstat_measure_t spss_measure_to_readstat_measure(int32_t sav_measure);
 int32_t spss_alignment_from_readstat_alignment(readstat_alignment_t alignment);
 readstat_alignment_t spss_alignment_to_readstat_alignment(int32_t sav_alignment);
+readstat_error_t spss_format_for_variable(readstat_variable_t *r_variable,
+        spss_format_t *spss_format);

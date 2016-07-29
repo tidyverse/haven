@@ -4,29 +4,23 @@
 #include <errno.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #include <inttypes.h>
+
 #include "readstat_sas.h"
 #include "readstat_iconv.h"
 #include "readstat_convert.h"
 
 #define SAS_DEFAULT_STRING_ENCODING "WINDOWS-1252"
 
-#define SAS_FILE_FORMAT_UNIX    '1'
-#define SAS_FILE_FORMAT_WINDOWS '2'
-
-#define SAS_ALIGNMENT_OFFSET_4  0x33
-
-#define SAS_ENDIAN_BIG       0x00
-#define SAS_ENDIAN_LITTLE    0x01
-
-static unsigned char sas7bdat_magic_number[32] = {
+unsigned char sas7bdat_magic_number[32] = {
     0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00,   0xc2, 0xea, 0x81, 0x60,
     0xb3, 0x14, 0x11, 0xcf,   0xbd, 0x92, 0x08, 0x00,
     0x09, 0xc7, 0x31, 0x8c,   0x18, 0x1f, 0x10, 0x11
 };
 
-static unsigned char sas7bcat_magic_number[32] = {
+unsigned char sas7bcat_magic_number[32] = {
     0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00,   0xc2, 0xea, 0x81, 0x63,
     0xb3, 0x14, 0x11, 0xcf,   0xbd, 0x92, 0x08, 0x00,
@@ -84,6 +78,9 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
     sas_header_end_t    header_end;
     int retval = READSTAT_OK;
     char error_buf[1024];
+    struct tm epoch_tm = { .tm_year = 60, .tm_mday = 1 };
+    time_t epoch = mktime(&epoch_tm);
+
     if (io->read(&header_start, sizeof(sas_header_start_t), io->io_ctx) < sizeof(sas_header_start_t)) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
@@ -125,12 +122,26 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
         retval = READSTAT_ERROR_UNSUPPORTED_CHARSET;
         goto cleanup;
     }
-    if (io->seek(196 + hinfo->pad1, READSTAT_SEEK_SET, io->io_ctx) == -1) {
+    memcpy(hinfo->file_label, header_start.file_label, sizeof(header_start.file_label));
+    if (io->seek(hinfo->pad1, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
-        if (error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek to position %d\n", 196 + hinfo->pad1);
-            error_handler(error_buf, user_ctx);
-        }
+        goto cleanup;
+    }
+
+    double creation_time, modification_time;
+    if (io->read(&creation_time, sizeof(double), io->io_ctx) < sizeof(double)) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+    if (io->read(&modification_time, sizeof(double), io->io_ctx) < sizeof(double)) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+    hinfo->creation_time = bswap ? byteswap_double(creation_time) + epoch : creation_time + epoch;
+    hinfo->modification_time = bswap ? byteswap_double(creation_time) + epoch : creation_time + epoch;
+
+    if (io->seek(16, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
+        retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
 
@@ -147,11 +158,19 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
 
     hinfo->header_size = bswap ? byteswap4(header_size) : header_size;
 
-    hinfo->page_size = bswap ? byteswap4(page_size) : page_size;
-
     if (hinfo->header_size < 1024) {
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
+    }
+
+    hinfo->page_size = bswap ? byteswap4(page_size) : page_size;
+
+    if (hinfo->u64) {
+        hinfo->page_header_size = SAS_PAGE_HEADER_SIZE_64BIT;
+        hinfo->subheader_pointer_size = SAS_SUBHEADER_POINTER_SIZE_64BIT;
+    } else {
+        hinfo->page_header_size = SAS_PAGE_HEADER_SIZE_32BIT;
+        hinfo->subheader_pointer_size = SAS_SUBHEADER_POINTER_SIZE_32BIT;
     }
 
     if (hinfo->u64) {
@@ -182,7 +201,13 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
-    if (strncmp(header_end.release, "9.0000M0", sizeof(header_end.release)) == 0) {
+    int major, minor, revision;
+    if (sscanf(header_end.release, "%1d.%04dM%1d", &major, &minor, &revision) == 3) {
+        hinfo->major_version = major;
+        hinfo->minor_version = minor;
+        hinfo->revision = revision;
+    }
+    if (major == 9 && minor == 0 && revision == 0) {
         /* A bit of a hack, but most SAS installations are running a minor update */
         hinfo->vendor = READSTAT_VENDOR_STAT_TRANSFER;
     } else {

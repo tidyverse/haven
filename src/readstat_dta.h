@@ -36,9 +36,11 @@ typedef struct dta_gso_header_s {
 #pragma pack(pop)
 
 typedef struct dta_ctx_s {
+    char          *data_label;
     size_t         data_label_len;
     size_t         data_label_len_len;
-    size_t         time_stamp_len;
+    time_t         timestamp;
+    size_t         timestamp_len;
     char           typlist_version;
     size_t         typlist_entry_len;
     uint16_t      *typlist;
@@ -77,13 +79,14 @@ typedef struct dta_ctx_s {
     int            file_is_xmlish;
     int            supports_tagged_missing;
 
-    char           max_char;
+    int8_t         max_int8;
     int16_t        max_int16;
     int32_t        max_int32;
     int32_t        max_float;
     int64_t        max_double;
 
     iconv_t        converter;
+    readstat_error_handler error_handler;
     readstat_progress_handler progress_handler;
     readstat_variable_handler variable_handler;
     readstat_value_handler value_handler;
@@ -97,31 +100,31 @@ typedef struct dta_ctx_s {
 #define DTA_HILO  0x01
 #define DTA_LOHI  0x02
 
-#define DTA_OLD_MAX_CHAR                     0x7e
+#define DTA_OLD_MAX_INT8                     0x7e
 #define DTA_OLD_MAX_INT16                  0x7ffe
 #define DTA_OLD_MAX_INT32              0x7ffffffe
 #define DTA_OLD_MAX_FLOAT              0x7effffff // +1.7e38f
 #define DTA_OLD_MAX_DOUBLE     0x7fdfffffffffffffL // +8.9e307
 
-#define DTA_OLD_MISSING_CHAR                 0x7F
+#define DTA_OLD_MISSING_INT8                 0x7F
 #define DTA_OLD_MISSING_INT16              0x7FFF
 #define DTA_OLD_MISSING_INT32          0x7FFFFFFF
 #define DTA_OLD_MISSING_FLOAT          0x7F000000
 #define DTA_OLD_MISSING_DOUBLE 0x7FE0000000000000L
 
-#define DTA_113_MAX_CHAR                    0x64
+#define DTA_113_MAX_INT8                    0x64
 #define DTA_113_MAX_INT16                 0x7fe4
 #define DTA_113_MAX_INT32             0x7fffffe4
 #define DTA_113_MAX_FLOAT             0x7effffff // +1.7e38f
 #define DTA_113_MAX_DOUBLE    0x7fdfffffffffffffL // +8.9e307
 
-#define DTA_113_MISSING_CHAR                 0x65
+#define DTA_113_MISSING_INT8                 0x65
 #define DTA_113_MISSING_INT16              0x7FE5
 #define DTA_113_MISSING_INT32          0x7FFFFFE5
 #define DTA_113_MISSING_FLOAT          0x7F000000
 #define DTA_113_MISSING_DOUBLE 0x7FE0000000000000L
 
-#define DTA_113_MISSING_CHAR_A    (DTA_113_MISSING_CHAR+1)
+#define DTA_113_MISSING_INT8_A    (DTA_113_MISSING_INT8+1)
 #define DTA_113_MISSING_INT16_A   (DTA_113_MISSING_INT16+1)
 #define DTA_113_MISSING_INT32_A   (DTA_113_MISSING_INT32+1)
 #define DTA_113_MISSING_FLOAT_A   (DTA_113_MISSING_FLOAT+0x0800)
@@ -130,20 +133,20 @@ typedef struct dta_ctx_s {
 #define DTA_GSO_TYPE_BINARY        0x81
 #define DTA_GSO_TYPE_ASCII         0x82
 
-#define DTA_117_TYPE_CODE_CHAR     0xFFFA
+#define DTA_117_TYPE_CODE_INT8     0xFFFA
 #define DTA_117_TYPE_CODE_INT16    0xFFF9
 #define DTA_117_TYPE_CODE_INT32    0xFFF8
 #define DTA_117_TYPE_CODE_FLOAT    0xFFF7
 #define DTA_117_TYPE_CODE_DOUBLE   0xFFF6
 #define DTA_117_TYPE_CODE_STRL     0x8000
 
-#define DTA_111_TYPE_CODE_CHAR     0xFB
+#define DTA_111_TYPE_CODE_INT8     0xFB
 #define DTA_111_TYPE_CODE_INT16    0xFC
 #define DTA_111_TYPE_CODE_INT32    0xFD
 #define DTA_111_TYPE_CODE_FLOAT    0xFE
 #define DTA_111_TYPE_CODE_DOUBLE   0xFF
 
-#define DTA_OLD_TYPE_CODE_CHAR     'b'
+#define DTA_OLD_TYPE_CODE_INT8     'b'
 #define DTA_OLD_TYPE_CODE_INT16    'i'
 #define DTA_OLD_TYPE_CODE_INT32    'l'
 #define DTA_OLD_TYPE_CODE_FLOAT    'f'
@@ -155,4 +158,4 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
         const char *input_encoding, const char *output_encoding);
 void dta_ctx_free(dta_ctx_t *ctx);
 
-readstat_types_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx);
+readstat_type_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx);

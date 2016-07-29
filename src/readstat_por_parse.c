@@ -1,386 +1,259 @@
 
 #line 1 "src/readstat_por_parse.rl"
+#include <sys/types.h>
 
 #include "readstat.h"
 #include "readstat_por_parse.h"
 
 
-#line 9 "src/readstat_por_parse.c"
+#line 10 "src/readstat_por_parse.c"
+static const char _por_field_parse_actions[] = {
+	0, 1, 0, 1, 1, 1, 5, 1, 
+	8, 1, 9, 1, 10, 2, 2, 0, 
+	2, 3, 1, 2, 5, 10, 2, 7, 
+	10, 3, 4, 2, 0, 3, 6, 2, 
+	0
+};
+
+static const char _por_field_parse_key_offsets[] = {
+	0, 0, 8, 9, 14, 18, 23, 31, 
+	35, 40, 44, 48, 55
+};
+
+static const char _por_field_parse_trans_keys[] = {
+	32, 42, 45, 46, 48, 57, 65, 84, 
+	46, 46, 48, 57, 65, 84, 48, 57, 
+	65, 84, 47, 48, 57, 65, 84, 43, 
+	45, 46, 47, 48, 57, 65, 84, 48, 
+	57, 65, 84, 47, 48, 57, 65, 84, 
+	48, 57, 65, 84, 48, 57, 65, 84, 
+	43, 45, 47, 48, 57, 65, 84, 0
+};
+
+static const char _por_field_parse_single_lengths[] = {
+	0, 4, 1, 1, 0, 1, 4, 0, 
+	1, 0, 0, 3, 0
+};
+
+static const char _por_field_parse_range_lengths[] = {
+	0, 2, 0, 2, 2, 2, 2, 2, 
+	2, 2, 2, 2, 0
+};
+
+static const char _por_field_parse_index_offsets[] = {
+	0, 0, 7, 9, 13, 16, 20, 27, 
+	30, 34, 37, 40, 46
+};
+
+static const char _por_field_parse_trans_targs[] = {
+	1, 2, 3, 4, 6, 6, 0, 12, 
+	0, 4, 6, 6, 0, 5, 5, 0, 
+	12, 5, 5, 0, 7, 9, 10, 12, 
+	6, 6, 0, 8, 8, 0, 12, 8, 
+	8, 0, 8, 8, 0, 11, 11, 0, 
+	7, 9, 12, 11, 11, 0, 0, 0
+};
+
+static const char _por_field_parse_trans_actions[] = {
+	0, 9, 0, 0, 13, 13, 0, 11, 
+	0, 7, 25, 25, 0, 16, 16, 0, 
+	11, 3, 3, 0, 5, 5, 5, 19, 
+	1, 1, 0, 13, 13, 0, 22, 1, 
+	1, 0, 29, 29, 0, 16, 16, 0, 
+	0, 0, 11, 3, 3, 0, 0, 0
+};
+
 static const int por_field_parse_start = 1;
 
 static const int por_field_parse_en_main = 1;
 
 
-#line 8 "src/readstat_por_parse.rl"
+#line 9 "src/readstat_por_parse.rl"
 
 
-int readstat_por_parse_double(const char *data, size_t len, double *result, 
+ssize_t readstat_por_parse_double(const char *data, size_t len, double *result, 
         readstat_error_handler error_cb, void *user_ctx) {
-    int retval = 0;
+    ssize_t retval = 0;
     double val = 0.0;
-    long num = 0;
-    long frac = 0;
-    long exp = 0;
+    double denom = 30.0;
+    double temp_frac = 0.0;
+    int64_t num = 0;
+    int64_t exp = 0;
     
-    long temp_val = 0;
-    long frac_len = 0;
-    
-    const unsigned char *val_start = NULL;
+    int64_t temp_val = 0;
     
     const unsigned char *p = (const unsigned char *)data;
-    const unsigned char *eof = p + len;
+    // const unsigned char *eof = p + len;
     
     int cs;
     int is_negative = 0, exp_is_negative = 0;
     int success = 0;
     
     
-#line 39 "src/readstat_por_parse.c"
+#line 94 "src/readstat_por_parse.c"
 	{
 	cs = por_field_parse_start;
 	}
 
-#line 44 "src/readstat_por_parse.c"
-	{
-	switch ( cs )
-	{
-st1:
-	p += 1;
-case 1:
-	switch( (*p) ) {
-		case 32: goto st1;
-		case 42: goto st2;
-		case 45: goto st3;
-		case 46: goto st4;
-	}
-	if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 84 )
-			goto tr5;
-	} else if ( (*p) >= 48 )
-		goto tr5;
-	goto st0;
-st0:
-cs = 0;
-	goto _out;
-st2:
-	p += 1;
-case 2:
-	if ( (*p) == 46 )
-		goto tr6;
-	goto st0;
-tr6:
-#line 50 "src/readstat_por_parse.rl"
-	{ success = 1; {p++; cs = 12; goto _out;} }
-	goto st12;
-st12:
-	p += 1;
-case 12:
-#line 79 "src/readstat_por_parse.c"
-	goto st0;
-st3:
-	p += 1;
-case 3:
-	if ( (*p) == 46 )
-		goto tr7;
-	if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 84 )
-			goto tr8;
-	} else if ( (*p) >= 48 )
-		goto tr8;
-	goto st0;
-tr7:
-#line 46 "src/readstat_por_parse.rl"
-	{ is_negative = 1; }
-	goto st4;
-st4:
-	p += 1;
-case 4:
 #line 99 "src/readstat_por_parse.c"
-	if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 84 )
-			goto tr9;
-	} else if ( (*p) >= 48 )
-		goto tr9;
-	goto st0;
-tr9:
-#line 39 "src/readstat_por_parse.rl"
-	{ temp_val = 0; val_start = p; }
-#line 31 "src/readstat_por_parse.rl"
 	{
-            if ((*p) >= '0' && (*p) <= '9') {
-                temp_val = 30 * temp_val + ((*p) - '0');
-            } else if ((*p) >= 'A' && (*p) <= 'T') {
-                temp_val = 30 * temp_val + (10 + (*p) - 'A');
-            }
-        }
-	goto st5;
-tr11:
-#line 31 "src/readstat_por_parse.rl"
-	{
-            if ((*p) >= '0' && (*p) <= '9') {
-                temp_val = 30 * temp_val + ((*p) - '0');
-            } else if ((*p) >= 'A' && (*p) <= 'T') {
-                temp_val = 30 * temp_val + (10 + (*p) - 'A');
-            }
-        }
-	goto st5;
-st5:
-	p += 1;
-case 5:
-#line 131 "src/readstat_por_parse.c"
-	if ( (*p) == 47 )
-		goto tr10;
-	if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 84 )
-			goto tr11;
-	} else if ( (*p) >= 48 )
-		goto tr11;
-	goto st0;
-tr10:
-#line 41 "src/readstat_por_parse.rl"
-	{ frac = temp_val; frac_len = (p - val_start); }
-#line 50 "src/readstat_por_parse.rl"
-	{ success = 1; {p++; cs = 13; goto _out;} }
-	goto st13;
-tr15:
-#line 43 "src/readstat_por_parse.rl"
-	{ num = temp_val; }
-#line 50 "src/readstat_por_parse.rl"
-	{ success = 1; {p++; cs = 13; goto _out;} }
-	goto st13;
-tr18:
-#line 44 "src/readstat_por_parse.rl"
-	{ exp = temp_val; }
-#line 50 "src/readstat_por_parse.rl"
-	{ success = 1; {p++; cs = 13; goto _out;} }
-	goto st13;
-st13:
-	p += 1;
-case 13:
-#line 161 "src/readstat_por_parse.c"
-	goto st0;
-tr5:
-#line 39 "src/readstat_por_parse.rl"
-	{ temp_val = 0; val_start = p; }
-#line 31 "src/readstat_por_parse.rl"
-	{
-            if ((*p) >= '0' && (*p) <= '9') {
-                temp_val = 30 * temp_val + ((*p) - '0');
-            } else if ((*p) >= 'A' && (*p) <= 'T') {
-                temp_val = 30 * temp_val + (10 + (*p) - 'A');
-            }
-        }
-	goto st6;
-tr8:
-#line 43 "src/readstat_por_parse.rl"
-	{ is_negative = 1; }
-#line 39 "src/readstat_por_parse.rl"
-	{ temp_val = 0; val_start = p; }
-#line 31 "src/readstat_por_parse.rl"
-	{
-            if ((*p) >= '0' && (*p) <= '9') {
-                temp_val = 30 * temp_val + ((*p) - '0');
-            } else if ((*p) >= 'A' && (*p) <= 'T') {
-                temp_val = 30 * temp_val + (10 + (*p) - 'A');
-            }
-        }
-	goto st6;
-tr16:
-#line 31 "src/readstat_por_parse.rl"
-	{
-            if ((*p) >= '0' && (*p) <= '9') {
-                temp_val = 30 * temp_val + ((*p) - '0');
-            } else if ((*p) >= 'A' && (*p) <= 'T') {
-                temp_val = 30 * temp_val + (10 + (*p) - 'A');
-            }
-        }
-	goto st6;
-st6:
-	p += 1;
-case 6:
-#line 202 "src/readstat_por_parse.c"
-	switch( (*p) ) {
-		case 43: goto tr12;
-		case 45: goto tr13;
-		case 46: goto tr14;
-		case 47: goto tr15;
-	}
-	if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 84 )
-			goto tr16;
-	} else if ( (*p) >= 48 )
-		goto tr16;
-	goto st0;
-tr12:
-#line 43 "src/readstat_por_parse.rl"
-	{ num = temp_val; }
-	goto st7;
-tr22:
-#line 41 "src/readstat_por_parse.rl"
-	{ frac = temp_val; frac_len = (p - val_start); }
-	goto st7;
-st7:
-	p += 1;
-case 7:
-#line 226 "src/readstat_por_parse.c"
-	if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 84 )
-			goto tr17;
-	} else if ( (*p) >= 48 )
-		goto tr17;
-	goto st0;
-tr17:
-#line 39 "src/readstat_por_parse.rl"
-	{ temp_val = 0; val_start = p; }
-#line 31 "src/readstat_por_parse.rl"
-	{
-            if ((*p) >= '0' && (*p) <= '9') {
-                temp_val = 30 * temp_val + ((*p) - '0');
-            } else if ((*p) >= 'A' && (*p) <= 'T') {
-                temp_val = 30 * temp_val + (10 + (*p) - 'A');
-            }
-        }
-	goto st8;
-tr19:
-#line 31 "src/readstat_por_parse.rl"
-	{
-            if ((*p) >= '0' && (*p) <= '9') {
-                temp_val = 30 * temp_val + ((*p) - '0');
-            } else if ((*p) >= 'A' && (*p) <= 'T') {
-                temp_val = 30 * temp_val + (10 + (*p) - 'A');
-            }
-        }
-	goto st8;
-tr20:
-#line 44 "src/readstat_por_parse.rl"
-	{ exp_is_negative = 1; }
-#line 39 "src/readstat_por_parse.rl"
-	{ temp_val = 0; val_start = p; }
-#line 31 "src/readstat_por_parse.rl"
-	{
-            if ((*p) >= '0' && (*p) <= '9') {
-                temp_val = 30 * temp_val + ((*p) - '0');
-            } else if ((*p) >= 'A' && (*p) <= 'T') {
-                temp_val = 30 * temp_val + (10 + (*p) - 'A');
-            }
-        }
-	goto st8;
-st8:
-	p += 1;
-case 8:
-#line 272 "src/readstat_por_parse.c"
-	if ( (*p) == 47 )
-		goto tr18;
-	if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 84 )
-			goto tr19;
-	} else if ( (*p) >= 48 )
-		goto tr19;
-	goto st0;
-tr13:
-#line 43 "src/readstat_por_parse.rl"
-	{ num = temp_val; }
-	goto st9;
-tr23:
-#line 41 "src/readstat_por_parse.rl"
-	{ frac = temp_val; frac_len = (p - val_start); }
-	goto st9;
-st9:
-	p += 1;
-case 9:
-#line 292 "src/readstat_por_parse.c"
-	if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 84 )
-			goto tr20;
-	} else if ( (*p) >= 48 )
-		goto tr20;
-	goto st0;
-tr14:
-#line 43 "src/readstat_por_parse.rl"
-	{ num = temp_val; }
-	goto st10;
-st10:
-	p += 1;
-case 10:
-#line 306 "src/readstat_por_parse.c"
-	if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 84 )
-			goto tr21;
-	} else if ( (*p) >= 48 )
-		goto tr21;
-	goto st0;
-tr21:
-#line 39 "src/readstat_por_parse.rl"
-	{ temp_val = 0; val_start = p; }
-#line 31 "src/readstat_por_parse.rl"
-	{
-            if ((*p) >= '0' && (*p) <= '9') {
-                temp_val = 30 * temp_val + ((*p) - '0');
-            } else if ((*p) >= 'A' && (*p) <= 'T') {
-                temp_val = 30 * temp_val + (10 + (*p) - 'A');
-            }
-        }
-	goto st11;
-tr24:
-#line 31 "src/readstat_por_parse.rl"
-	{
-            if ((*p) >= '0' && (*p) <= '9') {
-                temp_val = 30 * temp_val + ((*p) - '0');
-            } else if ((*p) >= 'A' && (*p) <= 'T') {
-                temp_val = 30 * temp_val + (10 + (*p) - 'A');
-            }
-        }
-	goto st11;
-st11:
-	p += 1;
-case 11:
-#line 338 "src/readstat_por_parse.c"
-	switch( (*p) ) {
-		case 43: goto tr22;
-		case 45: goto tr23;
-		case 47: goto tr10;
-	}
-	if ( (*p) > 57 ) {
-		if ( 65 <= (*p) && (*p) <= 84 )
-			goto tr24;
-	} else if ( (*p) >= 48 )
-		goto tr24;
-	goto st0;
+	int _klen;
+	unsigned int _trans;
+	const char *_acts;
+	unsigned int _nacts;
+	const char *_keys;
+
+	if ( cs == 0 )
+		goto _out;
+_resume:
+	_keys = _por_field_parse_trans_keys + _por_field_parse_key_offsets[cs];
+	_trans = _por_field_parse_index_offsets[cs];
+
+	_klen = _por_field_parse_single_lengths[cs];
+	if ( _klen > 0 ) {
+		const char *_lower = _keys;
+		const char *_mid;
+		const char *_upper = _keys + _klen - 1;
+		while (1) {
+			if ( _upper < _lower )
+				break;
+
+			_mid = _lower + ((_upper-_lower) >> 1);
+			if ( (*p) < *_mid )
+				_upper = _mid - 1;
+			else if ( (*p) > *_mid )
+				_lower = _mid + 1;
+			else {
+				_trans += (unsigned int)(_mid - _keys);
+				goto _match;
+			}
+		}
+		_keys += _klen;
+		_trans += _klen;
 	}
 
-	if ( p == eof )
+	_klen = _por_field_parse_range_lengths[cs];
+	if ( _klen > 0 ) {
+		const char *_lower = _keys;
+		const char *_mid;
+		const char *_upper = _keys + (_klen<<1) - 2;
+		while (1) {
+			if ( _upper < _lower )
+				break;
+
+			_mid = _lower + (((_upper-_lower) >> 1) & ~1);
+			if ( (*p) < _mid[0] )
+				_upper = _mid - 2;
+			else if ( (*p) > _mid[1] )
+				_lower = _mid + 2;
+			else {
+				_trans += (unsigned int)((_mid - _keys)>>1);
+				goto _match;
+			}
+		}
+		_trans += _klen;
+	}
+
+_match:
+	cs = _por_field_parse_trans_targs[_trans];
+
+	if ( _por_field_parse_trans_actions[_trans] == 0 )
+		goto _again;
+
+	_acts = _por_field_parse_actions + _por_field_parse_trans_actions[_trans];
+	_nacts = (unsigned int) *_acts++;
+	while ( _nacts-- > 0 )
 	{
-	switch ( cs ) {
-	case 12: 
-#line 48 "src/readstat_por_parse.rl"
+		switch ( *_acts++ )
+		{
+	case 0:
+#line 30 "src/readstat_por_parse.rl"
+	{
+            if ((*p) >= '0' && (*p) <= '9') {
+                temp_val = 30 * temp_val + ((*p) - '0');
+            } else if ((*p) >= 'A' && (*p) <= 'T') {
+                temp_val = 30 * temp_val + (10 + (*p) - 'A');
+            }
+        }
+	break;
+	case 1:
+#line 38 "src/readstat_por_parse.rl"
+	{
+            if ((*p) >= '0' && (*p) <= '9') {
+                temp_frac += ((*p) - '0') / denom;
+            } else if ((*p) >= 'A' && (*p) <= 'T') {
+                temp_frac += (10 + (*p) - 'A') / denom;
+            }
+            denom *= 30.0;
+        }
+	break;
+	case 2:
+#line 47 "src/readstat_por_parse.rl"
+	{ temp_val = 0; }
+	break;
+	case 3:
+#line 49 "src/readstat_por_parse.rl"
+	{ temp_frac = 0.0; }
+	break;
+	case 4:
+#line 53 "src/readstat_por_parse.rl"
+	{ is_negative = 1; }
+	break;
+	case 5:
+#line 53 "src/readstat_por_parse.rl"
+	{ num = temp_val; }
+	break;
+	case 6:
+#line 54 "src/readstat_por_parse.rl"
+	{ exp_is_negative = 1; }
+	break;
+	case 7:
+#line 54 "src/readstat_por_parse.rl"
+	{ exp = temp_val; }
+	break;
+	case 8:
+#line 56 "src/readstat_por_parse.rl"
+	{ is_negative = 1; }
+	break;
+	case 9:
+#line 58 "src/readstat_por_parse.rl"
 	{ val = NAN; }
 	break;
-#line 359 "src/readstat_por_parse.c"
-	}
+	case 10:
+#line 60 "src/readstat_por_parse.rl"
+	{ success = 1; {p++; goto _out; } }
+	break;
+#line 227 "src/readstat_por_parse.c"
+		}
 	}
 
+_again:
+	if ( cs == 0 )
+		goto _out;
+	p += 1;
+	goto _resume;
 	_out: {}
 	}
 
-#line 54 "src/readstat_por_parse.rl"
+#line 64 "src/readstat_por_parse.rl"
 
 
-    val = 1.0 * num;
-    if (frac_len)
-        val += frac / pow(30.0, frac_len);
-    if (exp_is_negative)
-        exp *= -1;
-    if (exp) {
-        val *= pow(10.0, exp);
+    if (!isnan(val)) {
+        val = 1.0 * num + temp_frac;
+        if (exp_is_negative)
+            exp *= -1;
+        if (exp) {
+            val *= pow(10.0, exp);
+        }
+        if (is_negative)
+            val *= -1;
     }
-    if (is_negative)
-        val *= -1;
-    
+
     if (!success) {
         retval = -1;
         if (error_cb) {
             char error_buf[1024];
-            snprintf(error_buf, sizeof(error_buf), "Read bytes: %ld Ending state: %d\n", (long)(p - (const unsigned char *)data), cs);
+            snprintf(error_buf, sizeof(error_buf), "Read bytes: %ld   String: %s  Ending state: %d\n", (long)(p - (const unsigned char *)data), data, cs);
             error_cb(error_buf, user_ctx);
         }
     }

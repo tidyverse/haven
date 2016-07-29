@@ -13,9 +13,6 @@
 #include "readstat_spss_parse.h"
 #include "readstat_writer.h"
 
-#define READSTAT_PRODUCT_NAME       "ReadStat"
-#define READSTAT_PRODUCT_URL        "https://github.com/WizardMac/ReadStat"
-
 #define MAX_TEXT_SIZE               256
 #define MAX_LABEL_SIZE              256
 
@@ -47,35 +44,8 @@ static int32_t sav_encode_format(spss_format_t *spss_format) {
 
 static readstat_error_t sav_encode_variable_format(int32_t *out_code, 
         readstat_variable_t *r_variable) {
-    readstat_error_t retval = READSTAT_OK;
     spss_format_t spss_format;
-    memset(&spss_format, 0, sizeof(spss_format_t));
-
-    if (r_variable->type == READSTAT_TYPE_STRING) {
-        spss_format.type = SPSS_FORMAT_TYPE_A;
-        if (r_variable->user_width) {
-            spss_format.width = r_variable->user_width;
-        } else {
-            spss_format.width = r_variable->storage_width;
-        }
-    } else {
-        spss_format.type = SPSS_FORMAT_TYPE_F;
-        spss_format.width = 8;
-        if (r_variable->type == READSTAT_TYPE_DOUBLE ||
-                r_variable->type == READSTAT_TYPE_FLOAT) {
-            spss_format.decimal_places = 2;
-        }
-    }
-
-    if (r_variable->format[0]) {
-        const char *fmt = r_variable->format;
-        if (spss_parse_format(fmt, strlen(fmt), &spss_format) != READSTAT_OK) {
-            retval = READSTAT_ERROR_BAD_FORMAT_STRING;
-            goto cleanup;
-        }
-    } 
-
-cleanup:
+    readstat_error_t retval = spss_format_for_variable(r_variable, &spss_format);
     if (retval == READSTAT_OK && out_code)
         *out_code = sav_encode_format(&spss_format);
 
@@ -84,7 +54,7 @@ cleanup:
 
 static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
-    time_t now = time(NULL);
+    time_t now = writer->timestamp;
     struct tm *time_s = localtime(&now);
 
     sav_file_header_record_t header;
@@ -107,10 +77,20 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     header.ncases = writer->row_count;
     header.bias = 100.0;
     
-    strftime(header.creation_date, sizeof(header.creation_date),
-             "%d %b %y", time_s);
-    strftime(header.creation_time, sizeof(header.creation_time),
-             "%H:%M:%S", time_s);
+    /* There are portability issues with strftime so hack something up */
+    char months[][4] = { 
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
+    char creation_date[sizeof(header.creation_date)+1];
+    snprintf(creation_date, sizeof(creation_date),
+            "%02d %3s %02d", time_s->tm_mday, months[time_s->tm_mon], time_s->tm_year % 100);
+    strncpy(header.creation_date, creation_date, sizeof(header.creation_date));
+
+    char creation_time[sizeof(header.creation_time)+1];
+    snprintf(creation_time, sizeof(creation_time),
+            "%02d:%02d:%02d", time_s->tm_hour, time_s->tm_min, time_s->tm_sec);
+    strncpy(header.creation_time, creation_time, sizeof(header.creation_time));
     
     memset(header.file_label, ' ', sizeof(header.file_label));
 
@@ -284,7 +264,7 @@ static readstat_error_t sav_emit_value_label_records(readstat_writer_t *writer) 
         if (!readstat_label_set_needs_short_value_labels_record(r_label_set))
             continue;
 
-        readstat_types_t user_type = r_label_set->type;
+        readstat_type_t user_type = r_label_set->type;
         int32_t label_count = r_label_set->value_labels_count;
         int32_t rec_type = 0;
 
@@ -660,55 +640,37 @@ static readstat_error_t sav_emit_termination_record(readstat_writer_t *writer) {
     return readstat_write_bytes(writer, &termination_record, sizeof(termination_record));
 }
 
-static readstat_error_t sav_write_char(void *row, const readstat_variable_t *var, char value) {
-    if (var->type != READSTAT_TYPE_CHAR) {
-        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
-    }
+static readstat_error_t sav_write_int8(void *row, const readstat_variable_t *var, int8_t value) {
     double dval = value;
     memcpy(row, &dval, sizeof(double));
     return READSTAT_OK;
 }
 
 static readstat_error_t sav_write_int16(void *row, const readstat_variable_t *var, int16_t value) {
-    if (var->type != READSTAT_TYPE_INT16) {
-        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
-    }
     double dval = value;
     memcpy(row, &dval, sizeof(double));
     return READSTAT_OK;
 }
 
 static readstat_error_t sav_write_int32(void *row, const readstat_variable_t *var, int32_t value) {
-    if (var->type != READSTAT_TYPE_INT32) {
-        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
-    }
     double dval = value;
     memcpy(row, &dval, sizeof(double));
     return READSTAT_OK;
 }
 
 static readstat_error_t sav_write_float(void *row, const readstat_variable_t *var, float value) {
-    if (var->type != READSTAT_TYPE_FLOAT) {
-        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
-    }
     double dval = value;
     memcpy(row, &dval, sizeof(double));
     return READSTAT_OK;
 }
 
 static readstat_error_t sav_write_double(void *row, const readstat_variable_t *var, double value) {
-    if (var->type != READSTAT_TYPE_DOUBLE) {
-        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
-    }
     double dval = value;
     memcpy(row, &dval, sizeof(double));
     return READSTAT_OK;
 }
 
 static readstat_error_t sav_write_string(void *row, const readstat_variable_t *var, const char *value) {
-    if (var->type != READSTAT_TYPE_STRING) {
-        return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
-    }
     memset(row, ' ', var->storage_width);
     if (value != NULL && value[0] != '\0') {
         size_t value_len = strlen(value);
@@ -734,7 +696,7 @@ static readstat_error_t sav_write_missing_tagged(void *row, const readstat_varia
     return READSTAT_ERROR_TAGGED_VALUES_NOT_SUPPORTED;
 }
 
-static size_t sav_variable_width(readstat_types_t type, size_t user_width) {
+static size_t sav_variable_width(readstat_type_t type, size_t user_width) {
     if (type == READSTAT_TYPE_STRING) {
         if (user_width > 255 || user_width == 0)
             user_width = 255;
@@ -794,7 +756,7 @@ readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *use
     writer->user_ctx = user_ctx;
 
     writer->callbacks.variable_width = &sav_variable_width;
-    writer->callbacks.write_char = &sav_write_char;
+    writer->callbacks.write_int8 = &sav_write_int8;
     writer->callbacks.write_int16 = &sav_write_int16;
     writer->callbacks.write_int32 = &sav_write_int32;
     writer->callbacks.write_float = &sav_write_float;

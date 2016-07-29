@@ -10,6 +10,7 @@
 
 #include "readstat_sav.h"
 #include "readstat_sav_parse.h"
+#include "readstat_sav_parse_timestamp.h"
 #include "readstat_convert.h"
 
 #define DATA_BUFFER_SIZE            65536
@@ -186,7 +187,7 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
     variable.print = ctx->machine_needs_byte_swap ? byteswap4(variable.print) : variable.print;
     variable.write = ctx->machine_needs_byte_swap ? byteswap4(variable.write) : variable.write;
 
-    readstat_types_t dta_type = READSTAT_TYPE_DOUBLE;
+    readstat_type_t dta_type = READSTAT_TYPE_DOUBLE;
     int32_t type = ctx->machine_needs_byte_swap ? byteswap4(variable.type) : variable.type;
     int i;
     if (type < 0) {
@@ -344,7 +345,7 @@ cleanup:
 }
 
 static readstat_error_t sav_submit_value_labels(value_label_t *value_labels, int32_t label_count, 
-        readstat_types_t value_type, readstat_missingness_t *missingness, sav_ctx_t *ctx) {
+        readstat_type_t value_type, readstat_missingness_t *missingness, sav_ctx_t *ctx) {
     char label_name_buf[256];
     readstat_error_t retval = READSTAT_OK;
     int32_t i;
@@ -382,7 +383,7 @@ static readstat_error_t sav_read_value_label_record(sav_ctx_t *ctx) {
     int32_t *vars = NULL;
     int32_t rec_type;
     int32_t var_count;
-    readstat_types_t value_type = READSTAT_TYPE_STRING;
+    readstat_type_t value_type = READSTAT_TYPE_STRING;
     char label_buf[256];
     value_label_t *value_labels = NULL;
     readstat_missingness_t *missingness = NULL;
@@ -1313,6 +1314,24 @@ cleanup:
     return retval;
 }
 
+readstat_error_t sav_parse_timestamp(sav_ctx_t *ctx, sav_file_header_record_t *header) {
+    readstat_error_t retval = READSTAT_OK;
+    struct tm timestamp = { .tm_isdst = -1 };
+
+    if ((retval = sav_parse_time(header->creation_time, sizeof(header->creation_time), &timestamp, ctx)) 
+            != READSTAT_OK)
+        goto cleanup;
+
+    if ((retval = sav_parse_date(header->creation_date, sizeof(header->creation_date), &timestamp, ctx)) 
+            != READSTAT_OK)
+        goto cleanup;
+
+    ctx->timestamp = mktime(&timestamp);
+
+cleanup:
+    return retval;
+}
+
 readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path, void *user_ctx) {
     readstat_error_t retval = READSTAT_OK;
     readstat_io_t *io = parser->io;
@@ -1339,7 +1358,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
-    
+
     ctx = sav_ctx_init(&header, io);
     if (ctx == NULL) {
         retval = READSTAT_ERROR_PARSE;
@@ -1361,6 +1380,9 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
         ctx->row_limit = ctx->record_count;
     }
     
+    if ((retval = sav_parse_timestamp(ctx, &header)) != READSTAT_OK)
+        goto cleanup;
+
     if ((retval = sav_parse_records_pass1(ctx)) != READSTAT_OK)
         goto cleanup;
     
@@ -1380,6 +1402,17 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
     if (parser->info_handler) {
         if (parser->info_handler(ctx->record_count == -1 ? -1 : ctx->row_limit,
                     ctx->var_count, ctx->user_ctx)) {
+            retval = READSTAT_ERROR_USER_ABORT;
+            goto cleanup;
+        }
+    }
+
+    if (parser->metadata_handler) {
+        if ((retval = readstat_convert(ctx->file_label, sizeof(ctx->file_label),
+                        header.file_label, sizeof(header.file_label), ctx->converter)) != READSTAT_OK)
+            goto cleanup;
+
+        if (parser->metadata_handler(ctx->file_label, ctx->timestamp, 2, ctx->user_ctx)) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
