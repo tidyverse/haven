@@ -1,0 +1,32 @@
+PKG_CXXFLAGS=-Ireadstat
+PKG_CFLAGS=-Ireadstat
+
+# ls readstat/*.c | sed 's/c$/o \\/'
+OBJECTS.readstat = \
+readstat/CKHashTable.o \
+readstat/readstat_bits.o \
+readstat/readstat_convert.o \
+readstat/readstat_dta.o \
+readstat/readstat_dta_read.o \
+readstat/readstat_dta_write.o \
+readstat/readstat_error.o \
+readstat/readstat_io_unistd.o \
+readstat/readstat_parser.o \
+readstat/readstat_por.o \
+readstat/readstat_por_parse.o \
+readstat/readstat_sas.o \
+readstat/readstat_sas_catalog.o \
+readstat/readstat_sas_data.o \
+readstat/readstat_sav.o \
+readstat/readstat_sav_parse.o \
+readstat/readstat_sav_read.o \
+readstat/readstat_sav_write.o \
+readstat/readstat_spss.o \
+readstat/readstat_spss_parse.o \
+readstat/readstat_value.o \
+readstat/readstat_variable.o \
+readstat/readstat_writer.o
+
+PKG_LIBS = ${OBJECTS.readstat}
+
+$(SHLIB): ${PKG_LIBS}
