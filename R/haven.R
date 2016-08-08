@@ -147,7 +147,7 @@ write_dta <- function(data, path) {
 
 validate_dta <- function(data) {
   # Check variable names
-  bad_names <- !grepl("^[a-zA-Z0-9_]+$", names(data))
+  bad_names <- !grepl("^[A-Za-z_]{1}[A-Za-z0-9_]{0,31}$", names(data))
   if (any(bad_names)) {
     stop(
       "The following variable names are not valid Stata variables: ",
