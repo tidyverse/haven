@@ -5,3 +5,6 @@
 ^NEWS\.md$
 ^revdep$
 ^codecov\.yml$
+\.o$
+\.so$
+\.dll$
