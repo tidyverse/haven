@@ -106,7 +106,8 @@ public:
 
 class DfReader {
   FileType type_;
-  int nrows_, ncols_;
+  int nrows_, nrowsAlloc_;
+  int ncols_;
   List output_;
   CharacterVector names_;
   bool user_na_;
@@ -121,7 +122,14 @@ public:
   }
 
   void setInfo(int obs_count, int var_count) {
-    nrows_ = obs_count;
+    if (obs_count < 0) {
+      // If unknown, start with 1e5, and use doubling strategy
+      nrowsAlloc_ = 1e5;
+      nrows_ = 0;
+    } else {
+      nrowsAlloc_ = nrows_ = obs_count;
+    }
+
     ncols_ = var_count;
 
     output_ = List(ncols_);
@@ -149,14 +157,14 @@ public:
     switch(readstat_variable_get_type(variable)) {
     case READSTAT_TYPE_STRING_REF:
     case READSTAT_TYPE_STRING:
-      output_[index] = CharacterVector(nrows_);
+      output_[index] = CharacterVector(nrowsAlloc_);
       break;
     case READSTAT_TYPE_INT8:
     case READSTAT_TYPE_INT16:
     case READSTAT_TYPE_INT32:
     case READSTAT_TYPE_FLOAT:
     case READSTAT_TYPE_DOUBLE:
-      output_[index] = NumericVector(nrows_);
+      output_[index] = NumericVector(nrowsAlloc_);
       break;
     }
 
@@ -259,6 +267,11 @@ public:
   void setValue(int obs_index, int var_index, readstat_value_t value) {
     VarType var_type = var_types_[var_index];
 
+    if (obs_index >= nrowsAlloc_)
+      resizeCols(nrowsAlloc_ * 2);
+    if (obs_index > nrows_)
+      nrows_ = obs_index;
+
     switch(value.type) {
     case READSTAT_TYPE_STRING_REF:
     case READSTAT_TYPE_STRING:
@@ -311,7 +324,19 @@ public:
     return label_sets_.count(label) > 0;
   }
 
+  void resizeCols(int n) {
+    // Rcout << "resizing to " << n << "\n";
+    nrowsAlloc_ = n;
+
+    for (int i = 0; i < ncols_; ++i) {
+      output_[i] = Rf_lengthgets(output_[i], n);
+    }
+  }
+
   List output() {
+    if (nrows_ != nrowsAlloc_)
+      resizeCols(nrows_);
+
     for (int i = 0; i < output_.size(); ++i) {
       RObject col = output_[i];
 
@@ -507,14 +532,20 @@ std::string haven_error_message(Rcpp::List spec) {
 }
 
 template<typename InputClass>
-List df_parse_sav(Rcpp::List spec, bool user_na = false) {
+List df_parse_spss(Rcpp::List spec, bool user_na = false, bool por = false) {
   DfReader builder(HAVEN_SPSS, user_na);
   InputClass builder_input(spec);
 
   readstat_parser_t* parser = haven_init_parser();
   haven_init_io(parser, builder_input);
 
-  readstat_error_t result = readstat_parse_sav(parser, "", &builder);
+  readstat_error_t result;
+  if (por) {
+    result = readstat_parse_por(parser, "", &builder);
+  } else {
+    result = readstat_parse_sav(parser, "", &builder);
+  }
+
   readstat_parser_free(parser);
 
   if (result != 0) {
@@ -602,9 +633,18 @@ List df_parse_dta_raw(Rcpp::List spec, std::string encoding) {
 
 // [[Rcpp::export]]
 List df_parse_sav_file(Rcpp::List spec, bool user_na) {
-  return df_parse_sav<DfReaderInputFile>(spec, user_na);
+  return df_parse_spss<DfReaderInputFile>(spec, user_na, false);
 }
 // [[Rcpp::export]]
 List df_parse_sav_raw(Rcpp::List spec, bool user_na) {
-  return df_parse_sav<DfReaderInputRaw>(spec, user_na);
+  return df_parse_spss<DfReaderInputRaw>(spec, user_na, false);
+}
+
+// [[Rcpp::export]]
+List df_parse_por_file(Rcpp::List spec, bool user_na) {
+  return df_parse_spss<DfReaderInputFile>(spec, user_na, true);
+}
+// [[Rcpp::export]]
+List df_parse_por_raw(Rcpp::List spec, bool user_na) {
+  return df_parse_spss<DfReaderInputRaw>(spec, user_na, true);
 }

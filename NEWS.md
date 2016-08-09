@@ -72,9 +72,7 @@
   the default encoding. This is particularly useful for Stata 13 and below
   which did not store the encoding used in the file (#163). 
 
-* `read_por()` has been removed since it doesn't work and I'm unlikely to have 
-  time to make it work in the near future (#35). It also doesn't seem to
-  be commonly used in practice.
+* `read_por()` now actually works (#35).
 
 * `read_sav()` now correctly recognises EDATE and JDATE formats as dates (#72).
   Variables with format DATE, ADATE, EDATE, JDATE or SDATE are imported as 

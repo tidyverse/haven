@@ -80,6 +80,30 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// df_parse_por_file
+List df_parse_por_file(Rcpp::List spec, bool user_na);
+RcppExport SEXP haven_df_parse_por_file(SEXP specSEXP, SEXP user_naSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    Rcpp::traits::input_parameter< bool >::type user_na(user_naSEXP);
+    __result = Rcpp::wrap(df_parse_por_file(spec, user_na));
+    return __result;
+END_RCPP
+}
+// df_parse_por_raw
+List df_parse_por_raw(Rcpp::List spec, bool user_na);
+RcppExport SEXP haven_df_parse_por_raw(SEXP specSEXP, SEXP user_naSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    Rcpp::traits::input_parameter< bool >::type user_na(user_naSEXP);
+    __result = Rcpp::wrap(df_parse_por_raw(spec, user_na));
+    return __result;
+END_RCPP
+}
 // write_sav_
 void write_sav_(List data, std::string path);
 RcppExport SEXP haven_write_sav_(SEXP dataSEXP, SEXP pathSEXP) {

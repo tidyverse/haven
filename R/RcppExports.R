@@ -25,6 +25,14 @@ df_parse_sav_raw <- function(spec, user_na) {
     .Call('haven_df_parse_sav_raw', PACKAGE = 'haven', spec, user_na)
 }
 
+df_parse_por_file <- function(spec, user_na) {
+    .Call('haven_df_parse_por_file', PACKAGE = 'haven', spec, user_na)
+}
+
+df_parse_por_raw <- function(spec, user_na) {
+    .Call('haven_df_parse_por_raw', PACKAGE = 'haven', spec, user_na)
+}
+
 write_sav_ <- function(data, path) {
     invisible(.Call('haven_write_sav_', PACKAGE = 'haven', data, path))
 }

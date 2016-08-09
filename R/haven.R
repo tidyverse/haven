@@ -47,7 +47,7 @@ write_sas <- function(b7dat, path) {
   write_sas_(b7dat, normalizePath(path, mustWork = FALSE))
 }
 
-#' Read SPSS (SAV) files. Write SAV files.
+#' Read SPSS (SAV & POR) files. Write SAV files.
 #'
 #' Currently haven can read and write logical, integer, numeric, character
 #' and factors. See \code{\link{labelled}} for how labelled variables in
@@ -83,6 +83,17 @@ read_sav <- function(file, user_na = FALSE) {
 
 #' @export
 #' @rdname read_spss
+read_por <- function(file, user_na = FALSE) {
+  spec <- readr::datasource(file)
+  switch(class(spec)[1],
+    source_file = df_parse_por_file(spec, user_na),
+    source_raw = df_parse_por_raw(spec, user_na),
+    stop("This kind of input is not handled", call. = FALSE)
+  )
+}
+
+#' @export
+#' @rdname read_spss
 write_sav <- function(data, path) {
   write_sav_(data, normalizePath(path, mustWork = FALSE))
 }
@@ -98,6 +109,7 @@ read_spss <- function(file, user_na = FALSE) {
 
   switch(ext,
     sav = read_sav(file, user_na = user_na),
+    por = read_por(file, user_na = user_na),
     stop("Unknown extension '.",  ext, "'", call. = FALSE)
   )
 }
