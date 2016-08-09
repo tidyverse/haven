@@ -17,6 +17,9 @@
   Use `zap_formats()` if you want to remove these attributes.
   (@gorcha, #119, #123).
   
+* Added support for reading file "label" and "notes". These are not currently
+  printed, but are stored in the attributes if you need to access them (#186).
+  
 * Added support for "tagged" missing values (in Stata these are called 
   "extended" and in SAS these are called "special") which carry an extra
   byte of information: a character label from "a" to "z". The downside of

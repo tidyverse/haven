@@ -114,6 +114,7 @@ class DfReader {
   std::vector<std::string> val_labels_;
   std::map<std::string, LabelSet> label_sets_;
   std::vector<VarType> var_types_;
+  std::vector<std::string> notes_;
 
 public:
   DfReader(FileType type, bool user_na = false): type_(type), nrows_(0), ncols_(0), user_na_(user_na) {
@@ -127,6 +128,18 @@ public:
     names_ = CharacterVector(ncols_);
     val_labels_.resize(ncols_);
     var_types_.resize(ncols_);
+  }
+
+  void setMetadata(const char *file_label, time_t timestamp, long format_version) {
+    if (file_label != NULL && strcmp(file_label, "") != 0) {
+      output_.attr("label") = CharacterVector::create(Rf_mkCharCE(file_label, CE_UTF8));
+    }
+  }
+
+  void setNote(int note_index, const char *note) {
+    if (note != NULL && strcmp(note, "") != 0) {
+      notes_.push_back(note);
+    }
   }
 
   void createVariable(int index, readstat_variable_t *variable, const char *val_labels) {
@@ -310,6 +323,16 @@ public:
       }
     }
 
+    int nNotes = notes_.size();
+    if (nNotes > 0) {
+      CharacterVector notes(nNotes);
+      for (int i = 0; i < nNotes; ++i) {
+        notes[i] = Rf_mkCharCE(notes_[i].c_str(), CE_UTF8);
+      }
+
+      output_.attr("notes") = notes_;
+    }
+
     output_.attr("names") = names_;
     output_.attr("class") = CharacterVector::create("tbl_df", "tbl", "data.frame");
     output_.attr("row.names") = IntegerVector::create(NA_INTEGER, -nrows_);
@@ -323,6 +346,17 @@ int dfreader_info(int obs_count, int var_count, void *ctx) {
   ((DfReader*) ctx)->setInfo(obs_count, var_count);
   return 0;
 }
+
+int dfreader_metadata(const char *file_label, time_t timestamp, long format_version, void *ctx) {
+  ((DfReader*) ctx)->setMetadata(file_label, timestamp, format_version);
+  return 0;
+}
+
+int dfreader_note(int note_index, const char *note, void *ctx) {
+  ((DfReader*) ctx)->setNote(note_index, note);
+  return 0;
+}
+
 int dfreader_variable(int index, readstat_variable_t *variable,
                       const char *val_labels, void *ctx) {
   ((DfReader*) ctx)->createVariable(index, variable, val_labels);
@@ -442,6 +476,8 @@ readstat_error_t dfreader_update(long file_size, readstat_progress_handler progr
 readstat_parser_t* haven_init_parser(std::string encoding = "") {
   readstat_parser_t* parser = readstat_parser_init();
   readstat_set_info_handler(parser, dfreader_info);
+  readstat_set_metadata_handler(parser, dfreader_metadata);
+  readstat_set_note_handler(parser, dfreader_note);
   readstat_set_variable_handler(parser, dfreader_variable);
   readstat_set_value_handler(parser, dfreader_value);
   readstat_set_value_label_handler(parser, dfreader_value_label);

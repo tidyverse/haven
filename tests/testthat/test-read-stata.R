@@ -45,3 +45,10 @@ test_that("tagged integer missings are read correctly", {
   labels <- attr(x, "labels")
   expect_equal(na_tag(labels), c("a", "z"))
 })
+
+test_that("file label and notes stored as attributes", {
+  df <- read_dta(test_path("notes.dta"))
+
+  expect_equal(attr(df, "label"), "This is a test dataset.")
+  expect_length(attr(df, "notes"), 2)
+})
