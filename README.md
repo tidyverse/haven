@@ -51,23 +51,3 @@ devtools::install_github("hadley/haven")
 * SAS: `read_sas("path/to/file")`
 * SPSS: `read_sav("path/to/file")`
 * Stata: `read_dta("path/to/file")`
-
-## Updating readstat
-
-If you're working on the development version of haven, and you'd like to update the embedded ReadStat library, you can run the following code. It is not necessary if you're just using the package.
-
-```R
-tmp <- tempfile()
-download.file("https://github.com/WizardMac/ReadStat/archive/master.zip", tmp, 
-  method = "wget")
-unzip(tmp, exdir = tempdir())
-
-zip_dir <- file.path(tempdir(), "ReadStat-master", "src")
-src <- dir(zip_dir, "\\.[ch]$", recursive = TRUE)
-
-# Drop test & bin
-ignore <- dirname(src) %in% c("test", "bin/modules")
-src <- src[!ignore]
-
-file.copy(file.path(zip_dir, src), file.path("src", src), overwrite = TRUE)
-```
