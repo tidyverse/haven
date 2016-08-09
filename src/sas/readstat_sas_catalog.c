@@ -168,6 +168,42 @@ static void sas_catalog_augment_index(const char *index, size_t len, sas_catalog
     }
 }
 
+static int compare_block_pointers(const void *elem1, const void *elem2) {
+    uint64_t v1 = *(const uint64_t *)elem1;
+    uint64_t v2 = *(const uint64_t *)elem2;
+    return v1 - v2;
+}
+
+static void sas_catalog_sort_index(sas_catalog_ctx_t *ctx) {
+    if (ctx->block_pointers_used == 0)
+        return;
+
+    int i;
+    for (i=1; i<ctx->block_pointers_used; i++) {
+        if (ctx->block_pointers[i] < ctx->block_pointers[i-1]) {
+            qsort(ctx->block_pointers, ctx->block_pointers_used, sizeof(uint64_t), &compare_block_pointers);
+            break;
+        }
+    }
+}
+
+static void sas_catalog_uniq_index(sas_catalog_ctx_t *ctx) {
+    if (ctx->block_pointers_used == 0)
+        return;
+
+    int i;
+    int out_i = 1;
+    for (i=1; i<ctx->block_pointers_used; i++) {
+        if (ctx->block_pointers[i] != ctx->block_pointers[i-1]) {
+            if (out_i != i) {
+                ctx->block_pointers[out_i] = ctx->block_pointers[i];
+            }
+            out_i++;
+        }
+    }
+    ctx->block_pointers_used = out_i;
+}
+
 static int sas_catalog_block_size(int start_page, int start_page_pos, sas_catalog_ctx_t *ctx, readstat_error_t *outError) {
     readstat_error_t retval = READSTAT_OK;
     readstat_io_t *io = ctx->io;
@@ -337,6 +373,9 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
             sas_catalog_augment_index(&page[16], ctx->page_size - 16, ctx);
         }
     }
+
+    sas_catalog_sort_index(ctx);
+    sas_catalog_uniq_index(ctx);
 
     // Pass 2 -- look up the individual block pointers
     for (i=0; i<ctx->block_pointers_used; i++) {

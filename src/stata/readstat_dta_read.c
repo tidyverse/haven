@@ -663,6 +663,7 @@ static readstat_error_t dta_read_label_and_timestamp(dta_ctx_t *ctx) {
     char *timestamp_buffer = NULL;
     uint16_t label_len = 0;
     unsigned char timestamp_len = 0;
+    char last_data_label_char = 0;
     struct tm timestamp = { .tm_isdst = -1 };
 
     if (ctx->file_is_xmlish) {
@@ -699,6 +700,7 @@ static readstat_error_t dta_read_label_and_timestamp(dta_ctx_t *ctx) {
     }
 
     if (!ctx->file_is_xmlish) {
+        last_data_label_char = data_label_buffer[label_len-1];
         data_label_buffer[label_len] = '\0';
         label_len = strlen(data_label_buffer);
     }
@@ -741,6 +743,11 @@ static readstat_error_t dta_read_label_and_timestamp(dta_ctx_t *ctx) {
             timestamp_len--;
 
         if (timestamp_buffer[0]) {
+            if (timestamp_buffer[timestamp_len-1] == '\0' && last_data_label_char != '\0') {
+                /* Stupid hack for miswritten files with off-by-one timestamp, DTA 114 era? */
+                memmove(timestamp_buffer+1, timestamp_buffer, timestamp_len-1);
+                timestamp_buffer[0] = last_data_label_char;
+            }
             if ((retval = dta_parse_timestamp(timestamp_buffer, timestamp_len, &timestamp, ctx)) != READSTAT_OK) {
                 goto cleanup;
             }
