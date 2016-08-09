@@ -4,32 +4,19 @@
 [![Coverage Status](https://img.shields.io/codecov/c/github/hadley/haven/master.svg)](https://codecov.io/github/hadley/haven?branch=master)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/haven)](http://cran.r-project.org/web/packages/haven)
 
-Haven allows you to load foreign data formats (SAS, Spss and Stata) in to R by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). Haven offers similar functionality to the base foreign package but:
+Haven allows you to load foreign data formats (SAS, SPSS and Stata) in to R by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). Haven offers similar functionality to the base foreign package but:
 
-* Can read SAS's proprietary binary format (SAS7BDAT). The one other package on
-  CRAN that does that, [sas7bdat](http://cran.r-project.org/web/packages/sas7bdat),
-  was created to document the reverse-engineering effort. Thus its implementation
-  is designed for experimentation, rather than efficiency. Haven is significantly
-  faster and should also support a wider range of SAS files (including 
-  compressed), and works with SAS7BCAT files.
+* It reads SPSS files (`.dta` and `.por`), reads Stata 13 and 14 files 
+  (foreign only works up to Stata 12), and SAS's proprietary binary format 
+  (SAS7BDAT + SAS7BCAT). It does not support many of the now more exotic 
+  formats supported by foreign.
 
-* It can be faster. Some spss files seem to load about 4x faster, but 
-  others load slower. If you have a lot of SPSS files to import, you might
-  want to benchmark both and pick the fastest.
-
-* Works with Stata 13 and 14 files (foreign only works up to Stata 12).
-
-* Can also write SPSS and Stata files (This is hard to test so if you
-  run into any problems, please let me know).
-
-* Can only read the data from the most common statistical packages (SAS, 
-  Stata and SPSS).
-
-* All functions return [tibbles](http://github.com/hadley/tibble).
+* Can also write SPSS, Stata, and SAS files.
 
 * Date times are converted to corresponding R classes and labelled vectors are 
   returned as a new `labelled` class. You can easily coerce to factors or 
-  replace labelled values with missings as appropriate.
+  replace labelled values with missings as appropriate. All functions return
+  [tibbles](http://github.com/hadley/tibble).
 
 * Uses underscores instead of dots ;)
 
