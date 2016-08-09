@@ -64,7 +64,8 @@
 
 * `labelled()` is less strict with its checks: you can mix double and integer
   value and labels (#86, #110, @lionel-), and `is.labelled()` is now exported 
-  (#124).
+  (#124). Putting a labelled vector in a data frame now generates the correct
+  column name (#193).
 
 * `read_dta()` now recognises "%d" and custom date types (#80, #130).
   It also gains an encoding parameter which you can use to override

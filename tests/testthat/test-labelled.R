@@ -28,3 +28,10 @@ test_that("printed output is stable", {
 
   expect_output_file(print(x), "labelled-output.txt")
 })
+
+test_that("given correct name in data frame", {
+  x <- labelled(1:3, c(a = 1))
+
+  expect_named(data.frame(x), "x")
+  expect_named(data.frame(y = x), "y")
+})

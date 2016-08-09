@@ -128,7 +128,6 @@ print_labels <- function(x, name = NULL) {
 #' @export
 as.data.frame.labelled <- function(x, ...) {
   df <- list(x)
-  names(df) <- deparse(substitute(x))
   class(df) <- "data.frame"
   attr(df, "row.names") <- .set_row_names(length(x))
 
