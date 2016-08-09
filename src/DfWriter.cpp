@@ -36,12 +36,13 @@ inline readstat_measure_e measureType(SEXP x) {
 
 
 class Writer {
+  FileType type_;
   List x_;
   readstat_writer_t* writer_;
   FILE* pOut_;
 
 public:
-  Writer(List x, std::string path): x_(x) {
+  Writer(FileType type, List x, std::string path): type_(type), x_(x) {
     pOut_ = fopen(path.c_str(), "wb");
     if (pOut_ == NULL)
       stop("Failed to open '%s' for writing", path);
@@ -57,57 +58,49 @@ public:
     } catch (...) {};
   }
 
-  void write_sav() {
-    CharacterVector names = as<CharacterVector>(x_.attr("names"));
-
+  void write() {
     int p = x_.size();
     if (p == 0)
       return;
 
+    CharacterVector names = as<CharacterVector>(x_.attr("names"));
+
     // Define variables
     for (int j = 0; j < p; ++j) {
       RObject col = x_[j];
+      VarType type = numType(col);
 
       const char* name = string_utf8(names, j);
-      const char* format = var_format(col, HAVEN_STATA);
+      const char* format = var_format(col, type);
 
-      switch(numType(col)) {
-      case HAVEN_DATETIME:
-        defineVariable(as<NumericVector>(col), name, (format == NULL) ? "DATETIME" : format);
-        break;
-      case HAVEN_DATE:
-        defineVariable(as<NumericVector>(col), name, (format == NULL) ? "DATE" : format);
-        break;
-      case HAVEN_TIME:
-        defineVariable(as<NumericVector>(col), name, (format == NULL) ? "TIME" : format);
-        break;
-      case HAVEN_DEFAULT:
-        switch(TYPEOF(col)) {
-        case LGLSXP:
-          defineVariable(as<IntegerVector>(col), name, format);
-          break;
-        case INTSXP:
-          defineVariable(as<IntegerVector>(col), name, format);
-          break;
-        case REALSXP:
-          defineVariable(as<NumericVector>(col), name, format);
-          break;
-        case STRSXP:
-          defineVariable(as<CharacterVector>(col), name, format);
-          break;
-        default:
-          stop("Variables of type %s not supported yet",
-            Rf_type2char(TYPEOF(col)));
-        }
+      switch(TYPEOF(col)) {
+      case LGLSXP:  defineVariable(as<IntegerVector>(col), name, format); break;
+      case INTSXP:  defineVariable(as<IntegerVector>(col), name, format); break;
+      case REALSXP: defineVariable(as<NumericVector>(col), name, format);  break;
+      case STRSXP:  defineVariable(as<CharacterVector>(col), name, format); break;
+      default:
+        stop("Variables of type %s not supported yet",
+          Rf_type2char(TYPEOF(col)));
       }
     }
 
     int n = Rf_length(x_[0]);
-    checkStatus(readstat_begin_writing_sav(writer_, this, n));
+
+    switch(type_) {
+    case HAVEN_SPSS:
+      checkStatus(readstat_begin_writing_sav(writer_, this, n));
+      break;
+    case HAVEN_STATA:
+      checkStatus(readstat_begin_writing_dta(writer_, this, n));
+      break;
+    case HAVEN_SAS:
+      checkStatus(readstat_begin_writing_sas7bdat(writer_, this, n));
+      break;
+    }
 
     // Write data
     for (int i = 0; i < n; ++i) {
-      readstat_begin_row(writer_);
+      checkStatus(readstat_begin_row(writer_));
       for (int j = 0; j < p; ++j) {
         RObject col = x_[j];
         readstat_variable_t* var = readstat_get_variable(writer_, j);
@@ -120,12 +113,12 @@ public:
         }
         case INTSXP: {
           int val = INTEGER(col)[i];
-          insertValue(var, (int) adjustDatetimeFromR(HAVEN_SPSS, col, val), val == NA_INTEGER);
+          insertValue(var, (int) adjustDatetimeFromR(type_, col, val), val == NA_INTEGER);
           break;
         }
         case REALSXP: {
           double val = REAL(col)[i];
-          insertValue(var, adjustDatetimeFromR(HAVEN_SPSS, col, val), !R_finite(val));
+          insertValue(var, adjustDatetimeFromR(type_, col, val), !R_finite(val));
           break;
         }
         case STRSXP: {
@@ -136,89 +129,7 @@ public:
           break;
         }
       }
-      checkStatus(readstat_end_row(writer_));
-    }
 
-    checkStatus(readstat_end_writing(writer_));
-
-  }
-
-  void write_dta() {
-    CharacterVector names = as<CharacterVector>(x_.attr("names"));
-
-    int p = x_.size();
-    if (p == 0)
-      return;
-
-    // Define variables
-    for (int j = 0; j < p; ++j) {
-      RObject col = x_[j];
-      const char* name = string_utf8(names, j);
-      const char* format = var_format(col, HAVEN_STATA);
-
-      switch(numType(col)) {
-      case HAVEN_DATETIME:
-        defineVariable(as<NumericVector>(col), name, (format == NULL) ? "%tc" : format);
-        break;
-      case HAVEN_DATE:
-        defineVariable(as<NumericVector>(col), name, (format == NULL) ? "%td" : format);
-        break;
-      case HAVEN_TIME: // Stata doesn't have a pure time variable
-      case HAVEN_DEFAULT:
-        switch(TYPEOF(col)) {
-        case LGLSXP:
-          defineVariable(as<IntegerVector>(col), name, format);
-          break;
-        case INTSXP:
-          defineVariable(as<IntegerVector>(col), name, format);
-          break;
-        case REALSXP:
-          defineVariable(as<NumericVector>(col), name, format);
-          break;
-        case STRSXP:
-          defineVariable(as<CharacterVector>(col), name, format);
-          break;
-        default:
-          stop("Variables of type %s not supported yet",
-            Rf_type2char(TYPEOF(col)));
-        }
-      }
-    }
-
-    int n = Rf_length(x_[0]);
-    checkStatus(readstat_begin_writing_dta(writer_, this, n));
-
-    // Write data
-    for (int i = 0; i < n; ++i) {
-      readstat_begin_row(writer_);
-      for (int j = 0; j < p; ++j) {
-        RObject col = x_[j];
-        readstat_variable_t* var = readstat_get_variable(writer_, j);
-
-        switch (TYPEOF(col)) {
-        case LGLSXP: {
-          int val = LOGICAL(col)[i];
-          insertValue(var, val, val == NA_LOGICAL);
-          break;
-        }
-        case INTSXP: {
-          int val = INTEGER(col)[i];
-          insertValue(var, (int) adjustDatetimeFromR(HAVEN_STATA, col, val), val == NA_INTEGER);
-          break;
-        }
-        case REALSXP: {
-          double val = REAL(col)[i];
-          insertValue(var, adjustDatetimeFromR(HAVEN_STATA, col, val), !R_finite(val));
-          break;
-        }
-        case STRSXP: {
-          insertValue(var, string_utf8(col, i), string_is_missing(col, i));
-          break;
-        }
-        default:
-          break;
-        }
-      }
       checkStatus(readstat_end_row(writer_));
     }
 
@@ -236,13 +147,35 @@ public:
     return string_utf8(label, 0);
   }
 
-  const char* var_format(RObject x, FileType type) {
-    RObject format = x.attr(formatAttribute(type));
+  const char* var_format(RObject x, VarType varType) {
+    // Use attribute, if present
+    RObject format = x.attr(formatAttribute(type_));
+    if (format != R_NilValue)
+      return string_utf8(format, 0);
 
-    if (format == R_NilValue)
+    switch(varType) {
+    case HAVEN_DEFAULT:
       return NULL;
 
-    return string_utf8(format, 0);
+    case HAVEN_DATETIME:
+      switch(type_) {
+      case HAVEN_SAS:   return "DATETIME";
+      case HAVEN_SPSS:  return "DATETIME";
+      case HAVEN_STATA: return "%tc";
+      }
+    case HAVEN_DATE:
+      switch(type_) {
+      case HAVEN_SAS:   return "DATE";
+      case HAVEN_SPSS:  return "DATE";
+      case HAVEN_STATA: return "%td";
+      }
+    case HAVEN_TIME:
+      switch(type_) {
+      case HAVEN_SAS:   return "TIME";
+      case HAVEN_SPSS:  return "TIME";
+      case HAVEN_STATA: return NULL; // Stata doesn't have a pure time type
+      }
+    }
   }
 
   void defineVariable(IntegerVector x, const char* name, const char* format = NULL) {
@@ -372,10 +305,10 @@ std::string rClass(RObject x) {
 }
 // [[Rcpp::export]]
 void write_sav_(List data, std::string path) {
-  Writer(data, path).write_sav();
+  Writer(HAVEN_SPSS, data, path).write();
 }
 
 // [[Rcpp::export]]
 void write_dta_(List data, std::string path) {
-  Writer(data, path).write_dta();
+  Writer(HAVEN_STATA, data, path).write();
 }
