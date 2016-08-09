@@ -102,3 +102,14 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// write_sas_
+void write_sas_(List data, std::string path);
+RcppExport SEXP haven_write_sas_(SEXP dataSEXP, SEXP pathSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
+    write_sas_(data, path);
+    return R_NilValue;
+END_RCPP
+}

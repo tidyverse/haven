@@ -15,6 +15,14 @@ roundtrip_dta <- function(x) {
   zap_formats(read_dta(tmp))
 }
 
+roundtrip_sas <- function(x) {
+  tmp <- tempfile()
+  on.exit(unlink(tmp))
+
+  write_sas(x, tmp)
+  zap_formats(read_sas(tmp))
+}
+
 roundtrip_var <- function(x, type = "sav") {
   df <- list(x = x)
   class(df) <- "data.frame"
@@ -23,6 +31,7 @@ roundtrip_var <- function(x, type = "sav") {
   switch(type,
     sav = roundtrip_sav(df)$x,
     dta = roundtrip_dta(df)$x,
+    sas = roundtrip_sas(df)$x,
     stop("Unsupported type")
   )
 }

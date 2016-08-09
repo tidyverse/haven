@@ -33,3 +33,7 @@ write_dta_ <- function(data, path) {
     invisible(.Call('haven_write_dta_', PACKAGE = 'haven', data, path))
 }
 
+write_sas_ <- function(data, path) {
+    invisible(.Call('haven_write_sas_', PACKAGE = 'haven', data, path))
+}
+

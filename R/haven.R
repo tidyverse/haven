@@ -3,13 +3,15 @@
 #' @importFrom tibble tibble
 NULL
 
-#' Read SAS files.
+#' Read and write SAS files.
 #'
-#' This supports both b7dat files and the accompanying b7cat files
-#' that are SAS's equivalent of factor labels.
+#' Reading supports both b7dat files and the accompanying b7cat files
+#' that are SAS's equivalent of factor labels. There is not currently support
+#' for writing b7cat files.
 #'
 #' @param b7dat,b7cat Path to data and catalog files. The files are
 #'   processed with \code{\link[readr]{datasource}()}.
+#' @param path Path to file where the data will be written.
 #' @param encoding The character encoding used for the file. This defaults to
 #'   the encoding specified in the file, or UTF-8. You can use this argument
 #'   to override the value stored in the file if it is correct
@@ -37,6 +39,12 @@ read_sas <- function(b7dat, b7cat = NULL, encoding = NULL) {
     source_raw = df_parse_sas_raw(spec_b7dat, spec_b7cat, encoding = encoding),
     stop("This kind of input is not handled", call. = FALSE)
   )
+}
+
+#' @export
+#' @rdname read_sas
+write_sas <- function(b7dat, path) {
+  write_sas_(b7dat, normalizePath(path, mustWork = FALSE))
 }
 
 #' Read SPSS (SAV) files. Write SAV files.

@@ -312,3 +312,8 @@ void write_sav_(List data, std::string path) {
 void write_dta_(List data, std::string path) {
   Writer(HAVEN_STATA, data, path).write();
 }
+
+// [[Rcpp::export]]
+void write_sas_(List data, std::string path) {
+  Writer(HAVEN_SAS, data, path).write();
+}

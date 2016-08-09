@@ -96,6 +96,9 @@
   (#132), and throws an error if you attempt to save a labelled vector that
   is not an integer (#144).
 
+* New `write_sas()` allows you to write data frames out to `sas7bdat` 
+  files. This is still somewhat experimental.
+
 * `write_sav()` writes hms variables to SPSS time variables, and the
   "measure" type is set for each variable (#133).
 

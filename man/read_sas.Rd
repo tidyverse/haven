@@ -2,9 +2,12 @@
 % Please edit documentation in R/haven.R
 \name{read_sas}
 \alias{read_sas}
-\title{Read SAS files.}
+\alias{write_sas}
+\title{Read and write SAS files.}
 \usage{
 read_sas(b7dat, b7cat = NULL, encoding = NULL)
+
+write_sas(b7dat, path)
 }
 \arguments{
 \item{b7dat, b7cat}{Path to data and catalog files. The files are
@@ -13,6 +16,8 @@ processed with \code{\link[readr]{datasource}()}.}
 \item{encoding}{The character encoding used for the file. This defaults to
 the encoding specified in the file, or UTF-8. You can use this argument
 to override the value stored in the file if it is correct}
+
+\item{path}{Path to file where the data will be written.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
@@ -21,8 +26,9 @@ A tibble, data frame variant with nice defaults.
   It is not printed on the console, but the RStudio viewer will show it.
 }
 \description{
-This supports both b7dat files and the accompanying b7cat files
-that are SAS's equivalent of factor labels.
+Reading supports both b7dat files and the accompanying b7cat files
+that are SAS's equivalent of factor labels. There is not currently support
+for writing b7cat files.
 }
 \examples{
 path <- system.file("examples", "iris.sas7bdat", package = "haven")
