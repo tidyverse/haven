@@ -1,9 +1,5 @@
 //
-//  dta_util.c
-//  Wizard
-//
-//  Created by Evan Miller on 12/16/11.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+//  readstat_bits.c - Bit-twiddling utility functions
 //
 
 #include <sys/types.h>

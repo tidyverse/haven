@@ -4,6 +4,10 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "../readstat.h"
+#include "../readstat_iconv.h"
+#include "../readstat_bits.h"
+
 #include "readstat_dta.h"
 
 #define DTA_MIN_VERSION 104
@@ -63,8 +67,12 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
 
     if (ds_format >= 118) {
         ctx->data_label_len_len = 2;
+        ctx->strl_v_len = 2;
+        ctx->strl_o_len = 6;
     } else if (ds_format >= 117) {
         ctx->data_label_len_len = 1;
+        ctx->strl_v_len = 4;
+        ctx->strl_o_len = 4;
     }
 
     if (ds_format < 105) {
@@ -78,12 +86,15 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
     if (ds_format < 110) {
         ctx->lbllist_entry_len = 9;
         ctx->variable_name_len = 9;
+        ctx->ch_metadata_len = 9;
     } else if (ds_format < 118) {
         ctx->lbllist_entry_len = 33;
         ctx->variable_name_len = 33;
+        ctx->ch_metadata_len = 33;
     } else {
         ctx->lbllist_entry_len = 129;
         ctx->variable_name_len = 129;
+        ctx->ch_metadata_len = 129;
     }
 
     if (ds_format < 108) {
@@ -208,6 +219,13 @@ void dta_ctx_free(dta_ctx_t *ctx) {
         iconv_close(ctx->converter);
     if (ctx->data_label)
         free(ctx->data_label);
+    if (ctx->strls) {
+        int i;
+        for (i=0; i<ctx->strls_count; i++) {
+            free(ctx->strls[i]);
+        }
+        free(ctx->strls);
+    }
     free(ctx);
 }
 
@@ -242,7 +260,7 @@ readstat_type_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx
             case DTA_117_TYPE_CODE_DOUBLE:
                 len = 8; type = READSTAT_TYPE_DOUBLE; break;
             case DTA_117_TYPE_CODE_STRL:
-                len = 8; type = READSTAT_TYPE_LONG_STRING; break;
+                len = 8; type = READSTAT_TYPE_STRING_REF; break;
             default:
                 len = typecode; type = READSTAT_TYPE_STRING; break;
         }
@@ -266,4 +284,3 @@ readstat_type_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx
     *max_len = len;
     return type;
 }
-

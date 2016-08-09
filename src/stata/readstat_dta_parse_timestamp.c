@@ -1,13 +1,15 @@
 
-#line 1 "src/readstat_dta_parse_timestamp.rl"
+#line 1 "src/stata/readstat_dta_parse_timestamp.rl"
 
 #include <time.h>
-#include "readstat.h"
+#include "../readstat.h"
+#include "../readstat_iconv.h"
+
 #include "readstat_dta.h"
 #include "readstat_dta_parse_timestamp.h"
 
 
-#line 11 "src/readstat_dta_parse_timestamp.c"
+#line 13 "src/stata/readstat_dta_parse_timestamp.c"
 static const char _dta_timestamp_parse_actions[] = {
 	0, 1, 0, 1, 2, 1, 3, 1, 
 	4, 1, 5, 1, 6, 1, 7, 1, 
@@ -110,7 +112,7 @@ static const int dta_timestamp_parse_start = 1;
 static const int dta_timestamp_parse_en_main = 1;
 
 
-#line 10 "src/readstat_dta_parse_timestamp.rl"
+#line 12 "src/stata/readstat_dta_parse_timestamp.rl"
 
 
 readstat_error_t dta_parse_timestamp(const char *data, size_t len, struct tm *timestamp, dta_ctx_t *ctx) {
@@ -122,12 +124,12 @@ readstat_error_t dta_parse_timestamp(const char *data, size_t len, struct tm *ti
     int cs;
     int temp_val = 0;
     
-#line 126 "src/readstat_dta_parse_timestamp.c"
+#line 128 "src/stata/readstat_dta_parse_timestamp.c"
 	{
 	cs = dta_timestamp_parse_start;
 	}
 
-#line 131 "src/readstat_dta_parse_timestamp.c"
+#line 133 "src/stata/readstat_dta_parse_timestamp.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -201,76 +203,76 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 21 "src/readstat_dta_parse_timestamp.rl"
+#line 23 "src/stata/readstat_dta_parse_timestamp.rl"
 	{
             temp_val = 10 * temp_val + ((*p) - '0');
         }
 	break;
 	case 1:
-#line 25 "src/readstat_dta_parse_timestamp.rl"
+#line 27 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ temp_val = 0; }
 	break;
 	case 2:
-#line 27 "src/readstat_dta_parse_timestamp.rl"
+#line 29 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mday = temp_val; }
 	break;
 	case 3:
-#line 30 "src/readstat_dta_parse_timestamp.rl"
+#line 32 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 0; }
 	break;
 	case 4:
-#line 31 "src/readstat_dta_parse_timestamp.rl"
+#line 33 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 1; }
 	break;
 	case 5:
-#line 32 "src/readstat_dta_parse_timestamp.rl"
+#line 34 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 2; }
 	break;
 	case 6:
-#line 33 "src/readstat_dta_parse_timestamp.rl"
+#line 35 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 3; }
 	break;
 	case 7:
-#line 34 "src/readstat_dta_parse_timestamp.rl"
+#line 36 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 4; }
 	break;
 	case 8:
-#line 35 "src/readstat_dta_parse_timestamp.rl"
+#line 37 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 5; }
 	break;
 	case 9:
-#line 36 "src/readstat_dta_parse_timestamp.rl"
+#line 38 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 6; }
 	break;
 	case 10:
-#line 37 "src/readstat_dta_parse_timestamp.rl"
+#line 39 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 7; }
 	break;
 	case 11:
-#line 38 "src/readstat_dta_parse_timestamp.rl"
+#line 40 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 8; }
 	break;
 	case 12:
-#line 39 "src/readstat_dta_parse_timestamp.rl"
+#line 41 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 9; }
 	break;
 	case 13:
-#line 40 "src/readstat_dta_parse_timestamp.rl"
+#line 42 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 10; }
 	break;
 	case 14:
-#line 41 "src/readstat_dta_parse_timestamp.rl"
+#line 43 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_mon = 11; }
 	break;
 	case 15:
-#line 43 "src/readstat_dta_parse_timestamp.rl"
+#line 45 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_year = temp_val - 1900; }
 	break;
 	case 16:
-#line 45 "src/readstat_dta_parse_timestamp.rl"
+#line 47 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_hour = temp_val; }
 	break;
-#line 274 "src/readstat_dta_parse_timestamp.c"
+#line 276 "src/stata/readstat_dta_parse_timestamp.c"
 		}
 	}
 
@@ -287,10 +289,10 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 17:
-#line 47 "src/readstat_dta_parse_timestamp.rl"
+#line 49 "src/stata/readstat_dta_parse_timestamp.rl"
 	{ timestamp->tm_min = temp_val; }
 	break;
-#line 294 "src/readstat_dta_parse_timestamp.c"
+#line 296 "src/stata/readstat_dta_parse_timestamp.c"
 		}
 	}
 	}
@@ -298,7 +300,7 @@ _again:
 	_out: {}
 	}
 
-#line 53 "src/readstat_dta_parse_timestamp.rl"
+#line 55 "src/stata/readstat_dta_parse_timestamp.rl"
 
 
     if (cs < 40|| p != pe) {

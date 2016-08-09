@@ -62,8 +62,14 @@ const char *readstat_error_message(readstat_error_t error_code) {
     if (error_code == READSTAT_ERROR_CONVERT_LONG_STRING)
         return "Unable to convert string to the requested encoding (output buffer too small)";
 
-    if (error_code == READSTAT_ERROR_VALUE_OUT_OF_RANGE)
-        return "A provided value was outside the range of representable values in the specified file format";
+    if (error_code == READSTAT_ERROR_NUMERIC_VALUE_IS_OUT_OF_RANGE)
+        return "A provided numeric value was outside the range of representable values in the specified file format";
+
+    if (error_code == READSTAT_ERROR_TAGGED_VALUE_IS_OUT_OF_RANGE)
+        return "A provided tag value was outside the range of allowed values in the specified file format";
+
+    if (error_code == READSTAT_ERROR_STRING_VALUE_IS_TOO_LONG)
+        return "A provided string value was longer than the available storage size of the specified column";
 
     if (error_code == READSTAT_ERROR_TAGGED_VALUES_NOT_SUPPORTED)
         return "The file format does not supported character tags for missing values";
@@ -88,6 +94,18 @@ const char *readstat_error_message(readstat_error_t error_code) {
 
     if (error_code == READSTAT_ERROR_BAD_FREQUENCY_WEIGHT)
         return "The provided variable can't be used as a frequency weight";
+
+    if (error_code == READSTAT_ERROR_TOO_MANY_MISSING_VALUE_DEFINITIONS)
+        return "The number of defined missing values exceeds the format limit";
+
+    if (error_code == READSTAT_ERROR_NOTE_IS_TOO_LONG)
+        return "The provided note is too long for the file format";
+
+    if (error_code == READSTAT_ERROR_STRING_REFS_NOT_SUPPORTED)
+        return "This version of the file format does not support string references";
+
+    if (error_code == READSTAT_ERROR_STRING_REF_IS_REQUIRED)
+        return "The provided value was not a valid string reference";
 
     return "Unknown error";
 }

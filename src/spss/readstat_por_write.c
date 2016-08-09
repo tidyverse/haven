@@ -4,11 +4,12 @@
 #include <time.h>
 #include <iconv.h>
 
-#include "readstat.h"
-#include "CKHashTable.h"
+#include "../readstat.h"
+#include "../CKHashTable.h"
+#include "../readstat_writer.h"
+
 #include "readstat_spss.h"
 #include "readstat_por.h"
-#include "readstat_writer.h"
 
 #define POR_BASE30_PRECISION  50
 
@@ -422,7 +423,6 @@ static readstat_error_t por_emit_missing_values_records(readstat_writer_t *write
                 goto cleanup;
 
             n_missing_values += 2;
-            break;
         } else if (isinf(hi)) {
             if ((retval = por_write_tag(writer, ctx, 'A')) != READSTAT_OK)
                 goto cleanup;
@@ -431,7 +431,6 @@ static readstat_error_t por_emit_missing_values_records(readstat_writer_t *write
                 goto cleanup;
 
             n_missing_values += 2;
-            break;
         } else if (lo != hi) {
             if ((retval = por_write_tag(writer, ctx, 'B')) != READSTAT_OK)
                 goto cleanup;
@@ -443,7 +442,6 @@ static readstat_error_t por_emit_missing_values_records(readstat_writer_t *write
                 goto cleanup;
 
             n_missing_values += 2;
-            break;
         }
     }
     /* values */
@@ -453,16 +451,18 @@ static readstat_error_t por_emit_missing_values_records(readstat_writer_t *write
         double lo = readstat_double_value(lo_value);
         double hi = readstat_double_value(hi_value);
         if (lo == hi && !isinf(lo) && !isinf(hi)) {
-            if ((retval = por_write_tag(writer, ctx, 'A')) != READSTAT_OK)
+            if ((retval = por_write_tag(writer, ctx, '8')) != READSTAT_OK)
                 goto cleanup;
 
             if ((retval = por_write_double(writer, ctx, lo)) != READSTAT_OK)
                 goto cleanup;
 
-            if (++n_missing_values == 3)
-                break;
+            n_missing_values++;
         }
     }
+    if (n_missing_values > 3)
+        retval = READSTAT_ERROR_TOO_MANY_MISSING_VALUE_DEFINITIONS;
+
 cleanup:
     return retval;
 }
@@ -484,7 +484,7 @@ static readstat_error_t por_emit_variable_records(readstat_writer_t *writer,
 
         retval = por_write_double(writer, ctx, 
                 (r_variable->type == READSTAT_TYPE_STRING) ?
-                r_variable->storage_width : 0);
+                r_variable->user_width : 0);
         if (retval != READSTAT_OK)
             break;
 
@@ -562,6 +562,31 @@ cleanup:
     return retval;
 }
 
+static readstat_error_t por_emit_document_record(readstat_writer_t *writer, por_write_ctx_t *ctx) {
+    readstat_error_t retval = READSTAT_OK;
+
+    if ((retval = por_write_tag(writer, ctx, 'E')) != READSTAT_OK)
+        goto cleanup;
+
+    if ((retval = por_write_double(writer, ctx, writer->notes_count)) != READSTAT_OK)
+        goto cleanup;
+
+    int i;
+    for (i=0; i<writer->notes_count; i++) {
+        size_t len = strlen(writer->notes[i]);
+        if (len > SPSS_DOC_LINE_SIZE) {
+            retval = READSTAT_ERROR_NOTE_IS_TOO_LONG;
+            goto cleanup;
+        }
+
+        if ((retval = por_write_string_field_n(writer, ctx, writer->notes[i], len)) != READSTAT_OK)
+            goto cleanup;
+    }
+
+cleanup:
+    return retval;
+}
+
 static readstat_error_t por_emit_data_tag(readstat_writer_t *writer, por_write_ctx_t *ctx) {
     return por_write_tag(writer, ctx, 'F');
 }
@@ -593,6 +618,9 @@ static readstat_error_t por_begin_data(void *writer_ctx) {
         goto cleanup;
 
     if ((retval = por_emit_value_label_records(writer, ctx)) != READSTAT_OK)
+        goto cleanup;
+
+    if ((retval = por_emit_document_record(writer, ctx)) != READSTAT_OK)
         goto cleanup;
 
     if ((retval = por_emit_data_tag(writer, ctx)) != READSTAT_OK)
@@ -701,8 +729,9 @@ static readstat_error_t por_write_row(void *writer_ctx, void *row, size_t row_le
 }
 
 readstat_error_t readstat_begin_writing_por(readstat_writer_t *writer, void *user_ctx, long row_count) {
-    writer->row_count = row_count;
-    writer->user_ctx = user_ctx;
+
+    if (writer->compression != READSTAT_COMPRESS_NONE)
+        return READSTAT_ERROR_UNSUPPORTED_COMPRESSION;
 
     writer->callbacks.variable_width = &por_variable_width;
     writer->callbacks.write_int8 = &por_write_int8_value;
@@ -718,7 +747,6 @@ readstat_error_t readstat_begin_writing_por(readstat_writer_t *writer, void *use
     writer->callbacks.write_row = &por_write_row;
     writer->callbacks.end_data = &por_end_data;
 
-    writer->initialized = 1;
+    return readstat_begin_writing_file(writer, user_ctx, row_count);
 
-    return READSTAT_OK;
 }

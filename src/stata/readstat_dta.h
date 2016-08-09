@@ -1,7 +1,3 @@
-#include "readstat.h"
-#include "readstat_iconv.h"
-#include "readstat_bits.h"
-
 #pragma pack(push, 1)
 
 // DTA files
@@ -15,25 +11,21 @@ typedef struct dta_header_s {
     int32_t          nobs;
 } dta_header_t;
 
-typedef struct dta_expansion_field_s {
-    unsigned char    data_type;
-    int32_t          len;
-} dta_expansion_field_t;
-
-typedef struct dta_short_expansion_field_s {
-    unsigned char    data_type;
-    int16_t          len;
-} dta_short_expansion_field_t;
-
-typedef struct dta_gso_header_s {
-    char             gso[3];
-    uint32_t         v;
-    uint32_t         o;
-    unsigned char    t;
-    int32_t          len;
-} dta_gso_header_t;
+typedef struct dta_strl_header_s {
+    unsigned char   vo_bytes[8];
+    unsigned char   type;
+    int32_t         len;
+} dta_strl_header_t;
 
 #pragma pack(pop)
+
+typedef struct dta_strl_s {
+    uint16_t        v;
+    uint64_t        o;
+    unsigned char   type;
+    size_t          len;
+    char            data[0];
+} dta_strl_t;
 
 typedef struct dta_ctx_s {
     char          *data_label;
@@ -61,9 +53,13 @@ typedef struct dta_ctx_s {
     size_t         lbllist_entry_len;
     size_t         variable_labels_entry_len;
     size_t         expansion_len_len;
+    size_t         ch_metadata_len;
     size_t         value_label_table_len_len;
     size_t         value_label_table_labname_len;
     size_t         value_label_table_padding_len;
+
+    size_t         strl_v_len;
+    size_t         strl_o_len;
 
     off_t          data_offset;
     off_t          strls_offset;
@@ -73,6 +69,7 @@ typedef struct dta_ctx_s {
     int            nobs;
     size_t         record_len;
     int            row_limit;
+    int            current_row;
 
     int            machine_needs_byte_swap;
     int            machine_is_twos_complement;
@@ -85,9 +82,14 @@ typedef struct dta_ctx_s {
     int32_t        max_float;
     int64_t        max_double;
 
+    dta_strl_t   **strls;
+    size_t         strls_count;
+    size_t         strls_capacity;
+
     iconv_t        converter;
     readstat_error_handler error_handler;
     readstat_progress_handler progress_handler;
+    readstat_note_handler note_handler;
     readstat_variable_handler variable_handler;
     readstat_value_handler value_handler;
     readstat_value_label_handler value_label_handler;

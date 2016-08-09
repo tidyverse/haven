@@ -88,15 +88,3 @@ void unistd_io_init(readstat_parser_t *parser) {
     io_ctx->fd = -1;
     readstat_set_io_ctx(parser, (void*) io_ctx);
 }
-
-void unistd_io_init_rdata(rdata_parser_t *parser) {
-    rdata_set_open_handler(parser, unistd_open_handler);
-    rdata_set_close_handler(parser, unistd_close_handler);
-    rdata_set_seek_handler(parser, unistd_seek_handler);
-    rdata_set_read_handler(parser, unistd_read_handler);
-    rdata_set_update_handler(parser, unistd_update_handler);
-
-    unistd_io_ctx_t *io_ctx = calloc(1, sizeof(unistd_io_ctx_t));
-    io_ctx->fd = -1;
-    rdata_set_io_ctx(parser, (void*) io_ctx);
-}

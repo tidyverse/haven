@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <iconv.h>
 
-#include "readstat.h"
+#include "../readstat.h"
+#include "../CKHashTable.h"
+#include "../readstat_convert.h"
+
 #include "readstat_spss.h"
-#include "CKHashTable.h"
-#include "readstat_convert.h"
 #include "readstat_por.h"
 
 int8_t por_ascii_lookup[256] = {

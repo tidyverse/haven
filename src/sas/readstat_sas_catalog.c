@@ -4,8 +4,8 @@
 #include <string.h>
 #include <math.h>
 #include "readstat_sas.h"
-#include "readstat_iconv.h"
-#include "readstat_convert.h"
+#include "../readstat_iconv.h"
+#include "../readstat_convert.h"
 
 #define SAS_CATALOG_FIRST_INDEX_PAGE 1
 #define SAS_CATALOG_USELESS_PAGES    3
@@ -92,7 +92,11 @@ static readstat_error_t sas_parse_value_labels(const char *value_start, size_t v
             double dval = NAN;
             if ((val | 0xFF0000000000) == 0xFFFFFFFFFFFF) {
                 value.tag = (val >> 40);
-                value.is_system_missing = 1;
+                if (value.tag) {
+                    value.is_tagged_missing = 1;
+                } else {
+                    value.is_system_missing = 1;
+                }
             } else {
                 memcpy(&dval, &val, 8);
                 dval *= -1.0;

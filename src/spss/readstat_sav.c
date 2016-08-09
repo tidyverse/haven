@@ -1,9 +1,5 @@
 //
 //  sav.c
-//  Wizard
-//
-//  Created by Evan Miller on 12/16/11.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 //
 
 #include <stdio.h>
@@ -14,6 +10,10 @@
 #include <math.h>
 #include <float.h>
 #include <time.h>
+
+#include "../readstat.h"
+#include "../readstat_bits.h"
+#include "../readstat_iconv.h"
 
 #include "readstat_sav.h"
 
@@ -35,6 +35,10 @@ sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io) {
     ctx->data_is_compressed = (header->compressed != 0);
     ctx->record_count = ctx->machine_needs_byte_swap ? byteswap4(header->ncases) : header->ncases;
     ctx->fweight_index = ctx->machine_needs_byte_swap ? byteswap4(header->weight_index) : header->weight_index;
+
+    ctx->missing_double = SAV_MISSING_DOUBLE;
+    ctx->lowest_double = SAV_LOWEST_DOUBLE;
+    ctx->highest_double = SAV_HIGHEST_DOUBLE;
     
     double bias = ctx->machine_needs_byte_swap ? byteswap_double(header->bias) : header->bias;
     
@@ -64,6 +68,10 @@ void sav_ctx_free(sav_ctx_t *ctx) {
         }
         free(ctx->varinfo);
     }
+    if (ctx->raw_string)
+        free(ctx->raw_string);
+    if (ctx->utf8_string)
+        free(ctx->utf8_string);
     if (ctx->converter) {
         iconv_close(ctx->converter);
     }

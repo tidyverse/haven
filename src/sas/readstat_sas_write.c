@@ -4,9 +4,10 @@
 #include <time.h>
 #include <iconv.h>
 
-#include "readstat.h"
-#include "readstat_writer.h"
+#include "../readstat.h"
+#include "../readstat_writer.h"
 #include "readstat_sas.h"
+#include "readstat_sas_rle.h"
 
 #define HEADER_SIZE 1024
 #define PAGE_SIZE   4096
@@ -20,10 +21,13 @@ typedef struct sas_subheader_s {
     uint32_t    signature;
     char       *data;
     size_t      len;
+    int         is_row_data;
+    int         is_row_data_compressed;
 } sas_subheader_t;
 
 typedef struct sas_subheader_array_s {
     int64_t             count;
+    int64_t             capacity;
     sas_subheader_t   **subheaders;
 } sas_subheader_array_t;
 
@@ -39,6 +43,11 @@ typedef struct sas_column_text_array_s {
     sas_column_text_t   **column_texts;
 } sas_column_text_array_t;
 
+typedef struct sas_write_ctx_s {
+    sas_header_info_t       *hinfo;
+    sas_subheader_array_t   *sarray;
+} sas_write_ctx_t;
+
 static size_t sas_variable_width(readstat_type_t type, size_t user_width);
 
 static readstat_error_t sas_fill_page(readstat_writer_t *writer, sas_header_info_t *hinfo) {
@@ -50,7 +59,10 @@ static readstat_error_t sas_fill_page(readstat_writer_t *writer, sas_header_info
     return READSTAT_OK;
 }
 
-static int32_t sas_count_meta_pages(sas_header_info_t *hinfo, sas_subheader_array_t *sarray) {
+static int32_t sas_count_meta_pages(readstat_writer_t *writer) {
+    sas_write_ctx_t *ctx = (sas_write_ctx_t *)writer->module_ctx;
+    sas_header_info_t *hinfo = ctx->hinfo;
+    sas_subheader_array_t *sarray = ctx->sarray;
     int i;
     int pages = 1;
     size_t bytes_left = hinfo->page_size - hinfo->page_header_size;
@@ -83,6 +95,9 @@ static int32_t sas_rows_per_page(readstat_writer_t *writer, sas_header_info_t *h
 }
 
 static int32_t sas_count_data_pages(readstat_writer_t *writer, sas_header_info_t *hinfo) {
+    if (writer->compression == READSTAT_COMPRESS_ROWS)
+        return 0;
+
     int32_t rows_per_page = sas_rows_per_page(writer, hinfo);
     return (writer->row_count + (rows_per_page - 1)) / rows_per_page;
 }
@@ -140,7 +155,8 @@ static sas_header_info_t *sas_header_info_init(readstat_writer_t *writer) {
     hinfo->modification_time = writer->timestamp;
     hinfo->header_size = HEADER_SIZE;
     hinfo->page_size = PAGE_SIZE;
-    hinfo->u64 = (writer->version >= 90000);
+    hinfo->u64 = !!writer->is_64bit;
+
     if (hinfo->u64) {
         hinfo->page_header_size = SAS_PAGE_HEADER_SIZE_64BIT;
         hinfo->subheader_pointer_size = SAS_SUBHEADER_POINTER_SIZE_64BIT;
@@ -372,8 +388,7 @@ static sas_subheader_t *sas_col_attrs_subheader_init(readstat_writer_t *writer,
             memcpy(&ptrs[0], &offset32, sizeof(uint32_t));
             ptrs += sizeof(uint32_t);
         }
-        if (type == READSTAT_TYPE_STRING ||
-                type == READSTAT_TYPE_LONG_STRING) {
+        if (type == READSTAT_TYPE_STRING) {
             ptrs[6] = SAS_COLUMN_TYPE_CHR;
             width = readstat_variable_get_storage_width(variable);
         } else {
@@ -468,6 +483,14 @@ static sas_subheader_array_t *sas_subheader_array_init(readstat_writer_t *writer
     }
     sas_column_text_array_free(column_text_array);
 
+    sarray->capacity = sarray->count;
+
+    if (writer->compression == READSTAT_COMPRESS_ROWS) {
+        sarray->capacity = (sarray->count + writer->row_count);
+        sarray->subheaders = realloc(sarray->subheaders, 
+                sarray->capacity * sizeof(sas_subheader_t *));
+    }
+
     return sarray;
 }
 
@@ -495,8 +518,10 @@ static int sas_subheader_type(uint32_t signature) {
             signature == SAS_SUBHEADER_SIGNATURE_COLUMN_LIST);
 }
 
-static readstat_error_t sas_emit_meta_pages(readstat_writer_t *writer, sas_header_info_t *hinfo,
-        sas_subheader_array_t *sarray) {
+static readstat_error_t sas_emit_meta_pages(readstat_writer_t *writer) {
+    sas_write_ctx_t *ctx = (sas_write_ctx_t *)writer->module_ctx;
+    sas_header_info_t *hinfo = ctx->hinfo;
+    sas_subheader_array_t *sarray = ctx->sarray;
     readstat_error_t retval = READSTAT_OK;
     int16_t page_type = SAS_PAGE_TYPE_META;
     char *page = malloc(PAGE_SIZE);
@@ -523,20 +548,38 @@ static readstat_error_t sas_emit_meta_pages(readstat_writer_t *writer, sas_heade
                 uint64_t len = subheader->len;
                 memcpy(&page[shp_ptr_offset], &offset, sizeof(uint64_t));
                 memcpy(&page[shp_ptr_offset+8], &len, sizeof(uint64_t));
-                page[shp_ptr_offset+17] = sas_subheader_type(subheader->signature);
-                if (signature32 >= 0xFF000000) {
-                    int64_t signature64 = (int32_t)signature32;
-                    memcpy(&subheader->data[0], &signature64, sizeof(int64_t));
+                if (subheader->is_row_data) {
+                    if (subheader->is_row_data_compressed) {
+                        page[shp_ptr_offset+16] = SAS_COMPRESSION_ROW;
+                    } else {
+                        page[shp_ptr_offset+16] = SAS_COMPRESSION_NONE;
+                    }
+                    page[shp_ptr_offset+17] = 1;
                 } else {
-                    memcpy(&subheader->data[0], &signature32, sizeof(int32_t));
+                    page[shp_ptr_offset+17] = sas_subheader_type(subheader->signature);
+                    if (signature32 >= 0xFF000000) {
+                        int64_t signature64 = (int32_t)signature32;
+                        memcpy(&subheader->data[0], &signature64, sizeof(int64_t));
+                    } else {
+                        memcpy(&subheader->data[0], &signature32, sizeof(int32_t));
+                    }
                 }
             } else {
                 uint32_t offset = shp_data_offset - subheader->len;
                 uint32_t len = subheader->len;
                 memcpy(&page[shp_ptr_offset], &offset, sizeof(uint32_t));
                 memcpy(&page[shp_ptr_offset+4], &len, sizeof(uint32_t));
-                page[shp_ptr_offset+9] = sas_subheader_type(subheader->signature);
-                memcpy(&subheader->data[0], &signature32, sizeof(int32_t));
+                if (subheader->is_row_data) {
+                    if (subheader->is_row_data_compressed) {
+                        page[shp_ptr_offset+8] = SAS_COMPRESSION_ROW;
+                    } else {
+                        page[shp_ptr_offset+8] = SAS_COMPRESSION_NONE;
+                    }
+                    page[shp_ptr_offset+9] = 1;
+                } else {
+                    page[shp_ptr_offset+9] = sas_subheader_type(subheader->signature);
+                    memcpy(&subheader->data[0], &signature32, sizeof(int32_t));
+                }
             }
             shp_ptr_offset += shp_ptr_size;
 
@@ -577,42 +620,78 @@ static readstat_error_t sas_validate_column_names(readstat_writer_t *writer) {
     return READSTAT_OK;
 }
 
+static sas_write_ctx_t *sas_write_ctx_init(readstat_writer_t *writer) {
+    sas_write_ctx_t *ctx = calloc(1, sizeof(sas_write_ctx_t));
+
+    ctx->hinfo = sas_header_info_init(writer);
+    ctx->sarray = sas_subheader_array_init(writer, ctx->hinfo);
+
+    return ctx;
+}
+
+static void sas_write_ctx_free(sas_write_ctx_t *ctx) {
+    free(ctx->hinfo);
+    sas_subheader_array_free(ctx->sarray);
+    free(ctx);
+}
+
+static readstat_error_t sas_emit_header_and_meta_pages(readstat_writer_t *writer) {
+    sas_write_ctx_t *ctx = (sas_write_ctx_t *)writer->module_ctx;
+    readstat_error_t retval = READSTAT_OK;
+
+    ctx->hinfo->page_count = sas_count_meta_pages(writer) + sas_count_data_pages(writer, ctx->hinfo);
+
+    retval = sas_emit_header(writer, ctx->hinfo);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    retval = sas_emit_meta_pages(writer);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+cleanup:
+    return retval;
+}
+
 static readstat_error_t sas_begin_data(void *writer_ctx) {
     readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
     readstat_error_t retval = READSTAT_OK;
-    sas_header_info_t *hinfo = sas_header_info_init(writer);
-    sas_subheader_array_t *sarray = sas_subheader_array_init(writer, hinfo);
 
     retval = sas_validate_column_names(writer);
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    hinfo->page_count = sas_count_meta_pages(hinfo, sarray) + sas_count_data_pages(writer, hinfo);
+    writer->module_ctx = sas_write_ctx_init(writer);
 
-    retval = sas_emit_header(writer, hinfo);
-    if (retval != READSTAT_OK)
-        goto cleanup;
-
-    retval = sas_emit_meta_pages(writer, hinfo, sarray);
-    if (retval != READSTAT_OK)
-        goto cleanup;
+    if (writer->compression == READSTAT_COMPRESS_NONE) {
+        retval = sas_emit_header_and_meta_pages(writer);
+        if (retval != READSTAT_OK)
+            goto cleanup;
+    }
 
 cleanup:
-    sas_subheader_array_free(sarray);
     if (retval != READSTAT_OK) {
-        free(hinfo);
-    } else {
-        writer->module_ctx = hinfo;
+        if (writer->module_ctx) {
+            sas_write_ctx_free(writer->module_ctx);
+            writer->module_ctx = NULL;
+        }
     }
 
     return retval;
 }
 
 static readstat_error_t sas_end_data(void *writer_ctx) {
+    readstat_error_t retval = READSTAT_OK;
     readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
-    sas_header_info_t *hinfo = (sas_header_info_t *)writer->module_ctx;
-    readstat_error_t retval = sas_fill_page(writer, hinfo);
-    free(hinfo);
+    sas_write_ctx_t *ctx = (sas_write_ctx_t *)writer->module_ctx;
+
+    if (writer->compression == READSTAT_COMPRESS_ROWS) {
+        retval = sas_emit_header_and_meta_pages(writer);
+    } else {
+        retval = sas_fill_page(writer, ctx->hinfo);
+    }
+
+    sas_write_ctx_free(ctx);
     return retval;
 }
 
@@ -650,7 +729,7 @@ static readstat_error_t sas_write_missing_tagged_raw(void *row, const readstat_v
 
 static readstat_error_t sas_write_missing_tagged(void *row, const readstat_variable_t *var, char tag) {
     if (tag < 'a' || tag > 'z')
-        return READSTAT_ERROR_VALUE_OUT_OF_RANGE;
+        return READSTAT_ERROR_TAGGED_VALUE_IS_OUT_OF_RANGE;
 
     return sas_write_missing_tagged_raw(row, var, tag);
 }
@@ -664,6 +743,10 @@ static readstat_error_t sas_write_string(void *row, const readstat_variable_t *v
     if (value == NULL || value[0] == '\0') {
         memset(row, '\0', max_len);
     } else {
+        size_t value_len = strlen(value);
+        if (value_len > max_len)
+            return READSTAT_ERROR_STRING_VALUE_IS_TOO_LONG;
+
         strncpy((char *)row, value, max_len);
     }
     return READSTAT_OK;
@@ -680,14 +763,14 @@ static size_t sas_variable_width(readstat_type_t type, size_t user_width) {
     return 8;
 }
 
-static readstat_error_t sas_write_row(void *writer_ctx, void *bytes, size_t len) {
-    readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
-    sas_header_info_t *hinfo = (sas_header_info_t *)writer->module_ctx;
+static readstat_error_t sas_write_row_uncompressed(readstat_writer_t *writer, sas_write_ctx_t *ctx,
+        void *bytes, size_t len) {
     readstat_error_t retval = READSTAT_OK;
+    sas_header_info_t *hinfo = ctx->hinfo;
 
     int32_t rows_per_page = sas_rows_per_page(writer, hinfo);
     if (writer->current_row % rows_per_page == 0) {
-        retval = sas_fill_page(writer, hinfo);
+        retval = sas_fill_page(writer, ctx->hinfo);
         if (retval != READSTAT_OK)
             goto cleanup;
 
@@ -710,9 +793,60 @@ cleanup:
     return retval;
 }
 
+/* We don't actually write compressed data out at this point; the file header
+ * requires a page count, so instead we collect the compressed subheaders in
+ * memory and write the entire file at the end, once the page count can be
+ * determined.
+ */
+static readstat_error_t sas_write_row_compressed(readstat_writer_t *writer, sas_write_ctx_t *ctx,
+        void *bytes, size_t len) {
+    readstat_error_t retval = READSTAT_OK;
+    size_t compressed_len = sas_rle_compressed_len(bytes, len);
+
+    sas_subheader_t *subheader = NULL;
+    if (compressed_len < len) {
+        subheader = sas_subheader_init(0, compressed_len);
+        subheader->is_row_data = 1;
+        subheader->is_row_data_compressed = 1;
+        size_t actual_len = sas_rle_compress(subheader->data, subheader->len, bytes, len);
+        if (actual_len != compressed_len) {
+            retval = READSTAT_ERROR_ROW_WIDTH_MISMATCH;
+            goto cleanup;
+        }
+    } else {
+        subheader = sas_subheader_init(0, len);
+        subheader->is_row_data = 1;
+        memcpy(subheader->data, bytes, len);
+    }
+
+    ctx->sarray->subheaders[ctx->sarray->count++] = subheader;
+
+cleanup:
+    if (retval != READSTAT_OK)
+        sas_subheader_free(subheader);
+
+    return retval;
+}
+
+static readstat_error_t sas_write_row(void *writer_ctx, void *bytes, size_t len) {
+    readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
+    sas_write_ctx_t *ctx = (sas_write_ctx_t *)writer->module_ctx;
+    readstat_error_t retval = READSTAT_OK;
+
+    if (writer->compression == READSTAT_COMPRESS_NONE) {
+        retval = sas_write_row_uncompressed(writer, ctx, bytes, len);
+    } else if (writer->compression == READSTAT_COMPRESS_ROWS) {
+        retval = sas_write_row_compressed(writer, ctx, bytes, len);
+    }
+
+    return retval;
+}
+
 readstat_error_t readstat_begin_writing_sas7bdat(readstat_writer_t *writer, void *user_ctx, long row_count) {
-    writer->row_count = row_count;
-    writer->user_ctx = user_ctx;
+
+    if (writer->compression != READSTAT_COMPRESS_NONE &&
+            writer->compression != READSTAT_COMPRESS_ROWS)
+        return READSTAT_ERROR_UNSUPPORTED_COMPRESSION;
 
     if (writer->version == 0)
         writer->version = SAS_DEFAULT_FILE_VERSION;
@@ -735,7 +869,5 @@ readstat_error_t readstat_begin_writing_sas7bdat(readstat_writer_t *writer, void
 
     writer->callbacks.write_row = &sas_write_row;
 
-    writer->initialized = 1;
-
-    return READSTAT_OK;
+    return readstat_begin_writing_file(writer, user_ctx, row_count);
 }

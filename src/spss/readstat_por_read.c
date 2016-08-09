@@ -1,9 +1,5 @@
 //
 //  readstat_por.c
-//  Wizard
-//
-//  Created by Evan Miller on 4/17/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
 #include <stdio.h>
@@ -14,12 +10,13 @@
 #include <math.h>
 #include <time.h>
 
-#include "readstat.h"
+#include "../readstat.h"
+#include "../readstat_iconv.h"
+#include "../readstat_convert.h"
+#include "../CKHashTable.h"
+
 #include "readstat_por_parse.h"
 #include "readstat_spss.h"
-#include "readstat_iconv.h"
-#include "readstat_convert.h"
-#include "CKHashTable.h"
 #include "readstat_por.h"
 
 #define POR_LINE_LENGTH         80
@@ -377,6 +374,7 @@ static readstat_error_t read_missing_value_hi_range_record(por_ctx_t *ctx) {
     double value;
     char string[256];
     if (ctx->varinfo[ctx->var_offset].type == READSTAT_TYPE_DOUBLE) {
+        ctx->varinfo[ctx->var_offset].missing_range = 1;
         if ((retval = read_double(ctx, &value)) != READSTAT_OK) {
             goto cleanup;
         }
@@ -405,6 +403,12 @@ static readstat_error_t read_document_record(por_ctx_t *ctx) {
     for (i=0; i<line_count; i++) {
         if ((retval = read_string(ctx, string, sizeof(string))) != READSTAT_OK) {
             goto cleanup;
+        }
+        if (ctx->note_handler) {
+            if (ctx->note_handler(i, string, ctx->user_ctx)) {
+                retval = READSTAT_ERROR_USER_ABORT;
+                goto cleanup;
+            }
         }
     }
 cleanup:
@@ -486,6 +490,9 @@ static readstat_error_t read_por_file_data(por_ctx_t *ctx) {
     char output_string[4*256+1];
     char error_buf[1024];
     readstat_error_t rs_retval = READSTAT_OK;
+
+    if (ctx->var_count == 0)
+        return READSTAT_OK;
 
     while (1) {
         int finished = 0;
@@ -639,9 +646,10 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
     por_ctx_t *ctx = por_ctx_init();
     
     ctx->info_handler = parser->info_handler;
-    ctx->variable_handler = parser->variable_handler;
     ctx->metadata_handler = parser->metadata_handler;
+    ctx->note_handler = parser->note_handler;
     ctx->fweight_handler = parser->fweight_handler;
+    ctx->variable_handler = parser->variable_handler;
     ctx->value_handler = parser->value_handler;
     ctx->value_label_handler = parser->value_label_handler;
     ctx->error_handler = parser->error_handler;

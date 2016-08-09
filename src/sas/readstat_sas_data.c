@@ -6,30 +6,14 @@
 #include <math.h>
 #include <inttypes.h>
 #include "readstat_sas.h"
-#include "readstat_iconv.h"
-#include "readstat_convert.h"
+#include "readstat_sas_rle.h"
+#include "../readstat_iconv.h"
+#include "../readstat_convert.h"
 
 #define ERROR_BUF_SIZE 1024
 
-#define SAS_COMPRESSION_NONE   0x00
-#define SAS_COMPRESSION_TRUNC  0x01
-#define SAS_COMPRESSION_ROW    0x04
-
 #define SAS_COMPRESSION_SIGNATURE_RLE  "SASYZCRL"
 #define SAS_COMPRESSION_SIGNATURE_RDC  "SASYZCR2"
-
-#define SAS_RLE_COMMAND_COPY64          0
-#define SAS_RLE_COMMAND_INSERT_BYTE18   4
-#define SAS_RLE_COMMAND_INSERT_BLANK17  6
-#define SAS_RLE_COMMAND_INSERT_ZERO17   7
-#define SAS_RLE_COMMAND_COPY1           8
-#define SAS_RLE_COMMAND_COPY17          9
-#define SAS_RLE_COMMAND_COPY33         10
-#define SAS_RLE_COMMAND_COPY49         11
-#define SAS_RLE_COMMAND_INSERT_BYTE3   12
-#define SAS_RLE_COMMAND_INSERT_AT2     13
-#define SAS_RLE_COMMAND_INSERT_BLANK2  14
-#define SAS_RLE_COMMAND_INSERT_ZERO2   15
 
 typedef struct col_info_s {
     sas_text_ref_t  name_ref;
@@ -352,8 +336,12 @@ static readstat_error_t handle_data_value(const char *col_data, col_info_t *col_
 
         if (isnan(dval)) {
             value.v.double_value = NAN;
-            value.is_system_missing = 1;
             value.tag = ~((val >> 40) & 0xFF);
+            if (value.tag) {
+                value.is_tagged_missing = 1;
+            } else {
+                value.is_system_missing = 1;
+            }
         } else {
             value.v.double_value = dval;
         }
@@ -410,79 +398,22 @@ static readstat_error_t sas_parse_subheader_rle(const char *subheader, size_t le
     if (ctx->row_limit == ctx->parsed_row_count)
         return READSTAT_OK;
 
-    /* TODO bounds checking */
     readstat_error_t retval = READSTAT_OK;
-    const unsigned char *input = (const unsigned char *)subheader;
     char error_buf[ERROR_BUF_SIZE];
     char *buffer = malloc(ctx->row_length);
-    char *output = buffer;
     if (buffer == NULL) {
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;
     }
-    while (input < (const unsigned char *)subheader + len) {
-        unsigned char control = *input++;
-        unsigned char command = (control & 0xF0) >> 4;
-        unsigned char length = (control & 0x0F);
-        int copy_len = 0;
-        int insert_len = 0;
-        unsigned char insert_byte = '\0';
-        switch (command) {
-            case SAS_RLE_COMMAND_COPY64:
-                copy_len = (*input++) + 64 + length * 256;
-                break;
-            case SAS_RLE_COMMAND_INSERT_BYTE18:
-                insert_len = (*input++) + 18 + length * 16;
-                insert_byte = *input++;
-                break;
-            case SAS_RLE_COMMAND_INSERT_BLANK17:
-                insert_len = (*input++) + 17 + length * 256;
-                insert_byte = ' ';
-                break;
-            case SAS_RLE_COMMAND_INSERT_ZERO17:
-                insert_len = (*input++) + 17 + length * 256;
-                insert_byte = '\0';
-                break;
-            case SAS_RLE_COMMAND_COPY1:  copy_len = length + 1; break;
-            case SAS_RLE_COMMAND_COPY17: copy_len = length + 17; break;
-            case SAS_RLE_COMMAND_COPY33: copy_len = length + 33; break;
-            case SAS_RLE_COMMAND_COPY49: copy_len = length + 49; break;
-            case SAS_RLE_COMMAND_INSERT_BYTE3:
-                insert_byte = *input++;
-                insert_len = length + 3;
-                break;
-            case SAS_RLE_COMMAND_INSERT_AT2:
-                insert_byte = '@';
-                insert_len = length + 2;
-                break;
-            case SAS_RLE_COMMAND_INSERT_BLANK2:
-                insert_byte = ' ';
-                insert_len = length + 2;
-                break;
-            case SAS_RLE_COMMAND_INSERT_ZERO2:
-                insert_byte = '\0';
-                insert_len = length + 2;
-                break;
-            default:
-                retval = READSTAT_ERROR_PARSE;
-                goto cleanup;
-        }
-        if (copy_len) {
-            memcpy(output, input, copy_len);
-            input += copy_len;
-            output += copy_len;
-        }
-        if (insert_len) {
-            memset(output, insert_byte, insert_len);
-            output += insert_len;
-        }
-    }
-    if (output - buffer != ctx->row_length) {
+    size_t bytes_decompressed = sas_rle_decompress(
+            buffer, ctx->row_length, subheader, len);
+
+    if (bytes_decompressed != ctx->row_length) {
         retval = READSTAT_ERROR_ROW_WIDTH_MISMATCH;
         if (ctx->error_handler) {
             snprintf(error_buf, sizeof(error_buf), 
                     "ReadStat: Row #%d decompressed to %ld bytes (expected %d bytes)\n",
-                    ctx->parsed_row_count, (long)(output - buffer), ctx->row_length);
+                    ctx->parsed_row_count, (long)(bytes_decompressed), ctx->row_length);
             ctx->error_handler(error_buf, ctx->user_ctx);
         }
         goto cleanup;

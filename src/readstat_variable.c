@@ -40,6 +40,10 @@ readstat_type_t readstat_variable_get_type(const readstat_variable_t *variable) 
     return variable->type;
 }
 
+readstat_type_class_t readstat_variable_get_type_class(const readstat_variable_t *variable) {
+    return readstat_type_class(variable->type);
+}
+
 size_t readstat_variable_get_storage_width(const readstat_variable_t *variable) {
     return variable->storage_width;
 }

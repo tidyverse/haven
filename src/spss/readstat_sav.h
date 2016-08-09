@@ -1,15 +1,8 @@
 //
-//  Header.h
-//  Wizard
-//
-//  Created by Evan Miller on 3/31/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  readstat_sav.h
 //
 
-#include "readstat.h"
 #include "readstat_spss.h"
-#include "readstat_iconv.h"
-#include "readstat_bits.h"
 
 #pragma pack(push, 1)
 
@@ -58,9 +51,9 @@ typedef struct sav_machine_integer_info_record_s {
 } sav_machine_integer_info_record_t;
 
 typedef struct sav_machine_floating_point_info_record_s {
-    double   sysmis;
-    double   highest;
-    double   lowest;
+    uint64_t sysmis;
+    uint64_t highest;
+    uint64_t lowest;
 } sav_machine_floating_point_info_record_t;
 
 typedef struct sav_dictionary_termination_record_s {
@@ -73,6 +66,7 @@ typedef struct sav_dictionary_termination_record_s {
 typedef struct sav_ctx_s {
     readstat_error_handler          error_handler;
     readstat_progress_handler       progress_handler;
+    readstat_note_handler           note_handler;
     readstat_value_handler          value_handler;
     readstat_value_label_handler    value_label_handler;
     size_t                          file_size;
@@ -93,8 +87,20 @@ typedef struct sav_ctx_s {
     int            var_count;
     int            record_count;
     int            row_limit;
+    int            current_row;
     int            value_labels_count;
     int            fweight_index;
+
+    char          *raw_string;
+    size_t         raw_string_len;
+
+    char          *utf8_string;
+    size_t         utf8_string_len;
+
+    uint64_t       missing_double;
+    uint64_t       lowest_double;
+    uint64_t       highest_double;
+
     unsigned int   data_is_compressed:1;
     unsigned int   machine_needs_byte_swap:1;
 } sav_ctx_t;
@@ -128,4 +134,3 @@ typedef struct sav_ctx_s {
 
 sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io);
 void sav_ctx_free(sav_ctx_t *ctx);
-

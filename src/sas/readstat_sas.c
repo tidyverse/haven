@@ -8,8 +8,8 @@
 #include <inttypes.h>
 
 #include "readstat_sas.h"
-#include "readstat_iconv.h"
-#include "readstat_convert.h"
+#include "../readstat_iconv.h"
+#include "../readstat_convert.h"
 
 #define SAS_DEFAULT_STRING_ENCODING "WINDOWS-1252"
 

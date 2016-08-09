@@ -1,10 +1,5 @@
-//
-//  CKHashTable.m
-//  CRACK
-//
-//  Created by Evan Miller on 11/3/10.
-//  Copyright 2010 __MyCompanyName__. All rights reserved.
-//
+// CKHashTable - A simple hash table
+// Copyright 2010 Evan Miller (see LICENSE)
 
 #include "CKHashTable.h"
 #include <string.h>

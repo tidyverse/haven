@@ -1,12 +1,12 @@
 
-#line 1 "src/readstat_por_parse.rl"
+#line 1 "src/spss/readstat_por_parse.rl"
 #include <sys/types.h>
 
-#include "readstat.h"
+#include "../readstat.h"
 #include "readstat_por_parse.h"
 
 
-#line 10 "src/readstat_por_parse.c"
+#line 10 "src/spss/readstat_por_parse.c"
 static const char _por_field_parse_actions[] = {
 	0, 1, 0, 1, 1, 1, 5, 1, 
 	8, 1, 9, 1, 10, 2, 2, 0, 
@@ -68,7 +68,7 @@ static const int por_field_parse_start = 1;
 static const int por_field_parse_en_main = 1;
 
 
-#line 9 "src/readstat_por_parse.rl"
+#line 9 "src/spss/readstat_por_parse.rl"
 
 
 ssize_t readstat_por_parse_double(const char *data, size_t len, double *result, 
@@ -90,12 +90,12 @@ ssize_t readstat_por_parse_double(const char *data, size_t len, double *result,
     int success = 0;
     
     
-#line 94 "src/readstat_por_parse.c"
+#line 94 "src/spss/readstat_por_parse.c"
 	{
 	cs = por_field_parse_start;
 	}
 
-#line 99 "src/readstat_por_parse.c"
+#line 99 "src/spss/readstat_por_parse.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -167,7 +167,7 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 30 "src/readstat_por_parse.rl"
+#line 30 "src/spss/readstat_por_parse.rl"
 	{
             if ((*p) >= '0' && (*p) <= '9') {
                 temp_val = 30 * temp_val + ((*p) - '0');
@@ -177,7 +177,7 @@ _match:
         }
 	break;
 	case 1:
-#line 38 "src/readstat_por_parse.rl"
+#line 38 "src/spss/readstat_por_parse.rl"
 	{
             if ((*p) >= '0' && (*p) <= '9') {
                 temp_frac += ((*p) - '0') / denom;
@@ -188,42 +188,42 @@ _match:
         }
 	break;
 	case 2:
-#line 47 "src/readstat_por_parse.rl"
+#line 47 "src/spss/readstat_por_parse.rl"
 	{ temp_val = 0; }
 	break;
 	case 3:
-#line 49 "src/readstat_por_parse.rl"
+#line 49 "src/spss/readstat_por_parse.rl"
 	{ temp_frac = 0.0; }
 	break;
 	case 4:
-#line 53 "src/readstat_por_parse.rl"
+#line 53 "src/spss/readstat_por_parse.rl"
 	{ is_negative = 1; }
 	break;
 	case 5:
-#line 53 "src/readstat_por_parse.rl"
+#line 53 "src/spss/readstat_por_parse.rl"
 	{ num = temp_val; }
 	break;
 	case 6:
-#line 54 "src/readstat_por_parse.rl"
+#line 54 "src/spss/readstat_por_parse.rl"
 	{ exp_is_negative = 1; }
 	break;
 	case 7:
-#line 54 "src/readstat_por_parse.rl"
+#line 54 "src/spss/readstat_por_parse.rl"
 	{ exp = temp_val; }
 	break;
 	case 8:
-#line 56 "src/readstat_por_parse.rl"
+#line 56 "src/spss/readstat_por_parse.rl"
 	{ is_negative = 1; }
 	break;
 	case 9:
-#line 58 "src/readstat_por_parse.rl"
+#line 58 "src/spss/readstat_por_parse.rl"
 	{ val = NAN; }
 	break;
 	case 10:
-#line 60 "src/readstat_por_parse.rl"
+#line 60 "src/spss/readstat_por_parse.rl"
 	{ success = 1; {p++; goto _out; } }
 	break;
-#line 227 "src/readstat_por_parse.c"
+#line 227 "src/spss/readstat_por_parse.c"
 		}
 	}
 
@@ -235,7 +235,7 @@ _again:
 	_out: {}
 	}
 
-#line 64 "src/readstat_por_parse.rl"
+#line 64 "src/spss/readstat_por_parse.rl"
 
 
     if (!isnan(val)) {

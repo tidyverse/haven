@@ -1,9 +1,7 @@
 //
-//  stat.h
-//  Wizard
+//  readstat.h - API and internal data structures for ReadStat
 //
-//  Created by Evan Miller on 3/31/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright Evan Miller and ReadStat authors (see LICENSE)
 //
 
 #ifndef INCLUDE_READSTAT_H
@@ -26,8 +24,13 @@ typedef enum readstat_type_e {
     READSTAT_TYPE_INT32,
     READSTAT_TYPE_FLOAT,
     READSTAT_TYPE_DOUBLE,
-    READSTAT_TYPE_LONG_STRING
+    READSTAT_TYPE_STRING_REF
 } readstat_type_t;
+
+typedef enum readstat_type_class_e {
+    READSTAT_TYPE_CLASS_STRING,
+    READSTAT_TYPE_CLASS_NUMERIC
+} readstat_type_class_t;
 
 typedef enum readstat_measure_e {
     READSTAT_MEASURE_UNKNOWN,
@@ -42,6 +45,11 @@ typedef enum readstat_alignment_e {
     READSTAT_ALIGNMENT_CENTER,
     READSTAT_ALIGNMENT_RIGHT
 } readstat_alignment_t;
+
+typedef enum readstat_compress_e {
+    READSTAT_COMPRESS_NONE,
+    READSTAT_COMPRESS_ROWS
+} readstat_compress_t;
 
 typedef enum readstat_error_e {
     READSTAT_OK,
@@ -64,7 +72,9 @@ typedef enum readstat_error_e {
     READSTAT_ERROR_CONVERT_BAD_STRING,
     READSTAT_ERROR_CONVERT_SHORT_STRING,
     READSTAT_ERROR_CONVERT_LONG_STRING,
-    READSTAT_ERROR_VALUE_OUT_OF_RANGE,
+    READSTAT_ERROR_NUMERIC_VALUE_IS_OUT_OF_RANGE,
+    READSTAT_ERROR_TAGGED_VALUE_IS_OUT_OF_RANGE,
+    READSTAT_ERROR_STRING_VALUE_IS_TOO_LONG,
     READSTAT_ERROR_TAGGED_VALUES_NOT_SUPPORTED,
     READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION,
     READSTAT_ERROR_NAME_BEGINS_WITH_ILLEGAL_CHARACTER,
@@ -72,7 +82,11 @@ typedef enum readstat_error_e {
     READSTAT_ERROR_NAME_IS_RESERVED_WORD,
     READSTAT_ERROR_NAME_IS_TOO_LONG,
     READSTAT_ERROR_BAD_TIMESTAMP,
-    READSTAT_ERROR_BAD_FREQUENCY_WEIGHT
+    READSTAT_ERROR_BAD_FREQUENCY_WEIGHT,
+    READSTAT_ERROR_TOO_MANY_MISSING_VALUE_DEFINITIONS,
+    READSTAT_ERROR_NOTE_IS_TOO_LONG,
+    READSTAT_ERROR_STRING_REFS_NOT_SUPPORTED,
+    READSTAT_ERROR_STRING_REF_IS_REQUIRED
 } readstat_error_t;
 
 const char *readstat_error_message(readstat_error_t error_code);
@@ -89,13 +103,40 @@ typedef struct readstat_value_s {
     readstat_type_t         type;
     char                    tag;
     unsigned int            is_system_missing:1;
-    unsigned int            is_considered_missing:1;
+    unsigned int            is_tagged_missing:1;
+    unsigned int            is_defined_missing:1;
 } readstat_value_t;
 
 readstat_type_t readstat_value_type(readstat_value_t value);
+readstat_type_class_t readstat_value_type_class(readstat_value_t value);
+
+/* Values can be missing in one of three ways:
+ * 1. "System missing", delivered to value handlers as NaN. Occurs in all file
+ *    types. The most common kind of missing value.
+ * 2. Tagged missing, also delivered as NaN, but with a single character tag
+ *    accessible via readstat_value_tag(). The tag might be 'a', 'b', etc,
+ *    corresponding to Stata's .a, .b, values etc. Occurs only in Stata and
+ *    SAS files.
+ * 3. Defined missing. The value is a real number but is to be treated as
+ *    missing according to the variable's missingness rules (such as "value < 0 ||
+ *    value == 999"). Occurs only in spss files. access the rules via:
+ *
+ *       readstat_variable_get_missing_ranges_count()
+ *       readstat_variable_get_missing_range_lo()
+ *       readstat_variable_get_missing_range_hi()
+ *
+ * Note that "ranges" include individual values where lo == hi.
+ *
+ * readstat_value_is_missing() is equivalent to:
+ *
+ *    (readstat_value_is_system_missing() 
+ *     || readstat_value_is_tagged_missing()
+ *     || readstat_value_is_defined_missing())
+ */
 int readstat_value_is_missing(readstat_value_t value);
 int readstat_value_is_system_missing(readstat_value_t value);
-int readstat_value_is_considered_missing(readstat_value_t value);
+int readstat_value_is_tagged_missing(readstat_value_t value);
+int readstat_value_is_defined_missing(readstat_value_t value);
 char readstat_value_tag(readstat_value_t value);
 
 char readstat_int8_value(readstat_value_t value);
@@ -105,10 +146,13 @@ float readstat_float_value(readstat_value_t value);
 double readstat_double_value(readstat_value_t value);
 const char *readstat_string_value(readstat_value_t value);
 
+readstat_type_class_t readstat_type_class(readstat_type_t type);
+
 /* Internal data structures */
 typedef struct readstat_value_label_s {
     double      double_key;
     int32_t     int32_key;
+    char        tag;
 
     char       *string_key;
     size_t      string_key_len;
@@ -156,6 +200,7 @@ const char *readstat_variable_get_name(const readstat_variable_t *variable);
 const char *readstat_variable_get_label(const readstat_variable_t *variable);
 const char *readstat_variable_get_format(const readstat_variable_t *variable);
 readstat_type_t readstat_variable_get_type(const readstat_variable_t *variable);
+readstat_type_class_t readstat_variable_get_type_class(const readstat_variable_t *variable);
 size_t readstat_variable_get_storage_width(const readstat_variable_t *variable);
 int readstat_variable_get_display_width(const readstat_variable_t *variable);
 readstat_measure_t readstat_variable_get_measure(const readstat_variable_t *variable);
@@ -168,6 +213,7 @@ readstat_value_t readstat_variable_get_missing_range_hi(const readstat_variable_
 /* Callbacks should return 0 on success and non-zero to abort */
 typedef int (*readstat_info_handler)(int obs_count, int var_count, void *ctx);
 typedef int (*readstat_metadata_handler)(const char *file_label, time_t timestamp, long format_version, void *ctx);
+typedef int (*readstat_note_handler)(int note_index, const char *note, void *ctx);
 typedef int (*readstat_variable_handler)(int index, readstat_variable_t *variable, 
         const char *val_labels, void *ctx);
 typedef int (*readstat_fweight_handler)(int var_index, void *ctx);
@@ -211,6 +257,7 @@ typedef struct readstat_io_s {
 typedef struct readstat_parser_s {
     readstat_info_handler          info_handler;
     readstat_metadata_handler      metadata_handler;
+    readstat_note_handler          note_handler;
     readstat_variable_handler      variable_handler;
     readstat_fweight_handler       fweight_handler;
     readstat_value_handler         value_handler;
@@ -229,6 +276,7 @@ void readstat_io_free(readstat_io_t *io);
 
 readstat_error_t readstat_set_info_handler(readstat_parser_t *parser, readstat_info_handler info_handler);
 readstat_error_t readstat_set_metadata_handler(readstat_parser_t *parser, readstat_metadata_handler metadata_handler);
+readstat_error_t readstat_set_note_handler(readstat_parser_t *parser, readstat_note_handler note_handler);
 readstat_error_t readstat_set_variable_handler(readstat_parser_t *parser, readstat_variable_handler variable_handler);
 readstat_error_t readstat_set_fweight_handler(readstat_parser_t *parser, readstat_fweight_handler fweight_handler);
 readstat_error_t readstat_set_value_handler(readstat_parser_t *parser, readstat_value_handler value_handler);
@@ -261,6 +309,13 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
 
 
 /* Internal module callbacks */
+typedef struct readstat_string_ref_s {
+    int64_t     first_v;
+    int64_t     first_o;
+    size_t      len;
+    char        data[0];
+} readstat_string_ref_t;
+
 typedef size_t (*readstat_variable_width_callback)(readstat_type_t type, size_t user_width);
 
 typedef readstat_error_t (*readstat_write_int8_callback)(void *row_data, const readstat_variable_t *variable, int8_t value);
@@ -269,6 +324,7 @@ typedef readstat_error_t (*readstat_write_int32_callback)(void *row_data, const 
 typedef readstat_error_t (*readstat_write_float_callback)(void *row_data, const readstat_variable_t *variable, float value);
 typedef readstat_error_t (*readstat_write_double_callback)(void *row_data, const readstat_variable_t *variable, double value);
 typedef readstat_error_t (*readstat_write_string_callback)(void *row_data, const readstat_variable_t *variable, const char *value);
+typedef readstat_error_t (*readstat_write_string_ref_callback)(void *row_data, const readstat_variable_t *variable, readstat_string_ref_t *ref);
 typedef readstat_error_t (*readstat_write_missing_callback)(void *row_data, const readstat_variable_t *variable);
 typedef readstat_error_t (*readstat_write_tagged_callback)(void *row_data, const readstat_variable_t *variable, char tag);
 
@@ -277,19 +333,20 @@ typedef readstat_error_t (*readstat_write_row_callback)(void *writer, void *row_
 typedef readstat_error_t (*readstat_end_data_callback)(void *writer);
 
 typedef struct readstat_writer_callbacks_s {
-    readstat_variable_width_callback   variable_width;
-    readstat_write_int8_callback    write_int8;
-    readstat_write_int16_callback   write_int16;
-    readstat_write_int32_callback   write_int32;
-    readstat_write_float_callback   write_float;
-    readstat_write_double_callback  write_double;
-    readstat_write_string_callback  write_string;
-    readstat_write_missing_callback write_missing_string;
-    readstat_write_missing_callback write_missing_number;
-    readstat_write_tagged_callback  write_missing_tagged;
-    readstat_begin_data_callback    begin_data;
-    readstat_write_row_callback     write_row;
-    readstat_end_data_callback      end_data;
+    readstat_variable_width_callback    variable_width;
+    readstat_write_int8_callback        write_int8;
+    readstat_write_int16_callback       write_int16;
+    readstat_write_int32_callback       write_int32;
+    readstat_write_float_callback       write_float;
+    readstat_write_double_callback      write_double;
+    readstat_write_string_callback      write_string;
+    readstat_write_string_ref_callback  write_string_ref;
+    readstat_write_missing_callback     write_missing_string;
+    readstat_write_missing_callback     write_missing_number;
+    readstat_write_tagged_callback      write_missing_tagged;
+    readstat_begin_data_callback        begin_data;
+    readstat_write_row_callback         write_row;
+    readstat_end_data_callback          end_data;
 } readstat_writer_callbacks_t;
 
 /* You'll need to define one of these to get going. Should return # bytes written,
@@ -300,6 +357,8 @@ typedef struct readstat_writer_s {
     readstat_data_writer        data_writer;
     size_t                      bytes_written;
     long                        version;
+    int                         is_64bit; // SAS only
+    readstat_compress_t         compression;
     time_t                      timestamp;
 
     readstat_variable_t       **variables;
@@ -309,6 +368,14 @@ typedef struct readstat_writer_s {
     readstat_label_set_t      **label_sets;
     long                        label_sets_count;
     long                        label_sets_capacity;
+
+    char                      **notes;
+    long                        notes_count;
+    long                        notes_capacity;
+
+    readstat_string_ref_t    **string_refs;
+    long                       string_refs_count;
+    long                       string_refs_capacity;
 
     unsigned char              *row;
     size_t                      row_len;
@@ -341,6 +408,7 @@ readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat
 void readstat_label_double_value(readstat_label_set_t *label_set, double value, const char *label);
 void readstat_label_int32_value(readstat_label_set_t *label_set, int32_t value, const char *label);
 void readstat_label_string_value(readstat_label_set_t *label_set, const char *value, const char *label);
+void readstat_label_tagged_value(readstat_label_set_t *label_set, char tag, const char *label);
 
 // Now define your variables. Note that `storage_width' is only used for READSTAT_TYPE_STRING variables.
 readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char *name, readstat_type_t type, 
@@ -355,12 +423,30 @@ void readstat_variable_add_missing_double_value(readstat_variable_t *variable, d
 void readstat_variable_add_missing_double_range(readstat_variable_t *variable, double lo, double hi);
 readstat_variable_t *readstat_get_variable(readstat_writer_t *writer, int index);
 
+// "Notes" appear in the file metadata. In SPSS these are stored as
+// lines in the Document Record; in Stata these are stored using
+// the "notes" feature.
+// 
+// Note that the line length in SPSS is 80 characters; ReadStat will
+// produce a write error if a note is longer than this limit.
+void readstat_add_note(readstat_writer_t *writer, const char *note);
+
+// String refs are used for creating a READSTAT_TYPE_STRING_REF column,
+// which is only supported in Stata. String references can be shared
+// across columns, and inserted with readstat_insert_string_ref().
+readstat_string_ref_t *readstat_add_string_ref(readstat_writer_t *writer, const char *string);
+readstat_string_ref_t *readstat_get_string_ref(readstat_writer_t *writer, int index);
+
 // Optional metadata
 readstat_error_t readstat_writer_set_file_label(readstat_writer_t *writer, const char *file_label);
 readstat_error_t readstat_writer_set_file_timestamp(readstat_writer_t *writer, time_t timestamp);
 readstat_error_t readstat_writer_set_fweight_variable(readstat_writer_t *writer, const readstat_variable_t *variable);
 readstat_error_t readstat_writer_set_file_format_version(readstat_writer_t *writer, 
         long file_format_version); // e.g. 104-118 for DTA
+readstat_error_t readstat_writer_set_file_format_is_64bit(readstat_writer_t *writer,
+        int is_64bit); // applies only to SAS files; defaults to 1=true
+readstat_error_t readstat_writer_set_compression(readstat_writer_t *writer,
+        readstat_compress_t compression); // applies only to SAS and SAV files
 
 // Optional error handler
 readstat_error_t readstat_writer_set_error_handler(readstat_writer_t *writer, 
@@ -382,6 +468,7 @@ readstat_error_t readstat_insert_int32_value(readstat_writer_t *writer, const re
 readstat_error_t readstat_insert_float_value(readstat_writer_t *writer, const readstat_variable_t *variable, float value);
 readstat_error_t readstat_insert_double_value(readstat_writer_t *writer, const readstat_variable_t *variable, double value);
 readstat_error_t readstat_insert_string_value(readstat_writer_t *writer, const readstat_variable_t *variable, const char *value);
+readstat_error_t readstat_insert_string_ref(readstat_writer_t *writer, const readstat_variable_t *variable, readstat_string_ref_t *ref);
 readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable);
 readstat_error_t readstat_insert_tagged_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable, char tag);
 
@@ -391,41 +478,6 @@ readstat_error_t readstat_end_row(readstat_writer_t *writer);
 // Once you've written all the rows, clean up after yourself
 readstat_error_t readstat_end_writing(readstat_writer_t *writer);
 void readstat_writer_free(readstat_writer_t *writer);
-
-typedef int (*rdata_column_handler)(const char *name, readstat_type_t type, char *format, 
-        void *data, long count, void *ctx);
-typedef int (*rdata_table_handler)(const char *name, void *ctx);
-typedef int (*rdata_text_value_handler)(const char *value, int index, void *ctx);
-typedef int (*rdata_column_name_handler)(const char *value, int index, void *ctx);
-
-typedef struct rdata_parser_s {
-    rdata_table_handler         table_handler;
-    rdata_column_handler        column_handler;
-    rdata_column_name_handler   column_name_handler;
-    rdata_text_value_handler    text_value_handler;
-    rdata_text_value_handler    value_label_handler;
-    readstat_error_handler      error_handler;
-    readstat_io_t              *io;
-} rdata_parser_t;
-
-rdata_parser_t *rdata_parser_init();
-void rdata_parser_free(rdata_parser_t *parser);
-
-readstat_error_t rdata_set_table_handler(rdata_parser_t *parser, rdata_table_handler table_handler);
-readstat_error_t rdata_set_column_handler(rdata_parser_t *parser, rdata_column_handler column_handler);
-readstat_error_t rdata_set_column_name_handler(rdata_parser_t *parser, rdata_column_name_handler column_name_handler);
-readstat_error_t rdata_set_text_value_handler(rdata_parser_t *parser, rdata_text_value_handler text_value_handler);
-readstat_error_t rdata_set_value_label_handler(rdata_parser_t *parser, rdata_text_value_handler value_label_handler);
-readstat_error_t rdata_set_error_handler(rdata_parser_t *parser, readstat_error_handler error_handler);
-readstat_error_t rdata_set_open_handler(rdata_parser_t *parser, readstat_open_handler open_handler);
-readstat_error_t rdata_set_close_handler(rdata_parser_t *parser, readstat_close_handler close_handler);
-readstat_error_t rdata_set_seek_handler(rdata_parser_t *parser, readstat_seek_handler seek_handler);
-readstat_error_t rdata_set_read_handler(rdata_parser_t *parser, readstat_read_handler read_handler);
-readstat_error_t rdata_set_update_handler(rdata_parser_t *parser, readstat_update_handler update_handler);
-readstat_error_t rdata_set_io_ctx(rdata_parser_t *parser, void *io_ctx);
-/* rdata_parse works on RData and RDS. The table handler will be called once
- * per data frame in RData files, and zero times on RDS files. */
-readstat_error_t rdata_parse(rdata_parser_t *parser, const char *filename, void *user_ctx);
 
 #ifdef __cplusplus
 }

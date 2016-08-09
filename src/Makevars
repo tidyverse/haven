@@ -1,0 +1,5 @@
+CFILES = $(wildcard *.c sas/*.c spss/*.c stata/*.c)
+CPPFILES = $(wildcard *.cpp)
+
+SOURCES = $(CFILES) $(CPPFILES)
+OBJECTS = $(CFILES:.c=.o) $(CPPFILES:.cpp=.o)

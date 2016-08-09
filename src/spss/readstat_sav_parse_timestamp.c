@@ -1,13 +1,15 @@
 
-#line 1 "src/readstat_sav_parse_timestamp.rl"
+#line 1 "src/spss/readstat_sav_parse_timestamp.rl"
 
 #include <time.h>
-#include "readstat.h"
+#include "../readstat.h"
+#include "../readstat_iconv.h"
+
 #include "readstat_sav.h"
 #include "readstat_sav_parse_timestamp.h"
 
 
-#line 11 "src/readstat_sav_parse_timestamp.c"
+#line 13 "src/spss/readstat_sav_parse_timestamp.c"
 static const char _sav_time_parse_actions[] = {
 	0, 1, 0, 1, 2, 1, 3, 1, 
 	4, 2, 1, 0
@@ -60,7 +62,7 @@ static const int sav_time_parse_start = 1;
 static const int sav_time_parse_en_main = 1;
 
 
-#line 10 "src/readstat_sav_parse_timestamp.rl"
+#line 12 "src/spss/readstat_sav_parse_timestamp.rl"
 
 
 readstat_error_t sav_parse_time(const char *data, size_t len, struct tm *timestamp, sav_ctx_t *ctx) {
@@ -72,12 +74,12 @@ readstat_error_t sav_parse_time(const char *data, size_t len, struct tm *timesta
     int cs;
     int temp_val = 0;
     
-#line 76 "src/readstat_sav_parse_timestamp.c"
+#line 78 "src/spss/readstat_sav_parse_timestamp.c"
 	{
 	cs = sav_time_parse_start;
 	}
 
-#line 81 "src/readstat_sav_parse_timestamp.c"
+#line 83 "src/spss/readstat_sav_parse_timestamp.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -151,24 +153,24 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 21 "src/readstat_sav_parse_timestamp.rl"
+#line 23 "src/spss/readstat_sav_parse_timestamp.rl"
 	{
             temp_val = 10 * temp_val + ((*p) - '0');
         }
 	break;
 	case 1:
-#line 25 "src/readstat_sav_parse_timestamp.rl"
+#line 27 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ temp_val = 0; }
 	break;
 	case 2:
-#line 27 "src/readstat_sav_parse_timestamp.rl"
+#line 29 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_hour = temp_val; }
 	break;
 	case 3:
-#line 29 "src/readstat_sav_parse_timestamp.rl"
+#line 31 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_min = temp_val; }
 	break;
-#line 172 "src/readstat_sav_parse_timestamp.c"
+#line 174 "src/spss/readstat_sav_parse_timestamp.c"
 		}
 	}
 
@@ -185,10 +187,10 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 4:
-#line 31 "src/readstat_sav_parse_timestamp.rl"
+#line 33 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_sec = temp_val; }
 	break;
-#line 192 "src/readstat_sav_parse_timestamp.c"
+#line 194 "src/spss/readstat_sav_parse_timestamp.c"
 		}
 	}
 	}
@@ -196,7 +198,7 @@ _again:
 	_out: {}
 	}
 
-#line 37 "src/readstat_sav_parse_timestamp.rl"
+#line 39 "src/spss/readstat_sav_parse_timestamp.rl"
 
 
     if (cs < 9|| p != pe) {
@@ -213,7 +215,7 @@ _again:
 }
 
 
-#line 217 "src/readstat_sav_parse_timestamp.c"
+#line 219 "src/spss/readstat_sav_parse_timestamp.c"
 static const char _sav_date_parse_actions[] = {
 	0, 1, 0, 1, 1, 1, 3, 1, 
 	4, 1, 5, 1, 6, 1, 7, 1, 
@@ -305,7 +307,7 @@ static const int sav_date_parse_start = 1;
 static const int sav_date_parse_en_main = 1;
 
 
-#line 55 "src/readstat_sav_parse_timestamp.rl"
+#line 57 "src/spss/readstat_sav_parse_timestamp.rl"
 
 
 readstat_error_t sav_parse_date(const char *data, size_t len, struct tm *timestamp, sav_ctx_t *ctx) {
@@ -317,12 +319,12 @@ readstat_error_t sav_parse_date(const char *data, size_t len, struct tm *timesta
     int cs;
     int temp_val = 0;
     
-#line 321 "src/readstat_sav_parse_timestamp.c"
+#line 323 "src/spss/readstat_sav_parse_timestamp.c"
 	{
 	cs = sav_date_parse_start;
 	}
 
-#line 326 "src/readstat_sav_parse_timestamp.c"
+#line 328 "src/spss/readstat_sav_parse_timestamp.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -396,68 +398,68 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 66 "src/readstat_sav_parse_timestamp.rl"
+#line 68 "src/spss/readstat_sav_parse_timestamp.rl"
 	{
             temp_val = 10 * temp_val + ((*p) - '0');
         }
 	break;
 	case 2:
-#line 78 "src/readstat_sav_parse_timestamp.rl"
+#line 80 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ temp_val = 0; }
 	break;
 	case 3:
-#line 80 "src/readstat_sav_parse_timestamp.rl"
+#line 82 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mday = temp_val; }
 	break;
 	case 4:
-#line 85 "src/readstat_sav_parse_timestamp.rl"
+#line 87 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 0; }
 	break;
 	case 5:
-#line 86 "src/readstat_sav_parse_timestamp.rl"
+#line 88 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 1; }
 	break;
 	case 6:
-#line 87 "src/readstat_sav_parse_timestamp.rl"
+#line 89 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 2; }
 	break;
 	case 7:
-#line 88 "src/readstat_sav_parse_timestamp.rl"
+#line 90 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 3; }
 	break;
 	case 8:
-#line 89 "src/readstat_sav_parse_timestamp.rl"
+#line 91 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 4; }
 	break;
 	case 9:
-#line 90 "src/readstat_sav_parse_timestamp.rl"
+#line 92 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 5; }
 	break;
 	case 10:
-#line 91 "src/readstat_sav_parse_timestamp.rl"
+#line 93 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 6; }
 	break;
 	case 11:
-#line 92 "src/readstat_sav_parse_timestamp.rl"
+#line 94 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 7; }
 	break;
 	case 12:
-#line 93 "src/readstat_sav_parse_timestamp.rl"
+#line 95 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 8; }
 	break;
 	case 13:
-#line 94 "src/readstat_sav_parse_timestamp.rl"
+#line 96 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 9; }
 	break;
 	case 14:
-#line 95 "src/readstat_sav_parse_timestamp.rl"
+#line 97 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 10; }
 	break;
 	case 15:
-#line 96 "src/readstat_sav_parse_timestamp.rl"
+#line 98 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 11; }
 	break;
-#line 461 "src/readstat_sav_parse_timestamp.c"
+#line 463 "src/spss/readstat_sav_parse_timestamp.c"
 		}
 	}
 
@@ -474,7 +476,7 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 1:
-#line 70 "src/readstat_sav_parse_timestamp.rl"
+#line 72 "src/spss/readstat_sav_parse_timestamp.rl"
 	{
             if (temp_val < 70) {
                 timestamp->tm_year = 100 + temp_val;
@@ -483,7 +485,7 @@ _again:
             }
         }
 	break;
-#line 487 "src/readstat_sav_parse_timestamp.c"
+#line 489 "src/spss/readstat_sav_parse_timestamp.c"
 		}
 	}
 	}
@@ -491,7 +493,7 @@ _again:
 	_out: {}
 	}
 
-#line 102 "src/readstat_sav_parse_timestamp.rl"
+#line 104 "src/spss/readstat_sav_parse_timestamp.rl"
 
 
     if (cs < 37|| p != pe) {

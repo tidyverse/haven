@@ -9,9 +9,9 @@ using namespace Rcpp;
 #include "tagged_na.h"
 
 double haven_double_value(readstat_value_t value, bool user_na) {
-  if (readstat_value_is_system_missing(value)) {
+  if (readstat_value_is_tagged_missing(value)) {
     return make_tagged_na(tolower(readstat_value_tag(value)));
-  } else if (!user_na & readstat_value_is_considered_missing(value)) {
+  } else if (!user_na & readstat_value_is_defined_missing(value)) {
     return NA_REAL;
   } else {
     return readstat_double_value(value);
@@ -134,7 +134,7 @@ public:
     names_[index] = Rf_mkCharCE(readstat_variable_get_name(variable), CE_UTF8);
 
     switch(readstat_variable_get_type(variable)) {
-    case READSTAT_TYPE_LONG_STRING:
+    case READSTAT_TYPE_STRING_REF:
     case READSTAT_TYPE_STRING:
       output_[index] = CharacterVector(nrows_);
       break;
@@ -182,7 +182,7 @@ public:
     int n_ranges = readstat_variable_get_missing_ranges_count(variable);
     if (user_na_ && n_ranges > 0) {
       switch(readstat_variable_get_type(variable)) {
-      case READSTAT_TYPE_LONG_STRING:
+      case READSTAT_TYPE_STRING_REF:
       case READSTAT_TYPE_STRING:
       {
         CharacterVector na_values(n_ranges);
@@ -247,7 +247,7 @@ public:
     VarType var_type = var_types_[var_index];
 
     switch(value.type) {
-    case READSTAT_TYPE_LONG_STRING:
+    case READSTAT_TYPE_STRING_REF:
     case READSTAT_TYPE_STRING:
     {
       CharacterVector col = output_[var_index];
@@ -369,22 +369,13 @@ public:
   readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence, void *io_ctx) {
     std::ios_base::seekdir dir;
     switch(whence) {
-    case READSTAT_SEEK_SET:
-      dir = std::ios::beg;
-      break;
-    case READSTAT_SEEK_CUR:
-      dir = std::ios::cur;
-      break;
-    case READSTAT_SEEK_END:
-      dir = std::ios::end;
-      break;
+    case READSTAT_SEEK_SET: dir = file_.beg; break;
+    case READSTAT_SEEK_CUR: dir = file_.cur; break;
+    case READSTAT_SEEK_END: dir = file_.end; break;
     }
 
     file_.seekg(offset, dir);
-    if (file_.fail())
-      return -1;
-    else
-      return file_.tellg();
+    return file_.tellg(); // returns -1 if failed
   }
 
   ssize_t read(void *buf, size_t nbyte, void *io_ctx) {
@@ -412,7 +403,7 @@ public:
   }
 };
 
-class DfReaderInputRaw : public DfReaderInputStream<std::stringstream> {
+class DfReaderInputRaw : public DfReaderInputStream<std::istringstream> {
 public:
   DfReaderInputRaw(Rcpp::List spec) {
     Rcpp::RawVector raw_data(spec[0]);

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "readstat.h"
+#include "../readstat.h"
 #include "readstat_spss.h"
 #include "readstat_spss_parse.h"
 
@@ -75,19 +75,11 @@ void spss_tag_missing_double(readstat_value_t *value, readstat_missingness_t *mi
             double lo = readstat_double_value(missingness->missing_ranges[2*i]);
             double hi = readstat_double_value(missingness->missing_ranges[2*i+1]);
             if (fp_value >= lo && fp_value <= hi) {
-                value->is_considered_missing = 1;
+                value->is_defined_missing = 1;
                 break;
             }
         }
     }
-    uint64_t long_value = 0;
-    memcpy(&long_value, &fp_value, 8);
-    if (long_value == SAV_MISSING_DOUBLE)
-        value->is_system_missing = 1;
-    if (long_value == SAV_LOWEST_DOUBLE)
-        value->is_system_missing = 1;
-    if (long_value == SAV_HIGHEST_DOUBLE)
-        value->is_system_missing = 1;
 }
 
 int spss_varinfo_compare(const void *elem1, const void *elem2) {
@@ -98,23 +90,12 @@ int spss_varinfo_compare(const void *elem1, const void *elem2) {
     return (offset > v->offset);
 }
 
-readstat_value_t spss_boxed_value(double fp_value) {
-    readstat_value_t value;
-    memset(&value, 0, sizeof(readstat_value_t));
-
-    value.v.double_value = fp_value;
-    value.type = READSTAT_TYPE_DOUBLE;
-
-    uint64_t long_value = 0;
-    memcpy(&long_value, &fp_value, 8);
-
-    if (long_value == SAV_MISSING_DOUBLE)
-        value.is_system_missing = 1;
-    if (long_value == SAV_LOWEST_DOUBLE)
-        value.v.double_value = -HUGE_VAL;
-    if (long_value == SAV_HIGHEST_DOUBLE)
-        value.v.double_value = HUGE_VAL;
-
+static readstat_value_t spss_boxed_value(double fp_value) {
+    readstat_value_t value = {
+        .type = READSTAT_TYPE_DOUBLE,
+        .v = { .double_value = fp_value },
+        .is_system_missing = isnan(fp_value)
+    };
     return value;
 }
 
@@ -163,7 +144,7 @@ readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info) {
 
     variable->index = info->index;
     variable->type = info->type;
-    if (info->type == READSTAT_TYPE_LONG_STRING) {
+    if (info->string_length) {
         variable->storage_width = info->string_length;
     } else {
         variable->storage_width = 8 * info->width;
@@ -258,6 +239,7 @@ readstat_error_t spss_format_for_variable(readstat_variable_t *r_variable,
     }
 
     if (r_variable->format[0]) {
+        spss_format->decimal_places = 0;
         const char *fmt = r_variable->format;
         if (spss_parse_format(fmt, strlen(fmt), spss_format) != READSTAT_OK) {
             retval = READSTAT_ERROR_BAD_FORMAT_STRING;

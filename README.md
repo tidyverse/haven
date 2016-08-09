@@ -62,7 +62,12 @@ download.file("https://github.com/WizardMac/ReadStat/archive/master.zip", tmp,
   method = "wget")
 unzip(tmp, exdir = tempdir())
 
-src <- dir(file.path(tempdir(), "ReadStat-master", "src"), "\\.[ch]$", full.name = TRUE)
-file.copy(src, "src/", overwrite = TRUE)
-unlink(c("src/readstat_rdata.c", "src/readstat_rdata.h"))
+zip_dir <- file.path(tempdir(), "ReadStat-master", "src")
+src <- dir(zip_dir, "\\.[ch]$", recursive = TRUE)
+
+# Drop test & bin
+ignore <- dirname(src) %in% c("test", "bin/modules")
+src <- src[!ignore]
+
+file.copy(file.path(zip_dir, src), file.path("src", src), overwrite = TRUE)
 ```
