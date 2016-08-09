@@ -4,13 +4,12 @@
 
 * Update to latest ReadStat (#65). Includes: 
 
-    * Support for binary (aka Ross) compression for SAS (#31)
-    * Support extended ASCII encoding for Stata (#71)
-    * Support for Stata 14 files (#75)
-    * Support for SPSS value labels with more than 8 characters (#157)
-    * Fix crash when writing `.sav` (#171).
+    * Support for binary (aka Ross) compression for SAS (#31).
+    * Support extended ASCII encoding for Stata (#71).
+    * Support for Stata 14 files (#75).
+    * Support for SPSS value labels with more than 8 characters (#157).
     * More likely to get an error when attempting to create an invalid
-      output file.
+      output file (#171).
 
 * Added support for reading and writing variable formats. Similarly to 
   to variable labels, formats are stored as an attribute on the vector.
@@ -32,7 +31,7 @@
   and replaces user-defined missing values with `NA`. New `zap_missing()`
   just replaces user-defined missing vlaues with `NA`. 
   
-    `labelled_spss()` is potential dangerous to work with in R because
+    `labelled_spss()` is potentially dangerous to work with in R because
     base functions don't know about `labelled_spss()` functions so will 
     return the wrong result in the presence of user-defined missing values.
     For this reason, they will only be created by `read_spss()` when
