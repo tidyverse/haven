@@ -2,4 +2,6 @@ CFILES = $(wildcard *.c sas/*.c spss/*.c stata/*.c)
 CPPFILES = $(wildcard *.cpp)
 
 SOURCES = $(CFILES) $(CPPFILES)
+
+# This must be defined identically in Makevars.win
 OBJECTS = $(CFILES:.c=.o) $(CPPFILES:.cpp=.o)
