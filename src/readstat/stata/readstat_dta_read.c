@@ -106,9 +106,9 @@ static readstat_error_t dta_read_map(dta_ctx_t *ctx) {
         goto cleanup;
     }
 
-    ctx->data_offset = ctx->machine_needs_byte_swap ? byteswap8(map_buffer[9]) : map_buffer[9];
-    ctx->strls_offset = ctx->machine_needs_byte_swap ? byteswap8(map_buffer[10]) : map_buffer[10];
-    ctx->value_labels_offset = ctx->machine_needs_byte_swap ? byteswap8(map_buffer[11]) : map_buffer[11];
+    ctx->data_offset = ctx->bswap ? byteswap8(map_buffer[9]) : map_buffer[9];
+    ctx->strls_offset = ctx->bswap ? byteswap8(map_buffer[10]) : map_buffer[10];
+    ctx->value_labels_offset = ctx->bswap ? byteswap8(map_buffer[11]) : map_buffer[11];
 
 cleanup:
     return retval;
@@ -132,7 +132,7 @@ static readstat_error_t dta_read_descriptors(dta_ctx_t *ctx) {
         }
     } else if (ctx->typlist_entry_len == 2) {
         memcpy(ctx->typlist, buffer, buffer_len);
-        if (ctx->machine_needs_byte_swap) {
+        if (ctx->bswap) {
             for (i=0; i<ctx->nvar; i++) {
                 ctx->typlist[i] = byteswap2(ctx->typlist[i]);
             }
@@ -219,14 +219,14 @@ static readstat_error_t dta_read_expansion_fields(dta_ctx_t *ctx) {
                 retval = READSTAT_ERROR_READ;
                 goto cleanup;
             }
-            len = ctx->machine_needs_byte_swap ? byteswap2(len16) : len16;
+            len = ctx->bswap ? byteswap2(len16) : len16;
         } else {
             int32_t len32;
             if (io->read(&len32, sizeof(int32_t), io->io_ctx) != sizeof(int32_t)) {
                 retval = READSTAT_ERROR_READ;
                 goto cleanup;
             }
-            len = ctx->machine_needs_byte_swap ? byteswap2(len32) : len32;
+            len = ctx->bswap ? byteswap2(len32) : len32;
         }
 
         if (data_type == 0 && len == 0)
@@ -301,7 +301,7 @@ static int dta_compare_strls(const void *elem1, const void *elem2) {
 }
 
 static void dta_interpret_strl_vo_bytes(dta_ctx_t *ctx, unsigned char *vo_bytes, dta_strl_t *strl) {
-    int file_is_big_endian = (!machine_is_little_endian() ^ ctx->machine_needs_byte_swap);
+    int file_is_big_endian = (!machine_is_little_endian() ^ ctx->bswap);
 
     if (ctx->strl_v_len == 2) {
         if (file_is_big_endian) {
@@ -325,8 +325,8 @@ static void dta_interpret_strl_vo_bytes(dta_ctx_t *ctx, unsigned char *vo_bytes,
         memcpy(&v, &vo_bytes[0], sizeof(uint32_t));
         memcpy(&o, &vo_bytes[4], sizeof(uint32_t));
 
-        strl->v = ctx->machine_needs_byte_swap ? byteswap4(v) : v;
-        strl->o = ctx->machine_needs_byte_swap ? byteswap4(o) : o;
+        strl->v = ctx->bswap ? byteswap4(v) : v;
+        strl->o = ctx->bswap ? byteswap4(o) : o;
     }
 }
 
@@ -342,7 +342,7 @@ static readstat_error_t dta_read_strl(dta_ctx_t *ctx, dta_strl_t *strl) {
 
     dta_interpret_strl_vo_bytes(ctx, header.vo_bytes, strl);
     strl->type = header.type;
-    strl->len = ctx->machine_needs_byte_swap ? byteswap4(header.len) : header.len;
+    strl->len = ctx->bswap ? byteswap4(header.len) : header.len;
 
 cleanup:
     return retval;
@@ -467,7 +467,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
                 value.v.i8_value = byte;
             } else if (value.type == READSTAT_TYPE_INT16) {
                 int16_t num = *((int16_t *)&buf[offset]);
-                if (ctx->machine_needs_byte_swap) {
+                if (ctx->bswap) {
                     num = byteswap2(num);
                 }
                 if (ctx->machine_is_twos_complement) {
@@ -484,7 +484,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
                 value.v.i16_value = num;
             } else if (value.type == READSTAT_TYPE_INT32) {
                 int32_t num = *((int32_t *)&buf[offset]);
-                if (ctx->machine_needs_byte_swap) {
+                if (ctx->bswap) {
                     num = byteswap4(num);
                 }
                 if (ctx->machine_is_twos_complement) {
@@ -502,7 +502,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
             } else if (value.type == READSTAT_TYPE_FLOAT) {
                 int32_t num = *((int32_t *)&buf[offset]);
                 float f_num = NAN;
-                if (ctx->machine_needs_byte_swap) {
+                if (ctx->bswap) {
                     num = byteswap4(num);
                 }
                 if (num > ctx->max_float) {
@@ -519,7 +519,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
             } else if (value.type == READSTAT_TYPE_DOUBLE) {
                 int64_t num = *((int64_t *)&buf[offset]);
                 double d_num = NAN;
-                if (ctx->machine_needs_byte_swap) {
+                if (ctx->bswap) {
                     num = byteswap8(num);
                 }
                 if (num > ctx->max_double) {
@@ -676,7 +676,7 @@ static readstat_error_t dta_read_label_and_timestamp(dta_ctx_t *ctx) {
                 retval = READSTAT_ERROR_READ;
                 goto cleanup;
             }
-            label_len = ctx->machine_needs_byte_swap ? byteswap2(label_len) : label_len;
+            label_len = ctx->bswap ? byteswap2(label_len) : label_len;
         } else if (ctx->data_label_len_len == 1) {
             unsigned char label_len_char;
             if (io->read(&label_len_char, sizeof(unsigned char), io->io_ctx) != sizeof(unsigned char)) {
@@ -836,7 +836,7 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
 
             len = table_header_len;
 
-            if (ctx->machine_needs_byte_swap)
+            if (ctx->bswap)
                 len = byteswap2(table_header_len);
 
             n = len / 8;
@@ -851,7 +851,7 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
 
             len = table_header_len;
 
-            if (ctx->machine_needs_byte_swap)
+            if (ctx->bswap)
                 len = byteswap4(table_header_len);
         }
 
@@ -891,7 +891,7 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
             n = *(int32_t *)table_buffer;
 
             int32_t txtlen = *((int32_t *)table_buffer+1);
-            if (ctx->machine_needs_byte_swap) {
+            if (ctx->bswap) {
                 n = byteswap4(n);
                 txtlen = byteswap4(txtlen);
             }
@@ -904,7 +904,7 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
             int32_t *val = (int32_t *)table_buffer+2+n;
             char *txt = &table_buffer[8*n+8];
 
-            if (ctx->machine_needs_byte_swap) {
+            if (ctx->bswap) {
                 for (i=0; i<n; i++) {
                     off[i] = byteswap4(off[i]);
                     val[i] = byteswap4(val[i]);

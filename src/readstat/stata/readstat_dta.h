@@ -71,7 +71,7 @@ typedef struct dta_ctx_s {
     int            row_limit;
     int            current_row;
 
-    int            machine_needs_byte_swap;
+    int            bswap;
     int            machine_is_twos_complement;
     int            file_is_xmlish;
     int            supports_tagged_missing;
