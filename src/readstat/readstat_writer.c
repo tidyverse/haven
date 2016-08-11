@@ -509,6 +509,11 @@ readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, const 
 readstat_error_t readstat_insert_tagged_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable, char tag) {
     if (!writer->initialized)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+    if (!writer->callbacks.write_missing_tagged) {
+        /* Write out a missing number but return an error */
+        writer->callbacks.write_missing_number(&writer->row[variable->offset], variable);
+        return READSTAT_ERROR_TAGGED_VALUES_NOT_SUPPORTED;
+    }
 
     return writer->callbacks.write_missing_tagged(&writer->row[variable->offset], variable, tag);
 }

@@ -19,6 +19,7 @@
 
 #define MAX_TEXT_SIZE               256
 #define MAX_LABEL_SIZE              256
+#define MAX_VALUE_LABEL_SIZE        120
 
 static long readstat_label_set_number_short_variables(readstat_label_set_t *r_label_set) {
     long count = 0;
@@ -400,17 +401,20 @@ static readstat_error_t sav_emit_value_label_records(readstat_writer_t *writer) 
                 retval = readstat_write_bytes(writer, value, sizeof(value));
                 
                 const char *label_data = r_value_label->label;
-                size_t label_data_len = r_value_label->label_len;
                 
-                char label_len = label_data_len;
+                char label_len = r_value_label->label_len;
+                if (label_len > MAX_VALUE_LABEL_SIZE)
+                    label_len = MAX_VALUE_LABEL_SIZE;
+
                 retval = readstat_write_bytes(writer, &label_len, sizeof(label_len));
                 if (retval != READSTAT_OK)
                     goto cleanup;
 
-                char label[255];
+                char label[MAX_VALUE_LABEL_SIZE+8];
                 memset(label, ' ', sizeof(label));
-                memcpy(label, label_data, label_data_len);
-                retval = readstat_write_bytes(writer, label, (label_data_len + 8) / 8 * 8 - 1);
+                memcpy(label, label_data, label_len);
+                retval = readstat_write_bytes(writer, label,
+                        (label_len + sizeof(label_len) + 7) / 8 * 8 - sizeof(label_len));
                 if (retval != READSTAT_OK)
                     goto cleanup;
             }
@@ -788,8 +792,8 @@ static readstat_error_t sav_emit_long_value_labels_records(readstat_writer_t *wr
                 readstat_value_label_t *r_value_label = readstat_get_value_label(r_label_set, j);
                 int32_t value_len = r_value_label->string_key_len;
                 int32_t label_len = r_value_label->label_len;
-                if (label_len > 120)
-                    label_len = 120;
+                if (label_len > MAX_VALUE_LABEL_SIZE)
+                    label_len = MAX_VALUE_LABEL_SIZE;
 
                 retval = readstat_write_bytes(writer, &storage_width, sizeof(int32_t));
                 if (retval != READSTAT_OK)
@@ -891,10 +895,6 @@ static readstat_error_t sav_write_missing_number(void *row, const readstat_varia
     uint64_t missing_val = SAV_MISSING_DOUBLE;
     memcpy(row, &missing_val, sizeof(uint64_t));
     return READSTAT_OK;
-}
-
-static readstat_error_t sav_write_missing_tagged(void *row, const readstat_variable_t *var, char tag) {
-    return READSTAT_ERROR_TAGGED_VALUES_NOT_SUPPORTED;
 }
 
 static size_t sav_variable_width(readstat_type_t type, size_t user_width) {
@@ -1045,7 +1045,6 @@ readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *use
     writer->callbacks.write_string = &sav_write_string;
     writer->callbacks.write_missing_string = &sav_write_missing_string;
     writer->callbacks.write_missing_number = &sav_write_missing_number;
-    writer->callbacks.write_missing_tagged = &sav_write_missing_tagged;
     writer->callbacks.begin_data = &sav_begin_data;
 
     if (writer->compression == READSTAT_COMPRESS_ROWS) {

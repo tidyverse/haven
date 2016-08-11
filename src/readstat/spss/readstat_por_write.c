@@ -686,10 +686,6 @@ static readstat_error_t por_write_missing_number(void *row, const readstat_varia
     return por_write_double_value(row, var, NAN);
 }
 
-static readstat_error_t por_write_missing_tagged(void *row, const readstat_variable_t *var, char tag) {
-    return por_write_double_value(row, var, NAN);
-}
-
 static readstat_error_t por_write_missing_string(void *row, const readstat_variable_t *var) {
     return por_write_double_value(row, var, 0);
 }
@@ -742,7 +738,6 @@ readstat_error_t readstat_begin_writing_por(readstat_writer_t *writer, void *use
     writer->callbacks.write_string = &por_write_string_value;
     writer->callbacks.write_missing_string = &por_write_missing_string;
     writer->callbacks.write_missing_number = &por_write_missing_number;
-    writer->callbacks.write_missing_tagged = &por_write_missing_tagged;
     writer->callbacks.begin_data = &por_begin_data;
     writer->callbacks.write_row = &por_write_row;
     writer->callbacks.end_data = &por_end_data;

@@ -102,7 +102,7 @@ typedef struct sav_ctx_s {
     uint64_t       highest_double;
 
     unsigned int   data_is_compressed:1;
-    unsigned int   machine_needs_byte_swap:1;
+    unsigned int   bswap:1;
 } sav_ctx_t;
 
 #define SAV_RECORD_TYPE_VARIABLE                2

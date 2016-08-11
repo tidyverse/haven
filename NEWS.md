@@ -1,5 +1,7 @@
 # haven 0.2.0.9000
 
+* The ReadStat library is stored in a subdirectory of `src` (#209, @krlmlr).
+
 * Import tibble so that tibbles are printed consistently (#154, @krlmlr).
 
 * Update to latest ReadStat (#65). Includes: 

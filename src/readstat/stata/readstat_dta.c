@@ -38,12 +38,10 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
         machine_byteorder = DTA_LOHI;
     }
 
-    if (byteorder != machine_byteorder) {
-        ctx->machine_needs_byte_swap = 1;
-    }
+    ctx->bswap = (byteorder != machine_byteorder);
 
-    ctx->nvar = ctx->machine_needs_byte_swap ? byteswap2(nvar) : nvar;
-    ctx->nobs = ctx->machine_needs_byte_swap ? byteswap4(nobs) : nobs;
+    ctx->nvar = ctx->bswap ? byteswap2(nvar) : nvar;
+    ctx->nobs = ctx->bswap ? byteswap4(nobs) : nobs;
     
     ctx->machine_is_twos_complement = READSTAT_MACHINE_IS_TWOS_COMPLEMENT;
 

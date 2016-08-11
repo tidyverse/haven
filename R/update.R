@@ -11,7 +11,7 @@ update_readstat <- function() {
   ignore <- dirname(src) %in% c("test", "bin", "bin/modules")
   src <- src[!ignore]
 
-  ok <- file.copy(file.path(zip_dir, src), file.path("src", src), overwrite = TRUE)
+  ok <- file.copy(file.path(zip_dir, src), file.path("src", "readstat", src), overwrite = TRUE)
 
   if (any(!ok)) {
     stop("Failed to copy: ", paste(src[!ok], collapse = ", "), call. = FALSE)
