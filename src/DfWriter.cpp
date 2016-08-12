@@ -176,6 +176,8 @@ public:
       case HAVEN_STATA: return NULL; // Stata doesn't have a pure time type
       }
     }
+
+    return NULL;
   }
 
   void defineVariable(IntegerVector x, const char* name, const char* format = NULL) {

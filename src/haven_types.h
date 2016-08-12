@@ -39,6 +39,8 @@ inline std::string formatAttribute(FileType type) {
   case HAVEN_SPSS:  return "format.spss";
   case HAVEN_SAS:   return "format.sas";
   }
+
+  return "";
 }
 
 
