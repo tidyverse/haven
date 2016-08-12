@@ -1,21 +1,19 @@
-## Changes
-
-This update fixes a number of smaller bugs. It includes some improved UTF-8 handling, so may fix the problem on r-prerel-solaris-sparc. 
-
 ## Test environments
-* local OS X install, R 3.1.3
-* ubuntu 12.04 (on travis-ci), R 3.1.3
+* local OS X install, R 3.3.1
+* ubuntu 12.04 (on travis-ci), R 3.3.1
 * win-builder (devel and release)
 
 ## R CMD check results
-There were no ERRORs or WARNINGs. 
+0 ERRORs | 0 WARNINGs | 2s NOTE
 
-There was 1 NOTE:
+* checking for GNU extensions in Makefiles ... NOTE
+  GNU make is a SystemRequirements.
 
-* Possibly mis-spelled words in DESCRIPTION:
-  ReadStat, SAS, SPSS and Stata - this are not misspelled.
+* License components with restrictions and base license permitting such:
+  MIT + file LICENSE
 
 ## Reverse dependencies
-I have run R CMD check on the 2 reverse dependencies of haven. There were no signficant problems.
+I have run R CMD check on the 11 reverse dependencies of haven. There were no signficant problems.
 
-Full results are available at https://github.com/hadley/haven/tree/master/revdep/summary.md.
+Full results are available at https://github.com/hadley/haven/tree/master/revdep/.
+
