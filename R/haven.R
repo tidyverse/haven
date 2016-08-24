@@ -5,12 +5,13 @@ NULL
 
 #' Read and write SAS files.
 #'
-#' Reading supports both b7dat files and the accompanying b7cat files
-#' that are SAS's equivalent of factor labels. There is not currently support
-#' for writing b7cat files.
+#' Reading supports both sas7bdat files and the accompanying sas7bdat files
+#' that SAS uses to record value labels. There is not currently support
+#' for writing value labels.
 #'
-#' @param b7dat,b7cat Path to data and catalog files. The files are
+#' @param data_file,catalog_file Path to data and catalog files. The files are
 #'   processed with \code{\link[readr]{datasource}()}.
+#' @param data Data frame to write.
 #' @param path Path to file where the data will be written.
 #' @param encoding The character encoding used for the file. This defaults to
 #'   the encoding specified in the file, or UTF-8. You can use this argument
@@ -23,28 +24,28 @@ NULL
 #' @examples
 #' path <- system.file("examples", "iris.sas7bdat", package = "haven")
 #' read_sas(path)
-read_sas <- function(b7dat, b7cat = NULL, encoding = NULL) {
+read_sas <- function(data_file, catalog_file = NULL, encoding = NULL) {
   if (is.null(encoding)) {
     encoding <- ""
   }
 
-  spec_b7dat <- readr::datasource(b7dat)
-  if (is.null(b7cat)) {
-    spec_b7cat <- list()
+  spec_data <- readr::datasource(data_file)
+  if (is.null(catalog_file)) {
+    spec_cat <- list()
   } else {
-    spec_b7cat <- readr::datasource(b7cat)
+    spec_cat <- readr::datasource(catalog_file)
   }
-  switch(class(spec_b7dat)[1],
-    source_file = df_parse_sas_file(spec_b7dat, spec_b7cat, encoding = encoding),
-    source_raw = df_parse_sas_raw(spec_b7dat, spec_b7cat, encoding = encoding),
+  switch(class(spec_data)[1],
+    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding),
+    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
 
 #' @export
 #' @rdname read_sas
-write_sas <- function(b7dat, path) {
-  write_sas_(b7dat, normalizePath(path, mustWork = FALSE))
+write_sas <- function(data, path) {
+  write_sas_(data, normalizePath(path, mustWork = FALSE))
 }
 
 #' Read SPSS (SAV & POR) files. Write SAV files.

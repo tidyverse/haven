@@ -5,17 +5,19 @@
 \alias{write_sas}
 \title{Read and write SAS files.}
 \usage{
-read_sas(b7dat, b7cat = NULL, encoding = NULL)
+read_sas(data_file, catalog_file = NULL, encoding = NULL)
 
-write_sas(b7dat, path)
+write_sas(data, path)
 }
 \arguments{
-\item{b7dat, b7cat}{Path to data and catalog files. The files are
+\item{data_file, catalog_file}{Path to data and catalog files. The files are
 processed with \code{\link[readr]{datasource}()}.}
 
 \item{encoding}{The character encoding used for the file. This defaults to
 the encoding specified in the file, or UTF-8. You can use this argument
 to override the value stored in the file if it is correct}
+
+\item{data}{Data frame to write.}
 
 \item{path}{Path to file where the data will be written.}
 }
@@ -26,9 +28,9 @@ A tibble, data frame variant with nice defaults.
   It is not printed on the console, but the RStudio viewer will show it.
 }
 \description{
-Reading supports both b7dat files and the accompanying b7cat files
-that are SAS's equivalent of factor labels. There is not currently support
-for writing b7cat files.
+Reading supports both sas7bdat files and the accompanying sas7bdat files
+that SAS uses to record value labels. There is not currently support
+for writing value labels.
 }
 \examples{
 path <- system.file("examples", "iris.sas7bdat", package = "haven")
