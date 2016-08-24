@@ -20,8 +20,14 @@ char readstat_value_tag(readstat_value_t value) {
     return value.tag;
 }
 
-int readstat_value_is_missing(readstat_value_t value) {
-    return (value.is_system_missing || value.is_tagged_missing || value.is_defined_missing);
+int readstat_value_is_missing(readstat_value_t value, readstat_variable_t *variable) {
+    if (value.is_system_missing || value.is_tagged_missing)
+        return 1;
+
+    if (variable)
+        readstat_value_is_defined_missing(value, variable);
+
+    return 0;
 }
 
 int readstat_value_is_system_missing(readstat_value_t value) {
@@ -32,8 +38,22 @@ int readstat_value_is_tagged_missing(readstat_value_t value) {
     return (value.is_tagged_missing);
 }
 
-int readstat_value_is_defined_missing(readstat_value_t value) {
-    return (value.is_defined_missing);
+int readstat_value_is_defined_missing(readstat_value_t value, readstat_variable_t *variable) {
+    if (readstat_value_type_class(value) != READSTAT_TYPE_CLASS_NUMERIC ||
+            readstat_variable_get_type_class(variable) != READSTAT_TYPE_CLASS_NUMERIC)
+        return 0;
+
+    double fp_value = readstat_double_value(value);
+    int count = readstat_variable_get_missing_ranges_count(variable);
+    int i;
+    for (i=0; i<count; i++) {
+        double lo = readstat_double_value(readstat_variable_get_missing_range_lo(variable, i));
+        double hi = readstat_double_value(readstat_variable_get_missing_range_hi(variable, i));
+        if (fp_value >= lo && fp_value <= hi) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 char readstat_int8_value(readstat_value_t value) {

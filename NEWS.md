@@ -8,7 +8,7 @@
 
     * Support for binary (aka Ross) compression for SAS (#31).
     * Support extended ASCII encoding for Stata (#71).
-    * Support for Stata 14 files (#75).
+    * Support for Stata 14 files (#75, #212).
     * Support for SPSS value labels with more than 8 characters (#157).
     * More likely to get an error when attempting to create an invalid
       output file (#171).

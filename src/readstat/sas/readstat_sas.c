@@ -10,6 +10,10 @@
 #include "readstat_sas.h"
 #include "../readstat_iconv.h"
 #include "../readstat_convert.h"
+#include "../readstat_writer.h"
+
+#define HEADER_SIZE 1024
+#define PAGE_SIZE   4096
 
 #define SAS_DEFAULT_STRING_ENCODING "WINDOWS-1252"
 
@@ -225,4 +229,108 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
 
 cleanup:
     return retval;
+}
+
+readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *hinfo, sas_header_start_t header_start) {
+    readstat_error_t retval = READSTAT_OK;
+    struct tm epoch_tm = { .tm_year = 60, .tm_mday = 1 };
+    time_t epoch = mktime(&epoch_tm);
+
+    sas_header_end_t header_end = {
+        .host = "W32_VSPRO"
+    };
+
+    strncpy(header_start.file_label, writer->file_label, sizeof(header_start.file_label));
+
+    retval = readstat_write_bytes(writer, &header_start, sizeof(sas_header_start_t));
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    retval = readstat_write_zeros(writer, hinfo->pad1);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    double creation_time = hinfo->creation_time - epoch;
+
+    retval = readstat_write_bytes(writer, &creation_time, sizeof(double));
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    double modification_time = hinfo->modification_time - epoch;
+
+    retval = readstat_write_bytes(writer, &modification_time, sizeof(double));
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    retval = readstat_write_zeros(writer, 16);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    uint32_t header_size = hinfo->header_size;
+    uint32_t page_size = hinfo->page_size;
+
+    retval = readstat_write_bytes(writer, &header_size, sizeof(uint32_t));
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    retval = readstat_write_bytes(writer, &page_size, sizeof(uint32_t));
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    if (hinfo->u64) {
+        uint64_t page_count = hinfo->page_count;
+        retval = readstat_write_bytes(writer, &page_count, sizeof(uint64_t));
+    } else {
+        uint32_t page_count = hinfo->page_count;
+        retval = readstat_write_bytes(writer, &page_count, sizeof(uint32_t));
+    }
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    retval = readstat_write_zeros(writer, 8);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    snprintf(header_end.release, sizeof(header_end.release),
+            "%1ld.%04ldM0", writer->version / 10000, writer->version % 10000);
+    header_end.release[sizeof(header_end.release)-1] = '0';
+
+    retval = readstat_write_bytes(writer, &header_end, sizeof(sas_header_end_t));
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    retval = readstat_write_zeros(writer, hinfo->header_size-writer->bytes_written);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+cleanup:
+    return retval;
+}
+
+sas_header_info_t *sas_header_info_init(readstat_writer_t *writer, int is_64bit) {
+    sas_header_info_t *hinfo = calloc(1, sizeof(sas_header_info_t));
+    hinfo->creation_time = writer->timestamp;
+    hinfo->modification_time = writer->timestamp;
+    hinfo->header_size = HEADER_SIZE;
+    hinfo->page_size = PAGE_SIZE;
+    hinfo->u64 = !!is_64bit;
+
+    if (hinfo->u64) {
+        hinfo->page_header_size = SAS_PAGE_HEADER_SIZE_64BIT;
+        hinfo->subheader_pointer_size = SAS_SUBHEADER_POINTER_SIZE_64BIT;
+    } else {
+        hinfo->page_header_size = SAS_PAGE_HEADER_SIZE_32BIT;
+        hinfo->subheader_pointer_size = SAS_SUBHEADER_POINTER_SIZE_32BIT;
+    }
+
+    return hinfo;
+}
+
+readstat_error_t sas_fill_page(readstat_writer_t *writer, sas_header_info_t *hinfo) {
+    if ((writer->bytes_written - hinfo->header_size) % hinfo->page_size) {
+        size_t num_zeros = (hinfo->page_size -
+                (writer->bytes_written - hinfo->header_size) % hinfo->page_size);
+        return readstat_write_zeros(writer, num_zeros);
+    }
+    return READSTAT_OK;
 }

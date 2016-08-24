@@ -430,7 +430,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
             goto cleanup;
         }
         int j;
-        off_t offset = 0;
+        readstat_off_t offset = 0;
         for (j=0; j<ctx->nvar; j++) {
             size_t max_len;
             readstat_value_t value;
@@ -535,7 +535,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
                 value.v.double_value = d_num;
             }
 
-            if (ctx->value_handler(i, j, value, ctx->user_ctx)) {
+            if (ctx->value_handler(i, ctx->variables[j], value, ctx->user_ctx)) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
             }
@@ -787,16 +787,14 @@ static readstat_error_t dta_handle_variables(dta_ctx_t *ctx) {
             max_len = 0;
         }
 
-        readstat_variable_t *variable = dta_init_variable(ctx, i, type, max_len);
+        ctx->variables[i] = dta_init_variable(ctx, i, type, max_len);
 
         const char *value_labels = NULL;
 
         if (ctx->lbllist[ctx->lbllist_entry_len*i])
             value_labels = &ctx->lbllist[ctx->lbllist_entry_len*i];
 
-        int cb_retval = ctx->variable_handler(i, variable, value_labels, ctx->user_ctx);
-
-        free(variable);
+        int cb_retval = ctx->variable_handler(i, ctx->variables[i], value_labels, ctx->user_ctx);
 
         if (cb_retval) {
             retval = READSTAT_ERROR_USER_ABORT;

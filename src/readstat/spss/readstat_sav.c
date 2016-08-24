@@ -64,6 +64,14 @@ void sav_ctx_free(sav_ctx_t *ctx) {
         }
         free(ctx->varinfo);
     }
+    if (ctx->variables) {
+        int i;
+        for (i=0; i<ctx->var_count; i++) {
+            if (ctx->variables[i])
+                free(ctx->variables[i]);
+        }
+        free(ctx->variables);
+    }
     if (ctx->raw_string)
         free(ctx->raw_string);
     if (ctx->utf8_string)

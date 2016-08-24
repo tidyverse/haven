@@ -11,6 +11,10 @@ update_readstat <- function() {
   ignore <- dirname(src) %in% c("test", "bin", "bin/modules")
   src <- src[!ignore]
 
+
+  dirs <- file.path("src", "readstat", c("sas", "stata", "spss"))
+  lapply(dirs, dir.create, showWarnings = FALSE, recursive = TRUE)
+
   ok <- file.copy(file.path(zip_dir, src), file.path("src", "readstat", src), overwrite = TRUE)
 
   if (any(!ok)) {

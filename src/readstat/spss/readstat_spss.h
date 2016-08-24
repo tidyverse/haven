@@ -83,19 +83,16 @@ typedef struct spss_varinfo_s {
     char             name[8*4+1];
     char             longname[64*4+1];
     char            *label;
-    readstat_missingness_t  missingness;
     readstat_measure_t      measure;
     readstat_alignment_t    alignment;
     int                     display_width;
 } spss_varinfo_t;
 
 int spss_format(char *buffer, size_t len, spss_format_t *format);
-void spss_tag_missing_double(readstat_value_t *value, readstat_missingness_t *missingness);
 int spss_varinfo_compare(const void *elem1, const void *elem2);
 
 readstat_missingness_t spss_missingness_for_info(spss_varinfo_t *info);
 readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info);
-void spss_free_variable(readstat_variable_t *);
 
 uint64_t spss_64bit_value(readstat_value_t value);
 

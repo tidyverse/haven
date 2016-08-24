@@ -230,6 +230,7 @@ static readstat_error_t read_variable_count_record(por_ctx_t *ctx) {
         goto cleanup;
     }
     ctx->var_count = (int)value;
+    ctx->variables = calloc(ctx->var_count, sizeof(readstat_variable_t *));
     ctx->varinfo = calloc(ctx->var_count, sizeof(spss_varinfo_t));
     if (ctx->info_handler) {
         if (ctx->info_handler(-1, ctx->var_count, ctx->user_ctx)) {
@@ -534,10 +535,10 @@ static readstat_error_t read_por_file_data(por_ctx_t *ctx) {
                         rs_retval = READSTAT_ERROR_PARSE;
                     goto cleanup;
                 }
-                spss_tag_missing_double(&value, &info->missingness);
+                value.is_system_missing = isnan(value.v.double_value);
             }
             if (ctx->value_handler) {
-                if (ctx->value_handler(ctx->obs_count, i, value, ctx->user_ctx)) {
+                if (ctx->value_handler(ctx->obs_count, ctx->variables[i], value, ctx->user_ctx)) {
                     rs_retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -598,21 +599,19 @@ readstat_error_t handle_variables(por_ctx_t *ctx) {
     for (i=0; i<ctx->var_count; i++) {
         char label_name_buf[256];
         spss_varinfo_t *info = &ctx->varinfo[i];
-        info->missingness = spss_missingness_for_info(info);
+        info->index = i;
 
-        readstat_variable_t *variable = spss_init_variable_for_info(info);
+        ctx->variables[i] = spss_init_variable_for_info(info);
 
         snprintf(label_name_buf, sizeof(label_name_buf), POR_LABEL_NAME_PREFIX "%d", info->labels_index);
 
         int cb_retval = 0;
 
         if (ctx->variable_handler) {
-            cb_retval = ctx->variable_handler(i, variable,
+            cb_retval = ctx->variable_handler(i, ctx->variables[i],
                     info->labels_index == -1 ? NULL : label_name_buf,
                     ctx->user_ctx);
         }
-
-        spss_free_variable(variable);
 
         if (cb_retval) {
             retval = READSTAT_ERROR_USER_ABORT;

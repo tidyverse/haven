@@ -73,8 +73,10 @@ typedef struct sav_ctx_s {
     readstat_io_t                  *io;
     void                           *user_ctx;
 
-    spss_varinfo_t *varinfo;
-    size_t         varinfo_capacity;
+    spss_varinfo_t       *varinfo;
+    size_t                varinfo_capacity;
+    readstat_variable_t **variables;
+
     const char    *input_encoding;
     const char    *output_encoding;
     char           file_label[4*64+1];

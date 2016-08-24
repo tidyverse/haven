@@ -8,15 +8,24 @@ using namespace Rcpp;
 #include "haven_types.h"
 #include "tagged_na.h"
 
-double haven_double_value(readstat_value_t value, bool user_na) {
+double haven_double_value_udm(readstat_value_t value, readstat_variable_t* var, bool user_na) {
   if (readstat_value_is_tagged_missing(value)) {
     return make_tagged_na(tolower(readstat_value_tag(value)));
-  } else if (!user_na & readstat_value_is_defined_missing(value)) {
+  } else if (!user_na & readstat_value_is_defined_missing(value, var)) {
     return NA_REAL;
   } else {
     return readstat_double_value(value);
   }
 }
+
+double haven_double_value(readstat_value_t value) {
+  if (readstat_value_is_tagged_missing(value)) {
+    return make_tagged_na(tolower(readstat_value_tag(value)));
+  } else {
+    return readstat_double_value(value);
+  }
+}
+
 
 // LabelSet -------------------------------------------------------------------
 
@@ -264,7 +273,8 @@ public:
     }
   }
 
-  void setValue(int obs_index, int var_index, readstat_value_t value) {
+  void setValue(int obs_index, readstat_variable_t *variable, readstat_value_t value) {
+    int var_index = variable->index;
     VarType var_type = var_types_[var_index];
 
     if (obs_index >= nrowsAlloc_)
@@ -289,7 +299,8 @@ public:
     case READSTAT_TYPE_DOUBLE:
     {
       NumericVector col = output_[var_index];
-      col[obs_index] = adjustDatetimeToR(type_, var_type, haven_double_value(value, user_na_));
+      double val = haven_double_value_udm(value, variable, user_na_);
+      col[obs_index] = adjustDatetimeToR(type_, var_type, val);
       break;
     }
     }
@@ -309,7 +320,7 @@ public:
     case READSTAT_TYPE_INT16:
     case READSTAT_TYPE_INT32:
     case READSTAT_TYPE_DOUBLE:
-      label_set.add(haven_double_value(value, true), label_s);
+      label_set.add(haven_double_value(value), label_s);
       break;
     default:
       Rf_warning("Unsupported label type: %s", value.type);
@@ -387,13 +398,13 @@ int dfreader_variable(int index, readstat_variable_t *variable,
   ((DfReader*) ctx)->createVariable(index, variable, val_labels);
   return 0;
 }
-int dfreader_value(int obs_index, int var_index, readstat_value_t value,
-                   void *ctx) {
+int dfreader_value(int obs_index, readstat_variable_t *variable,
+                   readstat_value_t value, void *ctx) {
   // Check for user interrupts every 10,000 rows or cols
-  if ((obs_index + 1) % 10000 == 0 || (var_index + 1) % 10000 == 0)
+  if ((obs_index + 1) % 10000 == 0 || (variable->index + 1) % 10000 == 0)
     checkUserInterrupt();
 
-  ((DfReader*) ctx)->setValue(obs_index, var_index, value);
+  ((DfReader*) ctx)->setValue(obs_index, variable, value);
   return 0;
 }
 int dfreader_value_label(const char *val_labels, readstat_value_t value,

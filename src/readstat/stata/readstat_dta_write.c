@@ -693,7 +693,7 @@ static readstat_error_t dta_emit_value_labels(readstat_writer_t *writer, dta_ctx
         val = realloc(val, 4*n);
         txt = realloc(txt, txtlen);
 
-        off_t offset = 0;
+        readstat_off_t offset = 0;
 
         for (j=0; j<n; j++) {
             readstat_value_label_t *value_label = readstat_get_value_label(r_label_set, j);

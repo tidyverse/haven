@@ -84,6 +84,14 @@ void por_ctx_free(por_ctx_t *ctx) {
         }
         free(ctx->varinfo);
     }
+    if (ctx->variables) {
+        int i;
+        for (i=0; i<ctx->var_count; i++) {
+            if (ctx->variables[i])
+                free(ctx->variables[i]);
+        }
+        free(ctx->variables);
+    }
     if (ctx->var_dict)
         ck_hash_table_free(ctx->var_dict);
     if (ctx->converter)

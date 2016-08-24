@@ -135,10 +135,7 @@ static readstat_error_t sav_parse_variable_display_parameter_record(sav_ctx_t *c
 static readstat_error_t sav_parse_machine_integer_info_record(const void *data, size_t data_len, sav_ctx_t *ctx);
 static readstat_error_t sav_parse_long_value_labels_record(const void *data, size_t data_len, sav_ctx_t *ctx);
 
-static void sav_tag_missing_double(readstat_value_t *value, readstat_missingness_t *missingness,
-        sav_ctx_t *ctx) {
-    spss_tag_missing_double(value, missingness);
-
+static void sav_tag_missing_double(readstat_value_t *value, sav_ctx_t *ctx) {
     double fp_value = value->v.double_value;
     uint64_t long_value = 0;
     memcpy(&long_value, &fp_value, 8);
@@ -147,6 +144,8 @@ static void sav_tag_missing_double(readstat_value_t *value, readstat_missingness
     if (long_value == ctx->lowest_double)
         value->is_system_missing = 1;
     if (long_value == ctx->highest_double)
+        value->is_system_missing = 1;
+    if (isnan(fp_value))
         value->is_system_missing = 1;
 }
 
@@ -307,7 +306,6 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
             if (long_value == ctx->highest_double)
                 info->missing_values[i] = HUGE_VAL;
         }
-        info->missingness = spss_missingness_for_info(info);
     }
     
     ctx->var_index++;
@@ -372,7 +370,7 @@ cleanup:
 }
 
 static readstat_error_t sav_submit_value_labels(value_label_t *value_labels, int32_t label_count, 
-        readstat_type_t value_type, readstat_missingness_t *missingness, sav_ctx_t *ctx) {
+        readstat_type_t value_type, sav_ctx_t *ctx) {
     char label_name_buf[256];
     readstat_error_t retval = READSTAT_OK;
     int32_t i;
@@ -389,7 +387,7 @@ static readstat_error_t sav_submit_value_labels(value_label_t *value_labels, int
                 val_d = byteswap_double(val_d);
 
             value.v.double_value = val_d;
-            sav_tag_missing_double(&value, missingness, ctx);
+            sav_tag_missing_double(&value, ctx);
         } else {
             char unpadded_val[8*4+1];
             retval = readstat_convert(unpadded_val, sizeof(unpadded_val), vlabel->value, 8, ctx->converter);
@@ -413,7 +411,6 @@ static readstat_error_t sav_read_value_label_record(sav_ctx_t *ctx) {
     readstat_type_t value_type = READSTAT_TYPE_STRING;
     char label_buf[256];
     value_label_t *value_labels = NULL;
-    readstat_missingness_t *missingness = NULL;
 
     if (io->read(&label_count, sizeof(int32_t), io->io_ctx) < sizeof(int32_t)) {
         retval = READSTAT_ERROR_READ;
@@ -482,11 +479,10 @@ static readstat_error_t sav_read_value_label_record(sav_ctx_t *ctx) {
             var->labels_index = ctx->value_labels_count;
 
             value_type = var->type;
-            missingness = &var->missingness;
         }
     }
     if (ctx->value_label_handler) {
-        sav_submit_value_labels(value_labels, label_count, value_type, missingness, ctx);
+        sav_submit_value_labels(value_labels, label_count, value_type, ctx);
     }
     ctx->value_labels_count++;
 cleanup:
@@ -603,7 +599,7 @@ static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len
     readstat_error_t retval = READSTAT_OK;
     double fp_value;
     int offset = 0;
-    off_t data_offset = 0;
+    readstat_off_t data_offset = 0;
     size_t raw_str_used = 0;
     int segment_offset = 0;
     int var_index = 0, col = 0;
@@ -634,7 +630,8 @@ static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len
                 if (retval != READSTAT_OK)
                     goto done;
                 value.v.string_value = ctx->utf8_string;
-                if (ctx->value_handler(ctx->current_row, var_info->index, value, ctx->user_ctx)) {
+                if (ctx->value_handler(ctx->current_row, ctx->variables[var_info->index],
+                            value, ctx->user_ctx)) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto done;
                 }
@@ -648,8 +645,9 @@ static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len
                 fp_value = byteswap_double(fp_value);
             }
             value.v.double_value = fp_value;
-            sav_tag_missing_double(&value, &var_info->missingness, ctx);
-            if (ctx->value_handler(ctx->current_row, var_info->index, value, ctx->user_ctx)) {
+            sav_tag_missing_double(&value, ctx);
+            if (ctx->value_handler(ctx->current_row, ctx->variables[var_info->index],
+                        value, ctx->user_ctx)) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto done;
             }
@@ -698,12 +696,12 @@ static readstat_error_t sav_read_compressed_data(sav_ctx_t *ctx) {
     int i;
     double fp_value;
     uint64_t missing_value = ctx->missing_double;
-    off_t data_offset = 0;
+    readstat_off_t data_offset = 0;
     unsigned char buffer[DATA_BUFFER_SIZE];
     int buffer_used = 0;
 
     size_t uncompressed_row_len = ctx->var_offset * 8;
-    off_t uncompressed_offset = 0;
+    readstat_off_t uncompressed_offset = 0;
     unsigned char *uncompressed_row = malloc(uncompressed_row_len);
 
     int bswap = ctx->bswap;
@@ -1226,6 +1224,7 @@ static void sav_set_n_segments_and_var_count(sav_ctx_t *ctx) {
         info->index = ctx->var_count++;
         i += info->n_segments;
     }
+    ctx->variables = calloc(ctx->var_count, sizeof(readstat_variable_t *));
 }
 
 static readstat_error_t sav_handle_variables(readstat_parser_t *parser, sav_ctx_t *ctx) {
@@ -1238,15 +1237,13 @@ static readstat_error_t sav_handle_variables(readstat_parser_t *parser, sav_ctx_
     for (i=0; i<ctx->var_index;) {
         char label_name_buf[256];
         spss_varinfo_t *info = &ctx->varinfo[i];
-        readstat_variable_t *variable = spss_init_variable_for_info(info);
+        ctx->variables[info->index] = spss_init_variable_for_info(info);
 
         snprintf(label_name_buf, sizeof(label_name_buf), SAV_LABEL_NAME_PREFIX "%d", info->labels_index);
 
-        int cb_retval = parser->variable_handler(info->index, variable,
+        int cb_retval = parser->variable_handler(info->index, ctx->variables[info->index],
                 info->labels_index == -1 ? NULL : label_name_buf,
                 ctx->user_ctx);
-
-        spss_free_variable(variable);
 
         if (cb_retval) {
             retval = READSTAT_ERROR_USER_ABORT;

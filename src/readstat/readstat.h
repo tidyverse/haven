@@ -104,49 +104,7 @@ typedef struct readstat_value_s {
     char                    tag;
     unsigned int            is_system_missing:1;
     unsigned int            is_tagged_missing:1;
-    unsigned int            is_defined_missing:1;
 } readstat_value_t;
-
-readstat_type_t readstat_value_type(readstat_value_t value);
-readstat_type_class_t readstat_value_type_class(readstat_value_t value);
-
-/* Values can be missing in one of three ways:
- * 1. "System missing", delivered to value handlers as NaN. Occurs in all file
- *    types. The most common kind of missing value.
- * 2. Tagged missing, also delivered as NaN, but with a single character tag
- *    accessible via readstat_value_tag(). The tag might be 'a', 'b', etc,
- *    corresponding to Stata's .a, .b, values etc. Occurs only in Stata and
- *    SAS files.
- * 3. Defined missing. The value is a real number but is to be treated as
- *    missing according to the variable's missingness rules (such as "value < 0 ||
- *    value == 999"). Occurs only in spss files. access the rules via:
- *
- *       readstat_variable_get_missing_ranges_count()
- *       readstat_variable_get_missing_range_lo()
- *       readstat_variable_get_missing_range_hi()
- *
- * Note that "ranges" include individual values where lo == hi.
- *
- * readstat_value_is_missing() is equivalent to:
- *
- *    (readstat_value_is_system_missing() 
- *     || readstat_value_is_tagged_missing()
- *     || readstat_value_is_defined_missing())
- */
-int readstat_value_is_missing(readstat_value_t value);
-int readstat_value_is_system_missing(readstat_value_t value);
-int readstat_value_is_tagged_missing(readstat_value_t value);
-int readstat_value_is_defined_missing(readstat_value_t value);
-char readstat_value_tag(readstat_value_t value);
-
-char readstat_int8_value(readstat_value_t value);
-int16_t readstat_int16_value(readstat_value_t value);
-int32_t readstat_int32_value(readstat_value_t value);
-float readstat_float_value(readstat_value_t value);
-double readstat_double_value(readstat_value_t value);
-const char *readstat_string_value(readstat_value_t value);
-
-readstat_type_class_t readstat_type_class(readstat_type_t type);
 
 /* Internal data structures */
 typedef struct readstat_value_label_s {
@@ -195,7 +153,50 @@ typedef struct readstat_variable_s {
     int                     display_width;
 } readstat_variable_t;
 
+/* Value accessors */
+readstat_type_t readstat_value_type(readstat_value_t value);
+readstat_type_class_t readstat_value_type_class(readstat_value_t value);
+
+/* Values can be missing in one of three ways:
+ * 1. "System missing", delivered to value handlers as NaN. Occurs in all file
+ *    types. The most common kind of missing value.
+ * 2. Tagged missing, also delivered as NaN, but with a single character tag
+ *    accessible via readstat_value_tag(). The tag might be 'a', 'b', etc,
+ *    corresponding to Stata's .a, .b, values etc. Occurs only in Stata and
+ *    SAS files.
+ * 3. Defined missing. The value is a real number but is to be treated as
+ *    missing according to the variable's missingness rules (such as "value < 0 ||
+ *    value == 999"). Occurs only in spss files. access the rules via:
+ *
+ *       readstat_variable_get_missing_ranges_count()
+ *       readstat_variable_get_missing_range_lo()
+ *       readstat_variable_get_missing_range_hi()
+ *
+ * Note that "ranges" include individual values where lo == hi.
+ *
+ * readstat_value_is_missing() is equivalent to:
+ *
+ *    (readstat_value_is_system_missing() 
+ *     || readstat_value_is_tagged_missing()
+ *     || readstat_value_is_defined_missing())
+ */
+int readstat_value_is_missing(readstat_value_t value, readstat_variable_t *variable);
+int readstat_value_is_system_missing(readstat_value_t value);
+int readstat_value_is_tagged_missing(readstat_value_t value);
+int readstat_value_is_defined_missing(readstat_value_t value, readstat_variable_t *variable);
+char readstat_value_tag(readstat_value_t value);
+
+char readstat_int8_value(readstat_value_t value);
+int16_t readstat_int16_value(readstat_value_t value);
+int32_t readstat_int32_value(readstat_value_t value);
+float readstat_float_value(readstat_value_t value);
+double readstat_double_value(readstat_value_t value);
+const char *readstat_string_value(readstat_value_t value);
+
+readstat_type_class_t readstat_type_class(readstat_type_t type);
+
 /* Accessor methods for use inside a variable handler */
+int readstat_variable_get_index(const readstat_variable_t *variable);
 const char *readstat_variable_get_name(const readstat_variable_t *variable);
 const char *readstat_variable_get_label(const readstat_variable_t *variable);
 const char *readstat_variable_get_format(const readstat_variable_t *variable);
@@ -217,7 +218,7 @@ typedef int (*readstat_note_handler)(int note_index, const char *note, void *ctx
 typedef int (*readstat_variable_handler)(int index, readstat_variable_t *variable, 
         const char *val_labels, void *ctx);
 typedef int (*readstat_fweight_handler)(int var_index, void *ctx);
-typedef int (*readstat_value_handler)(int obs_index, int var_index, 
+typedef int (*readstat_value_handler)(int obs_index, readstat_variable_t *variable,
         readstat_value_t value, void *ctx);
 typedef int (*readstat_value_label_handler)(const char *val_labels, 
         readstat_value_t value, const char *label, void *ctx);
@@ -455,6 +456,7 @@ readstat_error_t readstat_writer_set_error_handler(readstat_writer_t *writer,
 // Call one of these at any time before the first invocation of readstat_begin_row
 readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *user_ctx, long row_count);
 readstat_error_t readstat_begin_writing_por(readstat_writer_t *writer, void *user_ctx, long row_count);
+readstat_error_t readstat_begin_writing_sas7bcat(readstat_writer_t *writer, void *user_ctx);
 readstat_error_t readstat_begin_writing_sas7bdat(readstat_writer_t *writer, void *user_ctx, long row_count);
 readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *user_ctx, long row_count);
 

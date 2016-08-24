@@ -103,6 +103,8 @@ typedef struct sas_text_ref_s {
 #define SAS_COMPRESSION_TRUNC  0x01
 #define SAS_COMPRESSION_ROW    0x04
 
+#define SAS_DEFAULT_FILE_VERSION  90101
+
 extern unsigned char sas7bdat_magic_number[32];
 extern unsigned char sas7bcat_magic_number[32];
 
@@ -110,3 +112,7 @@ uint64_t sas_read8(const char *data, int bswap);
 uint32_t sas_read4(const char *data, int bswap);
 uint16_t sas_read2(const char *data, int bswap);
 readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *ctx, readstat_error_handler error_handler, void *user_ctx);
+
+sas_header_info_t *sas_header_info_init(readstat_writer_t *writer, int is_64bit);
+readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *hinfo, sas_header_start_t header_start);
+readstat_error_t sas_fill_page(readstat_writer_t *writer, sas_header_info_t *hinfo);

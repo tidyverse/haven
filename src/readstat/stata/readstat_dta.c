@@ -42,7 +42,9 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
 
     ctx->nvar = ctx->bswap ? byteswap2(nvar) : nvar;
     ctx->nobs = ctx->bswap ? byteswap4(nobs) : nobs;
-    
+
+    ctx->variables = calloc(ctx->nvar, sizeof(readstat_variable_t *));
+
     ctx->machine_is_twos_complement = READSTAT_MACHINE_IS_TWOS_COMPLEMENT;
 
     if (ds_format < 105) {
@@ -217,6 +219,14 @@ void dta_ctx_free(dta_ctx_t *ctx) {
         iconv_close(ctx->converter);
     if (ctx->data_label)
         free(ctx->data_label);
+    if (ctx->variables) {
+        int i;
+        for (i=0; i<ctx->nvar; i++) {
+            if (ctx->variables[i])
+                free(ctx->variables[i]);
+        }
+        free(ctx->variables);
+    }
     if (ctx->strls) {
         int i;
         for (i=0; i<ctx->strls_count; i++) {

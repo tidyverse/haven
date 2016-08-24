@@ -61,9 +61,9 @@ typedef struct dta_ctx_s {
     size_t         strl_v_len;
     size_t         strl_o_len;
 
-    off_t          data_offset;
-    off_t          strls_offset;
-    off_t          value_labels_offset;
+    readstat_off_t data_offset;
+    readstat_off_t strls_offset;
+    readstat_off_t value_labels_offset;
 
     int            nvar;
     int            nobs;
@@ -85,6 +85,8 @@ typedef struct dta_ctx_s {
     dta_strl_t   **strls;
     size_t         strls_count;
     size_t         strls_capacity;
+
+    readstat_variable_t     **variables;
 
     iconv_t        converter;
     readstat_error_handler error_handler;
