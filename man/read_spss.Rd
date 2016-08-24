@@ -44,7 +44,7 @@ A tibble, data frame variant with nice defaults.
 }
 \description{
 Currently haven can read and write logical, integer, numeric, character
-and factors. See \code{\link{labelled}} for how labelled variables in
+and factors. See \code{\link{labelled_spss}} for how labelled variables in
 Stata are handled in R. \code{read_spss} is an alias for \code{read_sav}.
 }
 \examples{

@@ -29,8 +29,8 @@ A tibble, data frame variant with nice defaults.
 }
 \description{
 Reading supports both sas7bdat files and the accompanying sas7bdat files
-that SAS uses to record value labels. There is not currently support
-for writing value labels.
+that SAS uses to record value labels. Writing value labels is not currently
+supported.
 }
 \examples{
 path <- system.file("examples", "iris.sas7bdat", package = "haven")

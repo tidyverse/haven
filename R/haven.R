@@ -6,8 +6,8 @@ NULL
 #' Read and write SAS files.
 #'
 #' Reading supports both sas7bdat files and the accompanying sas7bdat files
-#' that SAS uses to record value labels. There is not currently support
-#' for writing value labels.
+#' that SAS uses to record value labels. Writing value labels is not currently
+#' supported.
 #'
 #' @param data_file,catalog_file Path to data and catalog files. The files are
 #'   processed with \code{\link[readr]{datasource}()}.
@@ -51,7 +51,7 @@ write_sas <- function(data, path) {
 #' Read SPSS (SAV & POR) files. Write SAV files.
 #'
 #' Currently haven can read and write logical, integer, numeric, character
-#' and factors. See \code{\link{labelled}} for how labelled variables in
+#' and factors. See \code{\link{labelled_spss}} for how labelled variables in
 #' Stata are handled in R. \code{read_spss} is an alias for \code{read_sav}.
 #'
 #' @inheritParams readr::datasource
