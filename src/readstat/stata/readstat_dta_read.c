@@ -176,6 +176,11 @@ static readstat_error_t dta_read_expansion_fields(dta_ctx_t *ctx) {
 
     if (ctx->file_is_xmlish && !ctx->note_handler) {
         if (io->seek(ctx->data_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
+            if (ctx->error_handler) {
+                snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to data section (offset=%lld)",
+                        (unsigned long long)ctx->data_offset);
+                ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+            }
             return READSTAT_ERROR_SEEK;
         }
         return READSTAT_OK;
@@ -356,6 +361,11 @@ static readstat_error_t dta_read_strls(dta_ctx_t *ctx) {
     readstat_io_t *io = ctx->io;
 
     if (io->seek(ctx->strls_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
+        if (ctx->error_handler) {
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to strls section (offset=%lld)",
+                    (unsigned long long)ctx->strls_offset);
+            ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+        }
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
@@ -569,6 +579,11 @@ static readstat_error_t dta_read_data(dta_ctx_t *ctx) {
     }
 
     if (io->seek(ctx->data_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
+        if (ctx->error_handler) {
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to data section (offset=%lld)",
+                    (unsigned long long)ctx->data_offset);
+            ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+        }
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
@@ -811,6 +826,11 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
     char *table_buffer = NULL;
 
     if (io->seek(ctx->value_labels_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
+        if (ctx->error_handler) {
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to value labels section (offset=%lld)",
+                    (unsigned long long)ctx->value_labels_offset);
+            ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+        }
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
@@ -965,11 +985,19 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *path,
 
     file_size = io->seek(0, READSTAT_SEEK_END, io->io_ctx);
     if (file_size == -1) {
+        if (ctx->error_handler) {
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to end of file");
+            ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+        }
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
 
     if (io->seek(0, READSTAT_SEEK_SET, io->io_ctx) == -1) {
+        if (ctx->error_handler) {
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to start of file");
+            ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+        }
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }

@@ -66,10 +66,10 @@ typedef struct dta_ctx_s {
     readstat_off_t value_labels_offset;
 
     int            nvar;
-    int            nobs;
+    int64_t        nobs;
     size_t         record_len;
-    int            row_limit;
-    int            current_row;
+    int64_t        row_limit;
+    int64_t        current_row;
 
     int            bswap;
     int            machine_is_twos_complement;
@@ -99,6 +99,8 @@ typedef struct dta_ctx_s {
     void                     *user_ctx;
     readstat_io_t            *io;
     int                       initialized;
+
+    char            error_buf[256];
 } dta_ctx_t;
 
 #define DTA_HILO  0x01
