@@ -1,6 +1,6 @@
 ## Test environments
-* local OS X install, R 3.3.1
-* ubuntu 12.04 (on travis-ci), R 3.3.1
+* local OS X install, R 3.3.2
+* ubuntu 12.04 (on travis-ci), R 3.3.2
 * win-builder (devel and release)
 
 ## R CMD check results
@@ -13,7 +13,12 @@
   MIT + file LICENSE
 
 ## Reverse dependencies
-I have run R CMD check on the 11 reverse dependencies of haven. There were no signficant problems.
+I have run R CMD check on the 12 reverse dependencies of haven. 
+
+There was one problem:
+
+* rio: uses older parameter names. It will be resubmitted once haven is
+  accepted.
 
 Full results are available at https://github.com/hadley/haven/tree/master/revdep/.
 

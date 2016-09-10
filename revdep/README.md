@@ -4,13 +4,13 @@
 
 |setting  |value                        |
 |:--------|:----------------------------|
-|version  |R version 3.3.0 (2016-05-03) |
+|version  |R version 3.3.1 (2016-06-21) |
 |system   |x86_64, darwin13.4.0         |
-|ui       |RStudio (0.99.1283)          |
+|ui       |RStudio (1.0.7)              |
 |language |(EN)                         |
 |collate  |en_US.UTF-8                  |
-|tz       |America/Chicago              |
-|date     |2016-08-12                   |
+|tz       |America/New_York             |
+|date     |2016-09-10                   |
 
 ## Packages
 
@@ -18,17 +18,17 @@
 |:---------|:--|:----------|:----------|:--------------------------------|
 |BH        |   |1.60.0-2   |2016-05-07 |CRAN (R 3.3.0)                   |
 |covr      |   |2.2.1      |2016-08-10 |cran (@2.2.1)                    |
-|haven     |   |0.2.1.9000 |2016-08-12 |local (hadley/haven@NA)          |
-|hms       |   |0.2-1      |2016-07-19 |Github (rstats-db/hms@98d14cf)   |
-|knitr     |   |1.13       |2016-05-09 |CRAN (R 3.3.0)                   |
-|Rcpp      |   |0.12.6     |2016-07-19 |cran (@0.12.6)                   |
+|haven     |*  |1.0.0      |2016-09-10 |local (hadley/haven@NA)          |
+|hms       |   |0.2-1      |2016-09-10 |Github (rstats-db/hms@80b2bfc)   |
+|knitr     |   |1.14       |2016-08-13 |cran (@1.14)                     |
+|Rcpp      |   |0.12.7     |2016-09-05 |cran (@0.12.7)                   |
 |readr     |   |1.0.0      |2016-08-03 |cran (@1.0.0)                    |
 |rmarkdown |   |1.0        |2016-07-08 |cran (@1.0)                      |
 |testthat  |*  |1.0.2.9000 |2016-07-19 |Github (hadley/testthat@46d15da) |
-|tibble    |   |1.1-5      |2016-08-10 |Github (hadley/tibble@dbe66cf)   |
+|tibble    |   |1.2-12     |2016-09-10 |Github (hadley/tibble@6d2bb08)   |
 
 # Check results
-11 packages
+12 packages
 
 ## ImportExport (1.1)
 Maintainer: Isaac Subirana <isubirana@imim.es>
@@ -57,7 +57,7 @@ Bug reports: https://github.com/ManifestoProject/manifestoR/issues
 
 0 errors | 0 warnings | 0 notes
 
-## miceadds (1.9-0)
+## miceadds (2.0-0)
 Maintainer: 
  Alexander Robitzsch <robitzsch@ipn.uni-kiel.de>
 
@@ -119,6 +119,8 @@ Execution halted
 checking R code for possible problems ... NOTE
 .import.rio_dta: possible error in read_dta(path = file): unused
   argument (path = file)
+.import.rio_sas7bdat: possible error in read_sas(b7dat = file, ...):
+  unused argument (b7dat = file)
 .import.rio_sav: possible error in read_sav(path = file): unused
   argument (path = file)
 ```
@@ -138,11 +140,25 @@ Maintainer: Daniel Lüdecke <d.luedecke@uke.de>
 
 0 errors | 0 warnings | 0 notes
 
-## tadaatoolbox (0.9.0)
+## tadaatoolbox (0.10.0)
 Maintainer: Lukas Burk <lukas@quantenbrot.de>  
 Bug reports: https://github.com/tadaadata/tadaatoolbox/issues
 
 0 errors | 0 warnings | 0 notes
+
+## tidyverse (1.0.0)
+Maintainer: Hadley Wickham <hadley@rstudio.com>  
+Bug reports: https://github.com/hadley/tidyverse/issues
+
+1 error  | 0 warnings | 0 notes
+
+```
+checking package dependencies ... ERROR
+Packages required but not available: ‘forcats’ ‘modelr’
+
+See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
+manual.
+```
 
 ## webuse (0.1.2)
 Maintainer: Thomas J. Leeper <thosjleeper@gmail.com>  
