@@ -17,6 +17,6 @@ code, you can get rid of them with \code{zap_formats}.
 }
 \seealso{
 Other zappers: \code{\link{zap_empty}},
-  \code{\link{zap_labels}}
+  \code{\link{zap_labels}}, \code{\link{zap_widths}}
 }
 
