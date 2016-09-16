@@ -93,7 +93,8 @@
 
 * `write_dta()` now verifies that variable names are valid Stata variables
   (#132), and throws an error if you attempt to save a labelled vector that
-  is not an integer (#144).
+  is not an integer (#144). You can choose which `version` of Stata's file 
+  format to output (#217).
 
 * New `write_sas()` allows you to write data frames out to `sas7bdat` 
   files. This is still somewhat experimental.
