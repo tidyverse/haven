@@ -161,9 +161,33 @@ read_stata <- function(file, encoding = NULL) {
 
 #' @export
 #' @rdname read_dta
-write_dta <- function(data, path) {
+#' @param version File version to use. Supports versions 8-14.
+write_dta <- function(data, path, version = 14) {
+
   validate_dta(data)
-  write_dta_(data, normalizePath(path, mustWork = FALSE))
+  write_dta_(data,
+    normalizePath(path, mustWork = FALSE),
+    version = stata_file_format(version)
+  )
+}
+
+stata_file_format <- function(version) {
+  stopifnot(is.numeric(version), length(version) == 1)
+  version <- as.integer(version)
+
+  if (version == 14L) {
+    118
+  } else if (version == 13L) {
+    117
+  } else if (version == 12L) {
+    115
+  } else if (version %in% c(10L, 11L)) {
+    114
+  } else if (version %in% c(8L, 9L)) {
+    113
+  } else {
+    stop("Version ", version, " not currently supported", call. = FALSE)
+  }
 }
 
 validate_dta <- function(data) {

@@ -10,7 +10,7 @@ read_dta(file, encoding = NULL)
 
 read_stata(file, encoding = NULL)
 
-write_dta(data, path)
+write_dta(data, path, version = 14)
 }
 \arguments{
 \item{file}{Either a path to a file, a connection, or literal data
@@ -33,6 +33,8 @@ specify manually. A commonly used value is "Win 1252".}
 \item{data}{Data frame to write.}
 
 \item{path}{Path to a file where the data will be written.}
+
+\item{version}{File version to use. Supports versions 8-14.}
 }
 \value{
 A tibble, data frame variant with nice defaults.

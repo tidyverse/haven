@@ -37,8 +37,8 @@ write_sav_ <- function(data, path) {
     invisible(.Call('haven_write_sav_', PACKAGE = 'haven', data, path))
 }
 
-write_dta_ <- function(data, path) {
-    invisible(.Call('haven_write_dta_', PACKAGE = 'haven', data, path))
+write_dta_ <- function(data, path, version) {
+    invisible(.Call('haven_write_dta_', PACKAGE = 'haven', data, path, version))
 }
 
 write_sas_ <- function(data, path) {

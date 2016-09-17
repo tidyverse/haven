@@ -66,6 +66,10 @@ public:
     } catch (...) {};
   }
 
+  void setVersion(int version) {
+    readstat_writer_set_file_format_version(writer_, version);
+  }
+
   void write() {
     int p = x_.size();
     if (p == 0)
@@ -322,8 +326,10 @@ void write_sav_(List data, std::string path) {
 }
 
 // [[Rcpp::export]]
-void write_dta_(List data, std::string path) {
-  Writer(HAVEN_STATA, data, path).write();
+void write_dta_(List data, std::string path, int version) {
+  Writer writer(HAVEN_STATA, data, path);
+  writer.setVersion(version);
+  writer.write();
 }
 
 // [[Rcpp::export]]
