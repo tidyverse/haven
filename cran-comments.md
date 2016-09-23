@@ -1,10 +1,10 @@
 ## Test environments
 * local OS X install, R 3.3.2
-* ubuntu 12.04 (on travis-ci), R 3.3.2
-* win-builder (devel and release)
+* ubuntu 12.04 (on travis-ci), oldrel, release, devel
+* win-builder (devel)
 
 ## R CMD check results
-0 ERRORs | 0 WARNINGs | 2s NOTE
+0 ERRORs | 0 WARNINGs | 2 NOTEs
 
 * checking for GNU extensions in Makefiles ... NOTE
   GNU make is a SystemRequirements.

@@ -1,4 +1,4 @@
-# haven 0.2.0.9000
+# haven 1.0.0
 
 * The ReadStat library is stored in a subdirectory of `src` (#209, @krlmlr).
 
