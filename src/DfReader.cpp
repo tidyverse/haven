@@ -274,7 +274,7 @@ public:
 
     // Store original display width as attribute if it differs from the default
     int display_width = readstat_variable_get_display_width(variable);
-    if (display_width != 8) {
+    if (type_ == HAVEN_SPSS && display_width != 8) {
       col.attr("display_width") = Rf_ScalarInteger(display_width);
     }
   }
