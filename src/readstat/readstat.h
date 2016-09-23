@@ -314,7 +314,7 @@ typedef struct readstat_string_ref_s {
     int64_t     first_v;
     int64_t     first_o;
     size_t      len;
-    char        data[];
+    char        data[1]; // Flexible array; using [1] for C++98 compatibility
 } readstat_string_ref_t;
 
 typedef size_t (*readstat_variable_width_callback)(readstat_type_t type, size_t user_width);

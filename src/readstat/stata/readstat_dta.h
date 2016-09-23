@@ -24,7 +24,7 @@ typedef struct dta_strl_s {
     uint64_t        o;
     unsigned char   type;
     size_t          len;
-    char            data[];
+    char            data[1]; // Flexible array; use [1] for C++98 compatibility
 } dta_strl_t;
 
 typedef struct dta_ctx_s {

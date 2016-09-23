@@ -11,7 +11,7 @@
 
 typedef struct sas7bcat_block_s {
     size_t  len;
-    char    data[];
+    char    data[1]; // Flexible array; use [1] for C++-98 compatibility
 } sas7bcat_block_t;
 
 static sas7bcat_block_t *sas7bcat_block_for_label_set(readstat_label_set_t *r_label_set) {
