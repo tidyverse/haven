@@ -64,6 +64,26 @@ test_that("formats roundtrip", {
   expect_equal(df$d, df$d)
 })
 
+test_that("widths roundtrip", {
+  df <- tibble::data_frame(
+    a = structure(c(1, 1, 2), display_width = 10),
+    b = structure(4:6, display_width = 11),
+    c = structure(7:9, display_width = 12),
+    d = structure(c("Text", "Text", ""), display_width = 10)
+  )
+
+  tmp <- tempfile()
+  on.exit(unlink(tmp))
+
+  write_sav(df, tmp)
+  df2 <- read_sav(tmp)
+
+  expect_equal(df$a, df$a)
+  expect_equal(df$b, df$b)
+  expect_equal(df$c, df$c)
+  expect_equal(df$d, df$d)
+})
+
 # User-defined missings ---------------------------------------------------
 
 test_that("user-defined missing values read as missing by default", {
