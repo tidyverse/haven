@@ -1,6 +1,5 @@
 ---
 title: "Conversion semantics"
-author: "Hadley Wickham"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -30,7 +29,7 @@ Base R has one data type that effectively maintains a mapping between integers a
   special missing values (e.g. `.D` = did not respond, `.N` = 
   not applicable), while leaving other values as is.
 
-Value labels in SAS are a little different again. In SAS, labels are just special case of general formats. Formats include currencies and dates, but user-defined just assigns labels to individual values (including special missings value). Formats have names and existing independently of the variables they are associated with. You create a named format with `PROC FORMAT` and then associated with variables in a `DATA` step (the names of character formats always start with `$`). 
+Value labels in SAS are a little different again. In SAS, labels are just special case of general formats. Formats include currencies and dates, but user-defined just assigns labels to individual values (including special missings value). Formats have names and existing independently of the variables they are associated with. You create a named format with `PROC FORMAT` and then associated with variables in a `DATA` step (the names of character formats thealways start with `$`). 
 
 ### `labelled()`
 

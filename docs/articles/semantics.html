@@ -20,22 +20,27 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li>
+  <a href="../articles/semantics.html">Semantics</a>
+</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-    Articles
+    News
      
     <span class="caret"></span>
   </a>
-  <ul class="dropdown-menu" role="menu"><li>
-      <a href="../articles/datetimes.html">Date/times</a>
+  <ul class="dropdown-menu" role="menu"><li class="dropdown-header">Release notes</li>
+    <li>
+      <a href="../articles/releases/haven-1.0.0.html">Version 1.0.0</a>
     </li>
     <li>
-      <a href="../articles/semantics.html">Semantics</a>
+      <a href="../articles/releases/haven-0.1.0.html">Version 0.1.0</a>
+    </li>
+    <li class="divider">
+    <li>
+      <a href="../news/index.html">Change log</a>
     </li>
   </ul></li>
-<li>
-  <a href="../news/index.html">News</a>
-</li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/hadley/haven">
     <span class="fa fa-github fa-lg"></span>
@@ -50,9 +55,8 @@
   <div class="col-md-9">
     <div class="page-header toc-ignore">
       <h1>Conversion semantics</h1>
-                        <h4 class="author"><em>Hadley Wickham</em></h4>
             
-            <h4 class="date"><em>2016-09-30</em></h4>
+            <h4 class="date">2016-09-30</h4>
           </div>
 
     
@@ -63,7 +67,7 @@
 <p>Base R has one data type that effectively maintains a mapping between integers and character labels: the factor. This however, is not the primary use of factors: they are instead designed to automatically generate useful contrasts for linear models. Factors differ from the labelled values provided by the other tools in important ways:</p>
 <ul><li><p>SPSS and SAS can label numeric and character values, not just integer values.</p></li>
 <li><p>The value do not need to be exhaustive. It is common to label the special missing values (e.g. <code>.D</code> = did not respond, <code>.N</code> = not applicable), while leaving other values as is.</p></li>
-</ul><p>Value labels in SAS are a little different again. In SAS, labels are just special case of general formats. Formats include currencies and dates, but user-defined just assigns labels to individual values (including special missings value). Formats have names and existing independently of the variables they are associated with. You create a named format with <code>PROC FORMAT</code> and then associated with variables in a <code>DATA</code> step (the names of character formats always start with <code>$</code>).</p>
+</ul><p>Value labels in SAS are a little different again. In SAS, labels are just special case of general formats. Formats include currencies and dates, but user-defined just assigns labels to individual values (including special missings value). Formats have names and existing independently of the variables they are associated with. You create a named format with <code>PROC FORMAT</code> and then associated with variables in a <code>DATA</code> step (the names of character formats thealways start with <code>$</code>).</p>
 <div id="labelled" class="section level3">
 <h3><code><a href="../reference/labelled.html">labelled()</a></code></h3>
 <p>To allow you to import labelled vectors into R, haven provdies the S3 labelled class, created with <code><a href="../reference/labelled.html">labelled()</a></code>. This class allows you to associated arbitrary labels with numeric or character vectors:</p>
@@ -234,11 +238,8 @@ x2
   <div class="col-md-3 hidden-xs">
         <div id="nav">
       <h2>Contents</h2>
-      <ul class="nav nav-pills nav-stacked"><li><a href="#value-labels">Value labels</a><ul><li><a href="#labelled"><code><a href="../reference/labelled.html">labelled()</a></code></a></li>
-      </ul></li>
-      <li><a href="#missing-values">Missing values</a><ul><li><a href="#tagged-missing-values">Tagged missing values</a></li>
-      <li><a href="#user-defined-missing-values">User defined missing values</a></li>
-      </ul></li>
+      <ul class="nav nav-pills nav-stacked"><li><a href="#value-labels">Value labels</a></li>
+      <li><a href="#missing-values">Missing values</a></li>
       </ul></div>
       </div>
 

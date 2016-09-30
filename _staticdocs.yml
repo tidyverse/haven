@@ -49,14 +49,18 @@ navbar:
     href: index.html
   - text: Reference
     href: reference/index.html
-  - text: Articles
-    menu:
-      - text: "Date/times"
-        href: articles/datetimes.html
-      - text: Semantics
-        href: articles/semantics.html
+  - text: Semantics
+    href: articles/semantics.html
   - text: News
-    href: news/index.html
+    menu:
+      - text: "Release notes"
+      - text: "Version 1.0.0"
+        href: articles/releases/haven-1.0.0.html
+      - text: "Version 0.1.0"
+        href: articles/releases/haven-0.1.0.html
+      - text: "------------------"
+      - text: "Change log"
+        href: news/index.html
   right:
   - icon: fa-github fa-lg
     href: https://github.com/hadley/haven
