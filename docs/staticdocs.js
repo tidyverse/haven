@@ -1,13 +1,13 @@
 $(function() {
 
-  $('#nav').affix({
+  $('#tocnav').affix({
     offset: {
-      top: $('#nav').offset().top - 80
+      top: $('#tocnav').offset().top - 80
     }
   });
-  // $('body').scrollspy({
-  //  target: '#nav',
-  //  offset: 60
-  // });
+  $('body').scrollspy({
+    target: '#tocnav',
+    offset: 80
+  });
 
 });
