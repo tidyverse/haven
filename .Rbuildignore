@@ -8,3 +8,4 @@
 \.so$
 \.dll$
 ^logo\.png$
+^_staticdocs\.yml$

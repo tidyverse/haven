@@ -1,0 +1,62 @@
+bootswatch: cerulean
+
+reference:
+- title: Reading and writing
+  desc: ~
+  contents:
+  - read_dta
+  - read_sas
+  - read_spss
+
+- title: Labelled vectors
+  desc: >
+    SAS, SPSS, and Stata share a simply concept of "labelled" vectors, which
+    are similar to factors but a little more general. The `labelled()` class
+    provides a natural representaion in R.
+
+  contents:
+  - labelled_spss
+  - labelled
+  - print_labels
+  - as_factor
+
+- title: tagged_na
+  desc: >
+    Both SAS and Stata supported tagged missing values, where a missing value
+    can have multiple "types", given by an letter from A through Z.
+    `tagged_na()` provides a convenient way of representing these types of
+    missing values in R by taking advantage of the binary representation of
+    `NA`.
+
+  contents:
+  - tagged_na
+
+- title: Remove attributes
+  desc: >
+     There are a number of SPSS/SAS/Stata features that have no direct
+     equivalent in R. Haven preserves them so you can choose what do with
+     them. To simply eliminate them, use one of the zap functions.
+  contents:
+  - zap_empty
+  - zap_formats
+  - zap_labels
+  - zap_missing
+
+navbar:
+  type: default
+  left:
+  - text: Home
+    href: index.html
+  - text: Reference
+    href: reference/index.html
+  - text: Articles
+    menu:
+      - text: "Date/times"
+        href: articles/datetimes.html
+      - text: Semantics
+        href: articles/semantics.html
+  - text: News
+    href: news/index.html
+  right:
+  - icon: fa-github fa-lg
+    href: https://github.com/hadley/haven
