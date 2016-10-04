@@ -11,20 +11,26 @@ knitr::opts_chunk$set(
 )
 ```
 
-haven 1.0.0 is a major release indicating the haven is now largely feature complete and has been tested on many real world datasets.
+I'm pleased to announce the release of haven. Haven is designed to faciliate the transfer of data between R and SAS, SPSS, and Stata. It makes it easy to read SAS, SPSS, and Stata file formats in to R data frames, and makes it easy to save your R data frames in to SAS, SPSS, and Stata if you need to collaborate with others using closed source statistical software. Install haven by running:
 
-* Improvements to the underlying ReadStat library
-* Better handling of "special" missing values
-* Improved date/time support
-* Other metadata.
+```R
+install.packages("haven")
+```
 
-Whole bunch of other minor improvements and bug fixes: you can see the complete list in the [release notes](http://haven.tidyverse.org/news/index.html#haven-1.0.0).
+haven 1.0.0 is a major release, and indicates that haven is now largely feature complete and has been tested on many real world datasets. There are four major changes in this version of haven:
+
+1. Improvements to the underlying ReadStat library
+1. Better handling of "special" missing values
+1. Improved date/time support
+1. Support for other file metadata.
+
+There were also a whole bunch of other minor improvements and bug fixes: you can see the complete list in the [release notes](http://haven.tidyverse.org/news/index.html#haven-1.0.0).
 
 ## ReadStat
 
-Haven build on top of the [ReadStat](http://github.com/WizardMac/ReadStat/issues) C library by [Evan Miller](http://www.evanmiller.org). This version of haven includes many improvements thanks to Evan's hard work on ReadStat:
+Haven builds on top of the [ReadStat](http://github.com/WizardMac/ReadStat/issues) C library by [Evan Miller](http://www.evanmiller.org). This version of haven includes many improvements thanks to Evan's hard work on ReadStat:
 
-* Cana read binary/Ross compressed SAS files.
+* Can read binary/Ross compressed SAS files.
 
 * Support for reading and writing Stata 14 data files.
 
@@ -33,12 +39,11 @@ Haven build on top of the [ReadStat](http://github.com/WizardMac/ReadStat/issues
 
 * `read_por()` now actually works.
 
-* Many many many other bug fixes and minor improvements.
-
+* Many other bug fixes and minor improvements.
 
 ## Missing values
 
-haven 1.0.0 includes comprehensive support for the "special" types of missing values found in SAS, SPSS, and Stata. All three tools provide a global "system missing value", displayed as `.`. This is roughly equivalent to R's `NA`, although neither Stata nor SAS propagate missingness in numeric comparisons: SAS treats the missing value as the smallest possible number (i.e. `-inf`), and Stata treats it as the largest possible number (i.e. `inf`). 
+haven 1.0.0 includes comprehensive support for the "special" types of missing values found in SAS, SPSS, and Stata. All three tools provide a global "system missing value", displayed as `.`. This is roughly equivalent to R's `NA`, although neither Stata nor SAS propagate missingness in numeric comparisons (SAS treats the missing value as the smallest possible number and Stata treats it as the largest possible number).
 
 Each tool also provides a mechanism for recording multiple types of missingness:
 
@@ -55,7 +60,7 @@ Stata and SAS only support tagged missing values for numeric columns. SPSS suppo
 Haven models these missing values in two different ways:
 
 * For SAS and Stata, haven provides `tagged_na()` which extend R's
-  regular `NA` to add a single character label..
+  regular `NA` to add a single character label.
   
 * For SPSS, haven provides `labelled_spss()` that also models
   user defined values and ranges.

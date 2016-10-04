@@ -1,4 +1,5 @@
-bootswatch: cerulean
+template:
+  bootswatch: cerulean
 
 reference:
 - title: Reading and writing
