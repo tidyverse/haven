@@ -9,3 +9,4 @@
 \.dll$
 ^logo\.png$
 ^_pkgdown\.yml$
+^docs$
