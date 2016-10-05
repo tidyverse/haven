@@ -25,7 +25,9 @@ Imports:
     hms,
     tibble
 LazyData: true
-URL: https://github.com/hadley/haven, https://github.com/WizardMac/ReadStat
+URL: 
+    https://haven.tidyverse.org, 
+    https://github.com/WizardMac/ReadStat
 BugReports: https://github.com/hadley/haven/issues
 VignetteBuilder: knitr
 SystemRequirements: GNU make
