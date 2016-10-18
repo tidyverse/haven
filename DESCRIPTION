@@ -27,6 +27,7 @@ Imports:
 LazyData: true
 URL: 
     https://haven.tidyverse.org, 
+    https://github.com/tidyverse/haven,
     https://github.com/WizardMac/ReadStat
 BugReports: https://github.com/hadley/haven/issues
 VignetteBuilder: knitr
