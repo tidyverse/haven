@@ -1,4 +1,4 @@
-context("write_dta")
+context("write_sas")
 
 test_that("can roundtrip basic types", {
   x <- runif(10)
