@@ -116,3 +116,4 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *ctx, read
 sas_header_info_t *sas_header_info_init(readstat_writer_t *writer, int is_64bit);
 readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *hinfo, sas_header_start_t header_start);
 readstat_error_t sas_fill_page(readstat_writer_t *writer, sas_header_info_t *hinfo);
+readstat_error_t sas_validate_column_names(readstat_writer_t *writer);

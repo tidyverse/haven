@@ -19,50 +19,11 @@ typedef struct por_write_ctx_s {
 } por_write_ctx_t;
 
 static readstat_error_t por_finish(readstat_writer_t *writer) {
-    if (writer->bytes_written % 82 == 0)
-        return READSTAT_OK;
-
-    readstat_error_t error = READSTAT_OK;
-    ssize_t bytes_left_in_line = 80 - (writer->bytes_written % 82);
-    char *bytes = malloc(bytes_left_in_line);
-    memset(bytes, 'Z', bytes_left_in_line);
-
-    if ((error = readstat_write_bytes(writer, bytes, bytes_left_in_line)) != READSTAT_OK)
-        goto cleanup;
-
-    if ((error = readstat_write_string(writer, "\r\n")) != READSTAT_OK)
-        goto cleanup;
-
-cleanup:
-    if (bytes)
-        free(bytes);
-
-    return READSTAT_OK;
+    return readstat_write_line_padding(writer, 'Z', 80, "\r\n");
 }
 
 static readstat_error_t por_write_bytes(readstat_writer_t *writer, const void *bytes, size_t len) {
-    readstat_error_t retval = READSTAT_OK;
-    size_t bytes_written = 0;
-    while (bytes_written < len) {
-        ssize_t bytes_left_in_line = 80 - (writer->bytes_written % 82);
-        if (len - bytes_written < bytes_left_in_line) {
-            retval = readstat_write_bytes(writer, ((const char *)bytes) + bytes_written,
-                    len - bytes_written);
-            bytes_written = len;
-        } else {
-            retval = readstat_write_bytes(writer, ((const char *)bytes) + bytes_written,
-                    bytes_left_in_line);
-            bytes_written += bytes_left_in_line;
-        }
-        if (retval != READSTAT_OK)
-            break;
-
-        if (writer->bytes_written % 82 == 80) {
-            if ((retval = readstat_write_string(writer, "\r\n")) != READSTAT_OK)
-                break;
-        }
-    }
-    return retval;
+    return readstat_write_bytes_as_lines(writer, bytes, len, 80, "\r\n");
 }
 
 static readstat_error_t por_write_string_n(readstat_writer_t *writer, por_write_ctx_t *ctx, 

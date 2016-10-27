@@ -5,8 +5,8 @@ extern uint16_t por_unicode_lookup[256];
 typedef struct por_ctx_s {
     readstat_info_handler           info_handler;
     readstat_metadata_handler       metadata_handler;
-    readstat_note_handler           note_handler;
     readstat_variable_handler       variable_handler;
+    readstat_note_handler           note_handler;
     readstat_fweight_handler        fweight_handler;
     readstat_value_handler          value_handler;
     readstat_value_label_handler    value_label_handler;

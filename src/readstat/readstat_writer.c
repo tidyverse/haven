@@ -163,6 +163,57 @@ readstat_error_t readstat_write_bytes(readstat_writer_t *writer, const void *byt
     return READSTAT_OK;
 }
 
+readstat_error_t readstat_write_bytes_as_lines(readstat_writer_t *writer,
+        const void *bytes, size_t len, size_t line_len, const char *line_sep) {
+    size_t line_sep_len = strlen(line_sep);
+    readstat_error_t retval = READSTAT_OK;
+    size_t bytes_written = 0;
+    while (bytes_written < len) {
+        ssize_t bytes_left_in_line = line_len - (writer->bytes_written % (line_len + line_sep_len));
+        if (len - bytes_written < bytes_left_in_line) {
+            retval = readstat_write_bytes(writer, ((const char *)bytes) + bytes_written,
+                    len - bytes_written);
+            bytes_written = len;
+        } else {
+            retval = readstat_write_bytes(writer, ((const char *)bytes) + bytes_written,
+                    bytes_left_in_line);
+            bytes_written += bytes_left_in_line;
+        }
+        if (retval != READSTAT_OK)
+            break;
+
+        if (writer->bytes_written % (line_len + line_sep_len) == line_len) {
+            if ((retval = readstat_write_bytes(writer, line_sep, line_sep_len)) != READSTAT_OK)
+                break;
+        }
+    }
+    return retval;
+}
+
+readstat_error_t readstat_write_line_padding(readstat_writer_t *writer, char pad,
+        size_t line_len, const char *line_sep) {
+    size_t line_sep_len = strlen(line_sep);
+    if (writer->bytes_written % (line_len + line_sep_len) == 0)
+        return READSTAT_OK;
+
+    readstat_error_t error = READSTAT_OK;
+    ssize_t bytes_left_in_line = line_len - (writer->bytes_written % (line_len + line_sep_len));
+    char *bytes = malloc(bytes_left_in_line);
+    memset(bytes, pad, bytes_left_in_line);
+
+    if ((error = readstat_write_bytes(writer, bytes, bytes_left_in_line)) != READSTAT_OK)
+        goto cleanup;
+
+    if ((error = readstat_write_bytes(writer, line_sep, line_sep_len)) != READSTAT_OK)
+        goto cleanup;
+
+cleanup:
+    if (bytes)
+        free(bytes);
+
+    return READSTAT_OK;
+}
+
 readstat_error_t readstat_write_string(readstat_writer_t *writer, const char *bytes) {
     return readstat_write_bytes(writer, bytes, strlen(bytes));
 }
@@ -303,7 +354,9 @@ void readstat_add_note(readstat_writer_t *writer, const char *note) {
         writer->notes = realloc(writer->notes,
                 writer->notes_capacity * sizeof(const char *));
     }
-    writer->notes[writer->notes_count++] = strdup(note);
+    char *note_copy = malloc(strlen(note) + 1);
+    strcpy(note_copy, note);
+    writer->notes[writer->notes_count++] = note_copy;
 }
 
 void readstat_variable_set_label(readstat_variable_t *variable, const char *label) {
