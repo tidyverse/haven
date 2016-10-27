@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <string.h>
+
 #include "ieee.h"
+#include "../readstat_bits.h"
 
 /* These routines are modified versions of those found in SAS publication TS-140,
  * "RECORD LAYOUT OF A SAS VERSION 5 OR 6 DATA SET IN SAS TRANSPORT (XPORT) FORMAT"
@@ -16,6 +18,22 @@ static void ieee2xpt(unsigned char *ieee, unsigned char *xport);
 #define FLOATREP get_native()
 int get_native();
 #endif
+
+void memreverse(void *intp_void, int l) {
+    if (!machine_is_little_endian())
+        return;
+
+    int i,j;
+    char save;
+    char *intp = (char *)intp_void;
+
+    j = l/2;
+    for (i=0;i<j;i++) {
+        save = intp[i];
+        intp[i] = intp[l-i-1];
+        intp[l-i-1] = save;
+    }
+}
 
 int cnxptiee(const void *from_bytes, int fromtype, void *to_bytes, int totype)
 {
@@ -96,20 +114,6 @@ int get_native() {
     return(-1);
 }
 
-#ifdef BIG_ENDIAN
-#define REVERSE(a,b)
-#endif
-
-#ifdef LITTLE_ENDIAN
-#define DEFINE_REVERSE
-    void REVERSE(void *intp, int l);
-#endif
-
-#if !defined(DEFINE_REVERSE) && !defined(REVERSE)
-#define DEFINE_REVERSE
-    void REVERSE(void *intp, int l);
-#endif
-
 void xpt2ieee(unsigned char *xport, unsigned char *ieee) {
     char temp[8];
     register int shift;
@@ -128,9 +132,9 @@ void xpt2ieee(unsigned char *xport, unsigned char *ieee) {
     }
 
     memcpy(&xport1,temp,sizeof(uint32_t));
-    REVERSE(&xport1,sizeof(uint32_t));
+    memreverse(&xport1,sizeof(uint32_t));
     memcpy(&xport2,temp+4,sizeof(uint32_t));
-    REVERSE(&xport2,sizeof(uint32_t));
+    memreverse(&xport2,sizeof(uint32_t));
 
     /***************************************************************/
     /* Translate IBM format floating point numbers into IEEE */
@@ -236,9 +240,9 @@ void xpt2ieee(unsigned char *xport, unsigned char *ieee) {
         (xport1 & 0x80000000);
 
 doret:
-    REVERSE(&ieee1,sizeof(uint32_t));
+    memreverse(&ieee1,sizeof(uint32_t));
     memcpy(ieee,&ieee1,sizeof(uint32_t));
-    REVERSE(&ieee2,sizeof(uint32_t));
+    memreverse(&ieee2,sizeof(uint32_t));
     memcpy(ieee+4,&ieee2,sizeof(uint32_t));
     return;
 }
@@ -265,9 +269,9 @@ void ieee2xpt(unsigned char *ieee, unsigned char *xport) {
 
     /*------get 2 longs for shifting------------------------------*/
     memcpy(&ieee1,ieee8,sizeof(uint32_t));
-    REVERSE(&ieee1,sizeof(uint32_t));
+    memreverse(&ieee1,sizeof(uint32_t));
     memcpy(&ieee2,ieee8+4,sizeof(uint32_t));
-    REVERSE(&ieee2,sizeof(uint32_t));
+    memreverse(&ieee2,sizeof(uint32_t));
 
     memset(xport,0,8);
 
@@ -406,32 +410,11 @@ doret:
 
         *xport = 0x7F | ((ieee1 >> 24) & 0x80);
     } else {
-        REVERSE(&xport1,sizeof(uint32_t));
+        memreverse(&xport1,sizeof(uint32_t));
         memcpy(xport,&xport1,sizeof(uint32_t));
-        REVERSE(&xport2,sizeof(uint32_t));
+        memreverse(&xport2,sizeof(uint32_t));
         memcpy(xport+4,&xport2,sizeof(uint32_t));
     }
     return;
 }
 
-#ifdef DEFINE_REVERSE
-void REVERSE(void *intp_void, int l) {
-    int i,j;
-    char save;
-    char *intp = (char *)intp_void;
-    static int one = 1;
-
-#if !defined(BIG_ENDIAN) && !defined(LITTLE_ENDIAN)
-    if (((unsigned char *)&one)[sizeof(one)-1] == 1)
-
-        return;
-#endif
-
-    j = l/2;
-    for (i=0;i<j;i++) {
-        save = intp[i];
-        intp[i] = intp[l-i-1];
-        intp[l-i-1] = save;
-    }
-}
-#endif
