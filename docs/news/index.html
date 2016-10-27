@@ -6,24 +6,21 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>All news. haven</title>
+<title>All news • haven</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 
 <!-- Bootstrap -->
-
-<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-
-
+<link href="../tidyverse.css" rel="stylesheet">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
-
-<!-- pkgdown -->
+<!-- tidyverse -->
 <link href="../pkgdown.css" rel="stylesheet">
+<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
 
 <!-- mathjax -->
@@ -36,10 +33,9 @@
   </head>
 
   <body>
-    <div class="container">
+    <div class="container template-news">
       <header>
-      
-<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -47,14 +43,15 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">haven</a>
+
+      <div class="navbar-brand-container">
+        <a class="navbar-brand" href="../index.html">haven</a>
+        <small class="tidyverse">part of the <a href="http://tidyverse.org">tidyverse</a></small>
+      </div>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
+      <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="../index.html">Home</a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
@@ -80,10 +77,8 @@
     </li>
   </ul>
 </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/hadley/haven">
+  <a href="https://github.com/tidyverse/haven">
     <span class="fa fa-github fa-lg"></span>
      
   </a>
@@ -92,13 +87,29 @@
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
+
       
       </header>
 
       <div class="row">
+
   <div class="col-md-9">
-    <div id="haven-1.0.0" class="section level1">
-<h1>haven 1.0.0</h1>
+    <div class="page-header">
+      <h1>Change log <small>All releases</small></h1>
+    </div>
+
+    <div class="contents">
+    <div id="haven-1-0-0-9000" class="section level1">
+<h1 class="hasAnchor">
+<a href="#haven-1-0-0-9000" class="anchor"> </a>haven 1.0.0.9000</h1>
+<ul><li><p>Update to latest readstat. Includes:</p></li>
+<li>SAS: support Win baltic code page (#231)</li>
+<li>SPSS: support uppercase time stamps (#230)</li>
+<li><p>SPSS: fixes for 252-255 byte strings (#226)</p></li>
+</ul></div>
+    <div id="haven-1-0-0" class="section level1">
+<h1 class="hasAnchor">
+<a href="#haven-1-0-0" class="anchor"> </a>haven 1.0.0</h1>
 <ul><li><p>The ReadStat library is stored in a subdirectory of <code>src</code> (#209, @krlmlr).</p></li>
 <li><p>Import tibble so that tibbles are printed consistently (#154, @krlmlr).</p></li>
 <li>
@@ -119,7 +130,7 @@
 <li><p><code><a href="../reference/as_factor.html">as_factor()</a></code> no longer drops the <code>label</code> attribute (variable label) when used (#177, @itsdalmo).</p></li>
 <li><p>Using <code><a href="../reference/as_factor.html">as_factor()</a></code> with <code>levels = "default</code> or <code>levels = "both"</code> preserves unused labels (implicit missing) when converting (#172, @itsdalmo). Labels (and the resulting factor levels) are always sorted by values.</p></li>
 <li><p><code><a href="../reference/as_factor.html">as_factor()</a></code> gains a new <code>levels = "default"</code> mechanism. This uses the labels where present, and otherwise uses the labels. This is now the default, as it seems to map better to the semantics of labelled values in other statistical packages (#81). You can also use <code>levels = "both"</code> to combine the value and the label into a single string (#82). It also gains a method for data frames, so you can easily convert every labelled column to a factor in one function call.</p></li>
-<li><p>New <code>vignette("semantics", package = "haven")</code> discusses the semantics of missing values and labelling in SAS, SPSS, and Stata, and how they are translated into R.</p></li>
+<li><p>New <code><a href="../articles/semantics.html">vignette("semantics", package = "haven")</a></code> discusses the semantics of missing values and labelling in SAS, SPSS, and Stata, and how they are translated into R.</p></li>
 <li><p>Support for <code>hms()</code> has been moved into the hms package (#162). Time varibles now have class <code>c("hms", "difftime")</code> and a <code>units</code> attribute with value “secs” (#162).</p></li>
 <li><p><code><a href="../reference/labelled.html">labelled()</a></code> is less strict with its checks: you can mix double and integer value and labels (#86, #110, @lionel-), and <code><a href="../reference/labelled.html">is.labelled()</a></code> is now exported (#124). Putting a labelled vector in a data frame now generates the correct column name (#193).</p></li>
 <li><p><code><a href="../reference/read_dta.html">read_dta()</a></code> now recognises “%d” and custom date types (#80, #130). It also gains an encoding parameter which you can use to override the default encoding. This is particularly useful for Stata 13 and below which did not store the encoding used in the file (#163).</p></li>
@@ -135,8 +146,9 @@
 <li><p><code><a href="../reference/zap_labels.html">zap_labels()</a></code> has been completely overhauled. It now works (@markriseley, #69), and only drops label attributes; it no longer replaces labelled values with <code>NA</code>s. It also gains a data frame method that zaps the labels from every column.</p></li>
 <li><p><code>print.labelled()</code> and <code>print.labelled_spss()</code> now display the type.</p></li>
 </ul></div>
-    <div id="haven-0.2.0" class="section level1">
-<h1>haven 0.2.0</h1>
+    <div id="haven-0-2-0" class="section level1">
+<h1 class="hasAnchor">
+<a href="#haven-0-2-0" class="anchor"> </a>haven 0.2.0</h1>
 <ul><li><p>fixed a bug in <code>as_factor.labelled</code>, which generated <na>’s and wrong labels for integer labels.</na></p></li>
 <li><p><code><a href="../reference/zap_labels.html">zap_labels()</a></code> now leaves unlabelled vectors unchanged, making it easier to apply to all columns.</p></li>
 <li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> and <code><a href="../reference/read_spss.html">write_sav()</a></code> take more care to always write output as UTF-8 (#36)</p></li>
@@ -148,19 +160,22 @@
 <li><p>hms objects deal better with missings when printing.</p></li>
 <li><p>Fixed bug causing labels for numeric variables to be read in as integers and associated error: <code>Error: `x` and `labels` must be same type</code></p></li>
 </ul></div>
-    <div id="haven-0.1.1" class="section level1">
-<h1>haven 0.1.1</h1>
+    <div id="haven-0-1-1" class="section level1">
+<h1 class="hasAnchor">
+<a href="#haven-0-1-1" class="anchor"> </a>haven 0.1.1</h1>
 <ul><li>Fixed memory initialisation problems found by valgrind.</li>
 </ul></div>
+    </div>
   </div>
 
-  <div class="col-md-3 hidden-xs">
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#haven-1.0.0">1.0.0</a></li>
-        <li><a href="#haven-0.2.0">0.2.0</a></li>
-        <li><a href="#haven-0.1.1">0.1.1</a></li>
+        <li><a href="#haven-1-0-0-9000">1.0.0.9000</a></li>
+        <li><a href="#haven-1-0-0">1.0.0</a></li>
+        <li><a href="#haven-0-2-0">0.2.0</a></li>
+        <li><a href="#haven-0-1-1">0.1.1</a></li>
       </ul>
     </div>
   </div>
@@ -168,7 +183,14 @@
 </div>
 
       <footer>
-      <p>Built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>. Styled with <a href="http://getbootstrap.com">Bootstrap 3</a>.</p>
+      <div class="tidyverse">
+  <p>haven is a part of the <strong>tidyverse</strong>, an ecosystem of packages designed with common APIs and a shared philosophy. Learn more at <a href="http://tidyverse.org">tidyverse.org</a>.</p>
+</div>
+
+<div class="author">
+  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, Evan Miller, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
+  <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+</div>
       </footer>
    </div>
 

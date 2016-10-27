@@ -1,5 +1,9 @@
 template:
-  bootswatch: cerulean
+  package: tidytemplate
+  default_assets: false
+
+home:
+  strip_header: true
 
 reference:
 - title: Reading and writing
@@ -46,8 +50,6 @@ reference:
 navbar:
   type: default
   left:
-  - text: Home
-    href: index.html
   - text: Reference
     href: reference/index.html
   - text: Semantics
@@ -62,6 +64,3 @@ navbar:
       - text: "------------------"
       - text: "Change log"
         href: news/index.html
-  right:
-  - icon: fa-github fa-lg
-    href: https://github.com/hadley/haven

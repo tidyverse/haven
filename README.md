@@ -4,6 +4,8 @@
 [![Coverage Status](https://img.shields.io/codecov/c/github/tidyverse/haven/master.svg)](https://codecov.io/github/tidyverse/haven?branch=master)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/haven)](https://cran.r-project.org/package=haven)
 
+## Overview
+
 Haven allows you to load foreign data formats (SAS, SPSS and Stata) in to R by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). 
 
 Key features:
@@ -22,17 +24,22 @@ Key features:
 ## Installation
 
 ```R
-# Install the released version from CRAN:
+# The easiest way to get haven is to install the whole tidyverse:
+install.packages("tidyverse")
+
+# Alternatively, install just haven:
 install.packages("haven")
 
-# Install the cutting edge development version from GitHub:
+# Or the the development version from GitHub:
 # install.packages("devtools")
-devtools::install_github("hadley/haven")
+devtools::install_github("tidyverse/haven")
 ```
 
 ## Usage
 
 ```R
+library(haven)
+
 # SAS
 write_sas(mtcars, "mtcars.sas7bdat")
 read_sas("mtcars.sas7bdat")

@@ -6,24 +6,21 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>labelled. haven</title>
+<title>Create a labelled vector. — labelled • haven</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 
 <!-- Bootstrap -->
-
-<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-
-
+<link href="../tidyverse.css" rel="stylesheet">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
-
-<!-- pkgdown -->
+<!-- tidyverse -->
 <link href="../pkgdown.css" rel="stylesheet">
+<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
 
 <!-- mathjax -->
@@ -36,10 +33,9 @@
   </head>
 
   <body>
-    <div class="container">
+    <div class="container template-reference-topic">
       <header>
-      
-<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -47,14 +43,15 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">haven</a>
+
+      <div class="navbar-brand-container">
+        <a class="navbar-brand" href="../index.html">haven</a>
+        <small class="tidyverse">part of the <a href="http://tidyverse.org">tidyverse</a></small>
+      </div>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
+      <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="../index.html">Home</a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
@@ -80,10 +77,8 @@
     </li>
   </ul>
 </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/hadley/haven">
+  <a href="https://github.com/tidyverse/haven">
     <span class="fa fa-github fa-lg"></span>
      
   </a>
@@ -92,15 +87,16 @@
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
+
       
       </header>
 
-      <div class="page-header">
-  <h1>Create a labelled vector.</h1>
-</div>
+      <div class="row">
+  <div class="col-md-9 contents">
+    <div class="page-header">
+    <h1>Create a labelled vector.</h1>
+    </div>
 
-<div class="row">
-  <div class="col-md-9">
     
     <p>A labelled vector is a common data structure in other statistical
 environments, allowing you to assign text labels to specific values.
@@ -114,7 +110,7 @@ soon after importing.</p>
 
 <span class='fu'>is.labelled</span>(<span class='no'>x</span>)</pre>
     
-    <h2>Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <dl class="dl-horizontal">
       <dt>x</dt>
       <dd>A vector to label. Must be either numeric (integer or double) or
@@ -126,18 +122,22 @@ of the values might be labelled.</dd>
       <dt>...</dt>
       <dd>Ignored</dd>
     </dl>
-        
-    <h2 id="examples">Examples</h2>
+    
+
+    <h2 class="hasAnchor" id="examples">
+      <a class="anchor" href="#examples"></a>
+      Examples
+    </h2>
     <pre class="examples"><div class='input'><span class='no'>s1</span> <span class='kw'>&lt;-</span> <span class='fu'>labelled</span>(<span class='fu'>c</span>(<span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span>), <span class='fu'>c</span>(<span class='kw'>Male</span> <span class='kw'>=</span> <span class='st'>"M"</span>, <span class='kw'>Female</span> <span class='kw'>=</span> <span class='st'>"F"</span>))
 <span class='no'>s2</span> <span class='kw'>&lt;-</span> <span class='fu'>labelled</span>(<span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>2</span>), <span class='fu'>c</span>(<span class='kw'>Male</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>Female</span> <span class='kw'>=</span> <span class='fl'>2</span>))
 
 <span class='co'># Unfortunately it's not possible to make as.factor work for labelled objects</span>
 <span class='co'># so instead use as_factor. This works for all types of labelled vectors.</span>
-<span class='fu'>as_factor</span>(<span class='no'>s1</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
+<span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s1</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
 #&gt; Levels: Female Male
-#&gt; </div><div class='input'><span class='fu'>as_factor</span>(<span class='no'>s1</span>, <span class='kw'>labels</span> <span class='kw'>=</span> <span class='st'>"values"</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
+#&gt; </div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s1</span>, <span class='kw'>labels</span> <span class='kw'>=</span> <span class='st'>"values"</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
 #&gt; Levels: Female Male
-#&gt; </div><div class='input'><span class='fu'>as_factor</span>(<span class='no'>s2</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
+#&gt; </div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s2</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
 #&gt; Levels: Male Female
 #&gt; </div><div class='input'>
 <span class='co'># Other statistical software supports multiple types of missing values</span>
@@ -153,22 +153,36 @@ of the values might be labelled.</dd>
 #&gt;      F         Female
 #&gt;      X        Refused
 #&gt;    N/A Not applicable
-#&gt; </div><div class='input'><span class='fu'>as_factor</span>(<span class='no'>s3</span>)</div><div class='output co'>#&gt; [1] Male           Male           Female         Refused        Not applicable
+#&gt; </div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s3</span>)</div><div class='output co'>#&gt; [1] Male           Male           Female         Refused        Not applicable
 #&gt; Levels: Female Male Not applicable Refused
 #&gt; </div><div class='input'>
 <span class='co'># Often when you have a partially labelled numeric vector, labelled values</span>
 <span class='co'># are special types of missing. Use zap_labels to replace labels with missing</span>
 <span class='co'># values</span>
 <span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'>labelled</span>(<span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>10</span>, <span class='fl'>9</span>), <span class='fu'>c</span>(<span class='kw'>Unknown</span> <span class='kw'>=</span> <span class='fl'>9</span>, <span class='kw'>Refused</span> <span class='kw'>=</span> <span class='fl'>10</span>))
-<span class='fu'>zap_labels</span>(<span class='no'>x</span>)</div><div class='output co'>#&gt; [1]  1  2  1  2 10  9
+<span class='fu'><a href='zap_labels.html'>zap_labels</a></span>(<span class='no'>x</span>)</div><div class='output co'>#&gt; [1]  1  2  1  2 10  9
 #&gt; </div></pre>
   </div>
-  <div class="col-md-3">
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+            
+      <li><a href="#examples">Examples</a></li>
+    </ul>
+
   </div>
 </div>
 
       <footer>
-      <p>Built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>. Styled with <a href="http://getbootstrap.com">Bootstrap 3</a>.</p>
+      <div class="tidyverse">
+  <p>haven is a part of the <strong>tidyverse</strong>, an ecosystem of packages designed with common APIs and a shared philosophy. Learn more at <a href="http://tidyverse.org">tidyverse.org</a>.</p>
+</div>
+
+<div class="author">
+  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, Evan Miller, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
+  <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+</div>
       </footer>
    </div>
 

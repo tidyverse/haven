@@ -6,24 +6,21 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference. haven</title>
+<title>Function reference • haven</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 
 <!-- Bootstrap -->
-
-<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cerulean/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-
-
+<link href="../tidyverse.css" rel="stylesheet">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 
-
-<!-- pkgdown -->
+<!-- tidyverse -->
 <link href="../pkgdown.css" rel="stylesheet">
+<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
 
 <!-- mathjax -->
@@ -36,10 +33,9 @@
   </head>
 
   <body>
-    <div class="container">
+    <div class="container template-reference-index">
       <header>
-      
-<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+      <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
@@ -47,14 +43,15 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">haven</a>
+
+      <div class="navbar-brand-container">
+        <a class="navbar-brand" href="../index.html">haven</a>
+        <small class="tidyverse">part of the <a href="http://tidyverse.org">tidyverse</a></small>
+      </div>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
+      <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="../index.html">Home</a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li>
@@ -80,10 +77,8 @@
     </li>
   </ul>
 </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/hadley/haven">
+  <a href="https://github.com/tidyverse/haven">
     <span class="fa fa-github fa-lg"></span>
      
   </a>
@@ -92,72 +87,102 @@
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
+
       
       </header>
 
-      <div class="page-header">
-  <h1>Function reference <small>version&nbsp;1.0.0</small></h1>
-</div>
-
-<div class="row">
+      <div class="row">
   <div class="col-md-9">
-    <div class="section ">
-      <h2>Reading and writing</h2>
+    <div class="page-header">
+      <h1>Function reference</h1>
+      <h4>version&nbsp;1.0.0.9000</h4>
+    </div>
+
+    <div class="contents">
+      <h2 id="section-reading-and-writing" class="hasAnchor"><a href="#section-reading-and-writing" class="anchor"></a>Reading and writing</h2>
       <p class="section-desc"></p>
 
-      <dl class="dl-horizontal">
-        <dt><a href="read_dta.html">read_dta</a></dt><dt><a href="read_dta.html">read_stata</a></dt><dt><a href="read_dta.html">write_dta</a></dt>
-        <dd>Read and write Stata DTA files.</dd>
-        <dt><a href="read_sas.html">read_sas</a></dt><dt><a href="read_sas.html">write_sas</a></dt>
-        <dd>Read and write SAS files.</dd>
-        <dt><a href="read_spss.html">read_por</a></dt><dt><a href="read_spss.html">read_sav</a></dt><dt><a href="read_spss.html">read_spss</a></dt><dt><a href="read_spss.html">write_sav</a></dt>
-        <dd>Read SPSS (SAV &amp; POR) files. Write SAV files.</dd>
-      </dl>
-    </div>
-    <div class="section ">
-      <h2>Labelled vectors</h2>
+      <p><a href="read_dta.html">Read and write Stata DTA files.</a></p>
+      <ul>
+        <li><code><a href="read_dta.html">read_dta</a></code></li><li><code><a href="read_dta.html">read_stata</a></code></li><li><code><a href="read_dta.html">write_dta</a></code></li>
+      </ul>
+      <p><a href="read_sas.html">Read and write SAS files.</a></p>
+      <ul>
+        <li><code><a href="read_sas.html">read_sas</a></code></li><li><code><a href="read_sas.html">write_sas</a></code></li>
+      </ul>
+      <p><a href="read_spss.html">Read SPSS (SAV &amp; POR) files. Write SAV files.</a></p>
+      <ul>
+        <li><code><a href="read_spss.html">read_spss</a></code></li><li><code><a href="read_spss.html">read_sav</a></code></li><li><code><a href="read_spss.html">read_por</a></code></li><li><code><a href="read_spss.html">write_sav</a></code></li><li><code><a href="read_spss.html">read_spss</a></code></li>
+      </ul>
+          <h2 id="section-labelled-vectors" class="hasAnchor"><a href="#section-labelled-vectors" class="anchor"></a>Labelled vectors</h2>
       <p class="section-desc"><p>SAS, SPSS, and Stata share a simply concept of &ldquo;labelled&rdquo; vectors, which are similar to factors but a little more general. The <code><a href="../reference/labelled.html">labelled()</a></code> class provides a natural representaion in R.</p></p>
 
-      <dl class="dl-horizontal">
-        <dt><a href="as_factor.html">as_factor</a></dt><dt><a href="as_factor.html">as_factor.character</a></dt><dt><a href="as_factor.html">as_factor.data.frame</a></dt><dt><a href="as_factor.html">as_factor.factor</a></dt><dt><a href="as_factor.html">as_factor.labelled</a></dt>
-        <dd>Convert input to a factor.</dd>
-        <dt><a href="labelled_spss.html">labelled_spss</a></dt>
-        <dd>Labelled vectors for SPSS</dd>
-        <dt><a href="labelled.html">is.labelled</a></dt><dt><a href="labelled.html">labelled</a></dt>
-        <dd>Create a labelled vector.</dd>
-        <dt><a href="print_labels.html">print_labels</a></dt>
-        <dd>Print the labels of a labelled vector</dd>
-      </dl>
-    </div>
-    <div class="section ">
-      <h2>tagged_na</h2>
+      <p><a href="as_factor.html">Convert input to a factor.</a></p>
+      <ul>
+        <li><code><a href="as_factor.html">as_factor</a></code></li><li><code><a href="as_factor.html">as_factor.factor</a></code></li><li><code><a href="as_factor.html">as_factor.character</a></code></li><li><code><a href="as_factor.html">as_factor.data.frame</a></code></li><li><code><a href="as_factor.html">as_factor.labelled</a></code></li>
+      </ul>
+      <p><a href="labelled_spss.html">Labelled vectors for SPSS</a></p>
+      <ul>
+        <li><code><a href="labelled_spss.html">labelled_spss</a></code></li>
+      </ul>
+      <p><a href="labelled.html">Create a labelled vector.</a></p>
+      <ul>
+        <li><code><a href="labelled.html">labelled</a></code></li><li><code><a href="labelled.html">is.labelled</a></code></li>
+      </ul>
+      <p><a href="print_labels.html">Print the labels of a labelled vector</a></p>
+      <ul>
+        <li><code><a href="print_labels.html">print_labels</a></code></li>
+      </ul>
+          <h2 id="section-tagged-na" class="hasAnchor"><a href="#section-tagged-na" class="anchor"></a>tagged_na</h2>
       <p class="section-desc"><p>Both SAS and Stata supported tagged missing values, where a missing value can have multiple &ldquo;types&rdquo;, given by an letter from A through Z. <code><a href="../reference/tagged_na.html">tagged_na()</a></code> provides a convenient way of representing these types of missing values in R by taking advantage of the binary representation of <code>NA</code>.</p></p>
 
-      <dl class="dl-horizontal">
-        <dt><a href="tagged_na.html">format_tagged_na</a></dt><dt><a href="tagged_na.html">is_tagged_na</a></dt><dt><a href="tagged_na.html">na_tag</a></dt><dt><a href="tagged_na.html">print_tagged_na</a></dt><dt><a href="tagged_na.html">tagged_na</a></dt>
-        <dd>&quot;Tagged&quot; missing values</dd>
-      </dl>
-    </div>
-    <div class="section ">
-      <h2>Remove attributes</h2>
+      <p><a href="tagged_na.html">&quot;Tagged&quot; missing values</a></p>
+      <ul>
+        <li><code><a href="tagged_na.html">tagged_na</a></code></li><li><code><a href="tagged_na.html">na_tag</a></code></li><li><code><a href="tagged_na.html">is_tagged_na</a></code></li><li><code><a href="tagged_na.html">format_tagged_na</a></code></li><li><code><a href="tagged_na.html">print_tagged_na</a></code></li>
+      </ul>
+          <h2 id="section-remove-attributes" class="hasAnchor"><a href="#section-remove-attributes" class="anchor"></a>Remove attributes</h2>
       <p class="section-desc"><p>There are a number of SPSS/SAS/Stata features that have no direct equivalent in R. Haven preserves them so you can choose what do with them. To simply eliminate them, use one of the zap functions.</p></p>
 
-      <dl class="dl-horizontal">
-        <dt><a href="zap_empty.html">zap_empty</a></dt>
-        <dd>Convert empty strings into missing values.</dd>
-        <dt><a href="zap_formats.html">zap_formats</a></dt>
-        <dd>Remove format attributes</dd>
-        <dt><a href="zap_labels.html">zap_labels</a></dt>
-        <dd>Zap labels</dd>
-        <dt><a href="zap_missing.html">zap_missing</a></dt>
-        <dd>Zap special missings to regular R missings</dd>
-      </dl>
+      <p><a href="zap_empty.html">Convert empty strings into missing values.</a></p>
+      <ul>
+        <li><code><a href="zap_empty.html">zap_empty</a></code></li>
+      </ul>
+      <p><a href="zap_formats.html">Remove format attributes</a></p>
+      <ul>
+        <li><code><a href="zap_formats.html">zap_formats</a></code></li>
+      </ul>
+      <p><a href="zap_labels.html">Zap labels</a></p>
+      <ul>
+        <li><code><a href="zap_labels.html">zap_labels</a></code></li>
+      </ul>
+      <p><a href="zap_missing.html">Zap special missings to regular R missings</a></p>
+      <ul>
+        <li><code><a href="zap_missing.html">zap_missing</a></code></li>
+      </ul>
+    
     </div>
+  </div>
+
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#section-reading-and-writing">Reading and writing</a></li>
+      <li><a href="#section-labelled-vectors">Labelled vectors</a></li>
+      <li><a href="#section-tagged-na">tagged_na</a></li>
+      <li><a href="#section-remove-attributes">Remove attributes</a></li>
+    </ul>
   </div>
 </div>
 
       <footer>
-      <p>Built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>. Styled with <a href="http://getbootstrap.com">Bootstrap 3</a>.</p>
+      <div class="tidyverse">
+  <p>haven is a part of the <strong>tidyverse</strong>, an ecosystem of packages designed with common APIs and a shared philosophy. Learn more at <a href="http://tidyverse.org">tidyverse.org</a>.</p>
+</div>
+
+<div class="author">
+  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, Evan Miller, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
+  <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+</div>
       </footer>
    </div>
 
