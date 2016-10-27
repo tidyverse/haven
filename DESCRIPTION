@@ -32,5 +32,5 @@ URL:
 BugReports: https://github.com/hadley/haven/issues
 VignetteBuilder: knitr
 SystemRequirements: GNU make
-RoxygenNote: 5.0.1
+RoxygenNote: 5.0.1.9000
 Encoding: UTF-8
