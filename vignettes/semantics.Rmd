@@ -49,7 +49,7 @@ x2 <- labelled(
 x2
 ```
 
-The goal of haven is not to provide a labelled vector that you can use everywhere in your analysis. The goal is to provide an intermediate datastructure that you can covnert into a regular R data frame. You can do this by either converting to a factor or stripping the labels:
+The goal of haven is not to provide a labelled vector that you can use everywhere in your analysis. The goal is to provide an intermediate datastructure that you can convert into a regular R data frame. You can do this by either converting to a factor or stripping the labels:
 
 ```{r}
 as_factor(x1)
