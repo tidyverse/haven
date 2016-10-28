@@ -6,21 +6,31 @@
 
 ## Overview
 
-Haven allows you to load foreign data formats (SAS, SPSS and Stata) in to R by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). 
+Haven allows is designed to write and read data formats used by other statistical packages by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). Currently it supports:
 
-Key features:
+* __SAS__: `read_sas()` reads `.sas7bdat` + `.sas7bcat` files and `read_xpt()` 
+  SAS transport files (version 5 and version 8). `write_sas()` writes 
+  `.sas7bdat` files.
+  
+* __SPSS__: `read_sav()` reads `.sav` files and `read_por()` reads the 
+  older `.por` files. `write_sav()` writes `.sav` files.
+  
+* __Stata__: `read_dta()` reads `.dta` files (up to version 14). 
+  `write_dta()` writes `.dta` files (versions 8-14).
 
-* Reads both types of SPSS files (`.sav` and `.por`), Stata files (up to
-  version 14), SAS's proprietary binary format (`.sas7bdat` & `.sas7bcat`),
-  and SAS's open transport format (`.xpt`).
+The output objects:
 
-* Writes SPSS, Stata, and SAS files.
+* Are [tibbles](http://github.com/hadley/tibble), which have a better print
+  method for very long and very wide files.
+  
+* Translate value labels into a new `labelled()` class, which preserve the
+  original semantics and can easily coerced to factors with `as_factor()`.
+  Special missing values are preserved. See `vignette("semantics")` for 
+  more details.
 
-* Date times are converted to corresponding R classes and labelled vectors are 
-  returned as a new `labelled` class. You can easily coerce to factors or 
-  replace labelled values with missings as appropriate. All functions return
-  [tibbles](http://github.com/hadley/tibble).
-
+* Date/times are converted to R date/time classes. Character vectors are
+  not converted to factors.
+  
 ## Installation
 
 ```R
