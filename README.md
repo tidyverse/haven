@@ -10,9 +10,9 @@ Haven allows you to load foreign data formats (SAS, SPSS and Stata) in to R by w
 
 Key features:
 
-* Reads both types of SPSS files (`.sav` and `.por`), Stata files 
-  (up to version 14), and SAS's proprietary binary format 
-  (SAS7BDAT + SAS7BCAT).
+* Reads both types of SPSS files (`.sav` and `.por`), Stata files (up to
+  version 14), SAS's proprietary binary format (`.sas7bdat` & `.sas7bcat`),
+  and SAS's open transport format (`.xpt`).
 
 * Writes SPSS, Stata, and SAS files.
 

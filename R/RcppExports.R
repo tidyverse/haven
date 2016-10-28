@@ -9,6 +9,14 @@ df_parse_sas_raw <- function(spec_b7dat, spec_b7cat, encoding) {
     .Call('haven_df_parse_sas_raw', PACKAGE = 'haven', spec_b7dat, spec_b7cat, encoding)
 }
 
+df_parse_xpt_file <- function(spec) {
+    .Call('haven_df_parse_xpt_file', PACKAGE = 'haven', spec)
+}
+
+df_parse_xpt_raw <- function(spec) {
+    .Call('haven_df_parse_xpt_raw', PACKAGE = 'haven', spec)
+}
+
 df_parse_dta_file <- function(spec, encoding) {
     .Call('haven_df_parse_dta_file', PACKAGE = 'haven', spec, encoding)
 }
@@ -43,5 +51,9 @@ write_dta_ <- function(data, path, version) {
 
 write_sas_ <- function(data, path) {
     invisible(.Call('haven_write_sas_', PACKAGE = 'haven', data, path))
+}
+
+write_xpt_ <- function(data, path, version) {
+    invisible(.Call('haven_write_xpt_', PACKAGE = 'haven', data, path, version))
 }
 

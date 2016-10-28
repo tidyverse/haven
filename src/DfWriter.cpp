@@ -100,6 +100,9 @@ public:
     case HAVEN_SAS:
       checkStatus(readstat_begin_writing_sas7bdat(writer_, this, n));
       break;
+    case HAVEN_XPT:
+      checkStatus(readstat_begin_writing_xport(writer_, this, n));
+      break;
     }
 
     // Write data
@@ -163,18 +166,21 @@ public:
 
     case HAVEN_DATETIME:
       switch(type_) {
+      case HAVEN_XPT:
       case HAVEN_SAS:   return "DATETIME";
       case HAVEN_SPSS:  return "DATETIME";
       case HAVEN_STATA: return "%tc";
       }
     case HAVEN_DATE:
       switch(type_) {
+      case HAVEN_XPT:
       case HAVEN_SAS:   return "DATE";
       case HAVEN_SPSS:  return "DATE";
       case HAVEN_STATA: return "%td";
       }
     case HAVEN_TIME:
       switch(type_) {
+      case HAVEN_XPT:
       case HAVEN_SAS:   return "TIME";
       case HAVEN_SPSS:  return "TIME";
       case HAVEN_STATA: return NULL; // Stata doesn't have a pure time type
@@ -324,4 +330,11 @@ void write_dta_(List data, std::string path, int version) {
 // [[Rcpp::export]]
 void write_sas_(List data, std::string path) {
   Writer(HAVEN_SAS, data, path).write();
+}
+
+// [[Rcpp::export]]
+void write_xpt_(List data, std::string path, int version) {
+  Writer writer(HAVEN_XPT, data, path);
+  writer.setVersion(version);
+  writer.write();
 }

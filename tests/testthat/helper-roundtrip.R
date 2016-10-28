@@ -23,15 +23,29 @@ roundtrip_sas <- function(x) {
   zap_formats(read_sas(tmp))
 }
 
+roundtrip_xpt <- function(x) {
+  tmp <- tempfile()
+  on.exit(unlink(tmp))
+
+  write_xpt(x, tmp)
+  zap_formats(read_xpt(tmp))
+}
+
+
 roundtrip_var <- function(x, type = "sav") {
-  df <- list(x = x)
-  class(df) <- "data.frame"
-  attr(df, "row.names") <- .set_row_names(length(x))
+  df <- tibble::tibble(x = x)
+
+  # Forces xpt files to be correct length even when ending with
+  # empty character strings
+  if (type == "xpt") {
+    df$y <- seq_along(x)
+  }
 
   switch(type,
     sav = roundtrip_sav(df)$x,
     dta = roundtrip_dta(df)$x,
     sas = roundtrip_sas(df)$x,
+    xpt = roundtrip_xpt(df)$x,
     stop("Unsupported type")
   )
 }

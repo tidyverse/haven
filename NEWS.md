@@ -1,5 +1,8 @@
 # haven 1.0.0.9000
 
+* Add support for reading (`read_xpt()`) and writing (`write_xpt()`) SAS 
+  transport files.
+
 * Update to latest readstat. Includes:
 
   * SAS: support Win baltic code page (#231)
