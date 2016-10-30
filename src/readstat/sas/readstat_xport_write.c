@@ -9,7 +9,7 @@
 #include "readstat_xport.h"
 #include "ieee.h"
 
-#define XPORT_DEFAULT_VERISON 8
+#define XPORT_DEFAULT_VERISON   8
 #define RECORD_LEN 80
 
 static void copypad(char *dst, size_t dst_len, const char *src) {
@@ -62,10 +62,16 @@ static readstat_error_t xport_write_header_record(readstat_writer_t *writer,
 }
 
 static size_t xport_variable_width(readstat_type_t type, size_t user_width) {
-    if (type == READSTAT_TYPE_STRING) {
+    if (type == READSTAT_TYPE_STRING)
         return user_width;
-    }
-    return 8;
+
+    if (user_width >= XPORT_MAX_DOUBLE_SIZE || user_width == 0)
+        return XPORT_MAX_DOUBLE_SIZE;
+
+    if (user_width <= XPORT_MIN_DOUBLE_SIZE)
+        return XPORT_MIN_DOUBLE_SIZE;
+
+    return user_width;
 }
 
 static readstat_error_t xport_write_variables(readstat_writer_t *writer) {
@@ -396,12 +402,15 @@ static readstat_error_t xport_write_row(void *writer_ctx, void *row, size_t row_
 }
 
 static readstat_error_t xport_write_double(void *row, const readstat_variable_t *var, double value) {
-    int rc = cnxptiee(&value, CN_TYPE_NATIVE, row, CN_TYPE_XPORT);
+    char full_value[8];
+    int rc = cnxptiee(&value, CN_TYPE_NATIVE, full_value, CN_TYPE_XPORT);
 
-    if (rc == 0)
-        return READSTAT_OK;
+    if (rc)
+        return READSTAT_ERROR_CONVERT;
 
-    return READSTAT_ERROR_CONVERT;
+    memcpy(row, full_value, var->storage_width);
+
+    return READSTAT_OK;
 }
 
 static readstat_error_t xport_write_float(void *row, const readstat_variable_t *var, float value) {

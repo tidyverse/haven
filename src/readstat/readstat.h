@@ -413,7 +413,9 @@ void readstat_label_int32_value(readstat_label_set_t *label_set, int32_t value, 
 void readstat_label_string_value(readstat_label_set_t *label_set, const char *value, const char *label);
 void readstat_label_tagged_value(readstat_label_set_t *label_set, char tag, const char *label);
 
-// Now define your variables. Note that `storage_width' is only used for READSTAT_TYPE_STRING variables.
+// Now define your variables. Note that `storage_width' is used for:
+// * READSTAT_TYPE_STRING variables in all formats
+// * READSTAT_TYPE_DOUBLE variables, but only in the SAS XPORT format (valid values 3-8, defaults to 8)
 readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char *name, readstat_type_t type, 
         size_t storage_width);
 void readstat_variable_set_label(readstat_variable_t *variable, const char *label);

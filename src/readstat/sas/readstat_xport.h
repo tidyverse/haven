@@ -35,4 +35,7 @@ typedef struct xport_namestr_s {
 } xport_namestr_t;
 #pragma pack(pop)
 
+#define XPORT_MIN_DOUBLE_SIZE   3
+#define XPORT_MAX_DOUBLE_SIZE   8
+
 void xport_namestr_bswap(xport_namestr_t *namestr);

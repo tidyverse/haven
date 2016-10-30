@@ -418,13 +418,8 @@ static readstat_error_t xport_read_variables(xport_ctx_t *ctx) {
         readstat_variable_t *variable = calloc(1, sizeof(readstat_variable_t));
 
         variable->index = i;
-        if (namestr.ntype == SAS_COLUMN_TYPE_CHR) {
-            variable->type = READSTAT_TYPE_STRING;
-            variable->storage_width = namestr.nlng;
-        } else {
-            variable->type = READSTAT_TYPE_DOUBLE;
-            variable->storage_width = 8;
-        }
+        variable->type = namestr.ntype == SAS_COLUMN_TYPE_CHR ? READSTAT_TYPE_STRING : READSTAT_TYPE_DOUBLE;
+        variable->storage_width = namestr.nlng;
         variable->display_width = namestr.nfl;
         variable->decimals = namestr.nfd;
         variable->alignment = namestr.nfj ? READSTAT_ALIGNMENT_RIGHT : READSTAT_ALIGNMENT_LEFT;
@@ -510,21 +505,24 @@ static readstat_error_t xport_process_row(xport_ctx_t *ctx, const char *row, siz
             value.v.string_value = string;
         } else {
             double dval = NAN;
-            if (!row[pos+1] && !row[pos+2] && !row[pos+3] && !row[pos+4]
-                    && !row[pos+5] && !row[pos+6] && !row[pos+7] &&
-                    (row[pos] == '_' || row[pos] == '.' ||
-                     (row[pos] >= 'A' && row[pos] <= 'Z'))) {
-                if (row[pos] == '.') {
-                    value.is_system_missing = 1;
+            if (variable->storage_width <= XPORT_MAX_DOUBLE_SIZE &&
+                    variable->storage_width >= XPORT_MIN_DOUBLE_SIZE) {
+                char full_value[8] = { 0 };
+                if (memcmp(&full_value[1], &row[pos+1], variable->storage_width - 1) == 0 &&
+                        (row[pos] == '_' || row[pos] == '.' || (row[pos] >= 'A' && row[pos] <= 'Z'))) {
+                    if (row[pos] == '.') {
+                        value.is_system_missing = 1;
+                    } else {
+                        value.tag = row[pos];
+                        value.is_tagged_missing = 1;
+                    }
                 } else {
-                    value.tag = row[pos];
-                    value.is_tagged_missing = 1;
-                }
-            } else {
-                int rc = cnxptiee(&row[pos], CN_TYPE_XPORT, &dval, CN_TYPE_NATIVE);
-                if (rc != 0) {
-                    retval = READSTAT_ERROR_CONVERT;
-                    goto cleanup;
+                    memcpy(full_value, &row[pos], variable->storage_width);
+                    int rc = cnxptiee(full_value, CN_TYPE_XPORT, &dval, CN_TYPE_NATIVE);
+                    if (rc != 0) {
+                        retval = READSTAT_ERROR_CONVERT;
+                        goto cleanup;
+                    }
                 }
             }
 
