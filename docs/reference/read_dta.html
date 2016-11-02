@@ -112,41 +112,36 @@ Stata are handled in R.</p>
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <dl class="dl-horizontal">
       <dt>file</dt>
-      <dd>Either a path to a file, a connection, or literal data
-   (either a single string or a raw vector).
-
-   Files ending in <code>.gz</code>, <code>.bz2</code>, <code>.xz</code>, or <code>.zip</code> will
+      <dd><p>Either a path to a file, a connection, or literal data
+   (either a single string or a raw vector).</p>
+<p>Files ending in <code>.gz</code>, <code>.bz2</code>, <code>.xz</code>, or <code>.zip</code> will
    be automatically uncompressed. Files starting with <code>http://</code>,
    <code>https://</code>, <code>ftp://</code>, or <code>ftps://</code> will be automatically
    downloaded. Remote gz files can also be automatically downloaded &amp;
-   decompressed.
-
-   Literal data is most useful for examples and tests. It must contain at
-   least one new line to be recognised as data (instead of a path).</dd>
+   decompressed.</p>
+<p>Literal data is most useful for examples and tests. It must contain at
+   least one new line to be recognised as data (instead of a path).</p></dd>
       <dt>encoding</dt>
-      <dd>The character encoding used for the file. This defaults to
+      <dd><p>The character encoding used for the file. This defaults to
 the encoding specified in the file, or UTF-8. But older versions of Stata
-(13 and earlier) did not store the encoding used, and you&#39;ll need to
-specify manually. A commonly used value is &quot;Win 1252&quot;.</dd>
+(13 and earlier) did not store the encoding used, and you'll need to
+specify manually. A commonly used value is "Win 1252".</p></dd>
       <dt>data</dt>
-      <dd>Data frame to write.</dd>
+      <dd><p>Data frame to write.</p></dd>
       <dt>path</dt>
-      <dd>Path to a file where the data will be written.</dd>
+      <dd><p>Path to a file where the data will be written.</p></dd>
       <dt>version</dt>
-      <dd>File version to use. Supports versions 8-14.</dd>
+      <dd><p>File version to use. Supports versions 8-14.</p></dd>
     </dl>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A tibble, data frame variant with nice defaults.</p>
-    <p>Variable labels are stored in the &quot;label&quot; attribute of each variable.
+<p>Variable labels are stored in the "label" attribute of each variable.
   It is not printed on the console, but the RStudio viewer will show it.</p>
     
 
-    <h2 class="hasAnchor" id="examples">
-      <a class="anchor" href="#examples"></a>
-      Examples
-    </h2>
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>path</span> <span class='kw'>&lt;-</span> <span class='fu'>system.file</span>(<span class='st'>"examples"</span>, <span class='st'>"iris.dta"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"haven"</span>)
 <span class='fu'>read_dta</span>(<span class='no'>path</span>)</div><div class='output co'>#&gt; # A tibble: 150 × 5
 #&gt;    sepallength sepalwidth petallength petalwidth species
@@ -161,8 +156,7 @@ specify manually. A commonly used value is &quot;Win 1252&quot;.</dd>
 #&gt; 8          5.0        3.4         1.5        0.2  setosa
 #&gt; 9          4.4        2.9         1.4        0.2  setosa
 #&gt; 10         4.9        3.1         1.5        0.1  setosa
-#&gt; # ... with 140 more rows
-#&gt; </div><div class='input'>
+#&gt; # ... with 140 more rows</div><div class='input'>
 <span class='no'>tmp</span> <span class='kw'>&lt;-</span> <span class='fu'>tempfile</span>(<span class='kw'>fileext</span> <span class='kw'>=</span> <span class='st'>".dta"</span>)
 <span class='fu'>write_dta</span>(<span class='no'>mtcars</span>, <span class='no'>tmp</span>)
 <span class='fu'>read_dta</span>(<span class='no'>tmp</span>)</div><div class='output co'>#&gt; # A tibble: 32 × 11
@@ -178,8 +172,7 @@ specify manually. A commonly used value is &quot;Win 1252&quot;.</dd>
 #&gt; 8   24.4     4 146.7    62  3.69 3.190 20.00     1     0     4     2
 #&gt; 9   22.8     4 140.8    95  3.92 3.150 22.90     1     0     4     2
 #&gt; 10  19.2     6 167.6   123  3.92 3.440 18.30     1     0     4     4
-#&gt; # ... with 22 more rows
-#&gt; </div><div class='input'><span class='fu'>read_stata</span>(<span class='no'>tmp</span>)</div><div class='output co'>#&gt; # A tibble: 32 × 11
+#&gt; # ... with 22 more rows</div><div class='input'><span class='fu'>read_stata</span>(<span class='no'>tmp</span>)</div><div class='output co'>#&gt; # A tibble: 32 × 11
 #&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 #&gt; 1   21.0     6 160.0   110  3.90 2.620 16.46     0     1     4     4
@@ -192,8 +185,7 @@ specify manually. A commonly used value is &quot;Win 1252&quot;.</dd>
 #&gt; 8   24.4     4 146.7    62  3.69 3.190 20.00     1     0     4     2
 #&gt; 9   22.8     4 140.8    95  3.92 3.150 22.90     1     0     4     2
 #&gt; 10  19.2     6 167.6   123  3.92 3.440 18.30     1     0     4     4
-#&gt; # ... with 22 more rows
-#&gt; </div></pre>
+#&gt; # ... with 22 more rows</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -214,9 +206,19 @@ specify manually. A commonly used value is &quot;Win 1252&quot;.</dd>
 </div>
 
 <div class="author">
-  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, Evan Miller, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
+  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
   <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
 </div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-67989-18', 'auto');
+  ga('send', 'pageview');
+</script>
       </footer>
    </div>
 

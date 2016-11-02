@@ -107,16 +107,13 @@ a newly imported dataset.</p>
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <dl class="dl-horizontal">
       <dt>x</dt>
-      <dd>A labelled vector</dd>
+      <dd><p>A labelled vector</p></dd>
       <dt>name</dt>
-      <dd>The name of the vector (optional)</dd>
+      <dd><p>The name of the vector (optional)</p></dd>
     </dl>
     
 
-    <h2 class="hasAnchor" id="examples">
-      <a class="anchor" href="#examples"></a>
-      Examples
-    </h2>
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>s1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span>(<span class='fu'>c</span>(<span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span>), <span class='fu'>c</span>(<span class='kw'>Male</span> <span class='kw'>=</span> <span class='st'>"M"</span>, <span class='kw'>Female</span> <span class='kw'>=</span> <span class='st'>"F"</span>))
 <span class='no'>s2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span>(<span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>2</span>), <span class='fu'>c</span>(<span class='kw'>Male</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>Female</span> <span class='kw'>=</span> <span class='fl'>2</span>))
 <span class='no'>labelled_df</span> <span class='kw'>&lt;-</span> <span class='kw'>tibble</span><span class='kw'>::</span><span class='fu'>data_frame</span>(<span class='no'>s1</span>, <span class='no'>s2</span>)
@@ -132,8 +129,7 @@ a newly imported dataset.</p>
 #&gt; Labels:s2
 #&gt;  value  label
 #&gt;      1   Male
-#&gt;      2 Female
-#&gt; </div></pre>
+#&gt;      2 Female</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -152,9 +148,19 @@ a newly imported dataset.</p>
 </div>
 
 <div class="author">
-  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, Evan Miller, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
+  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
   <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
 </div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-67989-18', 'auto');
+  ga('send', 'pageview');
+</script>
       </footer>
    </div>
 

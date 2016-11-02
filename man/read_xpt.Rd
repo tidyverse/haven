@@ -26,7 +26,15 @@ write_xpt(data, path, version = 8)
 
 \item{path}{Path to a file where the data will be written.}
 
+\item{version}{Version of transport file specification to use: either 5 or 8.}
+
 \item{version}{File version to use. Supports versions 5 or 8}
+}
+\value{
+A tibble, data frame variant with nice defaults.
+
+  Variable labels are stored in the "label" attribute of each variable.
+  It is not printed on the console, but the RStudio viewer will show it.
 }
 \description{
 The SAS transport format is a open format, as is required for submission

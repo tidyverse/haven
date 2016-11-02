@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Read SPSS (SAV &amp; POR) files. Write SAV files. — read_spss • haven</title>
+<title>Read and write SAS transport files — read_xpt • haven</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -94,22 +94,17 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Read SPSS (SAV &amp; POR) files. Write SAV files.</h1>
+    <h1>Read and write SAS transport files</h1>
     </div>
 
     
-    <p>Currently haven can read and write logical, integer, numeric, character
-and factors. See <code><a href='labelled_spss.html'>labelled_spss</a></code> for how labelled variables in
-Stata are handled in R. <code>read_spss</code> is an alias for <code>read_sav</code>.</p>
+    <p>The SAS transport format is a open format, as is required for submission
+of the data to the FDA.</p>
     
 
-    <pre><span class='fu'>read_sav</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre><span class='fu'>read_xpt</span>(<span class='no'>file</span>)
 
-<span class='fu'>read_por</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
-<span class='fu'>write_sav</span>(<span class='no'>data</span>, <span class='no'>path</span>)
-
-<span class='fu'>read_spss</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+<span class='fu'>write_xpt</span>(<span class='no'>data</span>, <span class='no'>path</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='fl'>8</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <dl class="dl-horizontal">
@@ -123,14 +118,14 @@ Stata are handled in R. <code>read_spss</code> is an alias for <code>read_sav</c
    decompressed.</p>
 <p>Literal data is most useful for examples and tests. It must contain at
    least one new line to be recognised as data (instead of a path).</p></dd>
-      <dt>user_na</dt>
-      <dd><p>If <code>TRUE</code> variables with user defined missing will
-be read into <code><a href='labelled_spss.html'>labelled_spss</a></code> objects. If <code>FALSE</code>, the
-default, user-defined missings will be converted to <code>NA</code>.</p></dd>
       <dt>data</dt>
       <dd><p>Data frame to write.</p></dd>
       <dt>path</dt>
       <dd><p>Path to a file where the data will be written.</p></dd>
+      <dt>version</dt>
+      <dd><p>Version of transport file specification to use: either 5 or 8.</p></dd>
+      <dt>version</dt>
+      <dd><p>File version to use. Supports versions 5 or 8</p></dd>
     </dl>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -141,24 +136,9 @@ default, user-defined missings will be converted to <code>NA</code>.</p></dd>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>path</span> <span class='kw'>&lt;-</span> <span class='fu'>system.file</span>(<span class='st'>"examples"</span>, <span class='st'>"iris.sav"</span>, <span class='kw'>package</span> <span class='kw'>=</span> <span class='st'>"haven"</span>)
-<span class='fu'>read_sav</span>(<span class='no'>path</span>)</div><div class='output co'>#&gt; # A tibble: 150 × 5
-#&gt;    Sepal.Length Sepal.Width Petal.Length Petal.Width   Species
-#&gt;           &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl+lbl&gt;
-#&gt; 1           5.1         3.5          1.4         0.2         1
-#&gt; 2           4.9         3.0          1.4         0.2         1
-#&gt; 3           4.7         3.2          1.3         0.2         1
-#&gt; 4           4.6         3.1          1.5         0.2         1
-#&gt; 5           5.0         3.6          1.4         0.2         1
-#&gt; 6           5.4         3.9          1.7         0.4         1
-#&gt; 7           4.6         3.4          1.4         0.3         1
-#&gt; 8           5.0         3.4          1.5         0.2         1
-#&gt; 9           4.4         2.9          1.4         0.2         1
-#&gt; 10          4.9         3.1          1.5         0.1         1
-#&gt; # ... with 140 more rows</div><div class='input'>
-<span class='no'>tmp</span> <span class='kw'>&lt;-</span> <span class='fu'>tempfile</span>(<span class='kw'>fileext</span> <span class='kw'>=</span> <span class='st'>".sav"</span>)
-<span class='fu'>write_sav</span>(<span class='no'>mtcars</span>, <span class='no'>tmp</span>)
-<span class='fu'>read_sav</span>(<span class='no'>tmp</span>)</div><div class='output co'>#&gt; # A tibble: 32 × 11
+    <pre class="examples"><div class='input'><span class='no'>tmp</span> <span class='kw'>&lt;-</span> <span class='fu'>tempfile</span>(<span class='kw'>fileext</span> <span class='kw'>=</span> <span class='st'>".xpt"</span>)
+<span class='fu'>write_xpt</span>(<span class='no'>mtcars</span>, <span class='no'>tmp</span>)
+<span class='fu'>read_xpt</span>(<span class='no'>tmp</span>)</div><div class='output co'>#&gt; # A tibble: 32 × 11
 #&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 #&gt; 1   21.0     6 160.0   110  3.90 2.620 16.46     0     1     4     4

@@ -5,6 +5,11 @@ template:
 home:
   strip_header: true
 
+authors:
+  Evan Miller:
+    href: http://www.evanmiller.org
+
+
 reference:
 - title: Reading and writing
   desc: ~
@@ -12,6 +17,7 @@ reference:
   - read_dta
   - read_sas
   - read_spss
+  - read_xpt
 
 - title: Labelled vectors
   desc: >

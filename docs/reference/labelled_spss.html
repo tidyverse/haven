@@ -100,7 +100,7 @@
     
     <p>This class is only used when <code>user_na = TRUE</code> in
 <code><a href='read_spss.html'>read_sav</a>()</code>. It is similar to the <code><a href='labelled.html'>labelled</a></code> class
-but it also models SPSS&#39;s user-defined missings, which can be up to
+but it also models SPSS's user-defined missings, which can be up to
 three distinct values, or for numeric vectors a range.</p>
     
 
@@ -109,31 +109,26 @@ three distinct values, or for numeric vectors a range.</p>
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <dl class="dl-horizontal">
       <dt>x</dt>
-      <dd>A vector to label. Must be either numeric (integer or double) or
-character.</dd>
+      <dd><p>A vector to label. Must be either numeric (integer or double) or
+character.</p></dd>
       <dt>labels</dt>
-      <dd>A named vector. The vector should be the same type as
-<code>x</code>. Unlike factors, labels don&#39;t need to be exhaustive: only a fraction
-of the values might be labelled.</dd>
+      <dd><p>A named vector. The vector should be the same type as
+<code>x</code>. Unlike factors, labels don't need to be exhaustive: only a fraction
+of the values might be labelled.</p></dd>
       <dt>na_values</dt>
-      <dd>A vector of values that should also be considered as missing.</dd>
+      <dd><p>A vector of values that should also be considered as missing.</p></dd>
       <dt>na_range</dt>
-      <dd>A numeric vector of length two giving the (inclusive) extents
+      <dd><p>A numeric vector of length two giving the (inclusive) extents
 of the range. Use <code>-Inf</code> and <code>Inf</code> if you want the range to be
-open ended.</dd>
+open ended.</p></dd>
     </dl>
     
 
-    <h2 class="hasAnchor" id="examples">
-      <a class="anchor" href="#examples"></a>
-      Examples
-    </h2>
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>x1</span> <span class='kw'>&lt;-</span> <span class='fu'>labelled_spss</span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='fu'>c</span>(<span class='kw'>Good</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>Bad</span> <span class='kw'>=</span> <span class='fl'>8</span>), <span class='kw'>na_values</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>9</span>, <span class='fl'>10</span>))
-<span class='fu'>is.na</span>(<span class='no'>x1</span>)</div><div class='output co'>#&gt;  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
-#&gt; </div><div class='input'>
+<span class='fu'>is.na</span>(<span class='no'>x1</span>)</div><div class='output co'>#&gt;  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE</div><div class='input'>
 <span class='no'>x2</span> <span class='kw'>&lt;-</span> <span class='fu'>labelled_spss</span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='fu'>c</span>(<span class='kw'>Good</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>Bad</span> <span class='kw'>=</span> <span class='fl'>8</span>), <span class='kw'>na_range</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='fl'>9</span>, <span class='fl'>Inf</span>))
-<span class='fu'>is.na</span>(<span class='no'>x2</span>)</div><div class='output co'>#&gt;  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE
-#&gt; </div></pre>
+<span class='fu'>is.na</span>(<span class='no'>x2</span>)</div><div class='output co'>#&gt;  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -152,9 +147,19 @@ open ended.</dd>
 </div>
 
 <div class="author">
-  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, Evan Miller, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
+  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
   <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
 </div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-67989-18', 'auto');
+  ga('send', 'pageview');
+</script>
       </footer>
    </div>
 

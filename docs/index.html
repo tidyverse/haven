@@ -62,11 +62,14 @@
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"> </a>Overview</h2>
-<p>Haven allows you to load foreign data formats (SAS, SPSS and Stata) in to R by wrapping the fantastic <a href="https://github.com/WizardMac/ReadStat">ReadStat</a> C library written by <a href="http://www.evanmiller.org">Evan Miller</a>.</p>
-<p>Key features:</p>
-<ul><li><p>Reads both types of SPSS files (<code>.sav</code> and <code>.por</code>), Stata files (up to version 14), and SAS&rsquo;s proprietary binary format (SAS7BDAT + SAS7BCAT).</p></li>
-<li><p>Writes SPSS, Stata, and SAS files.</p></li>
-<li><p>Date times are converted to corresponding R classes and labelled vectors are returned as a new <code>labelled</code> class. You can easily coerce to factors or replace labelled values with missings as appropriate. All functions return <a href="http://github.com/hadley/tibble">tibbles</a>.</p></li>
+<p>Haven allows is designed to write and read data formats used by other statistical packages by wrapping the fantastic <a href="https://github.com/WizardMac/ReadStat">ReadStat</a> C library written by <a href="http://www.evanmiller.org">Evan Miller</a>. Currently it supports:</p>
+<ul><li><p><strong>SAS</strong>: <code><a href="reference/read_sas.html">read_sas()</a></code> reads <code>.sas7bdat</code> + <code>.sas7bcat</code> files and <code><a href="reference/read_xpt.html">read_xpt()</a></code> SAS transport files (version 5 and version 8). <code><a href="reference/read_sas.html">write_sas()</a></code> writes <code>.sas7bdat</code> files.</p></li>
+<li><p><strong>SPSS</strong>: <code><a href="reference/read_spss.html">read_sav()</a></code> reads <code>.sav</code> files and <code><a href="reference/read_spss.html">read_por()</a></code> reads the older <code>.por</code> files. <code><a href="reference/read_spss.html">write_sav()</a></code> writes <code>.sav</code> files.</p></li>
+<li><p><strong>Stata</strong>: <code><a href="reference/read_dta.html">read_dta()</a></code> reads <code>.dta</code> files (up to version 14). <code><a href="reference/read_dta.html">write_dta()</a></code> writes <code>.dta</code> files (versions 8-14).</p></li>
+</ul><p>The output objects:</p>
+<ul><li><p>Are <a href="http://github.com/hadley/tibble">tibbles</a>, which have a better print method for very long and very wide files.</p></li>
+<li><p>Translate value labels into a new <code><a href="reference/labelled.html">labelled()</a></code> class, which preserve the original semantics and can easily coerced to factors with <code><a href="reference/as_factor.html">as_factor()</a></code>. Special missing values are preserved. See <code><a href="articles/semantics.html">vignette("semantics")</a></code> for more details.</p></li>
+<li><p>Date/times are converted to R date/time classes. Character vectors are not converted to factors.</p></li>
 </ul></div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
@@ -102,16 +105,15 @@ devtools::<span class="kw">install_github</span>(<span class="st">"tidyverse/hav
   </div>
 
   <div class="col-md-3" id="sidebar">
-    <h2>Links</h2><ul class="list-unstyled"><li>Download from CRAN at <a href="https://cran.r-project.org/package=haven">https://cran.r-project.org/package=haven</a></li>
-<li>Browse source code at <a href="https://github.com/tidyverse/haven">https://github.com/tidyverse/haven</a></li>
-<li>Report a bug at <a href="https://github.com/hadley/haven/issues">https://github.com/hadley/haven/issues</a></li>
-</ul><h2>Authors</h2><ul class="list-unstyled"><li><a href="http://hadley.nz">Hadley Wickham</a><br><small class="roles">Author, maintainer</small></li>
-<li>Evan Miller <small>Author of included ReadStat code</small><br><small class="roles">Author, copyright&nbsp;holder</small></li>
-<li><a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" height="24"></a><br><small class="roles">Copyright&nbsp;holder</small></li>
+    <h2>Links</h2><ul class="list-unstyled"><li>Download from CRAN at <br><a href="https://cran.r-project.org/package=haven">https://&#8203;cran.r-project.org/&#8203;package=haven</a></li>
+<li>Browse source code at <br><a href="https://github.com/tidyverse/haven">https://&#8203;github.com/&#8203;tidyverse/&#8203;haven</a></li>
+<li>Report a bug at <br><a href="https://github.com/hadley/haven/issues">https://&#8203;github.com/&#8203;hadley/&#8203;haven/&#8203;issues</a></li>
 </ul><h2>License</h2>
 <p><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE">LICENSE</a></p>
-
-  <html><body><h2>Dev status</h2><ul class="list-unstyled"><li><a href="https://travis-ci.org/tidyverse/haven">
+<h2>Developers</h2><ul class="list-unstyled"><li><a href="http://hadley.nz">Hadley Wickham</a> <br><small class="roles"> Author, maintainer </small> </li>
+<li><a href="http://www.evanmiller.org">Evan Miller</a> <br><small class="roles"> Author, copyright&nbsp;holder </small> <br><small>(Author of included ReadStat code)</small></li>
+<li><a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" height="24"></a> <br><small class="roles"> Copyright&nbsp;holder, funder </small> </li>
+</ul><html><body><h2>Dev status</h2><ul class="list-unstyled"><li><a href="https://travis-ci.org/tidyverse/haven">
   <img src="https://travis-ci.org/tidyverse/haven.svg?branch=master" alt="Travis-CI Build Status"></a></li>
 <li><a href="https://codecov.io/github/tidyverse/haven?branch=master">
   <img src="https://img.shields.io/codecov/c/github/tidyverse/haven/master.svg" alt="Coverage Status"></a></li>
@@ -126,9 +128,18 @@ devtools::<span class="kw">install_github</span>(<span class="st">"tidyverse/hav
 </div>
 
 <div class="author">
-  <p>Developed by <a href="http://hadley.nz">Hadley Wickham</a>, Evan Miller, <a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" height="24"></a>.</p>
+  <p>Developed by <a href="http://hadley.nz">Hadley Wickham</a>, <a href="http://www.evanmiller.org">Evan Miller</a>, <a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" height="24"></a>.</p>
   <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
 </div>
-      </footer></div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-67989-18', 'auto');
+  ga('send', 'pageview');
+</script></footer></div>
 
   </body></html>

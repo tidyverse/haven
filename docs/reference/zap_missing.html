@@ -107,14 +107,11 @@ Stata, or user-defined missings from SPSS, to regular R <code>NA</code>.</p>
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <dl class="dl-horizontal">
       <dt>x</dt>
-      <dd>A vector or data frame</dd>
+      <dd><p>A vector or data frame</p></dd>
     </dl>
     
 
-    <h2 class="hasAnchor" id="examples">
-      <a class="anchor" href="#examples"></a>
-      Examples
-    </h2>
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>x1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span>(
   <span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>5</span>, <span class='fu'><a href='tagged_na.html'>tagged_na</a></span>(<span class='st'>"a"</span>, <span class='st'>"b"</span>)),
   <span class='fu'>c</span>(<span class='kw'>Unknown</span> <span class='kw'>=</span> <span class='fu'><a href='tagged_na.html'>tagged_na</a></span>(<span class='st'>"a"</span>), <span class='kw'>Refused</span> <span class='kw'>=</span> <span class='fu'><a href='tagged_na.html'>tagged_na</a></span>(<span class='st'>"b"</span>))
@@ -125,10 +122,8 @@ Stata, or user-defined missings from SPSS, to regular R <code>NA</code>.</p>
 #&gt; Labels:
 #&gt;  value   label
 #&gt;  NA(a) Unknown
-#&gt;  NA(b) Refused
-#&gt; </div><div class='input'><span class='fu'>zap_missing</span>(<span class='no'>x1</span>)</div><div class='output co'>#&gt; &lt;Labelled double&gt;
-#&gt; [1]  1  5 NA NA
-#&gt; </div><div class='input'>
+#&gt;  NA(b) Refused</div><div class='input'><span class='fu'>zap_missing</span>(<span class='no'>x1</span>)</div><div class='output co'>#&gt; &lt;Labelled double&gt;
+#&gt; [1]  1  5 NA NA</div><div class='input'>
 <span class='no'>x2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled_spss.html'>labelled_spss</a></span>(
   <span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>1</span>, <span class='fl'>99</span>),
   <span class='fu'>c</span>(<span class='kw'>missing</span> <span class='kw'>=</span> <span class='fl'>99</span>),
@@ -140,14 +135,12 @@ Stata, or user-defined missings from SPSS, to regular R <code>NA</code>.</p>
 #&gt; 
 #&gt; Labels:
 #&gt;  value   label
-#&gt;     99 missing
-#&gt; </div><div class='input'><span class='fu'>zap_missing</span>(<span class='no'>x2</span>)</div><div class='output co'>#&gt; &lt;Labelled double&gt;
+#&gt;     99 missing</div><div class='input'><span class='fu'>zap_missing</span>(<span class='no'>x2</span>)</div><div class='output co'>#&gt; &lt;Labelled double&gt;
 #&gt; [1]  1  2  1 NA
 #&gt; 
 #&gt; Labels:
 #&gt;  value   label
-#&gt;     99 missing
-#&gt; </div><div class='input'>
+#&gt;     99 missing</div><div class='input'>
 <span class='co'># You can also apply to data frames</span>
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='kw'>tibble</span><span class='kw'>::</span><span class='fu'>data_frame</span>(<span class='no'>x1</span>, <span class='no'>x2</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>4</span>:<span class='fl'>1</span>)
 <span class='no'>df</span></div><div class='output co'>#&gt; # A tibble: 4 × 3
@@ -156,15 +149,13 @@ Stata, or user-defined missings from SPSS, to regular R <code>NA</code>.</p>
 #&gt; 1         1         1     4
 #&gt; 2         5         2     3
 #&gt; 3        NA         1     2
-#&gt; 4        NA        99     1
-#&gt; </div><div class='input'><span class='fu'>zap_missing</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; # A tibble: 4 × 3
+#&gt; 4        NA        99     1</div><div class='input'><span class='fu'>zap_missing</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; # A tibble: 4 × 3
 #&gt;          x1        x2     y
 #&gt;   &lt;dbl+lbl&gt; &lt;dbl+lbl&gt; &lt;int&gt;
 #&gt; 1         1         1     4
 #&gt; 2         5         2     3
 #&gt; 3        NA         1     2
-#&gt; 4        NA        NA     1
-#&gt; </div></pre>
+#&gt; 4        NA        NA     1</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -183,9 +174,19 @@ Stata, or user-defined missings from SPSS, to regular R <code>NA</code>.</p>
 </div>
 
 <div class="author">
-  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, Evan Miller, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
+  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
   <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
 </div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-67989-18', 'auto');
+  ga('send', 'pageview');
+</script>
       </footer>
    </div>
 
