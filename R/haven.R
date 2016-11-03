@@ -54,7 +54,6 @@ write_sas <- function(data, path) {
 #' of the data to the FDA.
 #'
 #' @inherit read_spss
-#' @param version Version of transport file specification to use: either 5 or 8.
 #' @export
 #' @examples
 #' tmp <- tempfile(fileext = ".xpt")
@@ -71,7 +70,7 @@ read_xpt <- function(file) {
 
 #' @export
 #' @rdname read_xpt
-#' @param version File version to use. Supports versions 5 or 8
+#' @param version Version of transport file specification to use: either 5 or 8.
 write_xpt <- function(data, path, version = 8) {
   stopifnot(version %in% c(5, 8))
 

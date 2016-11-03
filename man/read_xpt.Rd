@@ -27,8 +27,6 @@ write_xpt(data, path, version = 8)
 \item{path}{Path to a file where the data will be written.}
 
 \item{version}{Version of transport file specification to use: either 5 or 8.}
-
-\item{version}{File version to use. Supports versions 5 or 8}
 }
 \value{
 A tibble, data frame variant with nice defaults.
