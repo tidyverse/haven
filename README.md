@@ -6,10 +6,10 @@
 
 ## Overview
 
-Haven allows is designed to write and read data formats used by other statistical packages by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). Currently it supports:
+Haven enables R to read and write various data formats used by other statistical packages by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). Haven is part of the [tidyverse](http://tidyverse.org). Currently it supports:
 
 * __SAS__: `read_sas()` reads `.sas7bdat` + `.sas7bcat` files and `read_xpt()` 
-  SAS transport files (version 5 and version 8). `write_sas()` writes 
+  reads SAS transport files (version 5 and version 8). `write_sas()` writes 
   `.sas7bdat` files.
   
 * __SPSS__: `read_sav()` reads `.sav` files and `read_por()` reads the 
@@ -23,12 +23,12 @@ The output objects:
 * Are [tibbles](http://github.com/hadley/tibble), which have a better print
   method for very long and very wide files.
   
-* Translate value labels into a new `labelled()` class, which preserve the
-  original semantics and can easily coerced to factors with `as_factor()`.
+* Translate value labels into a new `labelled()` class, which preserves the
+  original semantics and can easily be coerced to factors with `as_factor()`.
   Special missing values are preserved. See `vignette("semantics")` for 
   more details.
 
-* Date/times are converted to R date/time classes. Character vectors are
+* Dates and times are converted to R date/time classes. Character vectors are
   not converted to factors.
   
 ## Installation
@@ -51,14 +51,14 @@ devtools::install_github("tidyverse/haven")
 library(haven)
 
 # SAS
-write_sas(mtcars, "mtcars.sas7bdat")
 read_sas("mtcars.sas7bdat")
-
-# Stata
-write_dta(mtcars, "mtcars.dta")
-read_dta("mtcars.dta")
+write_sas(mtcars, "mtcars.sas7bdat")
 
 # SPSS
-write_sav(mtcars, "mtcars.sav")
 read_sav("mtcars.sav")
+write_sav(mtcars, "mtcars.sav")
+
+# Stata
+read_dta("mtcars.dta")
+write_dta(mtcars, "mtcars.dta")
 ```
