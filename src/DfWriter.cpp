@@ -248,7 +248,7 @@ public:
         readstat_label_string_value(labelSet, string_utf8(values, i), string_utf8(labels, i));
     }
 
-    int max_length = 0;
+    int max_length = 1;
     for (int i = 0; i < x.size(); ++i) {
       int length = std::string(x[i]).size();
       if (length > max_length)
