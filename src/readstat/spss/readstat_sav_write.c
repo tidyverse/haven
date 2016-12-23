@@ -907,7 +907,9 @@ static size_t sav_variable_width(readstat_type_t type, size_t user_width) {
             size_t last_segment_width = ((user_width - (n_segments - 1) * 252) + 7)/8*8;
             return (n_segments-1)*256 + last_segment_width;
         }
-
+        if (user_width == 0) {
+            return 8;
+        }
         return (user_width + 7) / 8 * 8;
     }
     return 8;
