@@ -78,3 +78,11 @@ test_that("labels are converted to utf-8", {
   expect_equal(names(attr(roundtrip_var(v_utf8, "sav"), "labels")), labels_utf8)
   expect_equal(names(attr(roundtrip_var(v_latin1, "sav"), "labels")), labels_utf8)
 })
+
+
+test_that("complain about long factor labels", {
+  x <- paste(rep("a", 200), collapse = "")
+  df <- data.frame(x = factor(x))
+
+  expect_error(roundtrip_sav(df), "levels with <= 120 characters")
+})

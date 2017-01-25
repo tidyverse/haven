@@ -126,6 +126,7 @@ read_por <- function(file, user_na = FALSE) {
 #' @export
 #' @rdname read_spss
 write_sav <- function(data, path) {
+  validate_sav(data)
   write_sav_(data, normalizePath(path, mustWork = FALSE))
 }
 
@@ -193,7 +194,6 @@ read_stata <- function(file, encoding = NULL) {
 #' @rdname read_dta
 #' @param version File version to use. Supports versions 8-14.
 write_dta <- function(data, path, version = 14) {
-
   validate_dta(data)
   write_dta_(data,
     normalizePath(path, mustWork = FALSE),
@@ -242,10 +242,31 @@ validate_dta <- function(data) {
       call. = FALSE
     )
   }
+}
 
+validate_sav <- function(data) {
+  # Check factor lengths
+  level_lengths <- vapply(data, max_level_length, integer(1))
+
+  bad_lengths <- level_lengths > 120
+  if (any(bad_lengths)) {
+    stop(
+      "SPSS only supports levels with <= 120 characters\n",
+      "Problems: ", var_names(data, bad_lengths),
+      call. = FALSE
+    )
+  }
 }
 
 var_names <- function(data, i) {
   x <- names(data)[i]
   paste(encodeString(x, quote = "`"), collapse = ", ")
+}
+
+
+max_level_length <- function(x) {
+  if (!is.factor(x))
+    return(0L)
+
+  max(nchar(levels(x)))
 }

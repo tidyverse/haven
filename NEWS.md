@@ -1,5 +1,8 @@
 # haven 1.0.0.9000
 
+* `write_sav()` checks that factors don't have levels with >120 
+  characters (#262)
+
 * Share `as_factor()` with forcats package (#256)
 
 * `write_dta()` no longer checks that all value labels are at most 32 
@@ -14,7 +17,6 @@
   * SPSS: support uppercase time stamps (#230)
   * SPSS: fixes for 252-255 byte strings (#226)
   * SPSS: fixes for 0 byte strings (#245)
-  * SPSS: can write long variable labels (#262)
   
 * Add support for reading and writing of SPSS's display widths (@ecortens).
 
