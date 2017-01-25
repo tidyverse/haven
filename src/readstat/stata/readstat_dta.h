@@ -11,11 +11,19 @@ typedef struct dta_header_s {
     int32_t          nobs;
 } dta_header_t;
 
-typedef struct dta_strl_header_s {
-    unsigned char   vo_bytes[8];
+typedef struct dta_117_strl_header_s {
+    uint32_t        v;
+    uint32_t        o;
     unsigned char   type;
     int32_t         len;
-} dta_strl_header_t;
+} dta_117_strl_header_t;
+
+typedef struct dta_118_strl_header_s {
+    uint32_t        v;
+    uint64_t        o;
+    unsigned char   type;
+    int32_t         len;
+} dta_118_strl_header_t;
 
 #pragma pack(pop)
 
@@ -24,7 +32,7 @@ typedef struct dta_strl_s {
     uint64_t        o;
     unsigned char   type;
     size_t          len;
-    char            data[];
+    char            data[1]; // Flexible array; use [1] for C++98 compatibility
 } dta_strl_t;
 
 typedef struct dta_ctx_s {

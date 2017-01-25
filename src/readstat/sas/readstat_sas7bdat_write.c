@@ -144,7 +144,18 @@ static readstat_error_t sas7bdat_emit_header(readstat_writer_t *writer, sas_head
     };
 
     memcpy(&header_start.magic, sas7bdat_magic_number, sizeof(header_start.magic));
-    strncpy(header_start.file_label, writer->file_label, sizeof(header_start.file_label));
+
+    memset(header_start.file_label, ' ', sizeof(header_start.file_label));
+
+    size_t file_label_len = strlen(writer->file_label);
+    if (file_label_len > sizeof(header_start.file_label))
+        file_label_len = sizeof(header_start.file_label);
+
+    if (file_label_len) {
+        memcpy(header_start.file_label, writer->file_label, file_label_len);
+    } else {
+        memcpy(header_start.file_label, "DATASET", sizeof("DATASET")-1);
+    }
 
     return sas_write_header(writer, hinfo, header_start);
 }
@@ -200,34 +211,6 @@ static sas7bdat_subheader_t *sas7bdat_col_size_subheader_init(readstat_writer_t 
         memcpy(&subheader->data[4], &col_count, sizeof(int32_t));
     }
     return subheader;
-}
-
-static readstat_error_t sas7bdat_validate_name(const char *name) {
-    int j;
-    for (j=0; name[j]; j++) {
-        if (name[j] != '_' &&
-                !(name[j] >= 'a' && name[j] <= 'z') &&
-                !(name[j] >= 'A' && name[j] <= 'Z') &&
-                !(name[j] >= '0' && name[j] <= '9')) {
-            return READSTAT_ERROR_NAME_CONTAINS_ILLEGAL_CHARACTER;
-        }
-    }
-    char first_char = name[0];
-    if (first_char != '_' &&
-            !(first_char >= 'a' && first_char <= 'z') &&
-            !(first_char >= 'A' && first_char <= 'Z')) {
-        return READSTAT_ERROR_NAME_BEGINS_WITH_ILLEGAL_CHARACTER;
-    }
-    if (strcmp(name, "_N_") == 0 || strcmp(name, "_ERROR_") == 0 ||
-            strcmp(name, "_NUMERIC_") == 0 || strcmp(name, "_CHARACTER_") == 0 ||
-            strcmp(name, "_ALL_") == 0) {
-        return READSTAT_ERROR_NAME_IS_RESERVED_WORD;
-    }
-
-    if (strlen(name) > 32)
-        return READSTAT_ERROR_NAME_IS_TOO_LONG;
-
-    return READSTAT_OK;
 }
 
 static sas7bdat_subheader_t *sas7bdat_col_name_subheader_init(readstat_writer_t *writer,
@@ -503,17 +486,6 @@ cleanup:
     return retval;
 }
 
-static readstat_error_t sas7bdat_validate_column_names(readstat_writer_t *writer) {
-    int i;
-    for (i=0; i<writer->variables_count; i++) {
-        readstat_variable_t *variable = readstat_get_variable(writer, i);
-        readstat_error_t error = sas7bdat_validate_name(readstat_variable_get_name(variable));
-        if (error != READSTAT_OK)
-            return error;
-    }
-    return READSTAT_OK;
-}
-
 static sas7bdat_write_ctx_t *sas7bdat_write_ctx_init(readstat_writer_t *writer) {
     sas7bdat_write_ctx_t *ctx = calloc(1, sizeof(sas7bdat_write_ctx_t));
 
@@ -551,7 +523,7 @@ static readstat_error_t sas7bdat_begin_data(void *writer_ctx) {
     readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
     readstat_error_t retval = READSTAT_OK;
 
-    retval = sas7bdat_validate_column_names(writer);
+    retval = sas_validate_column_names(writer);
     if (retval != READSTAT_OK)
         goto cleanup;
 
@@ -622,10 +594,10 @@ static readstat_error_t sas7bdat_write_missing_tagged_raw(void *row, const reads
 }
 
 static readstat_error_t sas7bdat_write_missing_tagged(void *row, const readstat_variable_t *var, char tag) {
-    if (tag < 'a' || tag > 'z')
-        return READSTAT_ERROR_TAGGED_VALUE_IS_OUT_OF_RANGE;
+    if (tag == '_' || (tag >= 'A' && tag <= 'Z'))
+        return sas7bdat_write_missing_tagged_raw(row, var, tag);
 
-    return sas7bdat_write_missing_tagged_raw(row, var, tag);
+    return READSTAT_ERROR_TAGGED_VALUE_IS_OUT_OF_RANGE;
 }
 
 static readstat_error_t sas7bdat_write_missing_numeric(void *row, const readstat_variable_t *var) {

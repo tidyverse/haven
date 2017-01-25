@@ -11,7 +11,7 @@
 
 typedef struct sas7bcat_block_s {
     size_t  len;
-    char    data[];
+    char    data[1]; // Flexible array; use [1] for C++-98 compatibility
 } sas7bcat_block_t;
 
 static sas7bcat_block_t *sas7bcat_block_for_label_set(readstat_label_set_t *r_label_set) {
@@ -46,7 +46,7 @@ static sas7bcat_block_t *sas7bcat_block_for_label_set(readstat_label_set_t *r_la
     memcpy(&block->data[38], &count, sizeof(int32_t));
     memcpy(&block->data[42], &count, sizeof(int32_t));
     if (name_len > 8) {
-        block->data[2] = 0x80;
+        block->data[2] = (char)0x80;
         memcpy(&block->data[8], name, 8);
 
         memset(&block->data[106], ' ', 32);

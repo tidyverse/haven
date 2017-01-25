@@ -7,7 +7,8 @@
 enum FileType {
   HAVEN_SPSS,
   HAVEN_STATA,
-  HAVEN_SAS
+  HAVEN_SAS,
+  HAVEN_XPT
 };
 
 enum VarType {
@@ -38,6 +39,7 @@ inline std::string formatAttribute(FileType type) {
   case HAVEN_STATA: return "format.stata";
   case HAVEN_SPSS:  return "format.spss";
   case HAVEN_SAS:   return "format.sas";
+  case HAVEN_XPT:   return "format.xpt";
   }
 
   return "";
@@ -51,6 +53,7 @@ inline VarType numType(FileType type, const char* var_format) {
   std::string format(var_format);
 
   switch(type) {
+  case HAVEN_XPT:
   case HAVEN_SAS:
     if      (format == "DATETIME") return HAVEN_DATETIME;
     else if (format == "WEEKDATE") return HAVEN_DATE;
@@ -88,6 +91,7 @@ inline VarType numType(FileType type, const char* var_format) {
 
 inline int daysOffset(FileType type) {
   switch(type) {
+  case HAVEN_XPT:
   case HAVEN_SAS:   return 3653;   // 1960-01-01
   case HAVEN_STATA: return 3653;
   case HAVEN_SPSS:  return 141428; // 1582-01-01

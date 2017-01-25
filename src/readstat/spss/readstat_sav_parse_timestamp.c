@@ -225,29 +225,34 @@ static const char _sav_date_parse_actions[] = {
 };
 
 static const char _sav_date_parse_key_offsets[] = {
-	0, 0, 2, 4, 5, 13, 15, 16, 
-	17, 19, 21, 22, 23, 24, 25, 26, 
-	27, 28, 29, 31, 32, 33, 35, 36, 
-	37, 38, 40, 41, 42, 43, 44, 45, 
-	46, 47, 48, 49, 50, 51
+	0, 0, 2, 4, 5, 13, 17, 18, 
+	19, 21, 23, 24, 25, 26, 27, 29, 
+	30, 31, 32, 34, 35, 36, 37, 41, 
+	42, 43, 45, 46, 47, 48, 50, 52, 
+	54, 55, 56, 58, 60, 61, 62, 63, 
+	65, 66, 67, 68, 70, 71, 72, 73
 };
 
 static const char _sav_date_parse_trans_keys[] = {
 	48, 57, 48, 57, 32, 65, 68, 70, 
-	74, 77, 78, 79, 83, 112, 117, 114, 
-	32, 48, 57, 48, 57, 103, 32, 101, 
-	99, 32, 101, 98, 32, 97, 117, 110, 
-	32, 108, 110, 32, 32, 97, 114, 121, 
-	32, 32, 111, 118, 32, 99, 116, 32, 
-	101, 112, 32, 0
+	74, 77, 78, 79, 83, 80, 85, 112, 
+	117, 82, 32, 48, 57, 48, 57, 71, 
+	32, 114, 103, 69, 101, 67, 32, 99, 
+	69, 101, 66, 32, 98, 65, 85, 97, 
+	117, 78, 32, 76, 78, 32, 32, 110, 
+	108, 110, 65, 97, 82, 89, 32, 32, 
+	114, 121, 79, 111, 86, 32, 118, 67, 
+	99, 84, 32, 116, 69, 101, 80, 32, 
+	112, 0
 };
 
 static const char _sav_date_parse_single_lengths[] = {
-	0, 0, 0, 1, 8, 2, 1, 1, 
-	0, 0, 1, 1, 1, 1, 1, 1, 
-	1, 1, 2, 1, 1, 2, 1, 1, 
-	1, 2, 1, 1, 1, 1, 1, 1, 
-	1, 1, 1, 1, 1, 0
+	0, 0, 0, 1, 8, 4, 1, 1, 
+	0, 0, 1, 1, 1, 1, 2, 1, 
+	1, 1, 2, 1, 1, 1, 4, 1, 
+	1, 2, 1, 1, 1, 2, 2, 2, 
+	1, 1, 2, 2, 1, 1, 1, 2, 
+	1, 1, 1, 2, 1, 1, 1, 0
 };
 
 static const char _sav_date_parse_range_lengths[] = {
@@ -255,43 +260,53 @@ static const char _sav_date_parse_range_lengths[] = {
 	1, 1, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 0
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0
 };
 
-static const char _sav_date_parse_index_offsets[] = {
-	0, 0, 2, 4, 6, 15, 18, 20, 
-	22, 24, 26, 28, 30, 32, 34, 36, 
-	38, 40, 42, 45, 47, 49, 52, 54, 
-	56, 58, 61, 63, 65, 67, 69, 71, 
-	73, 75, 77, 79, 81, 83
+static const unsigned char _sav_date_parse_index_offsets[] = {
+	0, 0, 2, 4, 6, 15, 20, 22, 
+	24, 26, 28, 30, 32, 34, 36, 39, 
+	41, 43, 45, 48, 50, 52, 54, 59, 
+	61, 63, 66, 68, 70, 72, 75, 78, 
+	81, 83, 85, 88, 91, 93, 95, 97, 
+	100, 102, 104, 106, 109, 111, 113, 115
 };
 
 static const char _sav_date_parse_trans_targs[] = {
-	2, 0, 3, 0, 4, 0, 5, 12, 
-	15, 18, 24, 28, 31, 34, 0, 6, 
-	10, 0, 7, 0, 8, 0, 9, 0, 
-	37, 0, 11, 0, 8, 0, 13, 0, 
-	14, 0, 8, 0, 16, 0, 17, 0, 
-	8, 0, 19, 21, 0, 20, 0, 8, 
-	0, 22, 23, 0, 8, 0, 8, 0, 
-	25, 0, 26, 27, 0, 8, 0, 8, 
-	0, 29, 0, 30, 0, 8, 0, 32, 
-	0, 33, 0, 8, 0, 35, 0, 36, 
-	0, 8, 0, 0, 0
+	2, 0, 3, 0, 4, 0, 5, 14, 
+	18, 22, 30, 35, 39, 43, 0, 6, 
+	10, 12, 13, 0, 7, 0, 8, 0, 
+	9, 0, 47, 0, 11, 0, 8, 0, 
+	7, 0, 11, 0, 15, 17, 0, 16, 
+	0, 8, 0, 16, 0, 19, 21, 0, 
+	20, 0, 8, 0, 20, 0, 23, 25, 
+	28, 29, 0, 24, 0, 8, 0, 26, 
+	27, 0, 8, 0, 8, 0, 24, 0, 
+	26, 27, 0, 31, 34, 0, 32, 33, 
+	0, 8, 0, 8, 0, 32, 33, 0, 
+	36, 38, 0, 37, 0, 8, 0, 37, 
+	0, 40, 42, 0, 41, 0, 8, 0, 
+	41, 0, 44, 46, 0, 45, 0, 8, 
+	0, 45, 0, 0, 0
 };
 
 static const char _sav_date_parse_trans_actions[] = {
 	31, 0, 1, 0, 5, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 13, 0, 31, 0, 
-	1, 0, 0, 0, 21, 0, 0, 0, 
-	0, 0, 29, 0, 0, 0, 0, 0, 
-	9, 0, 0, 0, 0, 0, 0, 7, 
-	0, 0, 0, 0, 19, 0, 17, 0, 
-	0, 0, 0, 0, 0, 11, 0, 15, 
+	0, 0, 0, 0, 0, 0, 13, 0, 
+	31, 0, 1, 0, 0, 0, 21, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 29, 0, 0, 0, 0, 0, 0, 
+	0, 0, 9, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 7, 0, 0, 
+	0, 0, 19, 0, 17, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 11, 0, 15, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 27, 0, 0, 
-	0, 0, 0, 25, 0, 0, 0, 0, 
-	0, 23, 0, 0, 0
+	0, 0, 0, 0, 0, 0, 25, 0, 
+	0, 0, 0, 0, 0, 0, 0, 23, 
+	0, 0, 0, 0, 0
 };
 
 static const char _sav_date_parse_eof_actions[] = {
@@ -299,7 +314,8 @@ static const char _sav_date_parse_eof_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
-	0, 0, 0, 0, 0, 3
+	0, 0, 0, 0, 0, 0, 0, 0, 
+	0, 0, 0, 0, 0, 0, 0, 3
 };
 
 static const int sav_date_parse_start = 1;
@@ -319,12 +335,12 @@ readstat_error_t sav_parse_date(const char *data, size_t len, struct tm *timesta
     int cs;
     int temp_val = 0;
     
-#line 323 "src/spss/readstat_sav_parse_timestamp.c"
+#line 339 "src/spss/readstat_sav_parse_timestamp.c"
 	{
 	cs = sav_date_parse_start;
 	}
 
-#line 328 "src/spss/readstat_sav_parse_timestamp.c"
+#line 344 "src/spss/readstat_sav_parse_timestamp.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -459,7 +475,7 @@ _match:
 #line 98 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 11; }
 	break;
-#line 463 "src/spss/readstat_sav_parse_timestamp.c"
+#line 479 "src/spss/readstat_sav_parse_timestamp.c"
 		}
 	}
 
@@ -485,7 +501,7 @@ _again:
             }
         }
 	break;
-#line 489 "src/spss/readstat_sav_parse_timestamp.c"
+#line 505 "src/spss/readstat_sav_parse_timestamp.c"
 		}
 	}
 	}
@@ -496,7 +512,7 @@ _again:
 #line 104 "src/spss/readstat_sav_parse_timestamp.rl"
 
 
-    if (cs < 37|| p != pe) {
+    if (cs < 47|| p != pe) {
         if (ctx->error_handler) {
             snprintf(error_buf, sizeof(error_buf), "Invalid date string (length=%d): %*s", (int)len, (int)-len, data);
             ctx->error_handler(error_buf, ctx->user_ctx);

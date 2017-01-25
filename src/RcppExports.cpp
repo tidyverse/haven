@@ -32,6 +32,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// df_parse_xpt_file
+List df_parse_xpt_file(Rcpp::List spec);
+RcppExport SEXP haven_df_parse_xpt_file(SEXP specSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_xpt_file(spec));
+    return rcpp_result_gen;
+END_RCPP
+}
+// df_parse_xpt_raw
+List df_parse_xpt_raw(Rcpp::List spec);
+RcppExport SEXP haven_df_parse_xpt_raw(SEXP specSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_xpt_raw(spec));
+    return rcpp_result_gen;
+END_RCPP
+}
 // df_parse_dta_file
 List df_parse_dta_file(Rcpp::List spec, std::string encoding);
 RcppExport SEXP haven_df_parse_dta_file(SEXP specSEXP, SEXP encodingSEXP) {
@@ -135,6 +157,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List >::type data(dataSEXP);
     Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
     write_sas_(data, path);
+    return R_NilValue;
+END_RCPP
+}
+// write_xpt_
+void write_xpt_(List data, std::string path, int version);
+RcppExport SEXP haven_write_xpt_(SEXP dataSEXP, SEXP pathSEXP, SEXP versionSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< int >::type version(versionSEXP);
+    write_xpt_(data, path, version);
     return R_NilValue;
 END_RCPP
 }

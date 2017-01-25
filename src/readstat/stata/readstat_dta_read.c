@@ -335,22 +335,49 @@ static void dta_interpret_strl_vo_bytes(dta_ctx_t *ctx, unsigned char *vo_bytes,
     }
 }
 
-static readstat_error_t dta_read_strl(dta_ctx_t *ctx, dta_strl_t *strl) {
+static readstat_error_t dta_117_read_strl(dta_ctx_t *ctx, dta_strl_t *strl) {
     readstat_error_t retval = READSTAT_OK;
     readstat_io_t *io = ctx->io;
-    dta_strl_header_t header;
+    dta_117_strl_header_t header;
 
-    if (io->read(&header, sizeof(header), io->io_ctx) != sizeof(dta_strl_header_t)) {
+    if (io->read(&header, sizeof(header), io->io_ctx) != sizeof(dta_117_strl_header_t)) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
 
-    dta_interpret_strl_vo_bytes(ctx, header.vo_bytes, strl);
+    strl->v = ctx->bswap ? byteswap4(header.v) : header.v;
+    strl->o = ctx->bswap ? byteswap4(header.o) : header.o;
     strl->type = header.type;
     strl->len = ctx->bswap ? byteswap4(header.len) : header.len;
 
 cleanup:
     return retval;
+}
+
+static readstat_error_t dta_118_read_strl(dta_ctx_t *ctx, dta_strl_t *strl) {
+    readstat_error_t retval = READSTAT_OK;
+    readstat_io_t *io = ctx->io;
+    dta_118_strl_header_t header;
+
+    if (io->read(&header, sizeof(header), io->io_ctx) != sizeof(dta_118_strl_header_t)) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+
+    strl->v = ctx->bswap ? byteswap4(header.v) : header.v;
+    strl->o = ctx->bswap ? byteswap8(header.o) : header.o;
+    strl->type = header.type;
+    strl->len = ctx->bswap ? byteswap4(header.len) : header.len;
+
+cleanup:
+    return retval;
+}
+
+static readstat_error_t dta_read_strl(dta_ctx_t *ctx, dta_strl_t *strl) {
+    if (ctx->strl_o_len > 4) {
+        return dta_118_read_strl(ctx, strl);
+    }
+    return dta_117_read_strl(ctx, strl);
 }
 
 static readstat_error_t dta_read_strls(dta_ctx_t *ctx) {

@@ -31,6 +31,14 @@ unsigned char sas7bcat_magic_number[32] = {
     0x09, 0xc7, 0x31, 0x8c,   0x18, 0x1f, 0x10, 0x11
 };
 
+/* This table is cobbled together from extant files and:
+ * https://support.sas.com/documentation/cdl/en/nlsref/61893/HTML/default/viewer.htm#a002607278.htm
+ *
+ * Discrepancies form the official documentation are noted with a comment. It
+ * appears that in some instances that SAS software uses a newer encoding than
+ * what's listed in the docs. In these cases the encoding used by ReadStat 
+ * represents the author's best guess.
+ */
 static readstat_charset_entry_t _charset_table[] = { 
     { .code = 0,     .name = SAS_DEFAULT_STRING_ENCODING },
     { .code = 20,    .name = "UTF-8" },
@@ -50,11 +58,12 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 64,    .name = "WINDOWS-1254" },
     { .code = 65,    .name = "WINDOWS-1255" },
     { .code = 66,    .name = "WINDOWS-1256" },
+    { .code = 67,    .name = "WINDOWS-1257" },
     { .code = 119,   .name = "EUC-TW" },
     { .code = 123,   .name = "BIG-5" },
-    { .code = 125,   .name = "EUC-CN" },
+    { .code = 125,   .name = "GB18030" }, // "euc-cn" in SAS
     { .code = 134,   .name = "EUC-JP" },
-    { .code = 138,   .name = "CP932" }, // is this the right shift-jis?
+    { .code = 138,   .name = "CP932" }, // "shift-jis" in SAS
     { .code = 140,   .name = "EUC-KR" }
 };
 
@@ -334,3 +343,43 @@ readstat_error_t sas_fill_page(readstat_writer_t *writer, sas_header_info_t *hin
     }
     return READSTAT_OK;
 }
+
+readstat_error_t sas_validate_name(const char *name) {
+    int j;
+    for (j=0; name[j]; j++) {
+        if (name[j] != '_' &&
+                !(name[j] >= 'a' && name[j] <= 'z') &&
+                !(name[j] >= 'A' && name[j] <= 'Z') &&
+                !(name[j] >= '0' && name[j] <= '9')) {
+            return READSTAT_ERROR_NAME_CONTAINS_ILLEGAL_CHARACTER;
+        }
+    }
+    char first_char = name[0];
+    if (first_char != '_' &&
+            !(first_char >= 'a' && first_char <= 'z') &&
+            !(first_char >= 'A' && first_char <= 'Z')) {
+        return READSTAT_ERROR_NAME_BEGINS_WITH_ILLEGAL_CHARACTER;
+    }
+    if (strcmp(name, "_N_") == 0 || strcmp(name, "_ERROR_") == 0 ||
+            strcmp(name, "_NUMERIC_") == 0 || strcmp(name, "_CHARACTER_") == 0 ||
+            strcmp(name, "_ALL_") == 0) {
+        return READSTAT_ERROR_NAME_IS_RESERVED_WORD;
+    }
+
+    if (strlen(name) > 32)
+        return READSTAT_ERROR_NAME_IS_TOO_LONG;
+
+    return READSTAT_OK;
+}
+
+readstat_error_t sas_validate_column_names(readstat_writer_t *writer) {
+    int i;
+    for (i=0; i<writer->variables_count; i++) {
+        readstat_variable_t *variable = readstat_get_variable(writer, i);
+        readstat_error_t error = sas_validate_name(readstat_variable_get_name(variable));
+        if (error != READSTAT_OK)
+            return error;
+    }
+    return READSTAT_OK;
+}
+

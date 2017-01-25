@@ -1,40 +1,64 @@
-# Haven
+# Haven <img src="logo.png" align="right" />
 
-[![Travis-CI Build Status](https://travis-ci.org/hadley/haven.svg?branch=master)](https://travis-ci.org/hadley/haven)
-[![Coverage Status](https://img.shields.io/codecov/c/github/hadley/haven/master.svg)](https://codecov.io/github/hadley/haven?branch=master)
+[![Travis-CI Build Status](https://travis-ci.org/tidyverse/haven.svg?branch=master)](https://travis-ci.org/tidyverse/haven)
+[![Coverage Status](https://img.shields.io/codecov/c/github/tidyverse/haven/master.svg)](https://codecov.io/github/tidyverse/haven?branch=master)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/haven)](https://cran.r-project.org/package=haven)
 
-Haven allows you to load foreign data formats (SAS, SPSS and Stata) in to R by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). Haven offers similar functionality to the base foreign package but:
+## Overview
 
-* It reads SPSS files (`.dta` and `.por`), reads Stata 13 and 14 files 
-  (foreign only works up to Stata 12), and SAS's proprietary binary format 
-  (SAS7BDAT + SAS7BCAT). It does not support many of the now more exotic 
-  formats supported by foreign.
+Haven enables R to read and write various data formats used by other statistical packages by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). Haven is part of the [tidyverse](http://tidyverse.org). Currently it supports:
 
-* Can also write SPSS, Stata, and SAS files.
+* __SAS__: `read_sas()` reads `.sas7bdat` + `.sas7bcat` files and `read_xpt()` 
+  reads SAS transport files (version 5 and version 8). `write_sas()` writes 
+  `.sas7bdat` files.
+  
+* __SPSS__: `read_sav()` reads `.sav` files and `read_por()` reads the 
+  older `.por` files. `write_sav()` writes `.sav` files.
+  
+* __Stata__: `read_dta()` reads `.dta` files (up to version 14). 
+  `write_dta()` writes `.dta` files (versions 8-14).
 
-* Date times are converted to corresponding R classes and labelled vectors are 
-  returned as a new `labelled` class. You can easily coerce to factors or 
-  replace labelled values with missings as appropriate. All functions return
-  [tibbles](http://github.com/hadley/tibble).
+The output objects:
 
-* Uses underscores instead of dots ;)
+* Are [tibbles](http://github.com/hadley/tibble), which have a better print
+  method for very long and very wide files.
+  
+* Translate value labels into a new `labelled()` class, which preserves the
+  original semantics and can easily be coerced to factors with `as_factor()`.
+  Special missing values are preserved. See `vignette("semantics")` for 
+  more details.
 
-Haven is still a work in progress so please [file an issue](https://github.com/hadley/haven/issues) if it fails to correctly load a file that you're interested in.
-
+* Dates and times are converted to R date/time classes. Character vectors are
+  not converted to factors.
+  
 ## Installation
 
 ```R
-# Install the released version from CRAN:
+# The easiest way to get haven is to install the whole tidyverse:
+install.packages("tidyverse")
+
+# Alternatively, install just haven:
 install.packages("haven")
 
-# Install the cutting edge development version from GitHub:
+# Or the the development version from GitHub:
 # install.packages("devtools")
-devtools::install_github("hadley/haven")
+devtools::install_github("tidyverse/haven")
 ```
 
 ## Usage
 
-* SAS: `read_sas("path/to/file")`
-* SPSS: `read_sav("path/to/file")`
-* Stata: `read_dta("path/to/file")`
+```R
+library(haven)
+
+# SAS
+read_sas("mtcars.sas7bdat")
+write_sas(mtcars, "mtcars.sas7bdat")
+
+# SPSS
+read_sav("mtcars.sav")
+write_sav(mtcars, "mtcars.sav")
+
+# Stata
+read_dta("mtcars.dta")
+write_dta(mtcars, "mtcars.dta")
+```

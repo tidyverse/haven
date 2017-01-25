@@ -1,4 +1,16 @@
-# haven 0.2.0.9000
+# haven 1.0.0.9000
+
+* Add support for reading (`read_xpt()`) and writing (`write_xpt()`) SAS 
+  transport files.
+
+* Update to latest readstat. Includes:
+
+  * SAS: support Win baltic code page (#231)
+  * SPSS: support uppercase time stamps (#230)
+  * SPSS: fixes for 252-255 byte strings (#226)
+  * SPSS: fixes for 0 byte strings (#245)
+
+# haven 1.0.0
 
 * The ReadStat library is stored in a subdirectory of `src` (#209, @krlmlr).
 

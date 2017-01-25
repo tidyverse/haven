@@ -285,8 +285,8 @@ public:
 
     if (obs_index >= nrowsAlloc_)
       resizeCols(nrowsAlloc_ * 2);
-    if (obs_index > nrows_)
-      nrows_ = obs_index;
+    if (obs_index >= nrows_)
+      nrows_ = obs_index + 1;
 
     switch(value.type) {
     case READSTAT_TYPE_STRING_REF:
@@ -595,6 +595,27 @@ List df_parse_dta(Rcpp::List spec, std::string encoding = "") {
 
 
 template<typename InputClass>
+List df_parse_xpt(Rcpp::List spec, std::string encoding = "") {
+  DfReader builder(HAVEN_XPT);
+  InputClass builder_input(spec);
+
+  readstat_parser_t* parser = haven_init_parser();
+  haven_init_io(parser, builder_input);
+
+  readstat_error_t result = readstat_parse_xport(parser, "", &builder);
+  readstat_parser_free(parser);
+
+  if (result != 0) {
+    stop("Failed to parse %s: %s.",
+         haven_error_message(spec),
+         readstat_error_message(result));
+  }
+
+  return builder.output();
+}
+
+
+template<typename InputClass>
 List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                   std::string encoding) {
   DfReader builder(HAVEN_SAS);
@@ -637,6 +658,15 @@ List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                       std::string encoding) {
   return df_parse_sas<DfReaderInputRaw>(spec_b7dat, spec_b7cat, encoding);
+}
+
+// [[Rcpp::export]]
+List df_parse_xpt_file(Rcpp::List spec) {
+  return df_parse_xpt<DfReaderInputFile>(spec);
+}
+// [[Rcpp::export]]
+List df_parse_xpt_raw(Rcpp::List spec) {
+  return df_parse_xpt<DfReaderInputRaw>(spec);
 }
 
 // [[Rcpp::export]]

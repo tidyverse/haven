@@ -48,11 +48,41 @@ write_sas <- function(data, path) {
   write_sas_(data, normalizePath(path, mustWork = FALSE))
 }
 
+#' Read and write SAS transport files
+#'
+#' The SAS transport format is a open format, as is required for submission
+#' of the data to the FDA.
+#'
+#' @inherit read_spss
+#' @export
+#' @examples
+#' tmp <- tempfile(fileext = ".xpt")
+#' write_xpt(mtcars, tmp)
+#' read_xpt(tmp)
+read_xpt <- function(file) {
+  spec <- readr::datasource(file)
+  switch(class(spec)[1],
+    source_file = df_parse_xpt_file(spec),
+    source_raw = df_parse_xpt_raw(spec),
+    stop("This kind of input is not handled", call. = FALSE)
+  )
+}
+
+#' @export
+#' @rdname read_xpt
+#' @param version Version of transport file specification to use: either 5 or 8.
+write_xpt <- function(data, path, version = 8) {
+  stopifnot(version %in% c(5, 8))
+
+  write_xpt_(data, normalizePath(path, mustWork = FALSE), version)
+}
+
+
 #' Read SPSS (SAV & POR) files. Write SAV files.
 #'
 #' Currently haven can read and write logical, integer, numeric, character
 #' and factors. See \code{\link{labelled_spss}} for how labelled variables in
-#' Stata are handled in R. \code{read_spss} is an alias for \code{read_sav}.
+#' SPSS are handled in R. \code{read_spss} is an alias for \code{read_sav}.
 #'
 #' @inheritParams readr::datasource
 #' @param path Path to a file where the data will be written.

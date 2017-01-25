@@ -151,6 +151,7 @@ typedef struct readstat_variable_s {
     readstat_measure_t      measure;
     readstat_alignment_t    alignment;
     int                     display_width;
+    int                     decimals;
 } readstat_variable_t;
 
 /* Value accessors */
@@ -307,6 +308,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
 readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path, void *user_ctx);
 readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *path, void *user_ctx);
 readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *path, void *user_ctx);
+readstat_error_t readstat_parse_xport(readstat_parser_t *parser, const char *path, void *user_ctx);
 
 
 /* Internal module callbacks */
@@ -314,7 +316,7 @@ typedef struct readstat_string_ref_s {
     int64_t     first_v;
     int64_t     first_o;
     size_t      len;
-    char        data[];
+    char        data[1]; // Flexible array; using [1] for C++98 compatibility
 } readstat_string_ref_t;
 
 typedef size_t (*readstat_variable_width_callback)(readstat_type_t type, size_t user_width);
@@ -411,7 +413,9 @@ void readstat_label_int32_value(readstat_label_set_t *label_set, int32_t value, 
 void readstat_label_string_value(readstat_label_set_t *label_set, const char *value, const char *label);
 void readstat_label_tagged_value(readstat_label_set_t *label_set, char tag, const char *label);
 
-// Now define your variables. Note that `storage_width' is only used for READSTAT_TYPE_STRING variables.
+// Now define your variables. Note that `storage_width' is used for:
+// * READSTAT_TYPE_STRING variables in all formats
+// * READSTAT_TYPE_DOUBLE variables, but only in the SAS XPORT format (valid values 3-8, defaults to 8)
 readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char *name, readstat_type_t type, 
         size_t storage_width);
 void readstat_variable_set_label(readstat_variable_t *variable, const char *label);
@@ -443,7 +447,7 @@ readstat_error_t readstat_writer_set_file_label(readstat_writer_t *writer, const
 readstat_error_t readstat_writer_set_file_timestamp(readstat_writer_t *writer, time_t timestamp);
 readstat_error_t readstat_writer_set_fweight_variable(readstat_writer_t *writer, const readstat_variable_t *variable);
 readstat_error_t readstat_writer_set_file_format_version(readstat_writer_t *writer, 
-        long file_format_version); // e.g. 104-118 for DTA
+        long file_format_version); // e.g. 104-118 for DTA; 5 or 8 for SAS Transport
 readstat_error_t readstat_writer_set_file_format_is_64bit(readstat_writer_t *writer,
         int is_64bit); // applies only to SAS files; defaults to 1=true
 readstat_error_t readstat_writer_set_compression(readstat_writer_t *writer,
@@ -459,6 +463,7 @@ readstat_error_t readstat_begin_writing_por(readstat_writer_t *writer, void *use
 readstat_error_t readstat_begin_writing_sas7bcat(readstat_writer_t *writer, void *user_ctx);
 readstat_error_t readstat_begin_writing_sas7bdat(readstat_writer_t *writer, void *user_ctx, long row_count);
 readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *user_ctx, long row_count);
+readstat_error_t readstat_begin_writing_xport(readstat_writer_t *writer, void *user_ctx, long row_count);
 
 // Start a row of data (that is, a case or observation)
 readstat_error_t readstat_begin_row(readstat_writer_t *writer);

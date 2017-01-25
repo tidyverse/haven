@@ -17,7 +17,7 @@
 #include "readstat_sav.h"
 #include "readstat_spss_parse.h"
 
-#define MAX_TEXT_SIZE               256
+#define MAX_STRING_SIZE             255
 #define MAX_LABEL_SIZE              256
 #define MAX_VALUE_LABEL_SIZE        120
 
@@ -238,7 +238,7 @@ static readstat_error_t sav_emit_base_variable_record(readstat_writer_t *writer,
     memset(&variable, 0, sizeof(sav_variable_record_t));
 
     if (r_variable->type == READSTAT_TYPE_STRING) {
-        variable.type = r_variable->user_width > 255 ? 255 : r_variable->user_width;
+        variable.type = r_variable->user_width > MAX_STRING_SIZE ? MAX_STRING_SIZE : r_variable->user_width;
     }
     variable.has_var_label = (r_variable->label[0] != '\0');
 
@@ -327,11 +327,14 @@ static readstat_error_t sav_emit_full_variable_record(readstat_writer_t *writer,
         goto cleanup;
 
     if (r_variable->type == READSTAT_TYPE_STRING) {
-        size_t n_segments = (r_variable->user_width + 251) / 252;
+        size_t n_segments = 1;
+        if (r_variable->user_width > MAX_STRING_SIZE) {
+            n_segments = (r_variable->user_width + 251) / 252;
+        }
 
         int i;
         for (i=1; i<n_segments; i++) {
-            size_t storage_size = 255;
+            size_t storage_size = MAX_STRING_SIZE;
             if (i == n_segments - 1) {
                 storage_size = (r_variable->user_width - (n_segments - 1) * 252);
             }
@@ -683,7 +686,7 @@ static readstat_error_t sav_emit_very_long_string_record(readstat_writer_t *writ
 
     for (i=0; i<writer->variables_count; i++) {
         readstat_variable_t *r_variable = readstat_get_variable(writer, i);
-        if (r_variable->user_width <= 255)
+        if (r_variable->user_width <= MAX_STRING_SIZE)
             continue;
 
         char kv_data[8+1+5+1];
@@ -702,7 +705,7 @@ static readstat_error_t sav_emit_very_long_string_record(readstat_writer_t *writ
 
     for (i=0; i<writer->variables_count; i++) {
         readstat_variable_t *r_variable = readstat_get_variable(writer, i);
-        if (r_variable->user_width <= 255)
+        if (r_variable->user_width <= MAX_STRING_SIZE)
             continue;
 
         char kv_data[8+1+5+1];
@@ -899,12 +902,14 @@ static readstat_error_t sav_write_missing_number(void *row, const readstat_varia
 
 static size_t sav_variable_width(readstat_type_t type, size_t user_width) {
     if (type == READSTAT_TYPE_STRING) {
-        if (user_width > 255) {
+        if (user_width > MAX_STRING_SIZE) {
             size_t n_segments = (user_width + 251) / 252;
             size_t last_segment_width = ((user_width - (n_segments - 1) * 252) + 7)/8*8;
             return (n_segments-1)*256 + last_segment_width;
         }
-
+        if (user_width == 0) {
+            return 8;
+        }
         return (user_width + 7) / 8 * 8;
     }
     return 8;
@@ -968,8 +973,8 @@ static readstat_error_t sav_write_compressed_row(void *writer_ctx, void *row, si
     readstat_error_t retval = READSTAT_OK;
     readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
     int i;
-    size_t output_len = len + (len/8 + 7)/8*8;
-    char *output = malloc(output_len);
+    size_t output_len = len + (len/8 + 8)/8*8;
+    unsigned char *output = malloc(output_len);
     char *input = (char *)row;
 
     off_t input_offset = 0;

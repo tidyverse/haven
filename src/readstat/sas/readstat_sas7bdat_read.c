@@ -312,6 +312,7 @@ static readstat_error_t sas7bdat_parse_column_format_subheader(const char *subhe
 
 static readstat_error_t sas7bdat_handle_data_value(const char *col_data, col_info_t *col_info, sas7bdat_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
+    char error_buf[ERROR_BUF_SIZE];
     int cb_retval = 0;
     readstat_value_t value;
     memset(&value, 0, sizeof(readstat_value_t));
@@ -321,8 +322,15 @@ static readstat_error_t sas7bdat_handle_data_value(const char *col_data, col_inf
     if (col_info->type == READSTAT_TYPE_STRING) {
         retval = readstat_convert(ctx->scratch_buffer, ctx->scratch_buffer_len,
                 col_data, col_info->width, ctx->converter);
-        if (retval != READSTAT_OK)
+        if (retval != READSTAT_OK) {
+            if (ctx->error_handler) {
+                snprintf(error_buf, sizeof(error_buf),
+                        "ReadStat: Error converting string to specified encoding: %.*s\n",
+                        col_info->width, col_data);
+                ctx->error_handler(error_buf, ctx->user_ctx);
+            }
             goto cleanup;
+        }
 
         value.v.string_value = ctx->scratch_buffer;
     } else if (col_info->type == READSTAT_TYPE_DOUBLE) {
@@ -495,6 +503,16 @@ cleanup:
         free(variable);
         if (out_retval)
             *out_retval = retval;
+
+        if (retval == READSTAT_ERROR_CONVERT_BAD_STRING) {
+            if (ctx->error_handler) {
+                char error_buf[ERROR_BUF_SIZE];
+                snprintf(error_buf, sizeof(error_buf),
+                        "ReadStat: Error converting variable #%d info to specified encoding: %s %s (%s)\n",
+                        i, variable->name, variable->format, variable->label);
+                ctx->error_handler(error_buf, ctx->user_ctx);
+            }
+        }
 
         return NULL;
     }
