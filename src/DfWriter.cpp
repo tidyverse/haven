@@ -34,6 +34,14 @@ inline readstat_measure_e measureType(SEXP x) {
   }
 }
 
+inline int displayWidth(RObject x) {
+  RObject display_width_obj = x.attr("display_width");
+  if ((display_width_obj.sexp_type() == REALSXP) || (display_width_obj.sexp_type() == INTSXP)) {
+    return (as<IntegerVector>(display_width_obj))[0];
+  }
+  return 0;
+}
+
 
 class Writer {
   FileType type_;
@@ -214,6 +222,7 @@ public:
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
+    readstat_variable_set_display_width(var, displayWidth(x));
   }
 
   void defineVariable(NumericVector x, const char* name, const char* format = NULL) {
@@ -234,6 +243,7 @@ public:
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
+    readstat_variable_set_display_width(var, displayWidth(x));
   }
 
   void defineVariable(CharacterVector x, const char* name, const char* format = NULL) {
@@ -261,6 +271,7 @@ public:
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
+    readstat_variable_set_display_width(var, displayWidth(x));
   }
 
   // Value helper -------------------------------------------------------------

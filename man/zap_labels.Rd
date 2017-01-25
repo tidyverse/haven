@@ -31,6 +31,6 @@ zap_labels(df)
 }
 \seealso{
 Other zappers: \code{\link{zap_empty}},
-  \code{\link{zap_formats}}
+  \code{\link{zap_formats}}, \code{\link{zap_widths}}
 }
 
