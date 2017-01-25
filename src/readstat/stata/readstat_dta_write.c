@@ -99,8 +99,13 @@ static readstat_error_t dta_emit_header_time_stamp(readstat_writer_t *writer, dt
     time_t now = writer->timestamp;
     struct tm *time_s = localtime(&now);
     char *timestamp = calloc(1, ctx->timestamp_len);
-    uint8_t actual_timestamp_len = strftime(timestamp, ctx->timestamp_len, 
-            "%d %b %Y %H:%M", time_s);
+    /* There are locale/portability issues with strftime so hack something up */
+    char months[][4] = { 
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    uint8_t actual_timestamp_len = snprintf(timestamp, ctx->timestamp_len, "%02d %3s %04d %02d:%02d",
+            time_s->tm_mday, months[time_s->tm_mon], time_s->tm_year + 1900,
+            time_s->tm_hour, time_s->tm_min);
     if (actual_timestamp_len == 0) {
         error = READSTAT_ERROR_WRITE;
         goto cleanup;
@@ -523,6 +528,28 @@ cleanup:
     return error;
 }
 
+static readstat_error_t dta_117_emit_strl_header(readstat_writer_t *writer, readstat_string_ref_t *ref) {
+    dta_117_strl_header_t header = {
+        .v = ref->first_v,
+        .o = ref->first_o,
+        .type = DTA_GSO_TYPE_ASCII,
+        .len = ref->len
+    };
+
+    return readstat_write_bytes(writer, &header, sizeof(dta_117_strl_header_t));
+}
+
+static readstat_error_t dta_118_emit_strl_header(readstat_writer_t *writer, readstat_string_ref_t *ref) {
+    dta_118_strl_header_t header = {
+        .v = ref->first_v,
+        .o = ref->first_o,
+        .type = DTA_GSO_TYPE_ASCII,
+        .len = ref->len
+    };
+
+    return readstat_write_bytes(writer, &header, sizeof(dta_118_strl_header_t));
+}
+
 static readstat_error_t dta_emit_strls(readstat_writer_t *writer, dta_ctx_t *ctx) {
     if (!ctx->file_is_xmlish)
         return READSTAT_OK;
@@ -541,25 +568,11 @@ static readstat_error_t dta_emit_strls(readstat_writer_t *writer, dta_ctx_t *ctx
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        dta_strl_header_t header;
-        if (ctx->strl_v_len == 2) {
-            int16_t v = ref->first_v;
-            int64_t o = ref->first_o;
-            memcpy(&header.vo_bytes[0], &v, sizeof(int16_t));
-            if (!machine_is_little_endian()) {
-                o <<= 16;
-            }
-            memcpy(&header.vo_bytes[2], &o, 6);
+        if (ctx->strl_o_len > 4) {
+            retval = dta_118_emit_strl_header(writer, ref);
         } else {
-            int32_t v = ref->first_v;
-            int32_t o = ref->first_o;
-            memcpy(&header.vo_bytes[0], &v, sizeof(int32_t));
-            memcpy(&header.vo_bytes[4], &o, sizeof(int32_t));
+            retval = dta_117_emit_strl_header(writer, ref);
         }
-        header.type = DTA_GSO_TYPE_ASCII;
-        header.len = ref->len;
-
-        retval = readstat_write_bytes(writer, &header, sizeof(dta_strl_header_t));
         if (retval != READSTAT_OK)
             goto cleanup;
 
@@ -956,7 +969,11 @@ static size_t dta_measure_strls(readstat_writer_t *writer, dta_ctx_t *ctx) {
 
     for (i=0; i<writer->string_refs_count; i++) {
         readstat_string_ref_t *ref = writer->string_refs[i];
-        strls_len += 16 + ref->len;
+        if (ctx->strl_o_len > 4) {
+            strls_len += 20 + ref->len;
+        } else {
+            strls_len += 16 + ref->len;
+        }
     }
 
     return (dta_measure_tag(ctx, "<strls>")

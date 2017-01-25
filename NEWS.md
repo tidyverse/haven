@@ -8,6 +8,7 @@
   * SAS: support Win baltic code page (#231)
   * SPSS: support uppercase time stamps (#230)
   * SPSS: fixes for 252-255 byte strings (#226)
+  * SPSS: fixes for 0 byte strings (#245)
 
 # haven 1.0.0
 
