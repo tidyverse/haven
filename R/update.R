@@ -8,7 +8,7 @@ update_readstat <- function() {
   src <- dir(zip_dir, "\\.[ch]$", recursive = TRUE)
 
   # Drop test & bin
-  ignore <- dirname(src) %in% c("test", "bin", "bin/modules")
+  ignore <- dirname(src) %in% c("test", "bin", "bin/modules", "bin/util")
   src <- src[!ignore]
 
 

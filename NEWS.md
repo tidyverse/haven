@@ -14,6 +14,7 @@
   * SPSS: support uppercase time stamps (#230)
   * SPSS: fixes for 252-255 byte strings (#226)
   * SPSS: fixes for 0 byte strings (#245)
+  * SPSS: can write long variable labels (#262)
   
 * Add support for reading and writing of SPSS's display widths (@ecortens).
 

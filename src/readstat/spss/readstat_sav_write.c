@@ -765,10 +765,14 @@ static readstat_error_t sav_emit_long_value_labels_records(readstat_writer_t *wr
 
             for (j=0; j<label_count; j++) {
                 readstat_value_label_t *r_value_label = readstat_get_value_label(r_label_set, j);
+                int32_t label_len = r_value_label->label_len;
+                if (label_len > MAX_VALUE_LABEL_SIZE)
+                    label_len = MAX_VALUE_LABEL_SIZE;
+
                 info_header.count += sizeof(int32_t); // value length
                 info_header.count += storage_width;
                 info_header.count += sizeof(int32_t); // label length
-                info_header.count += r_value_label->label_len;
+                info_header.count += label_len;
             }
 
             retval = readstat_write_bytes(writer, &info_header, sizeof(info_header));
