@@ -82,7 +82,7 @@ write_xpt <- function(data, path, version = 8) {
 #'
 #' Currently haven can read and write logical, integer, numeric, character
 #' and factors. See \code{\link{labelled_spss}} for how labelled variables in
-#' Stata are handled in R. \code{read_spss} is an alias for \code{read_sav}.
+#' SPSS are handled in R. \code{read_spss} is an alias for \code{read_sav}.
 #'
 #' @inheritParams readr::datasource
 #' @param path Path to a file where the data will be written.
