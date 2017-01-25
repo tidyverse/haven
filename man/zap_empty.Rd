@@ -23,4 +23,3 @@ zap_empty(x)
 Other zappers: \code{\link{zap_formats}},
   \code{\link{zap_labels}}, \code{\link{zap_widths}}
 }
-

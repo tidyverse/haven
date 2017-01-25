@@ -33,4 +33,3 @@ is.na(x1)
 x2 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf))
 is.na(x2)
 }
-

@@ -24,4 +24,3 @@ for (var in names(labelled_df)) {
   print_labels(labelled_df[[var]], var)
 }
 }
-

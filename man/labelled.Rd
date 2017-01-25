@@ -50,4 +50,3 @@ as_factor(s3)
 x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 zap_labels(x)
 }
-

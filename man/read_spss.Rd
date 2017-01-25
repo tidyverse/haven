@@ -56,4 +56,3 @@ tmp <- tempfile(fileext = ".sav")
 write_sav(mtcars, tmp)
 read_sav(tmp)
 }
-

@@ -58,4 +58,3 @@ is_tagged_na(x, "a")
 # the left-most NA will tend to be preserved in arithmetic operations.
 na_tag(tagged_na("a") + tagged_na("z"))
 }
-

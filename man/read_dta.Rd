@@ -56,4 +56,3 @@ write_dta(mtcars, tmp)
 read_dta(tmp)
 read_stata(tmp)
 }
-

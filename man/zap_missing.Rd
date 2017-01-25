@@ -34,4 +34,3 @@ df <- tibble::data_frame(x1, x2, y = 4:1)
 df
 zap_missing(df)
 }
-

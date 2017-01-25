@@ -43,4 +43,3 @@ tmp <- tempfile(fileext = ".xpt")
 write_xpt(mtcars, tmp)
 read_xpt(tmp)
 }
-

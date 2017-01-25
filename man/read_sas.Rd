@@ -36,4 +36,3 @@ supported.
 path <- system.file("examples", "iris.sas7bdat", package = "haven")
 read_sas(path)
 }
-

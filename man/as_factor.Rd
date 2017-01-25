@@ -56,4 +56,3 @@ as_factor(x, "values")
 # Or combine value and label
 as_factor(x, "both")
 }
-
