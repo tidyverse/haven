@@ -243,17 +243,6 @@ validate_dta <- function(data) {
     )
   }
 
-  # Check lengths of labels
-  lengths <- vapply(data, label_length, integer(1))
-  bad_lengths <- lengths > 32
-    if (any(bad_lengths)) {
-    stop(
-      "Stata only supports value labels up to 32 characters in length. \nProblems: ",
-      var_names(data, bad_lengths),
-      call. = FALSE
-    )
-  }
-
 }
 
 var_names <- function(data, i) {

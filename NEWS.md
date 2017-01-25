@@ -1,5 +1,8 @@
 # haven 1.0.0.9000
 
+* `write_dta()` no longer checks that all value labels are at most 32 
+  characters (since this is not a restriction of dta files) (#239).
+
 * Add support for reading (`read_xpt()`) and writing (`write_xpt()`) SAS 
   transport files.
 
