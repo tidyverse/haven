@@ -10,4 +10,4 @@ r:
  - devel
 
 after_success:
-  - Rscript -e 'covr::codecov(line_exclusions = "dir("src", pattern = "readstat", full.names = TRUE, recursive = TRUE))'
+  - Rscript -e 'covr::codecov(line_exclusions = dir("src", pattern = "readstat", full.names = TRUE, recursive = TRUE))'
