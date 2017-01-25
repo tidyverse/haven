@@ -271,6 +271,12 @@ public:
     if (var_format != NULL && strcmp(var_format, "") != 0) {
       col.attr(formatAttribute(type_)) = Rf_ScalarString(Rf_mkCharCE(var_format, CE_UTF8));
     }
+
+    // Store original display width as attribute if it differs from the default
+    int display_width = readstat_variable_get_display_width(variable);
+    if (type_ == HAVEN_SPSS && display_width != 8) {
+      col.attr("display_width") = Rf_ScalarInteger(display_width);
+    }
   }
 
   void setValue(int obs_index, readstat_variable_t *variable, readstat_value_t value) {

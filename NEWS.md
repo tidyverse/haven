@@ -9,6 +9,8 @@
   * SPSS: support uppercase time stamps (#230)
   * SPSS: fixes for 252-255 byte strings (#226)
   * SPSS: fixes for 0 byte strings (#245)
+  
+* Add support for reading and writing of SPSS's display widths (@ecortens).
 
 # haven 1.0.0
 
