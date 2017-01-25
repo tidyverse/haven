@@ -23,7 +23,8 @@ Imports:
     Rcpp (>= 0.11.4),
     readr (>= 0.1.0),
     hms,
-    tibble
+    tibble,
+    forcats (>= 0.2.0)
 LazyData: true
 URL:
     https://haven.tidyverse.org, 

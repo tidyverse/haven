@@ -20,21 +20,10 @@
 #' as_factor(x, "values")
 #' # Or combine value and label
 #' as_factor(x, "both")
-as_factor <- function(x, ...) {
-  UseMethod("as_factor")
-}
-
-#' @rdname as_factor
+#' @importFrom forcats as_factor
 #' @export
-as_factor.factor <- function(x, ...) {
-  x
-}
-
-#' @rdname as_factor
-#' @export
-as_factor.character <- function(x, ...) {
-  structure(factor(x, ...), label = attr(x, "label", exact = TRUE))
-}
+#' @name as_factor
+NULL
 
 #' @rdname as_factor
 #' @export
@@ -66,21 +55,21 @@ as_factor.labelled <- function(x, levels = c("default", "labels", "values", "bot
   levels <- match.arg(levels)
   label <- attr(x, "label", exact = TRUE)
   labels <- attr(x, "labels")
-  
+
   if (levels == "default" || levels == "both") {
     if (levels == "both") {
       names(labels) <- paste0("[", labels, "] ", names(labels))
     }
-    
+
     # Replace each value with its label
     vals <- unique(x)
     levs <- replace_with(vals, unname(labels), names(labels))
     # Ensure all labels are preserved
     levs <- sort(c(stats::setNames(vals, levs), labels), na.last = TRUE)
     levs <- unique(names(levs))
-    
+
     x <- replace_with(x, unname(labels), names(labels))
-    
+
     x <- factor(x, levels = levs, ordered = ordered)
   } else {
     levs <- unname(labels)
@@ -90,7 +79,7 @@ as_factor.labelled <- function(x, levels = c("default", "labels", "values", "bot
     )
     x <- factor(x, levs, labels = labs, ordered = ordered)
   }
-  
+
   structure(x, label = label)
 }
 
