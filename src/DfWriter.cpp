@@ -36,8 +36,11 @@ inline readstat_measure_e measureType(SEXP x) {
 
 inline int displayWidth(RObject x) {
   RObject display_width_obj = x.attr("display_width");
-  if (TYPEOF(display_width_obj) == REALSXP || TYPEOF(display_width_obj) == INTSXP) {
-    return (as<IntegerVector>(display_width_obj))[0];
+  switch(TYPEOF(display_width_obj)) {
+  case INTSXP:
+    return INTEGER(display_width_obj)[0];
+  case REALSXP:
+    return REAL(display_width_obj)[0];
   }
   return 0;
 }
