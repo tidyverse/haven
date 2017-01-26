@@ -233,7 +233,7 @@ static readstat_error_t read_variable_count_record(por_ctx_t *ctx) {
     ctx->variables = calloc(ctx->var_count, sizeof(readstat_variable_t *));
     ctx->varinfo = calloc(ctx->var_count, sizeof(spss_varinfo_t));
     if (ctx->info_handler) {
-        if (ctx->info_handler(-1, ctx->var_count, ctx->user_ctx)) {
+        if (ctx->info_handler(-1, ctx->var_count, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -406,7 +406,7 @@ static readstat_error_t read_document_record(por_ctx_t *ctx) {
             goto cleanup;
         }
         if (ctx->note_handler) {
-            if (ctx->note_handler(i, string, ctx->user_ctx)) {
+            if (ctx->note_handler(i, string, ctx->user_ctx) != READSTAT_OK) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
             }
@@ -477,7 +477,10 @@ static readstat_error_t read_value_label_record(por_ctx_t *ctx) {
             }
             value.v.double_value = dval;
         }
-        ctx->value_label_handler(label_name_buf, value, label_buf, ctx->user_ctx);
+        if (ctx->value_label_handler(label_name_buf, value, label_buf, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+            retval = READSTAT_ERROR_USER_ABORT;
+            goto cleanup;
+        }
     }
     ctx->labels_offset++;
 
@@ -537,8 +540,8 @@ static readstat_error_t read_por_file_data(por_ctx_t *ctx) {
                 }
                 value.is_system_missing = isnan(value.v.double_value);
             }
-            if (ctx->value_handler) {
-                if (ctx->value_handler(ctx->obs_count, ctx->variables[i], value, ctx->user_ctx)) {
+            if (ctx->value_handler && !ctx->variables[i]->skip) {
+                if (ctx->value_handler(ctx->obs_count, ctx->variables[i], value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     rs_retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -605,7 +608,7 @@ readstat_error_t handle_variables(por_ctx_t *ctx) {
 
         snprintf(label_name_buf, sizeof(label_name_buf), POR_LABEL_NAME_PREFIX "%d", info->labels_index);
 
-        int cb_retval = 0;
+        int cb_retval = READSTAT_HANDLER_OK;
 
         if (ctx->variable_handler) {
             cb_retval = ctx->variable_handler(i, ctx->variables[i],
@@ -613,16 +616,18 @@ readstat_error_t handle_variables(por_ctx_t *ctx) {
                     ctx->user_ctx);
         }
 
-        if (cb_retval) {
+        if (cb_retval == READSTAT_HANDLER_ABORT) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
+
+        ctx->variables[i]->skip = (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE);
     }
     if (ctx->fweight_handler && ctx->fweight_name[0]) {
         for (i=0; i<ctx->var_count; i++) {
             spss_varinfo_t *info = &ctx->varinfo[i];
             if (strcmp(info->name, ctx->fweight_name) == 0) {
-                if (ctx->fweight_handler(i, ctx->user_ctx)) {
+                if (ctx->fweight_handler(i, ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -740,7 +745,7 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
         goto cleanup;
 
     if (ctx->metadata_handler) {
-        if (ctx->metadata_handler(file_label, ctx->timestamp, ctx->version, ctx->user_ctx)) {
+        if (ctx->metadata_handler(file_label, ctx->timestamp, ctx->version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }

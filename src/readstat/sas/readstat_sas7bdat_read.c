@@ -310,7 +310,8 @@ static readstat_error_t sas7bdat_parse_column_format_subheader(const char *subhe
     return retval;
 }
 
-static readstat_error_t sas7bdat_handle_data_value(const char *col_data, col_info_t *col_info, sas7bdat_ctx_t *ctx) {
+static readstat_error_t sas7bdat_handle_data_value(readstat_variable_t *variable, 
+        col_info_t *col_info, const char *col_data, sas7bdat_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     char error_buf[ERROR_BUF_SIZE];
     int cb_retval = 0;
@@ -363,10 +364,9 @@ static readstat_error_t sas7bdat_handle_data_value(const char *col_data, col_inf
             value.v.double_value = dval;
         }
     }
-    cb_retval = ctx->value_handler(ctx->parsed_row_count, ctx->variables[col_info->index], 
-            value, ctx->user_ctx);
+    cb_retval = ctx->value_handler(ctx->parsed_row_count, variable, value, ctx->user_ctx);
 
-    if (cb_retval)
+    if (cb_retval != READSTAT_HANDLER_OK)
         retval = READSTAT_ERROR_USER_ABORT;
 
 cleanup:
@@ -384,7 +384,11 @@ static readstat_error_t sas7bdat_parse_single_row(const char *data, sas7bdat_ctx
         ctx->scratch_buffer = realloc(ctx->scratch_buffer, ctx->scratch_buffer_len);
         for (j=0; j<ctx->column_count; j++) {
             col_info_t *col_info = &ctx->col_info[j];
-            retval = sas7bdat_handle_data_value(&data[col_info->offset], col_info, ctx);
+            readstat_variable_t *variable = ctx->variables[j];
+            if (variable->skip)
+                continue;
+
+            retval = sas7bdat_handle_data_value(variable, col_info, &data[col_info->offset], ctx);
             if (retval != READSTAT_OK) {
                 goto cleanup;
             }
@@ -523,13 +527,13 @@ cleanup:
 static readstat_error_t sas7bdat_submit_columns(sas7bdat_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     if (ctx->info_handler) {
-        if (ctx->info_handler(ctx->row_limit, ctx->column_count, ctx->user_ctx)) {
+        if (ctx->info_handler(ctx->row_limit, ctx->column_count, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
     }
     if (ctx->metadata_handler) {
-        if (ctx->metadata_handler(ctx->file_label, ctx->timestamp, ctx->version, ctx->user_ctx)) {
+        if (ctx->metadata_handler(ctx->file_label, ctx->timestamp, ctx->version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -541,12 +545,15 @@ static readstat_error_t sas7bdat_submit_columns(sas7bdat_ctx_t *ctx) {
         if (ctx->variables[i] == NULL)
             break;
 
+        int cb_retval = READSTAT_HANDLER_OK;
         if (ctx->variable_handler) {
-            if (ctx->variable_handler(i, ctx->variables[i], ctx->variables[i]->format, ctx->user_ctx)) {
-                retval = READSTAT_ERROR_USER_ABORT;
-                goto cleanup;
-            }
+            cb_retval = ctx->variable_handler(i, ctx->variables[i], ctx->variables[i]->format, ctx->user_ctx);
         }
+        if (cb_retval == READSTAT_HANDLER_ABORT) {
+            retval = READSTAT_ERROR_USER_ABORT;
+            goto cleanup;
+        }
+        ctx->variables[i]->skip = (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE);
     }
 cleanup:
     return retval;

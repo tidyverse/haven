@@ -24,7 +24,7 @@ static readstat_error_t dta_update_progress(dta_ctx_t *ctx) {
     double progress = 0.0;
     if (ctx->row_limit > 0)
         progress = 1.0 * ctx->current_row / ctx->row_limit;
-    if (ctx->progress_handler && ctx->progress_handler(progress, ctx->user_ctx))
+    if (ctx->progress_handler && ctx->progress_handler(progress, ctx->user_ctx) != READSTAT_HANDLER_OK)
         return READSTAT_ERROR_USER_ABORT;
     return READSTAT_OK;
 }
@@ -253,7 +253,7 @@ static readstat_error_t dta_read_expansion_fields(dta_ctx_t *ctx) {
             int index = 0;
             if (strncmp(&buffer[0], "_dta", 4) == 0 &&
                     sscanf(&buffer[ctx->ch_metadata_len], "note%d", &index) == 1) {
-                if (ctx->note_handler(index, &buffer[2*ctx->ch_metadata_len], ctx->user_ctx)) {
+                if (ctx->note_handler(index, &buffer[2*ctx->ch_metadata_len], ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -475,6 +475,11 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
 
             value.type = dta_type_info(ctx->typlist[j], &max_len, ctx);
 
+            if (ctx->variables[j]->skip) {
+                offset += max_len;
+                continue;
+            }
+
             if (value.type == READSTAT_TYPE_STRING) {
                 readstat_convert(str_buf, sizeof(str_buf), &buf[offset], max_len, ctx->converter);
                 value.v.string_value = str_buf;
@@ -572,7 +577,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
                 value.v.double_value = d_num;
             }
 
-            if (ctx->value_handler(i, ctx->variables[j], value, ctx->user_ctx)) {
+            if (ctx->value_handler(i, ctx->variables[j], value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
             }
@@ -838,10 +843,12 @@ static readstat_error_t dta_handle_variables(dta_ctx_t *ctx) {
 
         int cb_retval = ctx->variable_handler(i, ctx->variables[i], value_labels, ctx->user_ctx);
 
-        if (cb_retval) {
+        if (cb_retval == READSTAT_HANDLER_ABORT) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
+
+        ctx->variables[i]->skip = (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE);
     }
 cleanup:
     return retval;
@@ -923,7 +930,7 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
                 memcpy(label_buf, &table_buffer[8*i], 8);
                 label_buf[8] = '\0';
 
-                if (label_buf[0] && ctx->value_label_handler(labname, value, label_buf, ctx->user_ctx)) {
+                if (label_buf[0] && ctx->value_label_handler(labname, value, label_buf, ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -972,7 +979,7 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
                             value.is_system_missing = 1;
                         }
                     }
-                    if (ctx->value_label_handler(labname, value, &txt[off[i]], ctx->user_ctx)) {
+                    if (ctx->value_label_handler(labname, value, &txt[off[i]], ctx->user_ctx) != READSTAT_HANDLER_OK) {
                         retval = READSTAT_ERROR_USER_ABORT;
                         goto cleanup;
                     }
@@ -1061,7 +1068,7 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *path,
         goto cleanup;
     
     if (parser->info_handler) {
-        if (parser->info_handler(ctx->row_limit, ctx->nvar, user_ctx)) {
+        if (parser->info_handler(ctx->row_limit, ctx->nvar, user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -1075,7 +1082,7 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *path,
     }
 
     if (parser->metadata_handler) {
-        if (parser->metadata_handler(ctx->data_label, ctx->timestamp, header.ds_format, user_ctx)) {
+        if (parser->metadata_handler(ctx->data_label, ctx->timestamp, header.ds_format, user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }

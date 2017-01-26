@@ -17,6 +17,12 @@ extern "C" {
 #include <math.h>
 #include <stdio.h>
 
+enum {
+    READSTAT_HANDLER_OK,
+    READSTAT_HANDLER_ABORT,
+    READSTAT_HANDLER_SKIP_VARIABLE
+};
+
 typedef enum readstat_type_e {
     READSTAT_TYPE_STRING,
     READSTAT_TYPE_INT8,
@@ -152,6 +158,7 @@ typedef struct readstat_variable_s {
     readstat_alignment_t    alignment;
     int                     display_width;
     int                     decimals;
+    int                     skip;
 } readstat_variable_t;
 
 /* Value accessors */
@@ -212,7 +219,10 @@ int readstat_variable_get_missing_ranges_count(const readstat_variable_t *variab
 readstat_value_t readstat_variable_get_missing_range_lo(const readstat_variable_t *variable, int i);
 readstat_value_t readstat_variable_get_missing_range_hi(const readstat_variable_t *variable, int i);
 
-/* Callbacks should return 0 on success and non-zero to abort */
+/* Callbacks should return 0 (aka READSTAT_HANDLER_OK) on success and 1 (aka READSTAT_HANDLER_ABORT) to abort. */
+/* If the variable handler returns READSTAT_HANDLER_SKIP_VARIABLE, the value handler will not be called on
+ * the associated variable. (Note that subsequent variables will retain their original index values.)
+ */
 typedef int (*readstat_info_handler)(int obs_count, int var_count, void *ctx);
 typedef int (*readstat_metadata_handler)(const char *file_label, time_t timestamp, long format_version, void *ctx);
 typedef int (*readstat_note_handler)(int note_index, const char *note, void *ctx);

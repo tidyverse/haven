@@ -158,7 +158,7 @@ static readstat_error_t xport_read_file_label_record(xport_ctx_t *ctx) {
         goto cleanup;
 
     if (ctx->metadata_handler) {
-        if (ctx->metadata_handler(label, ctx->timestamp, ctx->version, ctx->user_ctx)) {
+        if (ctx->metadata_handler(label, ctx->timestamp, ctx->version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -239,7 +239,7 @@ static readstat_error_t xport_read_namestr_header_record(xport_ctx_t *ctx) {
     ctx->variables = calloc(ctx->var_count, sizeof(readstat_variable_t *));
 
     if (ctx->info_handler) {
-        if (ctx->info_handler(-1, ctx->var_count, ctx->user_ctx)) {
+        if (ctx->info_handler(-1, ctx->var_count, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -472,12 +472,16 @@ static readstat_error_t xport_read_variables(xport_ctx_t *ctx) {
 
     for (i=0; i<ctx->var_count; i++) {
         readstat_variable_t *variable = ctx->variables[i];
+        
+        int cb_retval = READSTAT_HANDLER_OK;
         if (ctx->variable_handler) {
-            if (ctx->variable_handler(i, variable, variable->format, ctx->user_ctx)) {
-                retval = READSTAT_ERROR_USER_ABORT;
-                goto cleanup;
-            }
+            cb_retval = ctx->variable_handler(i, variable, variable->format, ctx->user_ctx);
         }
+        if (cb_retval == READSTAT_HANDLER_ABORT) {
+            retval = READSTAT_ERROR_USER_ABORT;
+            goto cleanup;
+        }
+        variable->skip = (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE);
 
         ctx->row_length += variable->storage_width;
     }
@@ -530,7 +534,7 @@ static readstat_error_t xport_process_row(xport_ctx_t *ctx, const char *row, siz
         }
         pos += variable->storage_width;
 
-        if (ctx->value_handler(ctx->parsed_row_count, variable, value, ctx->user_ctx)) {
+        if (ctx->value_handler(ctx->parsed_row_count, variable, value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }

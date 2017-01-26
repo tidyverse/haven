@@ -396,8 +396,12 @@ static readstat_error_t sav_submit_value_labels(value_label_t *value_labels, int
 
             value.v.string_value = unpadded_val;
         }
-        ctx->value_label_handler(label_name_buf, value, vlabel->label, ctx->user_ctx);
+        if (ctx->value_label_handler(label_name_buf, value, vlabel->label, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+            retval = READSTAT_ERROR_USER_ABORT;
+            goto cleanup;
+        }
     }
+cleanup:
     return retval;
 }
 
@@ -541,7 +545,7 @@ static readstat_error_t sav_read_document_record(sav_ctx_t *ctx) {
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        if (ctx->note_handler(i, utf8_buffer, ctx->user_ctx)) {
+        if (ctx->note_handler(i, utf8_buffer, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -625,31 +629,35 @@ static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len
                 col++;
             }
             if (segment_offset == var_info->n_segments) {
-                retval = readstat_convert(ctx->utf8_string, ctx->utf8_string_len, 
-                        ctx->raw_string, raw_str_used, ctx->converter);
-                if (retval != READSTAT_OK)
-                    goto done;
-                value.v.string_value = ctx->utf8_string;
-                if (ctx->value_handler(ctx->current_row, ctx->variables[var_info->index],
-                            value, ctx->user_ctx)) {
-                    retval = READSTAT_ERROR_USER_ABORT;
-                    goto done;
+                if (!ctx->variables[var_info->index]->skip) {
+                    retval = readstat_convert(ctx->utf8_string, ctx->utf8_string_len, 
+                            ctx->raw_string, raw_str_used, ctx->converter);
+                    if (retval != READSTAT_OK)
+                        goto done;
+                    value.v.string_value = ctx->utf8_string;
+                    if (ctx->value_handler(ctx->current_row, ctx->variables[var_info->index],
+                                value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+                        retval = READSTAT_ERROR_USER_ABORT;
+                        goto done;
+                    }
                 }
                 raw_str_used = 0;
                 segment_offset = 0;
                 var_index += var_info->n_segments;
             }
         } else if (var_info->type == READSTAT_TYPE_DOUBLE) {
-            memcpy(&fp_value, &buffer[data_offset], 8);
-            if (ctx->bswap) {
-                fp_value = byteswap_double(fp_value);
-            }
-            value.v.double_value = fp_value;
-            sav_tag_missing_double(&value, ctx);
-            if (ctx->value_handler(ctx->current_row, ctx->variables[var_info->index],
-                        value, ctx->user_ctx)) {
-                retval = READSTAT_ERROR_USER_ABORT;
-                goto done;
+            if (!ctx->variables[var_info->index]->skip) {
+                memcpy(&fp_value, &buffer[data_offset], 8);
+                if (ctx->bswap) {
+                    fp_value = byteswap_double(fp_value);
+                }
+                value.v.double_value = fp_value;
+                sav_tag_missing_double(&value, ctx);
+                if (ctx->value_handler(ctx->current_row, ctx->variables[var_info->index],
+                            value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+                    retval = READSTAT_ERROR_USER_ABORT;
+                    goto done;
+                }
             }
             var_index += var_info->n_segments;
             col++;
@@ -1002,7 +1010,10 @@ static readstat_error_t sav_parse_long_value_labels_record(const void *data, siz
         readstat_value_t value = { .type = READSTAT_TYPE_STRING };
         value.v.string_value = value_buffer;
 
-        ctx->value_label_handler(label_name_buf, value, label_buffer, ctx->user_ctx);
+        if (ctx->value_label_handler(label_name_buf, value, label_buffer, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+            retval = READSTAT_ERROR_USER_ABORT;
+            goto cleanup;
+        }
     }
 
 cleanup:
@@ -1245,10 +1256,13 @@ static readstat_error_t sav_handle_variables(readstat_parser_t *parser, sav_ctx_
                 info->labels_index == -1 ? NULL : label_name_buf,
                 ctx->user_ctx);
 
-        if (cb_retval) {
+        if (cb_retval == READSTAT_HANDLER_ABORT) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
+
+        ctx->variables[info->index]->skip = (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE);
+
         i += info->n_segments;
     }
 cleanup:
@@ -1262,7 +1276,7 @@ static readstat_error_t sav_handle_fweight(readstat_parser_t *parser, sav_ctx_t 
         for (i=0; i<ctx->var_index;) {
             spss_varinfo_t *info = &ctx->varinfo[i];
             if (info->offset == ctx->fweight_index - 1) {
-                if (parser->fweight_handler(info->index, ctx->user_ctx)) {
+                if (parser->fweight_handler(info->index, ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -1363,7 +1377,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
 
     if (parser->info_handler) {
         if (parser->info_handler(ctx->record_count == -1 ? -1 : ctx->row_limit,
-                    ctx->var_count, ctx->user_ctx)) {
+                    ctx->var_count, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -1374,7 +1388,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
                         header.file_label, sizeof(header.file_label), ctx->converter)) != READSTAT_OK)
             goto cleanup;
 
-        if (parser->metadata_handler(ctx->file_label, ctx->timestamp, 2, ctx->user_ctx)) {
+        if (parser->metadata_handler(ctx->file_label, ctx->timestamp, 2, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }

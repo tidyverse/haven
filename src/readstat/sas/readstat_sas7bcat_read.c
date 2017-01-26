@@ -105,7 +105,10 @@ static readstat_error_t sas7bcat_parse_value_labels(const char *value_start, siz
             value.v.double_value = dval;
         }
         if (ctx->value_label_handler) {
-            ctx->value_label_handler(name, value, label, ctx->user_ctx);
+            if (ctx->value_label_handler(name, value, label, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+                retval = READSTAT_ERROR_USER_ABORT;
+                goto cleanup;
+            }
         }
 
         lbp2 += 8 + 2 + label_len + 1;
@@ -334,7 +337,7 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
             goto cleanup;
 
         if (ctx->metadata_handler(file_label, hinfo->modification_time, 
-                    10000 * hinfo->major_version + hinfo->minor_version, ctx->user_ctx)) {
+                    10000 * hinfo->major_version + hinfo->minor_version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
