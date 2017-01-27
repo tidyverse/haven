@@ -13,6 +13,8 @@ double haven_double_value_udm(readstat_value_t value, readstat_variable_t* var, 
     return make_tagged_na(tolower(readstat_value_tag(value)));
   } else if (!user_na & readstat_value_is_defined_missing(value, var)) {
     return NA_REAL;
+  } else if (readstat_value_is_system_missing(value)) {
+    return NA_REAL;
   } else {
     return readstat_double_value(value);
   }

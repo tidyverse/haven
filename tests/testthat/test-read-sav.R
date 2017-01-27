@@ -103,3 +103,9 @@ test_that("user-defined missing values can be preserved", {
   num
 })
 
+test_that("system missings read as NA", {
+  df <- tibble::tibble(x = c(1, NA))
+  out <- roundtrip_sav(df)
+
+  expect_identical(df$x, c(1, NA))
+})

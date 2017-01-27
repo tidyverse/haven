@@ -1,5 +1,8 @@
 # haven 1.0.0.9000
 
+* `read_sav()` once again correctly returns system defined missings 
+  as `NA` (rather than `NaN`) (#223).
+
 * `write_sav()` checks that factors don't have levels with >120 
   characters (#262)
 
