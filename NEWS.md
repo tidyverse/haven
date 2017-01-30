@@ -1,5 +1,8 @@
 # haven 1.0.0.9000
 
+* `read_sas()` gains experimental `cols_only` argument to only read in 
+  specified columns (#248).
+
 * tibbles are created with `tibble::as_tibble()`, rather than by "hand" (#229).
 
 * `read_sav()` once again correctly returns system defined missings 

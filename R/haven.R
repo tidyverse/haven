@@ -16,6 +16,8 @@ NULL
 #' @param encoding The character encoding used for the file. This defaults to
 #'   the encoding specified in the file, or UTF-8. You can use this argument
 #'   to override the value stored in the file if it is correct
+#' @param cols_only A character vector giving an experimental way to read in
+#'   only specified columns.
 #' @return A tibble, data frame variant with nice defaults.
 #'
 #'   Variable labels are stored in the "label" attribute of each variable.
@@ -24,9 +26,13 @@ NULL
 #' @examples
 #' path <- system.file("examples", "iris.sas7bdat", package = "haven")
 #' read_sas(path)
-read_sas <- function(data_file, catalog_file = NULL, encoding = NULL) {
+read_sas <- function(data_file, catalog_file = NULL, encoding = NULL,
+                     cols_only = NULL) {
   if (is.null(encoding)) {
     encoding <- ""
+  }
+  if (is.null(cols_only)) {
+    cols_only <- character()
   }
 
   spec_data <- readr::datasource(data_file)
@@ -35,9 +41,10 @@ read_sas <- function(data_file, catalog_file = NULL, encoding = NULL) {
   } else {
     spec_cat <- readr::datasource(catalog_file)
   }
+
   switch(class(spec_data)[1],
-    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding),
-    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding),
+    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, cols_only = cols_only),
+    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, cols_only = cols_only),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }

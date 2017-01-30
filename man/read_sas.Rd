@@ -5,7 +5,8 @@
 \alias{write_sas}
 \title{Read and write SAS files.}
 \usage{
-read_sas(data_file, catalog_file = NULL, encoding = NULL)
+read_sas(data_file, catalog_file = NULL, encoding = NULL,
+  cols_only = NULL)
 
 write_sas(data, path)
 }
@@ -16,6 +17,9 @@ processed with \code{\link[readr]{datasource}()}.}
 \item{encoding}{The character encoding used for the file. This defaults to
 the encoding specified in the file, or UTF-8. You can use this argument
 to override the value stored in the file if it is correct}
+
+\item{cols_only}{A character vector giving an experimental way to read in
+only specified columns.}
 
 \item{data}{Data frame to write.}
 

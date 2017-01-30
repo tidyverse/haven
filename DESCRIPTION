@@ -17,8 +17,7 @@ Suggests:
     rmarkdown,
     covr
 LinkingTo:
-    Rcpp,
-    BH
+    Rcpp
 Imports:
     Rcpp (>= 0.11.4),
     readr (>= 0.1.0),
