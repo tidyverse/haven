@@ -379,7 +379,7 @@ public:
 
     output_.attr("names") = names_;
 
-    Function as_tibble("as_tibble", Environment::namespace_env("tibble"));
+    static Function as_tibble("as_tibble", Environment::namespace_env("tibble"));
     return as_tibble(output_);
   }
 
