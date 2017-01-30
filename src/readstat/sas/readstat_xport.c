@@ -14,7 +14,7 @@ void xport_namestr_bswap(xport_namestr_t *namestr) {
     namestr->ntype = byteswap2(namestr->ntype);
     namestr->nhfun = byteswap2(namestr->nhfun);
     namestr->nlng = byteswap2(namestr->nlng);
-    namestr->nvar0 = byteswap2(namestr->nlng);
+    namestr->nvar0 = byteswap2(namestr->nvar0);
 
     namestr->nfl = byteswap2(namestr->nfl);
     namestr->nfd = byteswap2(namestr->nfd);

@@ -92,7 +92,7 @@ int spss_format(char *buffer, size_t len, spss_format_t *format);
 int spss_varinfo_compare(const void *elem1, const void *elem2);
 
 readstat_missingness_t spss_missingness_for_info(spss_varinfo_t *info);
-readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info);
+readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info, int index_after_skipping);
 
 uint64_t spss_64bit_value(readstat_value_t value);
 

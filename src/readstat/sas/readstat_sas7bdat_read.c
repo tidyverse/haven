@@ -481,11 +481,13 @@ cleanup:
     return retval;
 }
 
-static readstat_variable_t *sas7bdat_init_variable(sas7bdat_ctx_t *ctx, int i, readstat_error_t *out_retval) {
+static readstat_variable_t *sas7bdat_init_variable(sas7bdat_ctx_t *ctx, int i, 
+        int index_after_skipping, readstat_error_t *out_retval) {
     readstat_error_t retval = READSTAT_OK;
     readstat_variable_t *variable = calloc(1, sizeof(readstat_variable_t));
 
     variable->index = i;
+    variable->index_after_skipping = index_after_skipping;
     variable->type = ctx->col_info[i].type;
     variable->storage_width = ctx->col_info[i].width;
 
@@ -540,8 +542,9 @@ static readstat_error_t sas7bdat_submit_columns(sas7bdat_ctx_t *ctx) {
     }
     ctx->variables = calloc(ctx->column_count, sizeof(readstat_variable_t *));
     int i;
+    int index_after_skipping = 0;
     for (i=0; i<ctx->column_count; i++) {
-        ctx->variables[i] = sas7bdat_init_variable(ctx, i, &retval);
+        ctx->variables[i] = sas7bdat_init_variable(ctx, i, index_after_skipping, &retval);
         if (ctx->variables[i] == NULL)
             break;
 
@@ -553,7 +556,12 @@ static readstat_error_t sas7bdat_submit_columns(sas7bdat_ctx_t *ctx) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
-        ctx->variables[i]->skip = (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE);
+
+        if (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE) {
+            ctx->variables[i]->skip = 1;
+        } else {
+            index_after_skipping++;
+        }
     }
 cleanup:
     return retval;

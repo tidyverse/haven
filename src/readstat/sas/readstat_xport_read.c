@@ -470,8 +470,11 @@ static readstat_error_t xport_read_variables(xport_ctx_t *ctx) {
 
     ctx->row_length = 0;
 
+    int index_after_skipping = 0;
+
     for (i=0; i<ctx->var_count; i++) {
         readstat_variable_t *variable = ctx->variables[i];
+        variable->index_after_skipping = index_after_skipping;
         
         int cb_retval = READSTAT_HANDLER_OK;
         if (ctx->variable_handler) {
@@ -481,7 +484,11 @@ static readstat_error_t xport_read_variables(xport_ctx_t *ctx) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
-        variable->skip = (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE);
+        if (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE) {
+            variable->skip = 1;
+        } else {
+            index_after_skipping++;
+        }
 
         ctx->row_length += variable->storage_width;
     }

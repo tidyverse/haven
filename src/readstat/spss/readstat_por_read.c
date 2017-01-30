@@ -599,12 +599,13 @@ cleanup:
 readstat_error_t handle_variables(por_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     int i;
+    int index_after_skipping = 0;
     for (i=0; i<ctx->var_count; i++) {
         char label_name_buf[256];
         spss_varinfo_t *info = &ctx->varinfo[i];
         info->index = i;
 
-        ctx->variables[i] = spss_init_variable_for_info(info);
+        ctx->variables[i] = spss_init_variable_for_info(info, index_after_skipping);
 
         snprintf(label_name_buf, sizeof(label_name_buf), POR_LABEL_NAME_PREFIX "%d", info->labels_index);
 
@@ -621,13 +622,17 @@ readstat_error_t handle_variables(por_ctx_t *ctx) {
             goto cleanup;
         }
 
-        ctx->variables[i]->skip = (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE);
+        if (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE) {
+            ctx->variables[i]->skip = 1;
+        } else {
+            index_after_skipping++;
+        }
     }
     if (ctx->fweight_handler && ctx->fweight_name[0]) {
         for (i=0; i<ctx->var_count; i++) {
             spss_varinfo_t *info = &ctx->varinfo[i];
             if (strcmp(info->name, ctx->fweight_name) == 0) {
-                if (ctx->fweight_handler(i, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+                if (ctx->fweight_handler(ctx->variables[i], ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }

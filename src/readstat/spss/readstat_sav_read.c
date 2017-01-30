@@ -1240,6 +1240,7 @@ static void sav_set_n_segments_and_var_count(sav_ctx_t *ctx) {
 
 static readstat_error_t sav_handle_variables(readstat_parser_t *parser, sav_ctx_t *ctx) {
     int i;
+    int index_after_skipping = 0;
     readstat_error_t retval = READSTAT_OK;
 
     if (!parser->variable_handler)
@@ -1248,7 +1249,7 @@ static readstat_error_t sav_handle_variables(readstat_parser_t *parser, sav_ctx_
     for (i=0; i<ctx->var_index;) {
         char label_name_buf[256];
         spss_varinfo_t *info = &ctx->varinfo[i];
-        ctx->variables[info->index] = spss_init_variable_for_info(info);
+        ctx->variables[info->index] = spss_init_variable_for_info(info, index_after_skipping);
 
         snprintf(label_name_buf, sizeof(label_name_buf), SAV_LABEL_NAME_PREFIX "%d", info->labels_index);
 
@@ -1261,7 +1262,11 @@ static readstat_error_t sav_handle_variables(readstat_parser_t *parser, sav_ctx_
             goto cleanup;
         }
 
-        ctx->variables[info->index]->skip = (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE);
+        if (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE) {
+            ctx->variables[info->index]->skip = 1;
+        } else {
+            index_after_skipping++;
+        }
 
         i += info->n_segments;
     }
@@ -1276,7 +1281,7 @@ static readstat_error_t sav_handle_fweight(readstat_parser_t *parser, sav_ctx_t 
         for (i=0; i<ctx->var_index;) {
             spss_varinfo_t *info = &ctx->varinfo[i];
             if (info->offset == ctx->fweight_index - 1) {
-                if (parser->fweight_handler(info->index, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+                if (parser->fweight_handler(ctx->variables[info->index], ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }

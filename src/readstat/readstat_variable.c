@@ -48,6 +48,10 @@ int readstat_variable_get_index(const readstat_variable_t *variable) {
     return variable->index;
 }
 
+int readstat_variable_get_index_after_skipping(const readstat_variable_t *variable) {
+    return variable->index_after_skipping;
+}
+
 size_t readstat_variable_get_storage_width(const readstat_variable_t *variable) {
     return variable->storage_width;
 }

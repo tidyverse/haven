@@ -29,11 +29,13 @@ static readstat_error_t dta_update_progress(dta_ctx_t *ctx) {
     return READSTAT_OK;
 }
 
-static readstat_variable_t *dta_init_variable(dta_ctx_t *ctx, int i, readstat_type_t type, size_t max_len) {
+static readstat_variable_t *dta_init_variable(dta_ctx_t *ctx, int i, int index_after_skipping,
+        readstat_type_t type, size_t max_len) {
     readstat_variable_t *variable = calloc(1, sizeof(readstat_variable_t));
 
     variable->type = type;
     variable->index = i;
+    variable->index_after_skipping = index_after_skipping;
     variable->storage_width = max_len;
 
     readstat_convert(variable->name, sizeof(variable->name), 
@@ -822,6 +824,7 @@ static readstat_error_t dta_handle_variables(dta_ctx_t *ctx) {
 
     readstat_error_t retval = READSTAT_OK;
     int i;
+    int index_after_skipping = 0;
 
     for (i=0; i<ctx->nvar; i++) {
         size_t      max_len;
@@ -834,7 +837,7 @@ static readstat_error_t dta_handle_variables(dta_ctx_t *ctx) {
             max_len = 0;
         }
 
-        ctx->variables[i] = dta_init_variable(ctx, i, type, max_len);
+        ctx->variables[i] = dta_init_variable(ctx, i, index_after_skipping, type, max_len);
 
         const char *value_labels = NULL;
 
@@ -848,7 +851,11 @@ static readstat_error_t dta_handle_variables(dta_ctx_t *ctx) {
             goto cleanup;
         }
 
-        ctx->variables[i]->skip = (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE);
+        if (cb_retval == READSTAT_HANDLER_SKIP_VARIABLE) {
+            ctx->variables[i]->skip = 1;
+        } else {
+            index_after_skipping++;
+        }
     }
 cleanup:
     return retval;

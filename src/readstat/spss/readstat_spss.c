@@ -123,10 +123,11 @@ readstat_missingness_t spss_missingness_for_info(spss_varinfo_t *info) {
     return missingness;
 }
 
-readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info) {
+readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info, int index_after_skipping) {
     readstat_variable_t *variable = calloc(1, sizeof(readstat_variable_t));
 
     variable->index = info->index;
+    variable->index_after_skipping = index_after_skipping;
     variable->type = info->type;
     if (info->string_length) {
         variable->storage_width = info->string_length;
