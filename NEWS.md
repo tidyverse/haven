@@ -1,5 +1,7 @@
 # haven 1.0.0.9000
 
+* tibbles are created with `tibble::as_tibble()`, rather than by "hand" (#229).
+
 * `read_sav()` once again correctly returns system defined missings 
   as `NA` (rather than `NaN`) (#223).
 

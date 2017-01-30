@@ -378,10 +378,9 @@ public:
     }
 
     output_.attr("names") = names_;
-    output_.attr("class") = CharacterVector::create("tbl_df", "tbl", "data.frame");
-    output_.attr("row.names") = IntegerVector::create(NA_INTEGER, -nrows_);
 
-    return output_;
+    Function as_tibble("as_tibble", Environment::namespace_env("tibble"));
+    return as_tibble(output_);
   }
 
 };
