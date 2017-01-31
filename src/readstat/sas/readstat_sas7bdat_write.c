@@ -413,8 +413,14 @@ static readstat_error_t sas7bdat_emit_meta_pages(readstat_writer_t *writer) {
 
         memcpy(&page[hinfo->page_header_size-8], &page_type, sizeof(int16_t));
 
+        if (sarray->subheaders[shp_written]->len + shp_ptr_size >
+                shp_data_offset - shp_ptr_offset) {
+            retval = READSTAT_ERROR_ROW_IS_TOO_WIDE_FOR_PAGE;
+            goto cleanup;
+        }
+
         while (sarray->count > shp_written && 
-                sarray->subheaders[shp_written]->len + shp_ptr_size <
+                sarray->subheaders[shp_written]->len + shp_ptr_size <=
                 shp_data_offset - shp_ptr_offset) {
             sas7bdat_subheader_t *subheader = sarray->subheaders[shp_written];
             uint32_t signature32 = subheader->signature;
@@ -467,6 +473,7 @@ static readstat_error_t sas7bdat_emit_meta_pages(readstat_writer_t *writer) {
             shp_written++;
             shp_count++;
         }
+
         if (hinfo->u64) {
             memcpy(&page[34], &shp_count, sizeof(int16_t));
             memcpy(&page[36], &shp_count, sizeof(int16_t));
@@ -504,6 +511,12 @@ static void sas7bdat_write_ctx_free(sas7bdat_write_ctx_t *ctx) {
 static readstat_error_t sas7bdat_emit_header_and_meta_pages(readstat_writer_t *writer) {
     sas7bdat_write_ctx_t *ctx = (sas7bdat_write_ctx_t *)writer->module_ctx;
     readstat_error_t retval = READSTAT_OK;
+
+    if (writer->compression == READSTAT_COMPRESS_NONE &&
+            sas7bdat_rows_per_page(writer, ctx->hinfo) == 0) {
+        retval = READSTAT_ERROR_ROW_IS_TOO_WIDE_FOR_PAGE;
+        goto cleanup;
+    }
 
     ctx->hinfo->page_count = sas7bdat_count_meta_pages(writer) + sas7bdat_count_data_pages(writer, ctx->hinfo);
 

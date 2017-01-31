@@ -22,6 +22,7 @@
 * Update to latest readstat. Includes:
 
   * SAS: support Win baltic code page (#231)
+  * SAS: better error messages instead of crashes (#234, #270)
   * SPSS: support uppercase time stamps (#230)
   * SPSS: fixes for 252-255 byte strings (#226)
   * SPSS: fixes for 0 byte strings (#245)
