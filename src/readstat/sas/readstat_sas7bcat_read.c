@@ -219,7 +219,7 @@ static int sas7bcat_block_size(int start_page, int start_page_pos, sas7bcat_ctx_
     char chain_link[16];
 
     // calculate buffer size needed
-    while (next_page > 0 && next_page_pos > 0) {
+    while (next_page > 0 && next_page_pos > 0 && next_page <= ctx->page_count) {
         if (io->seek(ctx->header_size+(next_page-1)*ctx->page_size+next_page_pos, READSTAT_SEEK_SET, io->io_ctx) == -1) {
             retval = READSTAT_ERROR_SEEK;
             goto cleanup;

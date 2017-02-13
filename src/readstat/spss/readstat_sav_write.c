@@ -213,6 +213,7 @@ static readstat_error_t sav_emit_blank_variable_records(readstat_writer_t *write
             goto cleanup;
 
         memset(&variable, '\0', sizeof(variable));
+        memset(variable.name, ' ', sizeof(variable.name));
         variable.type = -1;
         retval = readstat_write_bytes(writer, &variable, sizeof(variable));
         if (retval != READSTAT_OK)
@@ -454,6 +455,9 @@ static readstat_error_t sav_emit_document_record(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
     int32_t rec_type = SAV_RECORD_TYPE_DOCUMENT;
     int32_t n_lines = writer->notes_count;
+
+    if (n_lines == 0)
+        goto cleanup;
 
     retval = readstat_write_bytes(writer, &rec_type, sizeof(rec_type));
     if (retval != READSTAT_OK)
