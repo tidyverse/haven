@@ -48,10 +48,7 @@ reference:
      equivalent in R. Haven preserves them so you can choose what do with
      them. To simply eliminate them, use one of the zap functions.
   contents:
-  - zap_empty
-  - zap_formats
-  - zap_labels
-  - zap_missing
+  - starts_with("zip")
 
 navbar:
   type: default

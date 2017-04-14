@@ -106,22 +106,29 @@ expect you'll coerce to a standard R class (e.g. a <code>factor</code>)
 soon after importing.</p>
     
 
-    <pre><span class='fu'>labelled</span>(<span class='no'>x</span>, <span class='no'>labels</span>)
+    <pre class="usage"><span class='fu'>labelled</span>(<span class='no'>x</span>, <span class='no'>labels</span>)
 
 <span class='fu'>is.labelled</span>(<span class='no'>x</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
-    <dl class="dl-horizontal">
-      <dt>x</dt>
-      <dd><p>A vector to label. Must be either numeric (integer or double) or
-character.</p></dd>
-      <dt>labels</dt>
-      <dd><p>A named vector. The vector should be the same type as
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>A vector to label. Must be either numeric (integer or double) or
+character.</p></td>
+    </tr>
+    <tr>
+      <th>labels</th>
+      <td><p>A named vector. The vector should be the same type as
 <code>x</code>. Unlike factors, labels don't need to be exhaustive: only a fraction
-of the values might be labelled.</p></dd>
-      <dt>...</dt>
-      <dd><p>Ignored</p></dd>
-    </dl>
+of the values might be labelled.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Ignored</p></td>
+    </tr>
+    </table>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

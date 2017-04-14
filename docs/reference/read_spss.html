@@ -100,10 +100,10 @@
     
     <p>Currently haven can read and write logical, integer, numeric, character
 and factors. See <code><a href='labelled_spss.html'>labelled_spss</a></code> for how labelled variables in
-Stata are handled in R. <code>read_spss</code> is an alias for <code>read_sav</code>.</p>
+SPSS are handled in R. <code>read_spss</code> is an alias for <code>read_sav</code>.</p>
     
 
-    <pre><span class='fu'>read_sav</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>read_sav</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='fu'>read_por</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
@@ -112,9 +112,11 @@ Stata are handled in R. <code>read_spss</code> is an alias for <code>read_sav</c
 <span class='fu'>read_spss</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
-    <dl class="dl-horizontal">
-      <dt>file</dt>
-      <dd><p>Either a path to a file, a connection, or literal data
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>file</th>
+      <td><p>Either a path to a file, a connection, or literal data
    (either a single string or a raw vector).</p>
 <p>Files ending in <code>.gz</code>, <code>.bz2</code>, <code>.xz</code>, or <code>.zip</code> will
    be automatically uncompressed. Files starting with <code>http://</code>,
@@ -122,16 +124,23 @@ Stata are handled in R. <code>read_spss</code> is an alias for <code>read_sav</c
    downloaded. Remote gz files can also be automatically downloaded &amp;
    decompressed.</p>
 <p>Literal data is most useful for examples and tests. It must contain at
-   least one new line to be recognised as data (instead of a path).</p></dd>
-      <dt>user_na</dt>
-      <dd><p>If <code>TRUE</code> variables with user defined missing will
+   least one new line to be recognised as data (instead of a path).</p></td>
+    </tr>
+    <tr>
+      <th>user_na</th>
+      <td><p>If <code>TRUE</code> variables with user defined missing will
 be read into <code><a href='labelled_spss.html'>labelled_spss</a></code> objects. If <code>FALSE</code>, the
-default, user-defined missings will be converted to <code>NA</code>.</p></dd>
-      <dt>data</dt>
-      <dd><p>Data frame to write.</p></dd>
-      <dt>path</dt>
-      <dd><p>Path to a file where the data will be written.</p></dd>
-    </dl>
+default, user-defined missings will be converted to <code>NA</code>.</p></td>
+    </tr>
+    <tr>
+      <th>data</th>
+      <td><p>Data frame to write.</p></td>
+    </tr>
+    <tr>
+      <th>path</th>
+      <td><p>Path to a file where the data will be written.</p></td>
+    </tr>
+    </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 

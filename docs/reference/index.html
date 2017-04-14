@@ -94,89 +94,192 @@
       <div class="row">
   <div class="col-md-9">
     <div class="page-header">
-      <h1>Function reference</h1>
-      <h4>version&nbsp;1.0.0.9000</h4>
+      <h1>
+        Reference
+        <small>version&nbsp;1.0.0.9000</small>
+      </h1>
     </div>
 
     <div class="contents">
-      <h2 id="section-reading-and-writing" class="hasAnchor"><a href="#section-reading-and-writing" class="anchor"></a>Reading and writing</h2>
-      <p class="section-desc"></p>
+      <table class="ref-index">
 
-      
-      <p><a href="read_dta.html">Read and write Stata DTA files.</a></p>
-      <ul>
-        <li><code><a href="read_dta.html">read_dta</a></code></li><li><code><a href="read_dta.html">read_stata</a></code></li><li><code><a href="read_dta.html">write_dta</a></code></li>
-      </ul>
-      
-      <p><a href="read_sas.html">Read and write SAS files.</a></p>
-      <ul>
-        <li><code><a href="read_sas.html">read_sas</a></code></li><li><code><a href="read_sas.html">write_sas</a></code></li>
-      </ul>
-      
-      <p><a href="read_spss.html">Read SPSS (SAV &amp; POR) files. Write SAV files.</a></p>
-      <ul>
-        <li><code><a href="read_spss.html">read_spss</a></code></li><li><code><a href="read_spss.html">read_sav</a></code></li><li><code><a href="read_spss.html">read_por</a></code></li><li><code><a href="read_spss.html">write_sav</a></code></li><li><code><a href="read_spss.html">read_spss</a></code></li>
-      </ul>
-      
-      <p><a href="read_xpt.html">Read and write SAS transport files</a></p>
-      <ul>
-        <li><code><a href="read_xpt.html">read_xpt</a></code></li><li><code><a href="read_xpt.html">write_xpt</a></code></li>
-      </ul>
-          <h2 id="section-labelled-vectors" class="hasAnchor"><a href="#section-labelled-vectors" class="anchor"></a>Labelled vectors</h2>
-      <p class="section-desc"><p>SAS, SPSS, and Stata share a simply concept of &ldquo;labelled&rdquo; vectors, which are similar to factors but a little more general. The <code><a href="../reference/labelled.html">labelled()</a></code> class provides a natural representaion in R.</p></p>
+      <colgroup>
+        <col class="alias" />
+        <col class="title" />
+      </colgroup>
 
-      
-      <p><a href="as_factor.html">Convert input to a factor.</a></p>
-      <ul>
-        <li><code><a href="as_factor.html">as_factor</a></code></li><li><code><a href="as_factor.html">as_factor.factor</a></code></li><li><code><a href="as_factor.html">as_factor.character</a></code></li><li><code><a href="as_factor.html">as_factor.data.frame</a></code></li><li><code><a href="as_factor.html">as_factor.labelled</a></code></li>
-      </ul>
-      
-      <p><a href="labelled_spss.html">Labelled vectors for SPSS</a></p>
-      <ul>
-        <li><code><a href="labelled_spss.html">labelled_spss</a></code></li>
-      </ul>
-      
-      <p><a href="labelled.html">Create a labelled vector.</a></p>
-      <ul>
-        <li><code><a href="labelled.html">labelled</a></code></li><li><code><a href="labelled.html">is.labelled</a></code></li>
-      </ul>
-      
-      <p><a href="print_labels.html">Print the labels of a labelled vector</a></p>
-      <ul>
-        <li><code><a href="print_labels.html">print_labels</a></code></li>
-      </ul>
-          <h2 id="section-tagged-na" class="hasAnchor"><a href="#section-tagged-na" class="anchor"></a>tagged_na</h2>
-      <p class="section-desc"><p>Both SAS and Stata supported tagged missing values, where a missing value can have multiple &ldquo;types&rdquo;, given by an letter from A through Z. <code><a href="../reference/tagged_na.html">tagged_na()</a></code> provides a convenient way of representing these types of missing values in R by taking advantage of the binary representation of <code>NA</code>.</p></p>
-
-      
-      <p><a href="tagged_na.html">&quot;Tagged&quot; missing values</a></p>
-      <ul>
-        <li><code><a href="tagged_na.html">tagged_na</a></code></li><li><code><a href="tagged_na.html">na_tag</a></code></li><li><code><a href="tagged_na.html">is_tagged_na</a></code></li><li><code><a href="tagged_na.html">format_tagged_na</a></code></li><li><code><a href="tagged_na.html">print_tagged_na</a></code></li>
-      </ul>
-          <h2 id="section-remove-attributes" class="hasAnchor"><a href="#section-remove-attributes" class="anchor"></a>Remove attributes</h2>
-      <p class="section-desc"><p>There are a number of SPSS/SAS/Stata features that have no direct equivalent in R. Haven preserves them so you can choose what do with them. To simply eliminate them, use one of the zap functions.</p></p>
-
-      
-      <p><a href="zap_empty.html">Convert empty strings into missing values.</a></p>
-      <ul>
-        <li><code><a href="zap_empty.html">zap_empty</a></code></li>
-      </ul>
-      
-      <p><a href="zap_formats.html">Remove format attributes</a></p>
-      <ul>
-        <li><code><a href="zap_formats.html">zap_formats</a></code></li>
-      </ul>
-      
-      <p><a href="zap_labels.html">Zap labels</a></p>
-      <ul>
-        <li><code><a href="zap_labels.html">zap_labels</a></code></li>
-      </ul>
-      
-      <p><a href="zap_missing.html">Zap special missings to regular R missings</a></p>
-      <ul>
-        <li><code><a href="zap_missing.html">zap_missing</a></code></li>
-      </ul>
-    
+      <tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-reading-and-writing" class="hasAnchor"><a href="#section-reading-and-writing" class="anchor"></a>Reading and writing</h2>
+            <p class="section-desc"></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="read_dta.html">read_dta</a></code> <code><a href="read_dta.html">read_stata</a></code> <code><a href="read_dta.html">write_dta</a></code> </p>
+          </td>
+          <td><p>Read and write Stata DTA files.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="read_sas.html">read_sas</a></code> <code><a href="read_sas.html">write_sas</a></code> </p>
+          </td>
+          <td><p>Read and write SAS files.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="read_spss.html">read_sav</a></code> <code><a href="read_spss.html">read_por</a></code> <code><a href="read_spss.html">write_sav</a></code> <code><a href="read_spss.html">read_spss</a></code> </p>
+          </td>
+          <td><p>Read SPSS (SAV &amp; POR) files. Write SAV files.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="read_xpt.html">read_xpt</a></code> <code><a href="read_xpt.html">write_xpt</a></code> </p>
+          </td>
+          <td><p>Read and write SAS transport files</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-labelled-vectors" class="hasAnchor"><a href="#section-labelled-vectors" class="anchor"></a>Labelled vectors</h2>
+            <p class="section-desc"><p>SAS, SPSS, and Stata share a simply concept of “labelled” vectors, which are similar to factors but a little more general. The <code><a href="../reference/labelled.html">labelled()</a></code> class provides a natural representaion in R.</p></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="labelled_spss.html">labelled_spss</a></code> </p>
+          </td>
+          <td><p>Labelled vectors for SPSS</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="labelled.html">labelled</a></code> <code><a href="labelled.html">is.labelled</a></code> </p>
+          </td>
+          <td><p>Create a labelled vector.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="print_labels.html">print_labels</a></code> </p>
+          </td>
+          <td><p>Print the labels of a labelled vector</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="as_factor.html">as_factor</a></code> </p>
+          </td>
+          <td><p>Convert input to a factor.</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-tagged-na" class="hasAnchor"><a href="#section-tagged-na" class="anchor"></a>tagged_na</h2>
+            <p class="section-desc"><p>Both SAS and Stata supported tagged missing values, where a missing value can have multiple “types”, given by an letter from A through Z. <code><a href="../reference/tagged_na.html">tagged_na()</a></code> provides a convenient way of representing these types of missing values in R by taking advantage of the binary representation of <code>NA</code>.</p></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="tagged_na.html">tagged_na</a></code> <code><a href="tagged_na.html">na_tag</a></code> <code><a href="tagged_na.html">is_tagged_na</a></code> <code><a href="tagged_na.html">format_tagged_na</a></code> <code><a href="tagged_na.html">print_tagged_na</a></code> </p>
+          </td>
+          <td><p>"Tagged" missing values</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-remove-attributes" class="hasAnchor"><a href="#section-remove-attributes" class="anchor"></a>Remove attributes</h2>
+            <p class="section-desc"><p>There are a number of SPSS/SAS/Stata features that have no direct equivalent in R. Haven preserves them so you can choose what do with them. To simply eliminate them, use one of the zap functions.</p></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="as_factor.html">as_factor</a></code> </p>
+          </td>
+          <td><p>Convert input to a factor.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="labelled_spss.html">labelled_spss</a></code> </p>
+          </td>
+          <td><p>Labelled vectors for SPSS</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="labelled.html">labelled</a></code> <code><a href="labelled.html">is.labelled</a></code> </p>
+          </td>
+          <td><p>Create a labelled vector.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="print_labels.html">print_labels</a></code> </p>
+          </td>
+          <td><p>Print the labels of a labelled vector</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="read_dta.html">read_dta</a></code> <code><a href="read_dta.html">read_stata</a></code> <code><a href="read_dta.html">write_dta</a></code> </p>
+          </td>
+          <td><p>Read and write Stata DTA files.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="read_sas.html">read_sas</a></code> <code><a href="read_sas.html">write_sas</a></code> </p>
+          </td>
+          <td><p>Read and write SAS files.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="read_spss.html">read_sav</a></code> <code><a href="read_spss.html">read_por</a></code> <code><a href="read_spss.html">write_sav</a></code> <code><a href="read_spss.html">read_spss</a></code> </p>
+          </td>
+          <td><p>Read SPSS (SAV &amp; POR) files. Write SAV files.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="read_xpt.html">read_xpt</a></code> <code><a href="read_xpt.html">write_xpt</a></code> </p>
+          </td>
+          <td><p>Read and write SAS transport files</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="tagged_na.html">tagged_na</a></code> <code><a href="tagged_na.html">na_tag</a></code> <code><a href="tagged_na.html">is_tagged_na</a></code> <code><a href="tagged_na.html">format_tagged_na</a></code> <code><a href="tagged_na.html">print_tagged_na</a></code> </p>
+          </td>
+          <td><p>"Tagged" missing values</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="zap_empty.html">zap_empty</a></code> </p>
+          </td>
+          <td><p>Convert empty strings into missing values.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="zap_formats.html">zap_formats</a></code> </p>
+          </td>
+          <td><p>Remove format attributes</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="zap_labels.html">zap_labels</a></code> </p>
+          </td>
+          <td><p>Zap labels</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="zap_missing.html">zap_missing</a></code> </p>
+          </td>
+          <td><p>Zap special missings to regular R missings</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="zap_widths.html">zap_widths</a></code> </p>
+          </td>
+          <td><p>Remove display width attributes</p></td>
+        </tr>
+      </tbody>
+      </table>
     </div>
   </div>
 

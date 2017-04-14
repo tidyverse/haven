@@ -104,24 +104,33 @@ but it also models SPSS's user-defined missings, which can be up to
 three distinct values, or for numeric vectors a range.</p>
     
 
-    <pre><span class='fu'>labelled_spss</span>(<span class='no'>x</span>, <span class='no'>labels</span>, <span class='kw'>na_values</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>na_range</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>labelled_spss</span>(<span class='no'>x</span>, <span class='no'>labels</span>, <span class='kw'>na_values</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>na_range</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
-    <dl class="dl-horizontal">
-      <dt>x</dt>
-      <dd><p>A vector to label. Must be either numeric (integer or double) or
-character.</p></dd>
-      <dt>labels</dt>
-      <dd><p>A named vector. The vector should be the same type as
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>A vector to label. Must be either numeric (integer or double) or
+character.</p></td>
+    </tr>
+    <tr>
+      <th>labels</th>
+      <td><p>A named vector. The vector should be the same type as
 <code>x</code>. Unlike factors, labels don't need to be exhaustive: only a fraction
-of the values might be labelled.</p></dd>
-      <dt>na_values</dt>
-      <dd><p>A vector of values that should also be considered as missing.</p></dd>
-      <dt>na_range</dt>
-      <dd><p>A numeric vector of length two giving the (inclusive) extents
+of the values might be labelled.</p></td>
+    </tr>
+    <tr>
+      <th>na_values</th>
+      <td><p>A vector of values that should also be considered as missing.</p></td>
+    </tr>
+    <tr>
+      <th>na_range</th>
+      <td><p>A numeric vector of length two giving the (inclusive) extents
 of the range. Use <code>-Inf</code> and <code>Inf</code> if you want the range to be
-open ended.</p></dd>
-    </dl>
+open ended.</p></td>
+    </tr>
+    </table>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

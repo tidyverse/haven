@@ -103,24 +103,39 @@ that SAS uses to record value labels. Writing value labels is not currently
 supported.</p>
     
 
-    <pre><span class='fu'>read_sas</span>(<span class='no'>data_file</span>, <span class='kw'>catalog_file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+    <pre class="usage"><span class='fu'>read_sas</span>(<span class='no'>data_file</span>, <span class='kw'>catalog_file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>cols_only</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
 <span class='fu'>write_sas</span>(<span class='no'>data</span>, <span class='no'>path</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
-    <dl class="dl-horizontal">
-      <dt>data_file, catalog_file</dt>
-      <dd><p>Path to data and catalog files. The files are
-processed with <code><a href='http://www.rdocumentation.org/packages/readr/topics/datasource'>datasource</a>()</code>.</p></dd>
-      <dt>encoding</dt>
-      <dd><p>The character encoding used for the file. This defaults to
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>data_file, catalog_file</th>
+      <td><p>Path to data and catalog files. The files are
+processed with <code><a href='http://www.rdocumentation.org/packages/readr/topics/datasource'>datasource</a>()</code>.</p></td>
+    </tr>
+    <tr>
+      <th>encoding</th>
+      <td><p>The character encoding used for the file. This defaults to
 the encoding specified in the file, or UTF-8. You can use this argument
-to override the value stored in the file if it is correct</p></dd>
-      <dt>data</dt>
-      <dd><p>Data frame to write.</p></dd>
-      <dt>path</dt>
-      <dd><p>Path to file where the data will be written.</p></dd>
-    </dl>
+to override the value stored in the file if it is correct</p></td>
+    </tr>
+    <tr>
+      <th>cols_only</th>
+      <td><p>A character vector giving an experimental way to read in
+only specified columns.</p></td>
+    </tr>
+    <tr>
+      <th>data</th>
+      <td><p>Data frame to write.</p></td>
+    </tr>
+    <tr>
+      <th>path</th>
+      <td><p>Path to file where the data will be written.</p></td>
+    </tr>
+    </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 

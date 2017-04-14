@@ -104,15 +104,7 @@ vectors, and data frames. By default, when applied to a data frame,
 it only affects <code>labelled</code> columns.</p>
     
 
-    <pre><span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for factor</span>
-<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for character</span>
-<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='no'>...</span>)
-
-<span class='co'># S3 method for data.frame</span>
+    <pre class="usage"><span class='co'># S3 method for data.frame</span>
 <span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='kw'>only_labelled</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='co'># S3 method for labelled</span>
@@ -120,25 +112,36 @@ it only affects <code>labelled</code> columns.</p>
   <span class='st'>"both"</span>), <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
-    <dl class="dl-horizontal">
-      <dt>x</dt>
-      <dd><p>Object to coerce to a factor.</p></dd>
-      <dt>...</dt>
-      <dd><p>Other arguments passed down to method.</p></dd>
-      <dt>only_labelled</dt>
-      <dd><p>Only apply to labelled columns?</p></dd>
-      <dt>levels</dt>
-      <dd><p>How to create the levels of the generated factor:</p>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>Object to coerce to a factor.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Other arguments passed down to method.</p></td>
+    </tr>
+    <tr>
+      <th>only_labelled</th>
+      <td><p>Only apply to labelled columns?</p></td>
+    </tr>
+    <tr>
+      <th>levels</th>
+      <td><p>How to create the levels of the generated factor:</p>
 <p></p><ul>
 <li><p>"default": uses labels where available, otherwise the values. Labels are sorted by value.</p></li>
 <li><p>"both": like "default", but pastes together the level and value</p></li>
 <li><p>"label": use only the labels; unlabelled values become <code>NA</code></p></li>
 <li><p>"values: use only the values</p></li>
-</ul></dd>
-      <dt>ordered</dt>
-      <dd><p>If <code>TRUE</code> create an ordered (ordinal) factor, if
-<code>FALSE</code> (the default) create a regular (nominal) factor.</p></dd>
-    </dl>
+</ul></td>
+    </tr>
+    <tr>
+      <th>ordered</th>
+      <td><p>If <code>TRUE</code> create an ordered (ordinal) factor, if
+<code>FALSE</code> (the default) create a regular (nominal) factor.</p></td>
+    </tr>
+    </table>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
