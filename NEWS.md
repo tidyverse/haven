@@ -1,5 +1,7 @@
 # haven 1.0.0.9000
 
+* `write_*` functions turn ordered factors into labelled vectors (#285)
+
 * `read_sas()` gains experimental `cols_only` argument to only read in 
   specified columns (#248).
 

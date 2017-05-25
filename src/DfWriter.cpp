@@ -203,13 +203,13 @@ public:
 
   void defineVariable(IntegerVector x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
-    if (rClass(x) == "factor") {
+    if (Rf_inherits(x, "factor")) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
 
       CharacterVector levels = as<CharacterVector>(x.attr("levels"));
       for (int i = 0; i < levels.size(); ++i)
         readstat_label_int32_value(labelSet, i + 1, string_utf8(levels, i));
-    } else if (rClass(x) == "labelled") {
+    } else if (Rf_inherits(x, "labelled")) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
 
       IntegerVector values = as<IntegerVector>(x.attr("labels"));
