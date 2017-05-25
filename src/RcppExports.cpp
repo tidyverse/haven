@@ -174,3 +174,33 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+
+RcppExport SEXP is_tagged_na_(SEXP, SEXP);
+RcppExport SEXP na_tag_(SEXP);
+RcppExport SEXP tagged_na_(SEXP);
+
+static const R_CallMethodDef CallEntries[] = {
+    {"haven_df_parse_sas_file", (DL_FUNC) &haven_df_parse_sas_file, 4},
+    {"haven_df_parse_sas_raw", (DL_FUNC) &haven_df_parse_sas_raw, 4},
+    {"haven_df_parse_xpt_file", (DL_FUNC) &haven_df_parse_xpt_file, 1},
+    {"haven_df_parse_xpt_raw", (DL_FUNC) &haven_df_parse_xpt_raw, 1},
+    {"haven_df_parse_dta_file", (DL_FUNC) &haven_df_parse_dta_file, 2},
+    {"haven_df_parse_dta_raw", (DL_FUNC) &haven_df_parse_dta_raw, 2},
+    {"haven_df_parse_sav_file", (DL_FUNC) &haven_df_parse_sav_file, 2},
+    {"haven_df_parse_sav_raw", (DL_FUNC) &haven_df_parse_sav_raw, 2},
+    {"haven_df_parse_por_file", (DL_FUNC) &haven_df_parse_por_file, 2},
+    {"haven_df_parse_por_raw", (DL_FUNC) &haven_df_parse_por_raw, 2},
+    {"haven_write_sav_", (DL_FUNC) &haven_write_sav_, 2},
+    {"haven_write_dta_", (DL_FUNC) &haven_write_dta_, 3},
+    {"haven_write_sas_", (DL_FUNC) &haven_write_sas_, 2},
+    {"haven_write_xpt_", (DL_FUNC) &haven_write_xpt_, 3},
+    {"is_tagged_na_",           (DL_FUNC) &is_tagged_na_,           2},
+    {"na_tag_",                 (DL_FUNC) &na_tag_,                 1},
+    {"tagged_na_",              (DL_FUNC) &tagged_na_,              1},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_haven(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
+}
