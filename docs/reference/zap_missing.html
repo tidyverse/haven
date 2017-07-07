@@ -145,14 +145,14 @@ Stata, or user-defined missings from SPSS, to regular R <code>NA</code>.</p>
 #&gt;  value   label
 #&gt;     99 missing</div><div class='input'>
 <span class='co'># You can also apply to data frames</span>
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='kw'>tibble</span><span class='kw'>::</span><span class='fu'>data_frame</span>(<span class='no'>x1</span>, <span class='no'>x2</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>4</span>:<span class='fl'>1</span>)
-<span class='no'>df</span></div><div class='output co'>#&gt; # A tibble: 4 × 3
+<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/tibble/topics/tibble'>data_frame</a></span>(<span class='no'>x1</span>, <span class='no'>x2</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>4</span>:<span class='fl'>1</span>)
+<span class='no'>df</span></div><div class='output co'>#&gt; # A tibble: 4 x 3
 #&gt;          x1        x2     y
 #&gt;   &lt;dbl+lbl&gt; &lt;dbl+lbl&gt; &lt;int&gt;
 #&gt; 1         1         1     4
 #&gt; 2         5         2     3
 #&gt; 3        NA         1     2
-#&gt; 4        NA        99     1</div><div class='input'><span class='fu'>zap_missing</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; # A tibble: 4 × 3
+#&gt; 4        NA        99     1</div><div class='input'><span class='fu'>zap_missing</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; # A tibble: 4 x 3
 #&gt;          x1        x2     y
 #&gt;   &lt;dbl+lbl&gt; &lt;dbl+lbl&gt; &lt;int&gt;
 #&gt; 1         1         1     4

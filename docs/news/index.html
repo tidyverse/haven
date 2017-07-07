@@ -99,12 +99,13 @@
     </div>
 
     <div class="contents">
-    <div id="haven-1-0-0-9000" class="section level1">
+    <div id="haven-1-1-0" class="section level1">
 <h1 class="hasAnchor">
-<a href="#haven-1-0-0-9000" class="anchor"></a>haven 1.0.0.9000</h1>
+<a href="#haven-1-1-0" class="anchor"></a>haven 1.1.0</h1>
 <ul>
+<li><p><code>write_*</code> functions turn ordered factors into labelled vectors (#285)</p></li>
 <li><p><code><a href="../reference/read_sas.html">read_sas()</a></code> gains experimental <code>cols_only</code> argument to only read in specified columns (#248).</p></li>
-<li><p>tibbles are created with <code>tibble::as_tibble()</code>, rather than by “hand” (#229).</p></li>
+<li><p>tibbles are created with <code><a href="http://www.rdocumentation.org/packages/tibble/topics/as_tibble">tibble::as_tibble()</a></code>, rather than by “hand” (#229).</p></li>
 <li><p><code><a href="../reference/read_spss.html">read_sav()</a></code> once again correctly returns system defined missings as <code>NA</code> (rather than <code>NaN</code>) (#223).</p></li>
 <li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> checks that factors don’t have levels with &gt;120 characters (#262)</p></li>
 <li><p>Share <code><a href="../reference/as_factor.html">as_factor()</a></code> with forcats package (#256)</p></li>
@@ -141,12 +142,12 @@
 <li><p>Added support for “tagged” missing values (in Stata these are called “extended” and in SAS these are called “special”) which carry an extra byte of information: a character label from “a” to “z”. The downside of this change is that all integer columns are now converted to doubles, to support the encoding of the tag in the payload of a NaN.</p></li>
 <li>
 <p>New <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> is a subclass of <code><a href="../reference/labelled.html">labelled()</a></code> that can model user missing values from SPSS. These can either be a set of distinct values, or for numeric vectors, a range. <code><a href="../reference/zap_labels.html">zap_labels()</a></code> strips labels, and replaces user-defined missing values with <code>NA</code>. New <code><a href="../reference/zap_missing.html">zap_missing()</a></code> just replaces user-defined missing vlaues with <code>NA</code>.</p>
-<p><code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> is potentially dangerous to work with in R because base functions don’t know about <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> functions so will return the wrong result in the presence of user-defined missing values. For this reason, they will only be created by <code><a href="../reference/read_spss.html">read_spss()</a></code> when <code>user_na = TRUE</code> (normally user-defined missings are converted to NA).</p>
+<p><code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> is potentially dangerous to work with in R because base functions don’t know about <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> functions so will return the wrong result in the presence of user-defined missing values. For this reason, they will only be created by <code>read_spss()</code> when <code>user_na = TRUE</code> (normally user-defined missings are converted to NA).</p>
 </li>
 <li><p><code><a href="../reference/as_factor.html">as_factor()</a></code> no longer drops the <code>label</code> attribute (variable label) when used (#177, @itsdalmo).</p></li>
 <li><p>Using <code><a href="../reference/as_factor.html">as_factor()</a></code> with <code>levels = "default</code> or <code>levels = "both"</code> preserves unused labels (implicit missing) when converting (#172, @itsdalmo). Labels (and the resulting factor levels) are always sorted by values.</p></li>
 <li><p><code><a href="../reference/as_factor.html">as_factor()</a></code> gains a new <code>levels = "default"</code> mechanism. This uses the labels where present, and otherwise uses the labels. This is now the default, as it seems to map better to the semantics of labelled values in other statistical packages (#81). You can also use <code>levels = "both"</code> to combine the value and the label into a single string (#82). It also gains a method for data frames, so you can easily convert every labelled column to a factor in one function call.</p></li>
-<li><p>New <code>vignette("semantics", package = "haven")</code> discusses the semantics of missing values and labelling in SAS, SPSS, and Stata, and how they are translated into R.</p></li>
+<li><p>New <code><a href="https://cran.rstudio.com/web/packages/haven/vignettes/semantics.html">vignette("semantics", package = "haven")</a></code> discusses the semantics of missing values and labelling in SAS, SPSS, and Stata, and how they are translated into R.</p></li>
 <li><p>Support for <code>hms()</code> has been moved into the hms package (#162). Time varibles now have class <code>c("hms", "difftime")</code> and a <code>units</code> attribute with value “secs” (#162).</p></li>
 <li><p><code><a href="../reference/labelled.html">labelled()</a></code> is less strict with its checks: you can mix double and integer value and labels (#86, #110, @lionel-), and <code><a href="../reference/labelled.html">is.labelled()</a></code> is now exported (#124). Putting a labelled vector in a data frame now generates the correct column name (#193).</p></li>
 <li><p><code><a href="../reference/read_dta.html">read_dta()</a></code> now recognises “%d” and custom date types (#80, #130). It also gains an encoding parameter which you can use to override the default encoding. This is particularly useful for Stata 13 and below which did not store the encoding used in the file (#163).</p></li>
@@ -173,7 +174,7 @@
 <li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> and <code><a href="../reference/read_spss.html">write_sav()</a></code> won’t crash if you give them invalid paths, and you can now use <code>~</code> to refer to your home directory (#37).</p></li>
 <li><p>Byte variables are now correctly read into integers (not strings, #45), and missing values are captured correctly (#43).</p></li>
 <li><p>Added <code><a href="../reference/read_dta.html">read_stata()</a></code> as alias to <code><a href="../reference/read_dta.html">read_dta()</a></code> (#52).</p></li>
-<li><p><code><a href="../reference/read_spss.html">read_spss()</a></code> uses extension to automatically choose between <code><a href="../reference/read_spss.html">read_sav()</a></code> and <code><a href="../reference/read_spss.html">read_por()</a></code> (#53)</p></li>
+<li><p><code>read_spss()</code> uses extension to automatically choose between <code><a href="../reference/read_spss.html">read_sav()</a></code> and <code><a href="../reference/read_spss.html">read_por()</a></code> (#53)</p></li>
 <li><p>Updates from ReadStat. Including fixes for various parsing bugs, more encodings, and better support for large files.</p></li>
 <li><p>hms objects deal better with missings when printing.</p></li>
 <li><p>Fixed bug causing labels for numeric variables to be read in as integers and associated error: <code>Error: `x` and `labels` must be same type</code></p></li>
@@ -193,7 +194,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#haven-1-0-0-9000">1.0.0.9000</a></li>
+        <li><a href="#haven-1-1-0">1.1.0</a></li>
         <li><a href="#haven-1-0-0">1.0.0</a></li>
         <li><a href="#haven-0-2-0">0.2.0</a></li>
         <li><a href="#haven-0-1-1">0.1.1</a></li>
