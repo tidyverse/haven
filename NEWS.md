@@ -1,4 +1,4 @@
-# haven 1.0.0.9000
+# haven 1.1.0
 
 * Update to latest readstat. Includes:
 
