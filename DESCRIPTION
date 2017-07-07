@@ -2,7 +2,7 @@ Package: haven
 Version: 1.0.0.9000
 Title: Import and Export 'SPSS', 'Stata' and 'SAS' Files
 Description: Import foreign statistical formats into R via the embedded
-    'ReadStat' C library (https://github.com/WizardMac/ReadStat).
+    'ReadStat' C library, <https://github.com/WizardMac/ReadStat>.
 License: MIT + file LICENSE
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
@@ -26,7 +26,7 @@ Imports:
     forcats (>= 0.2.0)
 LazyData: true
 URL:
-    https://haven.tidyverse.org, 
+    http://haven.tidyverse.org, 
     https://github.com/tidyverse/haven,
     https://github.com/WizardMac/ReadStat
 BugReports: https://github.com/hadley/haven/issues
