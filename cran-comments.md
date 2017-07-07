@@ -13,12 +13,15 @@
   MIT + file LICENSE
 
 ## Reverse dependencies
-I have run R CMD check on the 12 reverse dependencies of haven. 
+I have run R CMD check on the 13 reverse dependencies of haven. 
+I did not see any new issues.
 
-There was one problem:
-
-* rio: uses older parameter names. It will be resubmitted once haven is
-  accepted.
+I am using a new system for reverse dependency checks, co-developed with
+Gabor Csardi. Now, I run R CMD check twice for each revdep: once with the
+CRAN version of haven, and once with the development verison. I then
+compare the two, to see if there are any new problems. This substantially
+decreases the number of false positions and makes it much easier to
+see exactly what's changed.
 
 Full results are available at https://github.com/hadley/haven/tree/master/revdep/.
 
