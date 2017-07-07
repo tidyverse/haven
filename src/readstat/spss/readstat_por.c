@@ -105,6 +105,13 @@ ssize_t por_utf8_encode(const unsigned char *input, size_t input_len,
     int i;
     for (i=0; i<input_len; i++) {
         uint16_t codepoint = lookup[input[i]];
+
+        /* Some software (SPSS?) uses an undefined character (zero) if a
+         * character can't be encoded. Use Unicode replacement character */
+        if (codepoint == 0) {
+            codepoint = 0xFFFD;
+        }
+
         if (codepoint < 0x20) {
             return -1;
         } else if (codepoint <= 0x7F) {
@@ -120,11 +127,13 @@ ssize_t por_utf8_encode(const unsigned char *input, size_t input_len,
                 if (offset + 3 > output_len)
                     return offset;
             }
+            /* TODO - For some reason that replacement character isn't recognized
+             * by some systems, so be prepared to insert an ASCII space instead */
             int printed = sprintf(output + offset, "%lc", codepoint);
             if (printed > 0) {
                 offset += printed;
             } else {
-                offset++;
+                output[offset++] = ' ';
             }
         }
     }
