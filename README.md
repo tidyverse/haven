@@ -1,8 +1,8 @@
-# Haven <img src="logo.png" align="right" />
+# Haven <img src="man/figures/logo.png" align="right" />
 
 [![Travis-CI Build Status](https://travis-ci.org/tidyverse/haven.svg?branch=master)](https://travis-ci.org/tidyverse/haven)
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/tidyverse/haven?branch=master&svg=true)](https://ci.appveyor.com/project/tidyverse/haven)
-[![Coverage Status](https://img.shields.io/codecov/c/github/tidyverse/haven/master.svg)](https://codecov.io/github/tidyverse/haven?branch=master)
+[![codecov](https://codecov.io/gh/tidyverse/haven/branch/master/graph/badge.svg)](https://codecov.io/gh/tidyverse/haven)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/haven)](https://cran.r-project.org/package=haven)
 
 ## Overview
