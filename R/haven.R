@@ -52,6 +52,7 @@ read_sas <- function(data_file, catalog_file = NULL, encoding = NULL,
 #' @export
 #' @rdname read_sas
 write_sas <- function(data, path) {
+  validate_sas(data)
   write_sas_(data, normalizePath(path, mustWork = FALSE))
 }
 
@@ -228,6 +229,8 @@ stata_file_format <- function(version) {
 }
 
 validate_dta <- function(data) {
+  stopifnot(is.data.frame(data))
+
   # Check variable names
   bad_names <- !grepl("^[A-Za-z_]{1}[A-Za-z0-9_]{0,31}$", names(data))
   if (any(bad_names)) {
@@ -252,6 +255,8 @@ validate_dta <- function(data) {
 }
 
 validate_sav <- function(data) {
+  stopifnot(is.data.frame(data))
+
   # Check factor lengths
   level_lengths <- vapply(data, max_level_length, integer(1))
 
@@ -263,6 +268,11 @@ validate_sav <- function(data) {
       call. = FALSE
     )
   }
+}
+
+validate_sas <- function(data) {
+  stopifnot(is.data.frame(data))
+
 }
 
 var_names <- function(data, i) {

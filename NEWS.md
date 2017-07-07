@@ -26,6 +26,8 @@
 * `write_dta()` no longer checks that all value labels are at most 32 
   characters (since this is not a restriction of dta files) (#239).
 
+* All write methds now check that you're trying to write a data frame (#287).
+
 * Add support for reading (`read_xpt()`) and writing (`write_xpt()`) SAS 
   transport files.
 
