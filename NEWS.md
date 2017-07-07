@@ -1,26 +1,5 @@
 # haven 1.0.0.9000
 
-* `write_*` functions turn ordered factors into labelled vectors (#285)
-
-* `read_sas()` gains experimental `cols_only` argument to only read in 
-  specified columns (#248).
-
-* tibbles are created with `tibble::as_tibble()`, rather than by "hand" (#229).
-
-* `read_sav()` once again correctly returns system defined missings 
-  as `NA` (rather than `NaN`) (#223).
-
-* `write_sav()` checks that factors don't have levels with >120 
-  characters (#262)
-
-* Share `as_factor()` with forcats package (#256)
-
-* `write_dta()` no longer checks that all value labels are at most 32 
-  characters (since this is not a restriction of dta files) (#239).
-
-* Add support for reading (`read_xpt()`) and writing (`write_xpt()`) SAS 
-  transport files.
-
 * Update to latest readstat. Includes:
 
   * SAS: support Win baltic code page (#231)
@@ -29,8 +8,28 @@
   * SPSS: support uppercase time stamps (#230)
   * SPSS: fixes for 252-255 byte strings (#226)
   * SPSS: fixes for 0 byte strings (#245)
-  
-* Add support for reading and writing of SPSS's display widths (@ecortens).
+
+* Share `as_factor()` with forcats package (#256)
+
+* `read_sav()` once again correctly returns system defined missings 
+  as `NA` (rather than `NaN`) (#223). `read_sav()` and `write_sav()` preserve 
+  SPSS's display widths (@ecortens).
+
+* `read_sas()` gains experimental `cols_only` argument to only read in 
+  specified columns (#248).
+
+* tibbles are created with `tibble::as_tibble()`, rather than by "hand" (#229).
+
+* `write_sav()` checks that factors don't have levels with >120 
+  characters (#262)
+
+* `write_dta()` no longer checks that all value labels are at most 32 
+  characters (since this is not a restriction of dta files) (#239).
+
+* Add support for reading (`read_xpt()`) and writing (`write_xpt()`) SAS 
+  transport files.
+
+* `write_*` functions turn ordered factors into labelled vectors (#285)
 
 # haven 1.0.0
 
