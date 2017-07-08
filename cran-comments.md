@@ -1,3 +1,7 @@
+This is a resubmission, changing AUTHOR to COPYRIGHT HOLDER in license. 
+
+---
+
 ## Test environments
 * local OS X install, R 3.4.0
 * ubuntu 12.04 (on travis-ci), oldrel, release, devel
