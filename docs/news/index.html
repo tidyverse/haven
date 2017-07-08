@@ -103,14 +103,6 @@
 <h1 class="hasAnchor">
 <a href="#haven-1-1-0" class="anchor"></a>haven 1.1.0</h1>
 <ul>
-<li><p><code>write_*</code> functions turn ordered factors into labelled vectors (#285)</p></li>
-<li><p><code><a href="../reference/read_sas.html">read_sas()</a></code> gains experimental <code>cols_only</code> argument to only read in specified columns (#248).</p></li>
-<li><p>tibbles are created with <code><a href="http://www.rdocumentation.org/packages/tibble/topics/as_tibble">tibble::as_tibble()</a></code>, rather than by “hand” (#229).</p></li>
-<li><p><code><a href="../reference/read_spss.html">read_sav()</a></code> once again correctly returns system defined missings as <code>NA</code> (rather than <code>NaN</code>) (#223).</p></li>
-<li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> checks that factors don’t have levels with &gt;120 characters (#262)</p></li>
-<li><p>Share <code><a href="../reference/as_factor.html">as_factor()</a></code> with forcats package (#256)</p></li>
-<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> no longer checks that all value labels are at most 32 characters (since this is not a restriction of dta files) (#239).</p></li>
-<li><p>Add support for reading (<code><a href="../reference/read_xpt.html">read_xpt()</a></code>) and writing (<code><a href="../reference/read_xpt.html">write_xpt()</a></code>) SAS transport files.</p></li>
 <li><p>Update to latest readstat. Includes:</p></li>
 <li>SAS: support Win baltic code page (#231)</li>
 <li>SAS: better error messages instead of crashes (#234, #270)</li>
@@ -118,7 +110,15 @@
 <li>SPSS: support uppercase time stamps (#230)</li>
 <li>SPSS: fixes for 252-255 byte strings (#226)</li>
 <li><p>SPSS: fixes for 0 byte strings (#245)</p></li>
-<li><p>Add support for reading and writing of SPSS’s display widths (@ecortens).</p></li>
+<li><p>Share <code><a href="../reference/as_factor.html">as_factor()</a></code> with forcats package (#256)</p></li>
+<li><p><code><a href="../reference/read_spss.html">read_sav()</a></code> once again correctly returns system defined missings as <code>NA</code> (rather than <code>NaN</code>) (#223). <code><a href="../reference/read_spss.html">read_sav()</a></code> and <code><a href="../reference/read_spss.html">write_sav()</a></code> preserve SPSS’s display widths (@ecortens).</p></li>
+<li><p><code><a href="../reference/read_sas.html">read_sas()</a></code> gains experimental <code>cols_only</code> argument to only read in specified columns (#248).</p></li>
+<li><p>tibbles are created with <code><a href="http://www.rdocumentation.org/packages/tibble/topics/as_tibble">tibble::as_tibble()</a></code>, rather than by “hand” (#229).</p></li>
+<li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> checks that factors don’t have levels with &gt;120 characters (#262)</p></li>
+<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> no longer checks that all value labels are at most 32 characters (since this is not a restriction of dta files) (#239).</p></li>
+<li><p>All write methds now check that you’re trying to write a data frame (#287).</p></li>
+<li><p>Add support for reading (<code><a href="../reference/read_xpt.html">read_xpt()</a></code>) and writing (<code><a href="../reference/read_xpt.html">write_xpt()</a></code>) SAS transport files.</p></li>
+<li><p><code>write_*</code> functions turn ordered factors into labelled vectors (#285)</p></li>
 </ul>
 </div>
     <div id="haven-1-0-0" class="section level1">
