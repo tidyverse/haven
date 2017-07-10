@@ -1,5 +1,5 @@
 Package: haven
-Version: 1.1.0
+Version: 1.1.0.9000
 Title: Import and Export 'SPSS', 'Stata' and 'SAS' Files
 Description: Import foreign statistical formats into R via the embedded
     'ReadStat' C library, <https://github.com/WizardMac/ReadStat>.
