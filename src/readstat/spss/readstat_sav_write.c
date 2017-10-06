@@ -62,8 +62,7 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     time_t now = writer->timestamp;
     struct tm *time_s = localtime(&now);
 
-    sav_file_header_record_t header;
-    memset(&header, 0, sizeof(sav_file_header_record_t));
+    sav_file_header_record_t header = { { 0 } };
 
     memcpy(header.rec_type, "$FL2", sizeof("$FL2")-1);
     memset(header.prod_name, ' ', sizeof(header.prod_name));
@@ -235,8 +234,7 @@ static readstat_error_t sav_emit_base_variable_record(readstat_writer_t *writer,
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    sav_variable_record_t variable;
-    memset(&variable, 0, sizeof(sav_variable_record_t));
+    sav_variable_record_t variable = {0};
 
     if (r_variable->type == READSTAT_TYPE_STRING) {
         variable.type = r_variable->user_width > MAX_STRING_SIZE ? MAX_STRING_SIZE : r_variable->user_width;
@@ -292,8 +290,7 @@ static readstat_error_t sav_emit_ghost_variable_record(readstat_writer_t *writer
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    sav_variable_record_t variable;
-    memset(&variable, 0, sizeof(sav_variable_record_t));
+    sav_variable_record_t variable = {0};
 
     variable.type = user_width;
 
@@ -490,8 +487,7 @@ cleanup:
 static readstat_error_t sav_emit_integer_info_record(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
 
-    sav_info_record_t info_header;
-    memset(&info_header, 0, sizeof(sav_info_record_t));
+    sav_info_record_t info_header = {0};
 
     info_header.rec_type = SAV_RECORD_TYPE_HAS_DATA;
     info_header.subtype = SAV_RECORD_SUBTYPE_INTEGER_INFO;
@@ -502,8 +498,7 @@ static readstat_error_t sav_emit_integer_info_record(readstat_writer_t *writer) 
     if (retval != READSTAT_OK)
         goto cleanup;
     
-    sav_machine_integer_info_record_t machine_info;
-    memset(&machine_info, 0, sizeof(sav_machine_integer_info_record_t));
+    sav_machine_integer_info_record_t machine_info = {0};
 
     machine_info.version_major = 1;
     machine_info.version_minor = 0;
@@ -512,7 +507,7 @@ static readstat_error_t sav_emit_integer_info_record(readstat_writer_t *writer) 
     machine_info.floating_point_rep = SAV_FLOATING_POINT_REP_IEEE;
     machine_info.compression_code = 1;
     machine_info.endianness = machine_is_little_endian() ? SAV_ENDIANNESS_LITTLE : SAV_ENDIANNESS_BIG;
-    machine_info.character_code = SAV_CHARSET_UTF8;
+    machine_info.character_code = 65001; // utf-8
 
     retval = readstat_write_bytes(writer, &machine_info, sizeof(machine_info));
 
@@ -523,8 +518,7 @@ cleanup:
 static readstat_error_t sav_emit_floating_point_info_record(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
 
-    sav_info_record_t info_header;
-    memset(&info_header, 0, sizeof(sav_info_record_t));
+    sav_info_record_t info_header = {0};
 
     info_header.rec_type = SAV_RECORD_TYPE_HAS_DATA;
     info_header.subtype = SAV_RECORD_SUBTYPE_FP_INFO;
@@ -535,8 +529,7 @@ static readstat_error_t sav_emit_floating_point_info_record(readstat_writer_t *w
     if (retval != READSTAT_OK)
         goto cleanup;
     
-    sav_machine_floating_point_info_record_t fp_info;
-    memset(&fp_info, 0, sizeof(sav_machine_floating_point_info_record_t));
+    sav_machine_floating_point_info_record_t fp_info = {0};
 
     fp_info.sysmis = SAV_MISSING_DOUBLE;
     fp_info.highest = SAV_HIGHEST_DOUBLE;
@@ -553,8 +546,7 @@ cleanup:
 static readstat_error_t sav_emit_variable_display_record(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
     int i;
-    sav_info_record_t info_header;
-    memset(&info_header, 0, sizeof(sav_info_record_t));
+    sav_info_record_t info_header = {0};
 
     info_header.rec_type = SAV_RECORD_TYPE_HAS_DATA;
     info_header.subtype = SAV_RECORD_SUBTYPE_VAR_DISPLAY;
@@ -597,8 +589,7 @@ cleanup:
 static readstat_error_t sav_emit_long_var_name_record(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
     int i;
-    sav_info_record_t info_header;
-    memset(&info_header, 0, sizeof(sav_info_record_t));
+    sav_info_record_t info_header = {0};
 
     info_header.rec_type = SAV_RECORD_TYPE_HAS_DATA;
     info_header.subtype = SAV_RECORD_SUBTYPE_LONG_VAR_NAME;
@@ -680,8 +671,7 @@ static readstat_error_t sav_emit_very_long_string_record(readstat_writer_t *writ
     int i;
     char tuple_separator[2] = { 0x00, 0x09 };
 
-    sav_info_record_t info_header;
-    memset(&info_header, 0, sizeof(sav_info_record_t));
+    sav_info_record_t info_header = {0};
 
     info_header.rec_type = SAV_RECORD_TYPE_HAS_DATA;
     info_header.subtype = SAV_RECORD_SUBTYPE_VERY_LONG_STR;
@@ -695,7 +685,7 @@ static readstat_error_t sav_emit_very_long_string_record(readstat_writer_t *writ
 
         char kv_data[8+1+5+1];
         snprintf(kv_data, sizeof(kv_data), "VAR%d=%05d", 
-                i, (int)r_variable->storage_width);
+                i, (int)r_variable->user_width);
 
         info_header.count += strlen(kv_data) + sizeof(tuple_separator);
     }
@@ -714,7 +704,7 @@ static readstat_error_t sav_emit_very_long_string_record(readstat_writer_t *writ
 
         char kv_data[8+1+5+1];
         snprintf(kv_data, sizeof(kv_data), "VAR%d=%05d", 
-                i, (int)r_variable->storage_width);
+                i, (int)r_variable->user_width);
 
         retval = readstat_write_string(writer, kv_data);
         if (retval != READSTAT_OK)
@@ -734,8 +724,7 @@ static readstat_error_t sav_emit_long_value_labels_records(readstat_writer_t *wr
     int i, j, k;
     char *space_buffer = NULL;
 
-    sav_info_record_t info_header;
-    memset(&info_header, 0, sizeof(sav_info_record_t));
+    sav_info_record_t info_header = {0};
 
     info_header.rec_type = SAV_RECORD_TYPE_HAS_DATA;
     info_header.subtype = SAV_RECORD_SUBTYPE_LONG_VALUE_LABELS;
@@ -838,11 +827,8 @@ cleanup:
 }
 
 static readstat_error_t sav_emit_termination_record(readstat_writer_t *writer) {
-    sav_dictionary_termination_record_t termination_record;
-    memset(&termination_record, 0, sizeof(sav_dictionary_termination_record_t));
+    sav_dictionary_termination_record_t termination_record = { .rec_type = SAV_RECORD_TYPE_DICT_TERMINATION };
 
-    termination_record.rec_type = SAV_RECORD_TYPE_DICT_TERMINATION;
-    
     return readstat_write_bytes(writer, &termination_record, sizeof(termination_record));
 }
 
@@ -997,7 +983,7 @@ static readstat_error_t sav_write_compressed_row(void *writer_ctx, void *row, si
         if (variable->type == READSTAT_TYPE_STRING) {
             size_t width = variable->storage_width;
             while (width > 0) {
-                if (memcmp(&input[input_offset], "        ", 8) == 0) {
+                if (memcmp(&input[input_offset], SAV_EIGHT_SPACES, 8) == 0) {
                     output[control_offset++] = 254;
                 } else {
                     output[control_offset++] = 253;

@@ -116,6 +116,7 @@ typedef struct sav_ctx_s {
 
 #define SAV_RECORD_SUBTYPE_INTEGER_INFO       3
 #define SAV_RECORD_SUBTYPE_FP_INFO            4
+#define SAV_RECORD_SUBTYPE_PRODUCT_INFO      10
 #define SAV_RECORD_SUBTYPE_VAR_DISPLAY       11
 #define SAV_RECORD_SUBTYPE_LONG_VAR_NAME     13
 #define SAV_RECORD_SUBTYPE_VERY_LONG_STR     14
@@ -132,11 +133,7 @@ typedef struct sav_ctx_s {
 #define SAV_ENDIANNESS_BIG               1
 #define SAV_ENDIANNESS_LITTLE            2
 
-#define SAV_CHARSET_EBCDIC                1
-#define SAV_CHARSET_7_BIT_ASCII           2
-#define SAV_CHARSET_8_BIT_ASCII           3
-#define SAV_CHARSET_DEC_KANJI             4
-#define SAV_CHARSET_UTF8              65001
+#define SAV_EIGHT_SPACES              "        "
 
 sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io);
 void sav_ctx_free(sav_ctx_t *ctx);

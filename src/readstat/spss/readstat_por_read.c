@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <math.h>
 #include <time.h>
 
@@ -82,7 +83,7 @@ static readstat_error_t read_double_with_peek(por_ctx_t *ctx, double *out_double
     unsigned char buffer[100];
     char utf8_buffer[300];
     char error_buf[1024];
-    ssize_t len = 0;
+    int64_t len = 0;
     ssize_t bytes_read = 0;
 
     buffer[0] = peek;
@@ -97,7 +98,7 @@ static readstat_error_t read_double_with_peek(por_ctx_t *ctx, double *out_double
             *out_double = NAN;
         return READSTAT_OK;
     }
-    int i=2;
+    int64_t i=2;
     while (i<sizeof(buffer) && ctx->byte2unicode[buffer[i-1]] != '/') {
         bytes_read = read_bytes(ctx, &buffer[i], 1);
         if (bytes_read != 1)
@@ -112,8 +113,8 @@ static readstat_error_t read_double_with_peek(por_ctx_t *ctx, double *out_double
     len = por_utf8_encode(buffer, i, utf8_buffer, sizeof(utf8_buffer), ctx->byte2unicode);
     if (len == -1) {
         if (ctx->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Error converting double string (length=%d): %*s", 
-                    i, i, buffer);
+            snprintf(error_buf, sizeof(error_buf), "Error converting double string (length=%" PRId64 "): %*s", 
+                    i, (int)i, buffer);
             ctx->error_handler(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_CONVERT;
@@ -123,7 +124,7 @@ static readstat_error_t read_double_with_peek(por_ctx_t *ctx, double *out_double
     bytes_read = readstat_por_parse_double(utf8_buffer, len, &value, ctx->error_handler, ctx->user_ctx);
     if (bytes_read == -1) {
         if (ctx->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Error parsing double string (length=%ld): %*s [%s]", 
+            snprintf(error_buf, sizeof(error_buf), "Error parsing double string (length=%" PRId64 "): %*s [%s]", 
                     len, (int)len, utf8_buffer, buffer);
             ctx->error_handler(error_buf, ctx->user_ctx);
         }
@@ -750,7 +751,7 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
         goto cleanup;
 
     if (ctx->metadata_handler) {
-        if (ctx->metadata_handler(file_label, ctx->timestamp, ctx->version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+        if (ctx->metadata_handler(file_label, NULL, ctx->timestamp, ctx->version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }

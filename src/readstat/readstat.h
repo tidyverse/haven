@@ -227,7 +227,8 @@ readstat_value_t readstat_variable_get_missing_range_hi(const readstat_variable_
  * the associated variable. (Note that subsequent variables will retain their original index values.)
  */
 typedef int (*readstat_info_handler)(int obs_count, int var_count, void *ctx);
-typedef int (*readstat_metadata_handler)(const char *file_label, time_t timestamp, long format_version, void *ctx);
+typedef int (*readstat_metadata_handler)(const char *file_label, const char *orig_encoding,
+        time_t timestamp, long format_version, void *ctx);
 typedef int (*readstat_note_handler)(int note_index, const char *note, void *ctx);
 typedef int (*readstat_variable_handler)(int index, readstat_variable_t *variable, 
         const char *val_labels, void *ctx);

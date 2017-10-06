@@ -470,7 +470,7 @@ static readstat_error_t sas7bdat_parse_subheader(uint32_t signature, const char 
         retval = sas7bdat_parse_column_format_subheader(subheader, len, ctx);
     } else if (signature == SAS_SUBHEADER_SIGNATURE_COLUMN_LIST) {
         /* void */
-    } else if (signature == SAS_SUBHEADER_SIGNATURE_COLUMN_UNKNOWN) {
+    } else if ((signature & SAS_SUBHEADER_SIGNATURE_COLUMN_MASK) == SAS_SUBHEADER_SIGNATURE_COLUMN_MASK) {
         /* void */
     } else {
         retval = READSTAT_ERROR_PARSE;
@@ -535,7 +535,7 @@ static readstat_error_t sas7bdat_submit_columns(sas7bdat_ctx_t *ctx) {
         }
     }
     if (ctx->metadata_handler) {
-        if (ctx->metadata_handler(ctx->file_label, ctx->timestamp, ctx->version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+        if (ctx->metadata_handler(ctx->file_label, ctx->input_encoding, ctx->timestamp, ctx->version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -584,8 +584,7 @@ static int sas7bdat_signature_is_recognized(uint32_t signature) {
             signature == SAS_SUBHEADER_SIGNATURE_COLUMN_SIZE ||
             signature == SAS_SUBHEADER_SIGNATURE_COUNTS ||
             signature == SAS_SUBHEADER_SIGNATURE_COLUMN_FORMAT ||
-            (signature >= SAS_SUBHEADER_SIGNATURE_COLUMN_UNKNOWN &&
-             signature <= SAS_SUBHEADER_SIGNATURE_COLUMN_NAME));
+            (signature & SAS_SUBHEADER_SIGNATURE_COLUMN_MASK) == SAS_SUBHEADER_SIGNATURE_COLUMN_MASK);
 }
 
 /* First, extract column text */

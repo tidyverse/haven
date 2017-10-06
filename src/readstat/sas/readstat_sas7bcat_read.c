@@ -336,7 +336,7 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        if (ctx->metadata_handler(file_label, hinfo->modification_time, 
+        if (ctx->metadata_handler(file_label, hinfo->encoding, hinfo->modification_time, 
                     10000 * hinfo->major_version + hinfo->minor_version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
