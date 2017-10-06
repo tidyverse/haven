@@ -408,7 +408,7 @@ int dfreader_info(int obs_count, int var_count, void *ctx) {
   return 0;
 }
 
-int dfreader_metadata(const char *file_label, time_t timestamp, long format_version, void *ctx) {
+int dfreader_metadata(const char *file_label, const char *orig_encoding, time_t timestamp, long format_version, void *ctx) {
   ((DfReader*) ctx)->setMetadata(file_label, timestamp, format_version);
   return 0;
 }

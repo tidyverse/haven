@@ -496,8 +496,16 @@ cleanup:
 static sas7bdat_write_ctx_t *sas7bdat_write_ctx_init(readstat_writer_t *writer) {
     sas7bdat_write_ctx_t *ctx = calloc(1, sizeof(sas7bdat_write_ctx_t));
 
-    ctx->hinfo = sas_header_info_init(writer, writer->is_64bit);
-    ctx->sarray = sas7bdat_subheader_array_init(writer, ctx->hinfo);
+    size_t row_length = sas7bdat_row_length(writer);
+    sas_header_info_t *hinfo = sas_header_info_init(writer, writer->is_64bit);
+
+    while (writer->compression == READSTAT_COMPRESS_NONE &&
+        hinfo->page_size - hinfo->page_header_size < row_length) {
+        hinfo->page_size <<= 1;
+    }
+
+    ctx->hinfo = hinfo;
+    ctx->sarray = sas7bdat_subheader_array_init(writer, hinfo);
 
     return ctx;
 }

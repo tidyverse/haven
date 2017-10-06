@@ -4,6 +4,7 @@
 #include <time.h>
 #include <stdint.h>
 #include <string.h>
+#include <inttypes.h>
 #include <sys/types.h>
 
 #include "../readstat.h"
@@ -179,8 +180,8 @@ static readstat_error_t dta_read_expansion_fields(dta_ctx_t *ctx) {
     if (ctx->file_is_xmlish && !ctx->note_handler) {
         if (io->seek(ctx->data_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
             if (ctx->error_handler) {
-                snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to data section (offset=%lld)",
-                        (unsigned long long)ctx->data_offset);
+                snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to data section (offset=%" PRId64 ")",
+                        ctx->data_offset);
                 ctx->error_handler(ctx->error_buf, ctx->user_ctx);
             }
             return READSTAT_ERROR_SEEK;
@@ -391,8 +392,8 @@ static readstat_error_t dta_read_strls(dta_ctx_t *ctx) {
 
     if (io->seek(ctx->strls_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         if (ctx->error_handler) {
-            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to strls section (offset=%lld)",
-                    (unsigned long long)ctx->strls_offset);
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to strls section (offset=%" PRId64 ")",
+                    ctx->strls_offset);
             ctx->error_handler(ctx->error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_SEEK;
@@ -472,8 +473,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
         readstat_off_t offset = 0;
         for (j=0; j<ctx->nvar; j++) {
             size_t max_len;
-            readstat_value_t value;
-            memset(&value, 0, sizeof(readstat_value_t));
+            readstat_value_t value = { { 0 } };
 
             value.type = dta_type_info(ctx->typlist[j], &max_len, ctx);
 
@@ -486,7 +486,7 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
                 readstat_convert(str_buf, sizeof(str_buf), &buf[offset], max_len, ctx->converter);
                 value.v.string_value = str_buf;
             } else if (value.type == READSTAT_TYPE_STRING_REF) {
-                dta_strl_t key;
+                dta_strl_t key = {0};
                 dta_interpret_strl_vo_bytes(ctx, (unsigned char *)&buf[offset], &key);
 
                 dta_strl_t **found = bsearch(&key, ctx->strls, ctx->strls_count, sizeof(dta_strl_t *), &dta_compare_strls);
@@ -614,8 +614,8 @@ static readstat_error_t dta_read_data(dta_ctx_t *ctx) {
 
     if (io->seek(ctx->data_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         if (ctx->error_handler) {
-            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to data section (offset=%lld)",
-                    (unsigned long long)ctx->data_offset);
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to data section (offset=%" PRId64 ")",
+                    ctx->data_offset);
             ctx->error_handler(ctx->error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_SEEK;
@@ -868,8 +868,8 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
 
     if (io->seek(ctx->value_labels_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         if (ctx->error_handler) {
-            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to value labels section (offset=%lld)",
-                    (unsigned long long)ctx->value_labels_offset);
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to value labels section (offset=%" PRId64 ")",
+                    ctx->value_labels_offset);
             ctx->error_handler(ctx->error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_SEEK;
@@ -1089,7 +1089,7 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *path,
     }
 
     if (parser->metadata_handler) {
-        if (parser->metadata_handler(ctx->data_label, ctx->timestamp, header.ds_format, user_ctx) != READSTAT_HANDLER_OK) {
+        if (parser->metadata_handler(ctx->data_label, NULL, ctx->timestamp, header.ds_format, user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
