@@ -158,7 +158,7 @@ static readstat_error_t xport_read_file_label_record(xport_ctx_t *ctx) {
         goto cleanup;
 
     if (ctx->metadata_handler) {
-        if (ctx->metadata_handler(label, ctx->timestamp, ctx->version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+        if (ctx->metadata_handler(label, NULL, ctx->timestamp, ctx->version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }

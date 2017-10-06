@@ -14,11 +14,10 @@
 #define DTA_MAX_VERSION 118
 
 dta_ctx_t *dta_ctx_alloc(readstat_io_t *io) {
-    dta_ctx_t *ctx;
-    if ((ctx = malloc(sizeof(dta_ctx_t))) == NULL) {
+    dta_ctx_t *ctx = calloc(1, sizeof(dta_ctx_t));
+    if (ctx == NULL) {
         return NULL;
     }
-    memset(ctx, 0, sizeof(dta_ctx_t));
 
     ctx->io = io;
     ctx->initialized = 0;

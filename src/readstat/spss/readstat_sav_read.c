@@ -96,7 +96,7 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 50225, .name = "ISO-2022-KR" },
     { .code = 50229, .name = "ISO-2022-CN" },
     { .code = 51932, .name = "EUC-JP" },
-    { .code = 51936, .name = "EUC-CN" },
+    { .code = 51936, .name = "GBK" },
     { .code = 51949, .name = "EUC-KR" },
     { .code = 52936, .name = "HZ-GB-2312" },
     { .code = 54936, .name = "GB18030" },
@@ -104,7 +104,6 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 65001, .name = "UTF-8" }
 };
 
-#define SAV_EIGHT_SPACES              "        "
 #define SAV_LABEL_NAME_PREFIX         "labels"
 
 typedef struct value_label_s {
@@ -203,7 +202,6 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
     variable.print = ctx->bswap ? byteswap4(variable.print) : variable.print;
     variable.write = ctx->bswap ? byteswap4(variable.write) : variable.write;
 
-    readstat_type_t dta_type = READSTAT_TYPE_DOUBLE;
     int32_t type = ctx->bswap ? byteswap4(variable.type) : variable.type;
     int i;
     if (type < 0) {
@@ -215,17 +213,12 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
         prev->width++;
         return 0;
     }
-    if (type > 0) {
-        dta_type = READSTAT_TYPE_STRING;
-        // len = type;
-    }
     spss_varinfo_t *info = &ctx->varinfo[ctx->var_index];
     memset(info, 0, sizeof(spss_varinfo_t));
     info->width = 1;
     info->n_segments = 1;
     info->index = ctx->var_index;
     info->offset = ctx->var_offset;
-    info->type = dta_type;
 
     retval = readstat_convert(info->name, sizeof(info->name),
             variable.name, sizeof(variable.name), ctx->converter);
@@ -244,6 +237,12 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
     info->write_format.decimal_places = (variable.write & 0x000000FF);
     info->write_format.width = (variable.write & 0x0000FF00) >> 8;
     info->write_format.type = (variable.write  & 0x00FF0000) >> 16;
+
+    if (type > 0 || info->print_format.type == SPSS_FORMAT_TYPE_A || info->write_format.type == SPSS_FORMAT_TYPE_A) {
+        info->type = READSTAT_TYPE_STRING;
+    } else {
+        info->type = READSTAT_TYPE_DOUBLE;
+    }
     
     if (variable.has_var_label) {
         int32_t label_len;
@@ -577,10 +576,10 @@ static readstat_error_t sav_read_data(sav_ctx_t *ctx) {
         }
     }
 
-    ctx->raw_string_len = longest_string;
+    ctx->raw_string_len = longest_string + sizeof(SAV_EIGHT_SPACES)-2;
     ctx->raw_string = malloc(ctx->raw_string_len);
 
-    ctx->utf8_string_len = 4*longest_string+1;
+    ctx->utf8_string_len = 4*longest_string+1 + sizeof(SAV_EIGHT_SPACES)-2;
     ctx->utf8_string = malloc(ctx->utf8_string_len);
 
     if (ctx->data_is_compressed) {
@@ -796,8 +795,6 @@ static readstat_error_t sav_parse_machine_integer_info_record(const void *data, 
     }
     if (ctx->input_encoding) {
         src_charset = ctx->input_encoding;
-    } else if (record.character_code == SAV_CHARSET_UTF8) {
-        /* do nothing */
     } else {
         int i;
         for (i=0; i<sizeof(_charset_table)/sizeof(_charset_table[0]); i++) {
@@ -814,6 +811,7 @@ static readstat_error_t sav_parse_machine_integer_info_record(const void *data, 
             }
             return READSTAT_ERROR_UNSUPPORTED_CHARSET;
         }
+        ctx->input_encoding = src_charset;
     }
     if (src_charset && dst_charset && strcmp(src_charset, dst_charset) != 0) {
         iconv_t converter = iconv_open(dst_charset, src_charset);
@@ -1393,7 +1391,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
                         header.file_label, sizeof(header.file_label), ctx->converter)) != READSTAT_OK)
             goto cleanup;
 
-        if (parser->metadata_handler(ctx->file_label, ctx->timestamp, 2, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+        if (parser->metadata_handler(ctx->file_label, ctx->input_encoding, ctx->timestamp, 2, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }

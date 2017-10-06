@@ -1035,8 +1035,7 @@ static readstat_error_t dta_begin_data(void *writer_ctx) {
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     
     dta_ctx_t *ctx = dta_ctx_alloc(NULL);
-    dta_header_t header;
-    memset(&header, 0, sizeof(dta_header_t));
+    dta_header_t header = {0};
 
     header.ds_format = writer->version;
     header.byteorder = machine_is_little_endian() ? DTA_LOHI : DTA_HILO;
