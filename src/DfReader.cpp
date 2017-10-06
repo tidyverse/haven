@@ -156,7 +156,7 @@ public:
     var_types_.resize(ncols_);
   }
 
-  void setMetadata(const char *file_label, time_t timestamp, long format_version) {
+  void setMetadata(const char *file_label, const char *orig_encoding, time_t timestamp, long format_version) {
     if (file_label != NULL && strcmp(file_label, "") != 0) {
       output_.attr("label") = CharacterVector::create(Rf_mkCharCE(file_label, CE_UTF8));
     }
@@ -408,8 +408,8 @@ int dfreader_info(int obs_count, int var_count, void *ctx) {
   return 0;
 }
 
-int dfreader_metadata(const char *file_label, time_t timestamp, long format_version, void *ctx) {
-  ((DfReader*) ctx)->setMetadata(file_label, timestamp, format_version);
+int dfreader_metadata(const char *file_label, const char *orig_encoding, time_t timestamp, long format_version, void *ctx) {
+  ((DfReader*) ctx)->setMetadata(file_label, orig_encoding, timestamp, format_version);
   return 0;
 }
 
