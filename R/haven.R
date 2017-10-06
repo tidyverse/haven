@@ -1,4 +1,4 @@
-#' @useDynLib haven
+#' @useDynLib haven, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
 #' @importFrom tibble tibble
 NULL

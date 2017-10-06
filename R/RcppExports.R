@@ -2,58 +2,58 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 df_parse_sas_file <- function(spec_b7dat, spec_b7cat, encoding, cols_only) {
-    .Call('haven_df_parse_sas_file', PACKAGE = 'haven', spec_b7dat, spec_b7cat, encoding, cols_only)
+    .Call(`_haven_df_parse_sas_file`, spec_b7dat, spec_b7cat, encoding, cols_only)
 }
 
 df_parse_sas_raw <- function(spec_b7dat, spec_b7cat, encoding, cols_only) {
-    .Call('haven_df_parse_sas_raw', PACKAGE = 'haven', spec_b7dat, spec_b7cat, encoding, cols_only)
+    .Call(`_haven_df_parse_sas_raw`, spec_b7dat, spec_b7cat, encoding, cols_only)
 }
 
 df_parse_xpt_file <- function(spec) {
-    .Call('haven_df_parse_xpt_file', PACKAGE = 'haven', spec)
+    .Call(`_haven_df_parse_xpt_file`, spec)
 }
 
 df_parse_xpt_raw <- function(spec) {
-    .Call('haven_df_parse_xpt_raw', PACKAGE = 'haven', spec)
+    .Call(`_haven_df_parse_xpt_raw`, spec)
 }
 
 df_parse_dta_file <- function(spec, encoding) {
-    .Call('haven_df_parse_dta_file', PACKAGE = 'haven', spec, encoding)
+    .Call(`_haven_df_parse_dta_file`, spec, encoding)
 }
 
 df_parse_dta_raw <- function(spec, encoding) {
-    .Call('haven_df_parse_dta_raw', PACKAGE = 'haven', spec, encoding)
+    .Call(`_haven_df_parse_dta_raw`, spec, encoding)
 }
 
 df_parse_sav_file <- function(spec, user_na) {
-    .Call('haven_df_parse_sav_file', PACKAGE = 'haven', spec, user_na)
+    .Call(`_haven_df_parse_sav_file`, spec, user_na)
 }
 
 df_parse_sav_raw <- function(spec, user_na) {
-    .Call('haven_df_parse_sav_raw', PACKAGE = 'haven', spec, user_na)
+    .Call(`_haven_df_parse_sav_raw`, spec, user_na)
 }
 
 df_parse_por_file <- function(spec, user_na) {
-    .Call('haven_df_parse_por_file', PACKAGE = 'haven', spec, user_na)
+    .Call(`_haven_df_parse_por_file`, spec, user_na)
 }
 
 df_parse_por_raw <- function(spec, user_na) {
-    .Call('haven_df_parse_por_raw', PACKAGE = 'haven', spec, user_na)
+    .Call(`_haven_df_parse_por_raw`, spec, user_na)
 }
 
 write_sav_ <- function(data, path) {
-    invisible(.Call('haven_write_sav_', PACKAGE = 'haven', data, path))
+    invisible(.Call(`_haven_write_sav_`, data, path))
 }
 
 write_dta_ <- function(data, path, version) {
-    invisible(.Call('haven_write_dta_', PACKAGE = 'haven', data, path, version))
+    invisible(.Call(`_haven_write_dta_`, data, path, version))
 }
 
 write_sas_ <- function(data, path) {
-    invisible(.Call('haven_write_sas_', PACKAGE = 'haven', data, path))
+    invisible(.Call(`_haven_write_sas_`, data, path))
 }
 
 write_xpt_ <- function(data, path, version) {
-    invisible(.Call('haven_write_xpt_', PACKAGE = 'haven', data, path, version))
+    invisible(.Call(`_haven_write_xpt_`, data, path, version))
 }
 

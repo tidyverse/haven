@@ -12,7 +12,6 @@
 #'   "tag" the missing value.
 #' @param x A numeric vector
 #' @param digits Number of digits to use in string representation
-#' @useDynLib haven tagged_na_
 #' @export
 #' @examples
 #' x <- c(1:5, tagged_na("a"), tagged_na("z"), NA)
@@ -37,7 +36,6 @@ tagged_na <- function(...) {
   .Call(tagged_na_, c(...))
 }
 
-#' @useDynLib haven na_tag_
 #' @rdname tagged_na
 #' @export
 na_tag <- function(x) {
@@ -45,7 +43,6 @@ na_tag <- function(x) {
 }
 
 #' @param tag If \code{NULL}, will only return true if the tag has this value.
-#' @useDynLib haven is_tagged_na_
 #' @rdname tagged_na
 #' @export
 is_tagged_na <- function(x, tag = NULL) {
