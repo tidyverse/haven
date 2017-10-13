@@ -14,7 +14,8 @@ test_that("constructor checks na_range", {
 })
 
 test_that("printed output is stable", {
-  x <- labelled_spss(1:5, c("Good" = 1, "Bad" = 5),
+  x <- labelled_spss(
+    1:5, c("Good" = 1, "Bad" = 5),
     na_value = c(1, 2),
     na_range = c(3, Inf)
   )
