@@ -14,4 +14,3 @@ test_that("can roundtrip missing values (as much as possible)", {
   expect_equal(roundtrip_var(NA_integer_, "xpt"), NA_integer_)
   expect_equal(roundtrip_var(NA_character_, "xpt"), "")
 })
-

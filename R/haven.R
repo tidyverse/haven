@@ -150,7 +150,7 @@ read_spss <- function(file, user_na = FALSE) {
   switch(ext,
     sav = read_sav(file, user_na = user_na),
     por = read_por(file, user_na = user_na),
-    stop("Unknown extension '.",  ext, "'", call. = FALSE)
+    stop("Unknown extension '.", ext, "'", call. = FALSE)
   )
 }
 

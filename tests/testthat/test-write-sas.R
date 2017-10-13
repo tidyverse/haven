@@ -27,4 +27,3 @@ test_that("can roundtrip date times", {
 test_that("infinity gets converted to NA", {
   expect_equal(roundtrip_var(c(Inf, 0, -Inf), "sas"), c(NA, 0, NA))
 })
-
