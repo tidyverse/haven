@@ -1,5 +1,8 @@
 # haven 1.1.0.9000
 
+* `write_dta()` now checks for bad labels in all columns, not just the first
+  (#326).
+
 # haven 1.1.0
 
 * Update to latest readstat. Includes:
