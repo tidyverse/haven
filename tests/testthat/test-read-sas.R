@@ -28,7 +28,6 @@ test_that("date times are converted into corresponding R types", {
   expect_equal(df$VAR3[1], as.Date("2015-02-02"))
   expect_equal(df$VAR4[1], as.Date("2015-02-02"))
   expect_equal(df$VAR5[1], hms::hms(52932))
-
 })
 
 test_that("tagged missings are read correctly", {

@@ -22,7 +22,7 @@ test_that("all labels (implicit missing values) are preserved when levels is 'de
   s1 <- labelled(rep(1, 3), c("A" = 1, "B" = 2, "C" = 3))
   exp <- factor(rep("A", 3), levels = c("A", "B", "C"))
   expect_equal(as_factor(s1), exp)
-  
+
   exp <- factor(rep("[1] A", 3), levels = c("[1] A", "[2] B", "[3] C"))
   expect_equal(as_factor(s1, levels = "both"), exp)
 })

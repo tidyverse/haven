@@ -17,7 +17,8 @@ test_that("labels must have names", {
 # methods -----------------------------------------------------------------
 
 test_that("printed output is stable", {
-  x <- labelled(c(1:5, NA, tagged_na("x", "y", "z")),
+  x <- labelled(
+    c(1:5, NA, tagged_na("x", "y", "z")),
     c(
       Good = 1,
       Bad = 5,

@@ -74,8 +74,8 @@ as_factor.labelled <- function(x, levels = c("default", "labels", "values", "bot
   } else {
     levs <- unname(labels)
     labs <- switch(levels,
-                   labels = names(labels),
-                   values = levs
+      labels = names(labels),
+      values = levs
     )
     x <- factor(x, levs, labels = labs, ordered = ordered)
   }
