@@ -77,14 +77,30 @@ readstat_error_t unistd_update_handler(long file_size,
     return READSTAT_OK;
 }
 
-void unistd_io_init(readstat_parser_t *parser) {
-    readstat_set_open_handler(parser, unistd_open_handler);
-    readstat_set_close_handler(parser, unistd_close_handler);
-    readstat_set_seek_handler(parser, unistd_seek_handler);
-    readstat_set_read_handler(parser, unistd_read_handler);
-    readstat_set_update_handler(parser, unistd_update_handler);
+readstat_error_t unistd_io_init(readstat_parser_t *parser) {
+    readstat_error_t retval = READSTAT_OK;
+    unistd_io_ctx_t *io_ctx = NULL;
 
-    unistd_io_ctx_t *io_ctx = calloc(1, sizeof(unistd_io_ctx_t));
+    if ((retval = readstat_set_open_handler(parser, unistd_open_handler)) != READSTAT_OK)
+        return retval;
+
+    if ((retval = readstat_set_close_handler(parser, unistd_close_handler)) != READSTAT_OK)
+        return retval;
+
+    if ((retval = readstat_set_seek_handler(parser, unistd_seek_handler)) != READSTAT_OK)
+        return retval;
+
+    if ((retval = readstat_set_read_handler(parser, unistd_read_handler)) != READSTAT_OK)
+        return retval;
+
+    if ((readstat_set_update_handler(parser, unistd_update_handler)) != READSTAT_OK)
+        return retval;
+
+    io_ctx = calloc(1, sizeof(unistd_io_ctx_t));
     io_ctx->fd = -1;
-    readstat_set_io_ctx(parser, (void*) io_ctx);
+
+    retval = readstat_set_io_ctx(parser, (void*) io_ctx);
+    parser->io->io_ctx_needs_free = 1;
+
+    return retval;
 }

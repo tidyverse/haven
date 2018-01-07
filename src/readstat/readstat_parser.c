@@ -6,15 +6,20 @@
 readstat_parser_t *readstat_parser_init() {
     readstat_parser_t *parser = calloc(1, sizeof(readstat_parser_t));
     parser->io = calloc(1, sizeof(readstat_io_t));
-    unistd_io_init(parser);
+    if (unistd_io_init(parser) != READSTAT_OK) {
+        readstat_parser_free(parser);
+        return NULL;
+    }
     parser->output_encoding = "UTF-8";
     return parser;
 }
 
 void readstat_parser_free(readstat_parser_t *parser) {
     if (parser) {
-        if (parser->io)
+        if (parser->io) {
+            readstat_set_io_ctx(parser, NULL);
             free(parser->io);
+        }
         free(parser);
     }
 }
@@ -90,11 +95,12 @@ readstat_error_t readstat_set_update_handler(readstat_parser_t *parser, readstat
 }
 
 readstat_error_t readstat_set_io_ctx(readstat_parser_t *parser, void *io_ctx) {
-    if (!parser->io->external_io)
+    if (parser->io->io_ctx_needs_free) {
         free(parser->io->io_ctx);
+    }
 
     parser->io->io_ctx = io_ctx;
-    parser->io->external_io = 1;
+    parser->io->io_ctx_needs_free = 0;
 
     return READSTAT_OK;
 }

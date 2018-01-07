@@ -677,7 +677,7 @@ static readstat_error_t sav_read_uncompressed_data(sav_ctx_t *ctx) {
 
     buffer = malloc(buffer_len);
 
-    while (ctx->current_row < ctx->row_limit) {
+    while (ctx->row_limit == -1 || ctx->current_row < ctx->row_limit) {
         retval = sav_update_progress(ctx);
         if (retval != READSTAT_OK)
             goto done;
@@ -1352,8 +1352,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
     ctx->output_encoding = parser->output_encoding;
     ctx->user_ctx = user_ctx;
     ctx->file_size = file_size;
-    if (ctx->record_count == -1 ||
-            (parser->row_limit > 0 && parser->row_limit < ctx->record_count)) {
+    if (parser->row_limit > 0 && (parser->row_limit < ctx->record_count || ctx->record_count == -1)) {
         ctx->row_limit = parser->row_limit;
     } else {
         ctx->row_limit = ctx->record_count;

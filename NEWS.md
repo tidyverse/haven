@@ -1,5 +1,9 @@
 # haven 1.1.0.9000
 
+* Update to latest readstat. Includes:
+
+  * SPSS: empty charater columns now read as character (#311)
+
 * `write_dta()` now checks for bad labels in all columns, not just the first
   (#326).
 

@@ -147,7 +147,7 @@ typedef struct readstat_missingness_s {
 typedef struct readstat_variable_s {
     readstat_type_t         type;
     int                     index;
-    char                    name[256];
+    char                    name[300];
     char                    format[256];
     char                    label[1024];
     readstat_label_set_t   *label_set;
@@ -176,7 +176,7 @@ readstat_type_class_t readstat_value_type_class(readstat_value_t value);
  *    SAS files.
  * 3. Defined missing. The value is a real number but is to be treated as
  *    missing according to the variable's missingness rules (such as "value < 0 ||
- *    value == 999"). Occurs only in spss files. access the rules via:
+ *    value == 999"). Occurs only in SPSS files. access the rules via:
  *
  *       readstat_variable_get_missing_ranges_count()
  *       readstat_variable_get_missing_range_lo()
@@ -267,7 +267,7 @@ typedef struct readstat_io_s {
     readstat_read_handler          read;
     readstat_update_handler        update;
     void                          *io_ctx;
-    int                            external_io;
+    int                            io_ctx_needs_free;
 } readstat_io_t;
 
 typedef struct readstat_parser_s {
@@ -286,7 +286,7 @@ typedef struct readstat_parser_s {
     long                           row_limit;
 } readstat_parser_t;
 
-readstat_parser_t *readstat_parser_init();
+readstat_parser_t *readstat_parser_init(void);
 void readstat_parser_free(readstat_parser_t *parser);
 void readstat_io_free(readstat_io_t *io);
 
@@ -415,7 +415,7 @@ typedef struct readstat_writer_s {
 
 
 // First call this...
-readstat_writer_t *readstat_writer_init();
+readstat_writer_t *readstat_writer_init(void);
 
 // Then specify a function that will handle the output bytes...
 readstat_error_t readstat_set_data_writer(readstat_writer_t *writer, readstat_data_writer data_writer);
