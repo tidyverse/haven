@@ -289,8 +289,22 @@ static readstat_error_t xport_write_descriptor_header_record(readstat_writer_t *
     return xport_write_header_record(writer, &xrecord);
 }
 
+static readstat_error_t xport_write_member_record_v8(readstat_writer_t *writer,
+        char *timestamp) {
+    char member_header[RECORD_LEN+1];
+
+    snprintf(member_header, sizeof(member_header),
+            "%-8.8s" "%-32.32s"   "%-8.8s"   "%-8.8s" "%-8.8s" "%16.16s",
+            "SAS",   "DATASET", "SASDATA", "6.06",  "bsd4.2", timestamp);
+
+    return xport_write_record(writer, member_header);
+}
+
 static readstat_error_t xport_write_member_record(readstat_writer_t *writer,
         char *timestamp) {
+    if (writer->version == 8)
+        return xport_write_member_record_v8(writer, timestamp);
+
     char member_header[RECORD_LEN+1];
     snprintf(member_header, sizeof(member_header),
             "%-8.8s" "%-8.8s"   "%-8.8s"   "%-8.8s" "%-8.8s"  "%-24.24s" "%16.16s",

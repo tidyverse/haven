@@ -264,6 +264,12 @@ readstat_label_set_t *readstat_get_label_set(readstat_writer_t *writer, int inde
     return NULL;
 }
 
+void readstat_sort_label_set(readstat_label_set_t *label_set,
+        int (*compare)(const readstat_value_label_t *, const readstat_value_label_t *)) {
+    qsort(label_set->value_labels, label_set->value_labels_count, sizeof(readstat_value_label_t),
+            (int (*)(const void *, const void *))compare);
+}
+
 readstat_value_label_t *readstat_get_value_label(readstat_label_set_t *label_set, int index) {
     if (index < label_set->value_labels_count) {
         return &label_set->value_labels[index];

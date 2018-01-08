@@ -646,6 +646,19 @@ cleanup:
     return retval;
 }
 
+static int dta_compare_value_labels(const readstat_value_label_t *vl1, const readstat_value_label_t *vl2) {
+    if (vl1->tag) {
+        if (vl2->tag) {
+            return vl1->tag - vl2->tag;
+        }
+        return 1;
+    }
+    if (vl2->tag) {
+        return -1;
+    }
+    return vl1->int32_key - vl2->int32_key;
+}
+
 static readstat_error_t dta_emit_value_labels(readstat_writer_t *writer, dta_ctx_t *ctx) {
     if (ctx->value_label_table_len_len == 2)
         return dta_old_emit_value_labels(writer, ctx);
@@ -707,6 +720,8 @@ static readstat_error_t dta_emit_value_labels(readstat_writer_t *writer, dta_ctx
         txt = realloc(txt, txtlen);
 
         readstat_off_t offset = 0;
+
+        readstat_sort_label_set(r_label_set, &dta_compare_value_labels);
 
         for (j=0; j<n; j++) {
             readstat_value_label_t *value_label = readstat_get_value_label(r_label_set, j);
