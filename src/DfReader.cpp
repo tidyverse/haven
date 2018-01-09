@@ -11,7 +11,7 @@ using namespace Rcpp;
 double haven_double_value_udm(readstat_value_t value, readstat_variable_t* var, bool user_na) {
   if (readstat_value_is_tagged_missing(value)) {
     return make_tagged_na(tolower(readstat_value_tag(value)));
-  } else if (!user_na & readstat_value_is_defined_missing(value, var)) {
+  } else if (!user_na && readstat_value_is_defined_missing(value, var)) {
     return NA_REAL;
   } else if (readstat_value_is_system_missing(value)) {
     return NA_REAL;
@@ -44,8 +44,7 @@ public:
     if (values_i_.size() > 0 || values_d_.size() > 0)
       stop("Can't add string to integer/double labelset");
 
-    std::string string(value);
-    values_s_.push_back(string);
+    values_s_.push_back(value);
     labels_.push_back(label);
   }
 
@@ -465,7 +464,8 @@ public:
     switch(whence) {
     case READSTAT_SEEK_SET: dir = file_.beg; break;
     case READSTAT_SEEK_CUR: dir = file_.cur; break;
-    case READSTAT_SEEK_END: dir = file_.end; break;
+    case READSTAT_SEEK_END:
+    default:                dir = file_.end; break;
     }
 
     file_.seekg(offset, dir);
