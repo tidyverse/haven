@@ -340,7 +340,7 @@ static readstat_error_t sas7bdat_handle_data_value(readstat_variable_t *variable
         if (retval != READSTAT_OK) {
             if (ctx->error_handler) {
                 snprintf(ctx->error_buf, sizeof(ctx->error_buf),
-                        "ReadStat: Error converting string to specified encoding: %.*s\n",
+                        "ReadStat: Error converting string to specified encoding: %.*s",
                         col_info->width, col_data);
                 ctx->error_handler(ctx->error_buf, ctx->user_ctx);
             }
@@ -454,7 +454,7 @@ static readstat_error_t sas7bdat_parse_subheader_rle(const char *subheader, size
         retval = READSTAT_ERROR_ROW_WIDTH_MISMATCH;
         if (ctx->error_handler) {
             snprintf(ctx->error_buf, sizeof(ctx->error_buf), 
-                    "ReadStat: Row #%d decompressed to %ld bytes (expected %d bytes)\n",
+                    "ReadStat: Row #%d decompressed to %ld bytes (expected %d bytes)",
                     ctx->parsed_row_count, (long)(bytes_decompressed), ctx->row_length);
             ctx->error_handler(ctx->error_buf, ctx->user_ctx);
         }
@@ -534,7 +534,7 @@ cleanup:
         if (retval == READSTAT_ERROR_CONVERT_BAD_STRING) {
             if (ctx->error_handler) {
                 snprintf(ctx->error_buf, sizeof(ctx->error_buf),
-                        "ReadStat: Error converting variable #%d info to specified encoding: %s %s (%s)\n",
+                        "ReadStat: Error converting variable #%d info to specified encoding: %s %s (%s)",
                         i, variable->name, variable->format, variable->label);
                 ctx->error_handler(ctx->error_buf, ctx->user_ctx);
             }
@@ -816,7 +816,7 @@ static readstat_error_t sas7bdat_parse_meta_pages_pass1(sas7bdat_ctx_t *ctx, int
             if (ctx->error_handler && retval != READSTAT_ERROR_USER_ABORT) {
                 int64_t pos = io->seek(0, READSTAT_SEEK_CUR, io->io_ctx);
                 snprintf(ctx->error_buf, sizeof(ctx->error_buf), 
-                        "ReadStat: Error parsing page %" PRId64 ", bytes %" PRId64 "-%" PRId64 "\n", 
+                        "ReadStat: Error parsing page %" PRId64 ", bytes %" PRId64 "-%" PRId64, 
                         i, pos - ctx->page_size, pos-1);
                 ctx->error_handler(ctx->error_buf, ctx->user_ctx);
             }
@@ -882,7 +882,7 @@ static readstat_error_t sas7bdat_parse_amd_pages_pass1(int64_t last_examined_pag
             if (ctx->error_handler && retval != READSTAT_ERROR_USER_ABORT) {
                 int64_t pos = io->seek(0, READSTAT_SEEK_CUR, io->io_ctx);
                 snprintf(ctx->error_buf, sizeof(ctx->error_buf), 
-                        "ReadStat: Error parsing page %" PRId64 ", bytes %" PRId64 "-%" PRId64 "\n", 
+                        "ReadStat: Error parsing page %" PRId64 ", bytes %" PRId64 "-%" PRId64, 
                         i, pos - ctx->page_size, pos-1);
                 ctx->error_handler(ctx->error_buf, ctx->user_ctx);
             }
@@ -915,7 +915,7 @@ static readstat_error_t sas7bdat_parse_all_pages_pass2(sas7bdat_ctx_t *ctx) {
             if (ctx->error_handler && retval != READSTAT_ERROR_USER_ABORT) {
                 int64_t pos = io->seek(0, READSTAT_SEEK_CUR, io->io_ctx);
                 snprintf(ctx->error_buf, sizeof(ctx->error_buf), 
-                        "ReadStat: Error parsing page %" PRId64 ", bytes %" PRId64 "-%" PRId64 "\n", 
+                        "ReadStat: Error parsing page %" PRId64 ", bytes %" PRId64 "-%" PRId64, 
                         i, pos - ctx->page_size, pos-1);
                 ctx->error_handler(ctx->error_buf, ctx->user_ctx);
             }
@@ -957,7 +957,7 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
     if ((ctx->file_size = io->seek(0, READSTAT_SEEK_END, io->io_ctx)) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (ctx->error_handler) {
-            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "ReadStat: Failed to seek to end of file\n");
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "ReadStat: Failed to seek to end of file");
             ctx->error_handler(ctx->error_buf, ctx->user_ctx);
         }
         goto cleanup;
@@ -966,7 +966,7 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
     if (io->seek(0, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (ctx->error_handler) {
-            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "ReadStat: Failed to seek to beginning of file\n");
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "ReadStat: Failed to seek to beginning of file");
             ctx->error_handler(ctx->error_buf, ctx->user_ctx);
         }
         goto cleanup;
@@ -1020,7 +1020,7 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
     if (io->seek(ctx->header_size, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (ctx->error_handler) {
-            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "ReadStat: Failed to seek to position %" PRId64 "\n", 
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "ReadStat: Failed to seek to position %" PRId64, 
                     ctx->header_size);
             ctx->error_handler(ctx->error_buf, ctx->user_ctx);
         }
@@ -1038,7 +1038,7 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
     if (ctx->value_handler && ctx->parsed_row_count != ctx->row_limit) {
         retval = READSTAT_ERROR_ROW_COUNT_MISMATCH;
         if (ctx->error_handler) {
-            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "ReadStat: Expected %d rows in file, found %d\n",
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "ReadStat: Expected %d rows in file, found %d",
                     ctx->row_limit, ctx->parsed_row_count);
             ctx->error_handler(ctx->error_buf, ctx->user_ctx);
         }
@@ -1056,7 +1056,7 @@ cleanup:
             retval == READSTAT_ERROR_READ ||
             retval == READSTAT_ERROR_SEEK) {
         if (ctx->error_handler) {
-            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "ReadStat: %s (retval = %d): %s (errno = %d)\n", 
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "ReadStat: %s (retval = %d): %s (errno = %d)", 
                     readstat_error_message(retval), retval, strerror(errno), errno);
             ctx->error_handler(ctx->error_buf, user_ctx);
         }

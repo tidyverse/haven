@@ -59,6 +59,7 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 65,    .name = "WINDOWS-1255" },
     { .code = 66,    .name = "WINDOWS-1256" },
     { .code = 67,    .name = "WINDOWS-1257" },
+    { .code = 68,    .name = "WINDOWS-1258" },
     { .code = 119,   .name = "EUC-TW" },
     { .code = 123,   .name = "BIG-5" },
     { .code = 125,   .name = "GB18030" }, // "euc-cn" in SAS
@@ -138,7 +139,7 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
     }
     if (hinfo->encoding == NULL) {
         if (error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Unsupported character set code: %d\n", header_start.encoding);
+            snprintf(error_buf, sizeof(error_buf), "Unsupported character set code: %d", header_start.encoding);
             error_handler(error_buf, user_ctx);
         }
         retval = READSTAT_ERROR_UNSUPPORTED_CHARSET;
@@ -221,7 +222,7 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
     if (io->seek(8, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek forward by %d\n", 8);
+            snprintf(error_buf, sizeof(error_buf), "ReadStat: Failed to seek forward by %d", 8);
             error_handler(error_buf, user_ctx);
         }
         goto cleanup;
@@ -246,7 +247,7 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
         retval = READSTAT_ERROR_SEEK;
         if (error_handler) {
             snprintf(error_buf, sizeof(error_buf), 
-                    "ReadStat: Failed to seek to position %" PRId64 "\n", hinfo->header_size);
+                    "ReadStat: Failed to seek to position %" PRId64, hinfo->header_size);
             error_handler(error_buf, user_ctx);
         }
         goto cleanup;

@@ -203,7 +203,7 @@ _again:
 
     if (cs < 9|| p != pe) {
         if (ctx->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Invalid time string (length=%d): %*s", (int)len, (int)-len, data);
+            snprintf(error_buf, sizeof(error_buf), "Invalid time string (length=%d): %.*s", (int)len, (int)len, data);
             ctx->error_handler(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_BAD_TIMESTAMP;
@@ -514,7 +514,7 @@ _again:
 
     if (cs < 47|| p != pe) {
         if (ctx->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Invalid date string (length=%d): %*s", (int)len, (int)-len, data);
+            snprintf(error_buf, sizeof(error_buf), "Invalid date string (length=%d): %.*s", (int)len, (int)len, data);
             ctx->error_handler(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_BAD_TIMESTAMP;

@@ -113,7 +113,7 @@ static readstat_error_t read_double_with_peek(por_ctx_t *ctx, double *out_double
     len = por_utf8_encode(buffer, i, utf8_buffer, sizeof(utf8_buffer), ctx->byte2unicode);
     if (len == -1) {
         if (ctx->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Error converting double string (length=%" PRId64 "): %*s", 
+            snprintf(error_buf, sizeof(error_buf), "Error converting double string (length=%" PRId64 "): %.*s", 
                     i, (int)i, buffer);
             ctx->error_handler(error_buf, ctx->user_ctx);
         }
@@ -124,7 +124,7 @@ static readstat_error_t read_double_with_peek(por_ctx_t *ctx, double *out_double
     bytes_read = readstat_por_parse_double(utf8_buffer, len, &value, ctx->error_handler, ctx->user_ctx);
     if (bytes_read == -1) {
         if (ctx->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Error parsing double string (length=%" PRId64 "): %*s [%s]", 
+            snprintf(error_buf, sizeof(error_buf), "Error parsing double string (length=%" PRId64 "): %.*s [%s]", 
                     len, (int)len, utf8_buffer, buffer);
             ctx->error_handler(error_buf, ctx->user_ctx);
         }
@@ -199,7 +199,7 @@ static readstat_error_t maybe_read_string(por_ctx_t *ctx, char *data, size_t len
             data, len - 1, ctx->byte2unicode);
     if (bytes_encoded == -1) {
         if (ctx->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Error converting string: %*s", 
+            snprintf(error_buf, sizeof(error_buf), "Error converting string: %.*s", 
                     (int)string_length, ctx->string_buffer);
             ctx->error_handler(error_buf, ctx->user_ctx);
         }
@@ -730,7 +730,7 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
     
     if (por_utf8_encode(check, sizeof(check), tr_check, sizeof(tr_check), ctx->byte2unicode) == -1) {
         if (ctx->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Error converting check string: %*s\n", (int)sizeof(check), check);
+            snprintf(error_buf, sizeof(error_buf), "Error converting check string: %.*s", (int)sizeof(check), check);
             ctx->error_handler(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_CONVERT;

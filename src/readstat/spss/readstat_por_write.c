@@ -36,7 +36,7 @@ static readstat_error_t por_write_string_n(readstat_writer_t *writer, por_write_
             ctx->unicode2byte, ctx->unicode2byte_len);
     if (output_len == -1) {
         if (writer->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Error converting string (length=%" PRId64 "): %*s", 
+            snprintf(error_buf, sizeof(error_buf), "Error converting string (length=%" PRId64 "): %.*s", 
                     (int64_t)input_len, (int)input_len, string);
             writer->error_handler(error_buf, writer->user_ctx);
         }

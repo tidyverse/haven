@@ -5,6 +5,7 @@
   * SPSS: empty charater columns now read as character (#311)
   * SPSS: now write long strings (#266)
   * Stata: reorder labelled vectors on write (#327)
+  * SAS: can now write wide/long rows (#272, #335).
 
 * `write_dta()` now checks for bad labels in all columns, not just the first
   (#326).

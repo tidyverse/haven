@@ -317,7 +317,7 @@ _again:
 
     if (cs < 40|| p != pe) {
         if (ctx->error_handler) {
-            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Invalid timestamp string (length=%d): %*s", (int)len, (int)-len, data);
+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Invalid timestamp string (length=%d): %.*s", (int)len, (int)len, data);
             ctx->error_handler(ctx->error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_BAD_TIMESTAMP;

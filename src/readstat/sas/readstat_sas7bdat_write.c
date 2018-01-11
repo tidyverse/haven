@@ -213,10 +213,14 @@ static sas7bdat_subheader_t *sas7bdat_col_size_subheader_init(readstat_writer_t 
     return subheader;
 }
 
+static size_t sas7bdat_col_name_subheader_length(readstat_writer_t *writer,
+        sas_header_info_t *hinfo) {
+    return (hinfo->u64 ? 28+8*writer->variables_count : 20+8*writer->variables_count);
+}
+
 static sas7bdat_subheader_t *sas7bdat_col_name_subheader_init(readstat_writer_t *writer,
         sas_header_info_t *hinfo, sas7bdat_column_text_array_t *column_text_array) {
-    size_t len = (hinfo->u64 ? 28+8*writer->variables_count :
-            20+8*writer->variables_count);
+    size_t len = sas7bdat_col_name_subheader_length(writer, hinfo);
     size_t signature_len = hinfo->u64 ? 8 : 4;
     uint16_t remainder = len - (4+2*signature_len);
     sas7bdat_subheader_t *subheader = sas7bdat_subheader_init(
@@ -238,10 +242,14 @@ static sas7bdat_subheader_t *sas7bdat_col_name_subheader_init(readstat_writer_t 
     return subheader;
 }
 
+static size_t sas7bdat_col_attrs_subheader_length(readstat_writer_t *writer,
+        sas_header_info_t *hinfo) {
+    return (hinfo->u64 ? 28+16*writer->variables_count : 20+12*writer->variables_count);
+}
+
 static sas7bdat_subheader_t *sas7bdat_col_attrs_subheader_init(readstat_writer_t *writer,
         sas_header_info_t *hinfo) {
-    size_t len = (hinfo->u64 ? 28+16*writer->variables_count :
-            20+12*writer->variables_count);
+    size_t len = sas7bdat_col_attrs_subheader_length(writer, hinfo);
     size_t signature_len = hinfo->u64 ? 8 : 4;
     uint16_t remainder = len - (4+2*signature_len);
     sas7bdat_subheader_t *subheader = sas7bdat_subheader_init(
@@ -493,14 +501,32 @@ cleanup:
     return retval;
 }
 
+static int sas7bdat_page_is_too_small(readstat_writer_t *writer, sas_header_info_t *hinfo, size_t row_length) {
+    size_t page_length = hinfo->page_size - hinfo->page_header_size;
+
+    if (writer->compression == READSTAT_COMPRESS_NONE && page_length < row_length)
+        return 1;
+
+    if (writer->compression == READSTAT_COMPRESS_ROWS && page_length < row_length + hinfo->subheader_pointer_size)
+        return 1;
+
+    if (page_length < sas7bdat_col_name_subheader_length(writer, hinfo) + hinfo->subheader_pointer_size)
+        return 1;
+
+    if (page_length < sas7bdat_col_attrs_subheader_length(writer, hinfo) + hinfo->subheader_pointer_size)
+        return 1;
+
+    return 0;
+}
+
 static sas7bdat_write_ctx_t *sas7bdat_write_ctx_init(readstat_writer_t *writer) {
     sas7bdat_write_ctx_t *ctx = calloc(1, sizeof(sas7bdat_write_ctx_t));
 
-    size_t row_length = sas7bdat_row_length(writer);
     sas_header_info_t *hinfo = sas_header_info_init(writer, writer->is_64bit);
 
-    while (writer->compression == READSTAT_COMPRESS_NONE &&
-        hinfo->page_size - hinfo->page_header_size < row_length) {
+    size_t row_length = sas7bdat_row_length(writer);
+
+    while (sas7bdat_page_is_too_small(writer, hinfo, row_length)) {
         hinfo->page_size <<= 1;
     }
 
