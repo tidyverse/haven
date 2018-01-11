@@ -308,21 +308,22 @@ static int dta_compare_strls(const void *elem1, const void *elem2) {
     return key->v - target->v;
 }
 
-static void dta_interpret_strl_vo_bytes(dta_ctx_t *ctx, unsigned char *vo_bytes, dta_strl_t *strl) {
+static dta_strl_t dta_interpret_strl_vo_bytes(dta_ctx_t *ctx, const unsigned char *vo_bytes) {
+    dta_strl_t strl = {0};
     int file_is_big_endian = (!machine_is_little_endian() ^ ctx->bswap);
 
     if (ctx->strl_v_len == 2) {
         if (file_is_big_endian) {
-            strl->v = (vo_bytes[0] << 8) + vo_bytes[1];
-            strl->o = (((uint64_t)vo_bytes[2] << 40) 
+            strl.v = (vo_bytes[0] << 8) + vo_bytes[1];
+            strl.o = (((uint64_t)vo_bytes[2] << 40) 
                     + ((uint64_t)vo_bytes[3] << 32)
                     + (vo_bytes[4] << 24) 
                     + (vo_bytes[5] << 16)
                     + (vo_bytes[6] << 8) 
                     + vo_bytes[7]);
         } else {
-            strl->v = vo_bytes[0] + (vo_bytes[1] << 8);
-            strl->o = (vo_bytes[2] + (vo_bytes[3] << 8)
+            strl.v = vo_bytes[0] + (vo_bytes[1] << 8);
+            strl.o = (vo_bytes[2] + (vo_bytes[3] << 8)
                     + (vo_bytes[4] << 16) + (vo_bytes[5] << 24)
                     + ((uint64_t)vo_bytes[6] << 32) 
                     + ((uint64_t)vo_bytes[7] << 40));
@@ -333,9 +334,10 @@ static void dta_interpret_strl_vo_bytes(dta_ctx_t *ctx, unsigned char *vo_bytes,
         memcpy(&v, &vo_bytes[0], sizeof(uint32_t));
         memcpy(&o, &vo_bytes[4], sizeof(uint32_t));
 
-        strl->v = ctx->bswap ? byteswap4(v) : v;
-        strl->o = ctx->bswap ? byteswap4(o) : o;
+        strl.v = ctx->bswap ? byteswap4(v) : v;
+        strl.o = ctx->bswap ? byteswap4(o) : o;
     }
+    return strl;
 }
 
 static readstat_error_t dta_117_read_strl(dta_ctx_t *ctx, dta_strl_t *strl) {
@@ -452,10 +454,170 @@ cleanup:
     return retval;
 }
 
+static readstat_value_t dta_interpret_int8_bytes(dta_ctx_t *ctx, const unsigned char *buf) {
+    readstat_value_t value = { .type = READSTAT_TYPE_INT8 };
+    int8_t byte = (int8_t)buf[0];
+    if (ctx->machine_is_twos_complement) {
+        byte = ones_to_twos_complement1(byte);
+    }
+    if (byte > ctx->max_int8) {
+        if (ctx->supports_tagged_missing && byte > DTA_113_MISSING_INT8) {
+            value.tag = 'a' + (byte - DTA_113_MISSING_INT8_A);
+            value.is_tagged_missing = 1;
+        } else {
+            value.is_system_missing = 1;
+        }
+    }
+    value.v.i8_value = byte;
+
+    return value;
+}
+
+static readstat_value_t dta_interpret_int16_bytes(dta_ctx_t *ctx, const unsigned char *buf) {
+    readstat_value_t value = { .type = READSTAT_TYPE_INT16 };
+    int16_t num = 0;
+    memcpy(&num, buf, sizeof(int16_t));
+    if (ctx->bswap) {
+        num = byteswap2(num);
+    }
+    if (ctx->machine_is_twos_complement) {
+        num = ones_to_twos_complement2(num);
+    }
+    if (num > ctx->max_int16) {
+        if (ctx->supports_tagged_missing && num > DTA_113_MISSING_INT16) {
+            value.tag = 'a' + (num - DTA_113_MISSING_INT16_A);
+            value.is_tagged_missing = 1;
+        } else {
+            value.is_system_missing = 1;
+        }
+    }
+    value.v.i16_value = num;
+
+    return value;
+}
+
+static readstat_value_t dta_interpret_int32_bytes(dta_ctx_t *ctx, const unsigned char *buf) {
+    readstat_value_t value = { .type = READSTAT_TYPE_INT32 };
+    int32_t num = 0;
+    memcpy(&num, buf, sizeof(int32_t));
+    if (ctx->bswap) {
+        num = byteswap4(num);
+    }
+    if (ctx->machine_is_twos_complement) {
+        num = ones_to_twos_complement4(num);
+    }
+    if (num > ctx->max_int32) {
+        if (ctx->supports_tagged_missing && num > DTA_113_MISSING_INT32) {
+            value.tag = 'a' + (num - DTA_113_MISSING_INT32_A);
+            value.is_tagged_missing = 1;
+        } else {
+            value.is_system_missing = 1;
+        }
+    }
+    value.v.i32_value = num;
+
+    return value;
+}
+
+static readstat_value_t dta_interpret_float_bytes(dta_ctx_t *ctx, const unsigned char *buf) {
+    readstat_value_t value = { .type = READSTAT_TYPE_FLOAT };
+    float f_num = NAN;
+    int32_t num = 0;
+    memcpy(&num, buf, sizeof(int32_t));
+    if (ctx->bswap) {
+        num = byteswap4(num);
+    }
+    if (num > ctx->max_float) {
+        if (ctx->supports_tagged_missing && num > DTA_113_MISSING_FLOAT) {
+            value.tag = 'a' + ((num - DTA_113_MISSING_FLOAT_A) >> 11);
+            value.is_tagged_missing = 1;
+        } else {
+            value.is_system_missing = 1;
+        }
+    } else {
+        memcpy(&f_num, &num, sizeof(int32_t));
+    }
+    value.v.float_value = f_num;
+
+    return value;
+}
+
+static readstat_value_t dta_interpret_double_bytes(dta_ctx_t *ctx, const unsigned char *buf) {
+    readstat_value_t value = { .type = READSTAT_TYPE_DOUBLE };
+    double d_num = NAN;
+    int64_t num = 0;
+    memcpy(&num, buf, sizeof(int64_t));
+    if (ctx->bswap) {
+        num = byteswap8(num);
+    }
+    if (num > ctx->max_double) {
+        if (ctx->supports_tagged_missing && num > DTA_113_MISSING_DOUBLE) {
+            value.tag = 'a' + ((num - DTA_113_MISSING_DOUBLE_A) >> 40);
+            value.is_tagged_missing = 1;
+        } else {
+            value.is_system_missing = 1;
+        }
+    } else {
+        memcpy(&d_num, &num, sizeof(int64_t));
+    }
+    value.v.double_value = d_num;
+
+    return value;
+}
+
+static readstat_error_t dta_handle_row(const unsigned char *buf, dta_ctx_t *ctx) {
+    char  str_buf[2048];
+    int j;
+    readstat_off_t offset = 0;
+    readstat_error_t retval = READSTAT_OK;
+    for (j=0; j<ctx->nvar; j++) {
+        size_t max_len;
+        readstat_value_t value = { { 0 } };
+
+        value.type = dta_type_info(ctx->typlist[j], &max_len, ctx);
+
+        if (ctx->variables[j]->skip) {
+            offset += max_len;
+            continue;
+        }
+
+        if (value.type == READSTAT_TYPE_STRING) {
+            readstat_convert(str_buf, sizeof(str_buf), (const char *)&buf[offset], max_len, ctx->converter);
+            value.v.string_value = str_buf;
+        } else if (value.type == READSTAT_TYPE_STRING_REF) {
+            dta_strl_t key = dta_interpret_strl_vo_bytes(ctx, &buf[offset]);
+            dta_strl_t **found = bsearch(&key, ctx->strls, ctx->strls_count, sizeof(dta_strl_t *), &dta_compare_strls);
+
+            if (found) {
+                value.v.string_value = (*found)->data;
+            }
+            value.type = READSTAT_TYPE_STRING;
+        } else if (value.type == READSTAT_TYPE_INT8) {
+            value = dta_interpret_int8_bytes(ctx, &buf[offset]);
+        } else if (value.type == READSTAT_TYPE_INT16) {
+            value = dta_interpret_int16_bytes(ctx, &buf[offset]);
+        } else if (value.type == READSTAT_TYPE_INT32) {
+            value = dta_interpret_int32_bytes(ctx, &buf[offset]);
+        } else if (value.type == READSTAT_TYPE_FLOAT) {
+            value = dta_interpret_float_bytes(ctx, &buf[offset]);
+        } else if (value.type == READSTAT_TYPE_DOUBLE) {
+            value = dta_interpret_double_bytes(ctx, &buf[offset]);
+        }
+
+        if (ctx->value_handler(ctx->current_row, ctx->variables[j], value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+            retval = READSTAT_ERROR_USER_ABORT;
+            goto cleanup;
+        }
+
+        offset += max_len;
+    }
+cleanup:
+    return retval;
+}
+
 static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
     readstat_io_t *io = ctx->io;
-    char *buf = NULL;
-    char  str_buf[2048];
+    unsigned char *buf = NULL;
     int i;
     readstat_error_t retval = READSTAT_OK;
 
@@ -469,122 +631,8 @@ static readstat_error_t dta_handle_rows(dta_ctx_t *ctx) {
             retval = READSTAT_ERROR_READ;
             goto cleanup;
         }
-        int j;
-        readstat_off_t offset = 0;
-        for (j=0; j<ctx->nvar; j++) {
-            size_t max_len;
-            readstat_value_t value = { { 0 } };
-
-            value.type = dta_type_info(ctx->typlist[j], &max_len, ctx);
-
-            if (ctx->variables[j]->skip) {
-                offset += max_len;
-                continue;
-            }
-
-            if (value.type == READSTAT_TYPE_STRING) {
-                readstat_convert(str_buf, sizeof(str_buf), &buf[offset], max_len, ctx->converter);
-                value.v.string_value = str_buf;
-            } else if (value.type == READSTAT_TYPE_STRING_REF) {
-                dta_strl_t key = {0};
-                dta_interpret_strl_vo_bytes(ctx, (unsigned char *)&buf[offset], &key);
-
-                dta_strl_t **found = bsearch(&key, ctx->strls, ctx->strls_count, sizeof(dta_strl_t *), &dta_compare_strls);
-
-                if (found) {
-                    value.v.string_value = (*found)->data;
-                }
-                value.type = READSTAT_TYPE_STRING;
-            } else if (value.type == READSTAT_TYPE_INT8) {
-                int8_t byte = buf[offset];
-                if (ctx->machine_is_twos_complement) {
-                    byte = ones_to_twos_complement1(byte);
-                }
-                if (byte > ctx->max_int8) {
-                    if (ctx->supports_tagged_missing && byte > DTA_113_MISSING_INT8) {
-                        value.tag = 'a' + (byte - DTA_113_MISSING_INT8_A);
-                        value.is_tagged_missing = 1;
-                    } else {
-                        value.is_system_missing = 1;
-                    }
-                }
-                value.v.i8_value = byte;
-            } else if (value.type == READSTAT_TYPE_INT16) {
-                int16_t num = *((int16_t *)&buf[offset]);
-                if (ctx->bswap) {
-                    num = byteswap2(num);
-                }
-                if (ctx->machine_is_twos_complement) {
-                    num = ones_to_twos_complement2(num);
-                }
-                if (num > ctx->max_int16) {
-                    if (ctx->supports_tagged_missing && num > DTA_113_MISSING_INT16) {
-                        value.tag = 'a' + (num - DTA_113_MISSING_INT16_A);
-                        value.is_tagged_missing = 1;
-                    } else {
-                        value.is_system_missing = 1;
-                    }
-                }
-                value.v.i16_value = num;
-            } else if (value.type == READSTAT_TYPE_INT32) {
-                int32_t num = *((int32_t *)&buf[offset]);
-                if (ctx->bswap) {
-                    num = byteswap4(num);
-                }
-                if (ctx->machine_is_twos_complement) {
-                    num = ones_to_twos_complement4(num);
-                }
-                if (num > ctx->max_int32) {
-                    if (ctx->supports_tagged_missing && num > DTA_113_MISSING_INT32) {
-                        value.tag = 'a' + (num - DTA_113_MISSING_INT32_A);
-                        value.is_tagged_missing = 1;
-                    } else {
-                        value.is_system_missing = 1;
-                    }
-                }
-                value.v.i32_value = num;
-            } else if (value.type == READSTAT_TYPE_FLOAT) {
-                int32_t num = *((int32_t *)&buf[offset]);
-                float f_num = NAN;
-                if (ctx->bswap) {
-                    num = byteswap4(num);
-                }
-                if (num > ctx->max_float) {
-                    if (ctx->supports_tagged_missing && num > DTA_113_MISSING_FLOAT) {
-                        value.tag = 'a' + ((num - DTA_113_MISSING_FLOAT_A) >> 11);
-                        value.is_tagged_missing = 1;
-                    } else {
-                        value.is_system_missing = 1;
-                    }
-                } else {
-                    memcpy(&f_num, &num, sizeof(int32_t));
-                }
-                value.v.float_value = f_num;
-            } else if (value.type == READSTAT_TYPE_DOUBLE) {
-                int64_t num = *((int64_t *)&buf[offset]);
-                double d_num = NAN;
-                if (ctx->bswap) {
-                    num = byteswap8(num);
-                }
-                if (num > ctx->max_double) {
-                    if (ctx->supports_tagged_missing && num > DTA_113_MISSING_DOUBLE) {
-                        value.tag = 'a' + ((num - DTA_113_MISSING_DOUBLE_A) >> 40);
-                        value.is_tagged_missing = 1;
-                    } else {
-                        value.is_system_missing = 1;
-                    }
-                } else {
-                    memcpy(&d_num, &num, sizeof(int64_t));
-                }
-                value.v.double_value = d_num;
-            }
-
-            if (ctx->value_handler(i, ctx->variables[j], value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
-                retval = READSTAT_ERROR_USER_ABORT;
-                goto cleanup;
-            }
-
-            offset += max_len;
+        if ((retval = dta_handle_row(buf, ctx)) != READSTAT_OK) {
+            goto cleanup;
         }
         ctx->current_row++;
         if ((retval = dta_update_progress(ctx)) != READSTAT_OK) {

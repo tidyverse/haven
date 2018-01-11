@@ -236,7 +236,7 @@ void xpt2ieee(unsigned char *xport, unsigned char *ieee) {
     /* format the exponent is incremented by 1 and the fraction */
     /* bits left 4 positions to the right of the radix point. */
     ieee1 |=
-        (((((int32_t)(*temp & 0x7f) - 65) << 2) + shift + 1023) << 20) |
+        (((((int32_t)(*temp & 0x7f) - 65) * 4) + shift + 1023) << 20) |
         (xport1 & 0x80000000);
 
 doret:
