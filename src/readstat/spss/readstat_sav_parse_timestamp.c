@@ -65,7 +65,8 @@ static const int sav_time_parse_en_main = 1;
 #line 12 "src/spss/readstat_sav_parse_timestamp.rl"
 
 
-readstat_error_t sav_parse_time(const char *data, size_t len, struct tm *timestamp, sav_ctx_t *ctx) {
+readstat_error_t sav_parse_time(const char *data, size_t len, struct tm *timestamp,
+        readstat_error_handler error_cb, void *user_ctx) {
     readstat_error_t retval = READSTAT_OK;
     char error_buf[8192];
     const char *p = data;
@@ -74,12 +75,12 @@ readstat_error_t sav_parse_time(const char *data, size_t len, struct tm *timesta
     int cs;
     int temp_val = 0;
     
-#line 78 "src/spss/readstat_sav_parse_timestamp.c"
+#line 79 "src/spss/readstat_sav_parse_timestamp.c"
 	{
 	cs = sav_time_parse_start;
 	}
 
-#line 83 "src/spss/readstat_sav_parse_timestamp.c"
+#line 84 "src/spss/readstat_sav_parse_timestamp.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -153,24 +154,24 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 23 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 24 "src/spss/readstat_sav_parse_timestamp.rl"
 	{
             temp_val = 10 * temp_val + ((*p) - '0');
         }
 	break;
 	case 1:
-#line 27 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 28 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ temp_val = 0; }
 	break;
 	case 2:
-#line 29 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 30 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_hour = temp_val; }
 	break;
 	case 3:
-#line 31 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 32 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_min = temp_val; }
 	break;
-#line 174 "src/spss/readstat_sav_parse_timestamp.c"
+#line 175 "src/spss/readstat_sav_parse_timestamp.c"
 		}
 	}
 
@@ -187,10 +188,10 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 4:
-#line 33 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 34 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_sec = temp_val; }
 	break;
-#line 194 "src/spss/readstat_sav_parse_timestamp.c"
+#line 195 "src/spss/readstat_sav_parse_timestamp.c"
 		}
 	}
 	}
@@ -198,13 +199,14 @@ _again:
 	_out: {}
 	}
 
-#line 39 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 40 "src/spss/readstat_sav_parse_timestamp.rl"
 
 
     if (cs < 9|| p != pe) {
-        if (ctx->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Invalid time string (length=%d): %.*s", (int)len, (int)len, data);
-            ctx->error_handler(error_buf, ctx->user_ctx);
+        if (error_cb) {
+            snprintf(error_buf, sizeof(error_buf),
+                "Invalid time string (length=%d): %.*s", (int)len, (int)len, data);
+            error_cb(error_buf, user_ctx);
         }
         retval = READSTAT_ERROR_BAD_TIMESTAMP;
     }
@@ -215,7 +217,7 @@ _again:
 }
 
 
-#line 219 "src/spss/readstat_sav_parse_timestamp.c"
+#line 221 "src/spss/readstat_sav_parse_timestamp.c"
 static const char _sav_date_parse_actions[] = {
 	0, 1, 0, 1, 1, 1, 3, 1, 
 	4, 1, 5, 1, 6, 1, 7, 1, 
@@ -323,10 +325,11 @@ static const int sav_date_parse_start = 1;
 static const int sav_date_parse_en_main = 1;
 
 
-#line 57 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 59 "src/spss/readstat_sav_parse_timestamp.rl"
 
 
-readstat_error_t sav_parse_date(const char *data, size_t len, struct tm *timestamp, sav_ctx_t *ctx) {
+readstat_error_t sav_parse_date(const char *data, size_t len, struct tm *timestamp,
+        readstat_error_handler error_cb, void *user_ctx) {
     readstat_error_t retval = READSTAT_OK;
     char error_buf[8192];
     const char *p = data;
@@ -335,12 +338,12 @@ readstat_error_t sav_parse_date(const char *data, size_t len, struct tm *timesta
     int cs;
     int temp_val = 0;
     
-#line 339 "src/spss/readstat_sav_parse_timestamp.c"
+#line 342 "src/spss/readstat_sav_parse_timestamp.c"
 	{
 	cs = sav_date_parse_start;
 	}
 
-#line 344 "src/spss/readstat_sav_parse_timestamp.c"
+#line 347 "src/spss/readstat_sav_parse_timestamp.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -414,68 +417,68 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 68 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 71 "src/spss/readstat_sav_parse_timestamp.rl"
 	{
             temp_val = 10 * temp_val + ((*p) - '0');
         }
 	break;
 	case 2:
-#line 80 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 83 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ temp_val = 0; }
 	break;
 	case 3:
-#line 82 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 85 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mday = temp_val; }
 	break;
 	case 4:
-#line 87 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 90 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 0; }
 	break;
 	case 5:
-#line 88 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 91 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 1; }
 	break;
 	case 6:
-#line 89 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 92 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 2; }
 	break;
 	case 7:
-#line 90 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 93 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 3; }
 	break;
 	case 8:
-#line 91 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 94 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 4; }
 	break;
 	case 9:
-#line 92 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 95 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 5; }
 	break;
 	case 10:
-#line 93 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 96 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 6; }
 	break;
 	case 11:
-#line 94 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 97 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 7; }
 	break;
 	case 12:
-#line 95 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 98 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 8; }
 	break;
 	case 13:
-#line 96 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 99 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 9; }
 	break;
 	case 14:
-#line 97 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 100 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 10; }
 	break;
 	case 15:
-#line 98 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 101 "src/spss/readstat_sav_parse_timestamp.rl"
 	{ timestamp->tm_mon = 11; }
 	break;
-#line 479 "src/spss/readstat_sav_parse_timestamp.c"
+#line 482 "src/spss/readstat_sav_parse_timestamp.c"
 		}
 	}
 
@@ -492,7 +495,7 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 1:
-#line 72 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 75 "src/spss/readstat_sav_parse_timestamp.rl"
 	{
             if (temp_val < 70) {
                 timestamp->tm_year = 100 + temp_val;
@@ -501,7 +504,7 @@ _again:
             }
         }
 	break;
-#line 505 "src/spss/readstat_sav_parse_timestamp.c"
+#line 508 "src/spss/readstat_sav_parse_timestamp.c"
 		}
 	}
 	}
@@ -509,13 +512,14 @@ _again:
 	_out: {}
 	}
 
-#line 104 "src/spss/readstat_sav_parse_timestamp.rl"
+#line 107 "src/spss/readstat_sav_parse_timestamp.rl"
 
 
     if (cs < 47|| p != pe) {
-        if (ctx->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Invalid date string (length=%d): %.*s", (int)len, (int)len, data);
-            ctx->error_handler(error_buf, ctx->user_ctx);
+        if (error_cb) {
+            snprintf(error_buf, sizeof(error_buf),
+                "Invalid date string (length=%d): %.*s", (int)len, (int)len, data);
+            error_cb(error_buf, user_ctx);
         }
         retval = READSTAT_ERROR_BAD_TIMESTAMP;
     }

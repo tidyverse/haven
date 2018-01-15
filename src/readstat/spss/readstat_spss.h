@@ -96,9 +96,9 @@ readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info, int index
 
 uint64_t spss_64bit_value(readstat_value_t value);
 
-int32_t spss_measure_from_readstat_measure(readstat_measure_t measure);
-readstat_measure_t spss_measure_to_readstat_measure(int32_t sav_measure);
-int32_t spss_alignment_from_readstat_alignment(readstat_alignment_t alignment);
-readstat_alignment_t spss_alignment_to_readstat_alignment(int32_t sav_alignment);
+uint32_t spss_measure_from_readstat_measure(readstat_measure_t measure);
+readstat_measure_t spss_measure_to_readstat_measure(uint32_t sav_measure);
+uint32_t spss_alignment_from_readstat_alignment(readstat_alignment_t alignment);
+readstat_alignment_t spss_alignment_to_readstat_alignment(uint32_t sav_alignment);
 readstat_error_t spss_format_for_variable(readstat_variable_t *r_variable,
         spss_format_t *spss_format);

@@ -364,10 +364,6 @@ static readstat_error_t xport_begin_data(void *writer_ctx) {
     char timestamp[17];
     xport_format_timestamp(timestamp, sizeof(timestamp), writer->timestamp);
 
-    retval = sas_validate_column_names(writer);
-    if (retval != READSTAT_OK)
-        goto cleanup;
-
     retval = xport_write_first_header_record(writer);
     if (retval != READSTAT_OK)
         goto cleanup;
@@ -505,6 +501,7 @@ readstat_error_t readstat_begin_writing_xport(readstat_writer_t *writer, void *u
     writer->callbacks.write_missing_tagged = &xport_write_missing_tagged;
 
     writer->callbacks.variable_width = &xport_variable_width;
+    writer->callbacks.variable_ok = &sas_validate_variable;
 
     writer->callbacks.begin_data = &xport_begin_data;
     writer->callbacks.end_data = &xport_end_data;

@@ -6,6 +6,7 @@
 
 #include "../readstat.h"
 #include "../readstat_iconv.h"
+#include "../readstat_malloc.h"
 #include "../readstat_bits.h"
 
 #include "readstat_dta.h"
@@ -42,7 +43,12 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
     ctx->nvar = ctx->bswap ? byteswap2(nvar) : nvar;
     ctx->nobs = ctx->bswap ? byteswap4(nobs) : nobs;
 
-    ctx->variables = calloc(ctx->nvar, sizeof(readstat_variable_t *));
+    if (ctx->nvar) {
+        if ((ctx->variables = readstat_calloc(ctx->nvar, sizeof(readstat_variable_t *))) == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
+    }
 
     ctx->machine_is_twos_complement = READSTAT_MACHINE_IS_TWOS_COMPLEMENT;
 
@@ -162,37 +168,39 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
         }
     }
 
-    ctx->typlist_len = ctx->nvar * sizeof(uint16_t);
-    ctx->varlist_len = ctx->variable_name_len * ctx->nvar * sizeof(char);
     ctx->srtlist_len = (ctx->nvar + 1) * sizeof(int16_t);
-    ctx->fmtlist_len = ctx->fmtlist_entry_len * ctx->nvar * sizeof(char);
-    ctx->lbllist_len = ctx->lbllist_entry_len * ctx->nvar * sizeof(char);
-    ctx->variable_labels_len = ctx->variable_labels_entry_len * ctx->nvar * sizeof(char);
-
-    if ((ctx->typlist = malloc(ctx->typlist_len)) == NULL) {
-        retval = READSTAT_ERROR_MALLOC;
-        goto cleanup;
-    }
-    if ((ctx->varlist = malloc(ctx->varlist_len)) == NULL) {
-        retval = READSTAT_ERROR_MALLOC;
-        goto cleanup;
-    }
-    if ((ctx->srtlist = malloc(ctx->srtlist_len)) == NULL) {
-        retval = READSTAT_ERROR_MALLOC;
-        goto cleanup;
-    }
-    if ((ctx->fmtlist = malloc(ctx->fmtlist_len)) == NULL) {
-        retval = READSTAT_ERROR_MALLOC;
-        goto cleanup;
-    }
-    if ((ctx->lbllist = malloc(ctx->lbllist_len)) == NULL) {
+    if ((ctx->srtlist = readstat_malloc(ctx->srtlist_len)) == NULL) {
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;
     }
 
-    if ((ctx->variable_labels = malloc(ctx->variable_labels_len)) == NULL) {
-        retval = READSTAT_ERROR_MALLOC;
-        goto cleanup;
+    if (ctx->nvar > 0) {
+        ctx->typlist_len = ctx->nvar * sizeof(uint16_t);
+        ctx->varlist_len = ctx->variable_name_len * ctx->nvar * sizeof(char);
+        ctx->fmtlist_len = ctx->fmtlist_entry_len * ctx->nvar * sizeof(char);
+        ctx->lbllist_len = ctx->lbllist_entry_len * ctx->nvar * sizeof(char);
+        ctx->variable_labels_len = ctx->variable_labels_entry_len * ctx->nvar * sizeof(char);
+
+        if ((ctx->typlist = readstat_malloc(ctx->typlist_len)) == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
+        if ((ctx->varlist = readstat_malloc(ctx->varlist_len)) == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
+        if ((ctx->fmtlist = readstat_malloc(ctx->fmtlist_len)) == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
+        if ((ctx->lbllist = readstat_malloc(ctx->lbllist_len)) == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
+        if ((ctx->variable_labels = readstat_malloc(ctx->variable_labels_len)) == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
     }
 
     ctx->initialized = 1;
@@ -236,7 +244,9 @@ void dta_ctx_free(dta_ctx_t *ctx) {
     free(ctx);
 }
 
-readstat_type_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx) {
+readstat_error_t dta_type_info(uint16_t typecode, dta_ctx_t *ctx,
+        size_t *max_len, readstat_type_t *out_type) {
+    readstat_error_t retval = READSTAT_OK;
     size_t len = 0;
     readstat_type_t type = READSTAT_TYPE_STRING;
     if (ctx->typlist_version == 111) {
@@ -271,7 +281,7 @@ readstat_type_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx
             default:
                 len = typecode; type = READSTAT_TYPE_STRING; break;
         }
-    } else {
+    } else if (typecode < 0x7F) {
         switch (typecode) {
             case DTA_OLD_TYPE_CODE_INT8:
                 len = 1; type = READSTAT_TYPE_INT8; break;
@@ -284,10 +294,17 @@ readstat_type_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx
             case DTA_OLD_TYPE_CODE_DOUBLE:
                 len = 8; type = READSTAT_TYPE_DOUBLE; break;
             default:
-                len = typecode - 0x7F; type = READSTAT_TYPE_STRING; break;
+                retval = READSTAT_ERROR_PARSE; break;
         }
+    } else {
+        len = typecode - 0x7F;
+        type = READSTAT_TYPE_STRING;
     }
     
-    *max_len = len;
-    return type;
+    if (max_len)
+        *max_len = len;
+    if (out_type)
+        *out_type = type;
+
+    return retval;
 }

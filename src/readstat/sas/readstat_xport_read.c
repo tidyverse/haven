@@ -8,6 +8,7 @@
 #include "../readstat.h"
 #include "../readstat_iconv.h"
 #include "../readstat_convert.h"
+#include "../readstat_malloc.h"
 #include "readstat_sas.h"
 #include "readstat_xport.h"
 #include "ieee.h"
@@ -236,7 +237,11 @@ static readstat_error_t xport_read_namestr_header_record(xport_ctx_t *ctx) {
     }
 
     ctx->var_count = xrecord.num2;
-    ctx->variables = calloc(ctx->var_count, sizeof(readstat_variable_t *));
+    ctx->variables = readstat_calloc(ctx->var_count, sizeof(readstat_variable_t *));
+    if (ctx->variables == NULL) {
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
+    }
 
     if (ctx->info_handler) {
         if (ctx->info_handler(-1, ctx->var_count, ctx->user_ctx) != READSTAT_HANDLER_OK) {
@@ -297,8 +302,8 @@ static readstat_error_t xport_read_labels_v8(xport_ctx_t *ctx, int label_count) 
             goto cleanup;
         }
 
-        char name[name_len];
-        char label[label_len];
+        char name[name_len+1];
+        char label[label_len+1];
         readstat_variable_t *variable = ctx->variables[index];
 
         if (read_bytes(ctx, name, name_len) != name_len ||
@@ -360,10 +365,10 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
             goto cleanup;
         }
 
-        char name[name_len];
-        char format[format_len];
-        char informat[informat_len];
-        char label[label_len];
+        char name[name_len+1];
+        char format[format_len+1];
+        char informat[informat_len+1];
+        char label[label_len+1];
 
         readstat_variable_t *variable = ctx->variables[index];
 
@@ -507,7 +512,11 @@ static readstat_error_t xport_process_row(xport_ctx_t *ctx, const char *row, siz
         readstat_value_t value = { .type = variable->type };
 
         if (variable->type == READSTAT_TYPE_STRING) {
-            string = realloc(string, 4*variable->storage_width+1);
+            string = readstat_realloc(string, 4*variable->storage_width+1);
+            if (string == NULL) {
+                retval = READSTAT_ERROR_MALLOC;
+                goto cleanup;
+            }
             retval = readstat_convert(string, 4*variable->storage_width+1,
                     &row[pos], variable->storage_width, NULL);
             if (retval != READSTAT_OK)
@@ -560,10 +569,16 @@ static readstat_error_t xport_read_data(xport_ctx_t *ctx) {
         return READSTAT_OK;
 
     readstat_error_t retval = READSTAT_OK;
-    char *row = malloc(ctx->row_length);
-    char *blank_row = malloc(ctx->row_length);
-    memset(blank_row, ' ', ctx->row_length);
+    char *row = readstat_malloc(ctx->row_length);
+    char *blank_row = readstat_malloc(ctx->row_length);
     int num_blank_rows = 0;
+
+    if (row == NULL || blank_row == NULL) {
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
+    }
+
+    memset(blank_row, ' ', ctx->row_length);
     while (1) {
         ssize_t bytes_read = read_bytes(ctx, row, ctx->row_length);
         if (bytes_read == -1) {
@@ -613,7 +628,10 @@ static readstat_error_t xport_read_data(xport_ctx_t *ctx) {
     }
 
 cleanup:
-    free(row);
+    if (row)
+        free(row);
+    if (blank_row)
+        free(blank_row);
     return retval;
 }
 

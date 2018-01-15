@@ -19,11 +19,24 @@
 #define SAS_RLE_COMMAND_INSERT_BLANK2  14
 #define SAS_RLE_COMMAND_INSERT_ZERO2   15
 
-size_t sas_rle_decompress(void *output_buf, size_t output_len, 
+static size_t command_lengths[16] = {
+    [SAS_RLE_COMMAND_COPY64] = 1,
+    [SAS_RLE_COMMAND_INSERT_BYTE18] = 2,
+    [SAS_RLE_COMMAND_INSERT_AT17] = 1,
+    [SAS_RLE_COMMAND_INSERT_BLANK17] = 1,
+    [SAS_RLE_COMMAND_INSERT_ZERO17] = 1,
+    [SAS_RLE_COMMAND_INSERT_BYTE3] = 1
+};
+
+ssize_t sas_rle_decompressed_len(const void *input_buf, size_t input_len) {
+    return sas_rle_decompress(NULL, 0, input_buf, input_len);
+}
+
+ssize_t sas_rle_decompress(void *output_buf, size_t output_len, 
         const void *input_buf, size_t input_len) {
-    /* TODO bounds checking */
     unsigned char *buffer = (unsigned char *)output_buf;
     unsigned char *output = buffer;
+    size_t output_written = 0;
 
     const unsigned char *input = (const unsigned char *)input_buf;
 
@@ -34,12 +47,15 @@ size_t sas_rle_decompress(void *output_buf, size_t output_len,
         int copy_len = 0;
         int insert_len = 0;
         unsigned char insert_byte = '\0';
+        if (input + command_lengths[command] > (const unsigned char *)input_buf + input_len) {
+            return -1;
+        }
         switch (command) {
             case SAS_RLE_COMMAND_COPY64:
                 copy_len = (*input++) + 64 + length * 256;
                 break;
             case SAS_RLE_COMMAND_INSERT_BYTE18:
-                insert_len = (*input++) + 18 + length * 16;
+                insert_len = (*input++) + 18 + length * 256;
                 insert_byte = *input++;
                 break;
             case SAS_RLE_COMMAND_INSERT_AT17:
@@ -79,86 +95,42 @@ size_t sas_rle_decompress(void *output_buf, size_t output_len,
                 break;
         }
         if (copy_len) {
-            memcpy(output, input, copy_len);
+            if (output_written + copy_len > output_len) {
+                return -1;
+            }
+            if (input + copy_len > (const unsigned char *)input_buf + input_len) {
+                return -1;
+            }
+            if (output) {
+                memcpy(&output[output_written], input, copy_len);
+            }
             input += copy_len;
-            output += copy_len;
+            output_written += copy_len;
         }
         if (insert_len) {
-            memset(output, insert_byte, insert_len);
-            output += insert_len;
+            if (output_written + insert_len > output_len) {
+                return -1;
+            }
+            if (output) {
+                memset(&output[output_written], insert_byte, insert_len);
+            }
+            output_written += insert_len;
         }
     }
 
-    return output - buffer;
+    return output_written;
 }
 
 static size_t sas_rle_measure_copy_run(size_t copy_run) {
-    if (copy_run > 64) {
-        return 2 + copy_run;
-    }
-    if (copy_run > 0) {
-        return 1 + copy_run;
-    }
-    return 0;
+    return (copy_run > 64) + (copy_run > 0) + copy_run;
 }
 
-static size_t sas_rle_measure_insert_run(unsigned char last_byte, size_t insert_run) {
-    if (last_byte == '@' || last_byte == ' ' || last_byte == '\0') {
-        if (insert_run > 17) {
-            return 2;
-        }
-        return 1;
-    }
-    if (insert_run > 18) {
-        return 3;
-    }
-    return 2;
-}
+static size_t sas_rle_copy_run(unsigned char *output_buf, size_t offset,
+        const unsigned char *copy, size_t copy_run) {
+    unsigned char *out = output_buf + offset;
+    if (output_buf == NULL)
+        return sas_rle_measure_copy_run(copy_run);
 
-static int sas_rle_is_insert_run(unsigned char last_byte, size_t insert_run) {
-    if (last_byte == '@' || last_byte == ' ' || last_byte == '\0')
-        return (insert_run > 1);
-
-    return (insert_run > 2);
-}
-
-size_t sas_rle_compressed_len(const void *bytes, size_t len) {
-    const unsigned char *p = (const unsigned char *)bytes;
-    const unsigned char *pe = (const unsigned char *)bytes + len;
-    size_t copy_run = 0;
-    size_t insert_run = 0;
-    char last_byte = 0;
-    size_t rle_len = 0;
-    while (p < pe) {
-        unsigned char c = *p;
-        if (insert_run == 0) {
-            insert_run = 1;
-        } else if (c == last_byte) {
-            insert_run++;
-        } else {
-            if (sas_rle_is_insert_run(last_byte, insert_run)) {
-                rle_len += sas_rle_measure_copy_run(copy_run);
-                rle_len += sas_rle_measure_insert_run(last_byte, insert_run);
-                copy_run = 0;
-            } else {
-                copy_run += insert_run;
-            }
-            insert_run = 1;
-        }
-        last_byte = c;
-        p++;
-    }
-    if (sas_rle_is_insert_run(last_byte, insert_run)) {
-        rle_len += sas_rle_measure_copy_run(copy_run);
-        rle_len += sas_rle_measure_insert_run(last_byte, insert_run);
-    } else {
-        rle_len += sas_rle_measure_copy_run(copy_run + insert_run);
-    }
-    return rle_len;
-}
-
-size_t sas_rle_copy_run(unsigned char *output_buf, const unsigned char *copy, size_t copy_run) {
-    unsigned char *out = output_buf;
     if (copy_run > 64) {
         int length = (copy_run - 64) / 256;
         unsigned char rem = (copy_run - 64) % 256;
@@ -175,12 +147,26 @@ size_t sas_rle_copy_run(unsigned char *output_buf, const unsigned char *copy, si
     }
     memcpy(out, copy, copy_run);
     out += copy_run;
-    return out - output_buf;
+    return out - (output_buf + offset);
 }
 
-size_t sas_rle_insert_run(unsigned char *output_buf, unsigned char last_byte, size_t insert_run) {
-    unsigned char *out = output_buf;
-    if (last_byte == '@' || last_byte == ' ' || last_byte == '\0') {
+static int sas_rle_is_special_byte(unsigned char last_byte) {
+    return (last_byte == '@' || last_byte == ' ' || last_byte == '\0');
+}
+
+static size_t sas_rle_measure_insert_run(unsigned char last_byte, size_t insert_run) {
+    if (sas_rle_is_special_byte(last_byte))
+        return insert_run > 17 ? 2 : 1;
+
+    return insert_run > 18 ? 3 : 2;
+}
+
+static size_t sas_rle_insert_run(unsigned char *output_buf, size_t offset, unsigned char last_byte, size_t insert_run) {
+    unsigned char *out = output_buf + offset;
+    if (output_buf == NULL)
+        return sas_rle_measure_insert_run(last_byte, insert_run);
+
+    if (sas_rle_is_special_byte(last_byte)) {
         if (insert_run > 17) {
             int length = (insert_run - 17) / 256;
             unsigned char rem = (insert_run - 17) % 256;
@@ -201,22 +187,31 @@ size_t sas_rle_insert_run(unsigned char *output_buf, unsigned char last_byte, si
                 *out++ = (SAS_RLE_COMMAND_INSERT_ZERO2 << 4) + (insert_run - 2);
             }
         }
-    } else {
-        if (insert_run > 18) {
-            int length = (insert_run - 18) / 256;
-            unsigned char rem = (insert_run - 18) % 256;
-            *out++ = (SAS_RLE_COMMAND_INSERT_BYTE18 << 4) + (length & 0x0F);
-            *out++ = rem;
-            *out++ = last_byte;
-        } else if (insert_run >= 3) {
-            *out++ = (SAS_RLE_COMMAND_INSERT_BYTE3 << 4) + (insert_run - 3);
-            *out++ = last_byte;
-        }
+    } else if (insert_run > 18) {
+        int length = (insert_run - 18) / 256;
+        unsigned char rem = (insert_run - 18) % 256;
+        *out++ = (SAS_RLE_COMMAND_INSERT_BYTE18 << 4) + (length & 0x0F);
+        *out++ = rem;
+        *out++ = last_byte;
+    } else if (insert_run >= 3) {
+        *out++ = (SAS_RLE_COMMAND_INSERT_BYTE3 << 4) + (insert_run - 3);
+        *out++ = last_byte;
     }
-    return out - output_buf;
+    return out - (output_buf + offset);
 }
 
-size_t sas_rle_compress(void *output_buf, size_t output_len,
+static int sas_rle_is_insert_run(unsigned char last_byte, size_t insert_run) {
+    if (sas_rle_is_special_byte(last_byte))
+        return (insert_run > 1);
+
+    return (insert_run > 2);
+}
+
+ssize_t sas_rle_compressed_len(const void *bytes, size_t len) {
+    return sas_rle_compress(NULL, 0, bytes, len);
+}
+
+ssize_t sas_rle_compress(void *output_buf, size_t output_len,
         const void *input_buf, size_t input_len) {
     /* TODO bounds check */
     const unsigned char *p = (const unsigned char *)input_buf;
@@ -227,6 +222,7 @@ size_t sas_rle_compress(void *output_buf, size_t output_len,
 
     size_t insert_run = 0;
     size_t copy_run = 0;
+    size_t out_written = 0;
     unsigned char last_byte = 0;
 
     while (p < pe) {
@@ -237,8 +233,8 @@ size_t sas_rle_compress(void *output_buf, size_t output_len,
             insert_run++;
         } else {
             if (sas_rle_is_insert_run(last_byte, insert_run)) {
-                out += sas_rle_copy_run(out, copy, copy_run);
-                out += sas_rle_insert_run(out, last_byte, insert_run);
+                out_written += sas_rle_copy_run(out, out_written, copy, copy_run);
+                out_written += sas_rle_insert_run(out, out_written, last_byte, insert_run);
                 copy_run = 0;
                 copy = p;
             } else {
@@ -251,11 +247,11 @@ size_t sas_rle_compress(void *output_buf, size_t output_len,
     }
 
     if (sas_rle_is_insert_run(last_byte, insert_run)) {
-        out += sas_rle_copy_run(out, copy, copy_run);
-        out += sas_rle_insert_run(out, last_byte, insert_run);
+        out_written += sas_rle_copy_run(out, out_written, copy, copy_run);
+        out_written += sas_rle_insert_run(out, out_written, last_byte, insert_run);
     } else {
-        out += sas_rle_copy_run(out, copy, copy_run + insert_run);
+        out_written += sas_rle_copy_run(out, out_written, copy, copy_run + insert_run);
     }
 
-    return out - (unsigned char *)output_buf;
+    return out_written;
 }

@@ -1021,7 +1021,7 @@ static readstat_error_t sav_write_compressed_row(void *writer_ctx, void *row, si
             } else {
                 double fp_value;
                 memcpy(&fp_value, &input[input_offset], 8);
-                if ((int)fp_value == fp_value && (int)fp_value > -100 && (int)fp_value < 152) {
+                if (fp_value > -100 && fp_value < 152 && (int)fp_value == fp_value) {
                     output[control_offset++] = (int)fp_value + 100;
                 } else {
                     output[control_offset++] = 253;

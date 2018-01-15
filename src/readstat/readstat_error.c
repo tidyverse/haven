@@ -110,5 +110,8 @@ const char *readstat_error_message(readstat_error_t error_code) {
     if (error_code == READSTAT_ERROR_ROW_IS_TOO_WIDE_FOR_PAGE)
         return "A row of data will not fit into the file format";
 
+    if (error_code == READSTAT_ERROR_ROW_IS_EMPTY)
+        return "One or more columns must be provided";
+
     return "Unknown error";
 }

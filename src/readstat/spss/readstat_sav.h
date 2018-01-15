@@ -81,8 +81,8 @@ typedef struct sav_ctx_s {
     const char    *output_encoding;
     char           file_label[4*64+1];
     time_t         timestamp;
-    int32_t       *variable_display_values;
-    int            variable_display_values_count;
+    uint32_t      *variable_display_values;
+    size_t         variable_display_values_count;
     iconv_t        converter;
     int            var_index;
     int            var_offset;

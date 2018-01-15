@@ -88,9 +88,11 @@ uint16_t sas_read2(const char *data, int bswap) {
 
 time_t sas_convert_time(double time, time_t epoch) {
     time += epoch;
-    if (time > INT64_MAX)
+    if (isnan(time))
+        return 0;
+    if (time > 1.0 * INT64_MAX)
         return INT64_MAX;
-    if (time < INT64_MIN)
+    if (time < 1.0 * INT64_MIN)
         return INT64_MIN;
     return time;
 }
@@ -187,13 +189,16 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
     }
 
     hinfo->header_size = bswap ? byteswap4(header_size) : header_size;
+    hinfo->page_size = bswap ? byteswap4(page_size) : page_size;
 
-    if (hinfo->header_size < 1024) {
+    if (hinfo->header_size < 1024 || hinfo->page_size < 1024) {
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
     }
-
-    hinfo->page_size = bswap ? byteswap4(page_size) : page_size;
+    if (hinfo->header_size > (1<<20) || hinfo->page_size > (1<<24)) {
+        retval = READSTAT_ERROR_PARSE;
+        goto cleanup;
+    }
 
     if (hinfo->u64) {
         hinfo->page_header_size = SAS_PAGE_HEADER_SIZE_64BIT;
@@ -217,6 +222,10 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
             goto cleanup;
         }
         hinfo->page_count = bswap ? byteswap4(page_count) : page_count;
+    }
+    if (hinfo->page_count > (1<<24)) {
+        retval = READSTAT_ERROR_PARSE;
+        goto cleanup;
     }
     
     if (io->seek(8, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
@@ -361,7 +370,7 @@ readstat_error_t sas_fill_page(readstat_writer_t *writer, sas_header_info_t *hin
     return READSTAT_OK;
 }
 
-readstat_error_t sas_validate_name(const char *name) {
+static readstat_error_t sas_validate_name(const char *name) {
     int j;
     for (j=0; name[j]; j++) {
         if (name[j] != '_' &&
@@ -389,14 +398,6 @@ readstat_error_t sas_validate_name(const char *name) {
     return READSTAT_OK;
 }
 
-readstat_error_t sas_validate_column_names(readstat_writer_t *writer) {
-    int i;
-    for (i=0; i<writer->variables_count; i++) {
-        readstat_variable_t *variable = readstat_get_variable(writer, i);
-        readstat_error_t error = sas_validate_name(readstat_variable_get_name(variable));
-        if (error != READSTAT_OK)
-            return error;
-    }
-    return READSTAT_OK;
+readstat_error_t sas_validate_variable(readstat_variable_t *variable) {
+    return sas_validate_name(readstat_variable_get_name(variable));
 }
-

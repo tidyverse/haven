@@ -77,13 +77,13 @@ ssize_t readstat_por_parse_double(const char *data, size_t len, double *result,
     double val = 0.0;
     double denom = 30.0;
     double temp_frac = 0.0;
-    int64_t num = 0;
-    int64_t exp = 0;
+    uint64_t num = 0;
+    uint64_t exp = 0;
     
-    int64_t temp_val = 0;
+    uint64_t temp_val = 0;
     
     const unsigned char *p = (const unsigned char *)data;
-    // const unsigned char *eof = p + len;
+    const unsigned char *pe = p + len;
     
     int cs;
     int is_negative = 0, exp_is_negative = 0;
@@ -103,6 +103,8 @@ ssize_t readstat_por_parse_double(const char *data, size_t len, double *result,
 	unsigned int _nacts;
 	const char *_keys;
 
+	if ( p == pe )
+		goto _test_eof;
 	if ( cs == 0 )
 		goto _out;
 _resume:
@@ -223,15 +225,16 @@ _match:
 #line 60 "src/spss/readstat_por_parse.rl"
 	{ success = 1; {p++; goto _out; } }
 	break;
-#line 227 "src/spss/readstat_por_parse.c"
+#line 229 "src/spss/readstat_por_parse.c"
 		}
 	}
 
 _again:
 	if ( cs == 0 )
 		goto _out;
-	p += 1;
-	goto _resume;
+	if ( ++p != pe )
+		goto _resume;
+	_test_eof: {}
 	_out: {}
 	}
 

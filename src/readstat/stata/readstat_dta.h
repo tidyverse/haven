@@ -172,4 +172,5 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs,
         const char *input_encoding, const char *output_encoding);
 void dta_ctx_free(dta_ctx_t *ctx);
 
-readstat_type_t dta_type_info(uint16_t typecode, size_t *max_len, dta_ctx_t *ctx);
+readstat_error_t dta_type_info(uint16_t typecode, dta_ctx_t *ctx,
+        size_t *max_len, readstat_type_t *out_type);

@@ -546,6 +546,11 @@ static readstat_error_t sas7bdat_emit_header_and_meta_pages(readstat_writer_t *w
     sas7bdat_write_ctx_t *ctx = (sas7bdat_write_ctx_t *)writer->module_ctx;
     readstat_error_t retval = READSTAT_OK;
 
+    if (sas7bdat_row_length(writer) == 0) {
+        retval = READSTAT_ERROR_ROW_IS_EMPTY;
+        goto cleanup;
+    }
+
     if (writer->compression == READSTAT_COMPRESS_NONE &&
             sas7bdat_rows_per_page(writer, ctx->hinfo) == 0) {
         retval = READSTAT_ERROR_ROW_IS_TOO_WIDE_FOR_PAGE;
@@ -569,10 +574,6 @@ cleanup:
 static readstat_error_t sas7bdat_begin_data(void *writer_ctx) {
     readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
     readstat_error_t retval = READSTAT_OK;
-
-    retval = sas_validate_column_names(writer);
-    if (retval != READSTAT_OK)
-        goto cleanup;
 
     writer->module_ctx = sas7bdat_write_ctx_init(writer);
 
@@ -604,8 +605,11 @@ static readstat_error_t sas7bdat_end_data(void *writer_ctx) {
         retval = sas_fill_page(writer, ctx->hinfo);
     }
 
-    sas7bdat_write_ctx_free(ctx);
     return retval;
+}
+
+static void sas7bdat_module_ctx_free(void *module_ctx) {
+    sas7bdat_write_ctx_free(module_ctx);
 }
 
 static readstat_error_t sas7bdat_write_double(void *row, const readstat_variable_t *var, double value) {
@@ -776,9 +780,11 @@ readstat_error_t readstat_begin_writing_sas7bdat(readstat_writer_t *writer, void
     writer->callbacks.write_missing_tagged = &sas7bdat_write_missing_tagged;
 
     writer->callbacks.variable_width = &sas7bdat_variable_width;
+    writer->callbacks.variable_ok = &sas_validate_variable;
 
     writer->callbacks.begin_data = &sas7bdat_begin_data;
     writer->callbacks.end_data = &sas7bdat_end_data;
+    writer->callbacks.module_ctx_free = &sas7bdat_module_ctx_free;
 
     writer->callbacks.write_row = &sas7bdat_write_row;
 

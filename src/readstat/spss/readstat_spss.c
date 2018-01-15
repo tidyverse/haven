@@ -6,64 +6,61 @@
 #include "readstat_spss.h"
 #include "readstat_spss_parse.h"
 
-typedef struct spss_type_s {
-    int     type;
-    char    string[100];
-} spss_type_t;
-
-static spss_type_t spss_type_strings[] = {
-    { .type = SPSS_FORMAT_TYPE_A,      .string = "A" },
-    { .type = SPSS_FORMAT_TYPE_AHEX,   .string = "AHEX" },
-    { .type = SPSS_FORMAT_TYPE_COMMA,  .string = "COMMA" },
-    { .type = SPSS_FORMAT_TYPE_DOLLAR, .string = "DOLLAR" },
-    { .type = SPSS_FORMAT_TYPE_F,      .string = "F" },
-    { .type = SPSS_FORMAT_TYPE_IB,     .string = "IB" },
-    { .type = SPSS_FORMAT_TYPE_PIBHEX, .string = "PIBHEX" },
-    { .type = SPSS_FORMAT_TYPE_P,      .string = "P" },
-    { .type = SPSS_FORMAT_TYPE_PIB,    .string = "PIB" },
-    { .type = SPSS_FORMAT_TYPE_PK,     .string = "PK" },
-    { .type = SPSS_FORMAT_TYPE_RB,     .string = "RB" },
-    { .type = SPSS_FORMAT_TYPE_RBHEX,  .string = "RBHEX" },
-    { .type = SPSS_FORMAT_TYPE_Z,      .string = "Z" },
-    { .type = SPSS_FORMAT_TYPE_N,      .string = "N" },
-    { .type = SPSS_FORMAT_TYPE_E,      .string = "E" },
-    { .type = SPSS_FORMAT_TYPE_DATE,   .string = "DATE" },
-    { .type = SPSS_FORMAT_TYPE_TIME,   .string = "TIME" },
-    { .type = SPSS_FORMAT_TYPE_DATETIME,.string = "DATETIME" },
-    { .type = SPSS_FORMAT_TYPE_ADATE,  .string = "ADATE" },
-    { .type = SPSS_FORMAT_TYPE_JDATE,  .string = "JDATE" },
-    { .type = SPSS_FORMAT_TYPE_DTIME,  .string = "DTIME" },
-    { .type = SPSS_FORMAT_TYPE_WKDAY,  .string = "WKDAY" },
-    { .type = SPSS_FORMAT_TYPE_MONTH,  .string = "MONTH" },
-    { .type = SPSS_FORMAT_TYPE_MOYR,   .string = "MOYR" },
-    { .type = SPSS_FORMAT_TYPE_QYR,    .string = "QYR" },
-    { .type = SPSS_FORMAT_TYPE_WKYR,   .string = "WKYR" },
-    { .type = SPSS_FORMAT_TYPE_PCT,    .string = "PCT" },
-    { .type = SPSS_FORMAT_TYPE_DOT,    .string = "DOT" },
-    { .type = SPSS_FORMAT_TYPE_CCA,    .string = "CCA" },
-    { .type = SPSS_FORMAT_TYPE_CCB,    .string = "CCB" },
-    { .type = SPSS_FORMAT_TYPE_CCC,    .string = "CCC" },
-    { .type = SPSS_FORMAT_TYPE_CCD,    .string = "CCD" },
-    { .type = SPSS_FORMAT_TYPE_CCE,    .string = "CCE" },
-    { .type = SPSS_FORMAT_TYPE_EDATE,  .string = "EDATE" },
-    { .type = SPSS_FORMAT_TYPE_SDATE,  .string = "SDATE" }
+static char spss_type_strings[][16] = {
+    [SPSS_FORMAT_TYPE_A] = "A",
+    [SPSS_FORMAT_TYPE_AHEX] = "AHEX",
+    [SPSS_FORMAT_TYPE_COMMA] = "COMMA",
+    [SPSS_FORMAT_TYPE_DOLLAR] = "DOLLAR",
+    [SPSS_FORMAT_TYPE_F] = "F",
+    [SPSS_FORMAT_TYPE_IB] = "IB",
+    [SPSS_FORMAT_TYPE_PIBHEX] = "PIBHEX",
+    [SPSS_FORMAT_TYPE_P] = "P",
+    [SPSS_FORMAT_TYPE_PIB] = "PIB",
+    [SPSS_FORMAT_TYPE_PK] = "PK",
+    [SPSS_FORMAT_TYPE_RB] = "RB",
+    [SPSS_FORMAT_TYPE_RBHEX] = "RBHEX",
+    [SPSS_FORMAT_TYPE_Z] = "Z",
+    [SPSS_FORMAT_TYPE_N] = "N",
+    [SPSS_FORMAT_TYPE_E] = "E",
+    [SPSS_FORMAT_TYPE_DATE] = "DATE",
+    [SPSS_FORMAT_TYPE_TIME] = "TIME",
+    [SPSS_FORMAT_TYPE_DATETIME] = "DATETIME",
+    [SPSS_FORMAT_TYPE_ADATE] = "ADATE",
+    [SPSS_FORMAT_TYPE_JDATE] = "JDATE",
+    [SPSS_FORMAT_TYPE_DTIME] = "DTIME",
+    [SPSS_FORMAT_TYPE_WKDAY] = "WKDAY",
+    [SPSS_FORMAT_TYPE_MONTH] = "MONTH",
+    [SPSS_FORMAT_TYPE_MOYR] = "MOYR",
+    [SPSS_FORMAT_TYPE_QYR] = "QYR",
+    [SPSS_FORMAT_TYPE_WKYR] = "WKYR",
+    [SPSS_FORMAT_TYPE_PCT] = "PCT",
+    [SPSS_FORMAT_TYPE_DOT] = "DOT",
+    [SPSS_FORMAT_TYPE_CCA] = "CCA",
+    [SPSS_FORMAT_TYPE_CCB] = "CCB",
+    [SPSS_FORMAT_TYPE_CCC] = "CCC",
+    [SPSS_FORMAT_TYPE_CCD] = "CCD",
+    [SPSS_FORMAT_TYPE_CCE] = "CCE",
+    [SPSS_FORMAT_TYPE_EDATE] = "EDATE",
+    [SPSS_FORMAT_TYPE_SDATE] = "SDATE"
 };
 
 int spss_format(char *buffer, size_t len, spss_format_t *format) {
-    int i;
-    for (i=0; i < sizeof(spss_type_strings)/sizeof(spss_type_strings[0]); i++) {
-        if (format->type == spss_type_strings[i].type) {
-            if (format->decimal_places || format->type == SPSS_FORMAT_TYPE_F) {
-                snprintf(buffer, len, "%s%d.%d", spss_type_strings[i].string, format->width, format->decimal_places);
-            } else if (format->width) {
-                snprintf(buffer, len, "%s%d", spss_type_strings[i].string, format->width);
-            } else {
-                snprintf(buffer, len, "%s", spss_type_strings[i].string);
-            }
-            return 1;
-        }
+    if (format->type < 0 
+            || format->type >= sizeof(spss_type_strings)/sizeof(spss_type_strings[0])
+            || spss_type_strings[format->type][0] == '\0') {
+        return 0;
     }
-    return 0;
+    char *string = spss_type_strings[format->type];
+
+    if (format->decimal_places || format->type == SPSS_FORMAT_TYPE_F) {
+        snprintf(buffer, len, "%s%d.%d", string, format->width, format->decimal_places);
+    } else if (format->width) {
+        snprintf(buffer, len, "%s%d", string, format->width);
+    } else {
+        snprintf(buffer, len, "%s", string);
+    }
+
+    return 1;
 }
 
 int spss_varinfo_compare(const void *elem1, const void *elem2) {
@@ -153,8 +150,8 @@ readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info, int index
     return variable;
 }
 
-int32_t spss_measure_from_readstat_measure(readstat_measure_t measure) {
-    int32_t sav_measure = SAV_MEASURE_UNKNOWN;
+uint32_t spss_measure_from_readstat_measure(readstat_measure_t measure) {
+    uint32_t sav_measure = SAV_MEASURE_UNKNOWN;
     if (measure == READSTAT_MEASURE_NOMINAL) {
         sav_measure = SAV_MEASURE_NOMINAL;
     } else if (measure == READSTAT_MEASURE_ORDINAL) {
@@ -165,7 +162,7 @@ int32_t spss_measure_from_readstat_measure(readstat_measure_t measure) {
     return sav_measure;
 }
 
-readstat_measure_t spss_measure_to_readstat_measure(int32_t sav_measure) {
+readstat_measure_t spss_measure_to_readstat_measure(uint32_t sav_measure) {
     if (sav_measure == SAV_MEASURE_NOMINAL)
         return READSTAT_MEASURE_NOMINAL;
     if (sav_measure == SAV_MEASURE_ORDINAL)
@@ -175,8 +172,8 @@ readstat_measure_t spss_measure_to_readstat_measure(int32_t sav_measure) {
     return READSTAT_MEASURE_UNKNOWN;
 }
 
-int32_t spss_alignment_from_readstat_alignment(readstat_alignment_t alignment) {
-    int32_t sav_alignment = 0;
+uint32_t spss_alignment_from_readstat_alignment(readstat_alignment_t alignment) {
+    uint32_t sav_alignment = 0;
     if (alignment == READSTAT_ALIGNMENT_LEFT) {
         sav_alignment = SAV_ALIGNMENT_LEFT;
     } else if (alignment == READSTAT_ALIGNMENT_CENTER) {
@@ -187,7 +184,7 @@ int32_t spss_alignment_from_readstat_alignment(readstat_alignment_t alignment) {
     return sav_alignment;
 }
 
-readstat_alignment_t spss_alignment_to_readstat_alignment(int32_t sav_alignment) {
+readstat_alignment_t spss_alignment_to_readstat_alignment(uint32_t sav_alignment) {
     if (sav_alignment == SAV_ALIGNMENT_LEFT)
         return READSTAT_ALIGNMENT_LEFT;
     if (sav_alignment == SAV_ALIGNMENT_CENTER)

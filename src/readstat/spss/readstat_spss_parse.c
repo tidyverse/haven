@@ -272,7 +272,7 @@ readstat_error_t spss_parse_format(const char *data, int count, spss_format_t *f
     unsigned char *eof = pe;
 
     int cs;
-    int integer = 0;
+    unsigned int integer = 0;
 
     
 #line 279 "src/spss/readstat_spss_parse.c"

@@ -14,6 +14,7 @@
 #include "../readstat.h"
 #include "../readstat_bits.h"
 #include "../readstat_iconv.h"
+#include "../readstat_malloc.h"
 
 #include "readstat_sav.h"
 
@@ -21,7 +22,7 @@
 
 sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io) {
     sav_ctx_t *ctx = NULL;
-    if ((ctx = malloc(sizeof(sav_ctx_t))) == NULL) {
+    if ((ctx = readstat_malloc(sizeof(sav_ctx_t))) == NULL) {
         return NULL;
     }
     memset(ctx, 0, sizeof(sav_ctx_t));
@@ -45,7 +46,7 @@ sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io) {
     
     ctx->varinfo_capacity = SAV_VARINFO_INITIAL_CAPACITY;
     
-    if ((ctx->varinfo = calloc(ctx->varinfo_capacity, sizeof(spss_varinfo_t))) == NULL) {
+    if ((ctx->varinfo = readstat_calloc(ctx->varinfo_capacity, sizeof(spss_varinfo_t))) == NULL) {
         sav_ctx_free(ctx);
         return NULL;
     }
