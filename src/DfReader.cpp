@@ -206,7 +206,7 @@ public:
     const char* var_format = readstat_variable_get_format(variable);
 
     VarType var_type = numType(type_, var_format);
-    // Rcout << var_name << ": " << var_format << " [" << var_type << "]\n";
+    // Rcout << name << ": " << var_format << " [" << var_type << "]\n";
     var_types_[var_index] = var_type;
     switch(var_type) {
     case HAVEN_DATE:
@@ -365,7 +365,9 @@ public:
     nrowsAlloc_ = n;
 
     for (int i = 0; i < ncols_; ++i) {
-      output_[i] = Rf_lengthgets(output_[i], n);
+      Shield<SEXP> copy(Rf_lengthgets(output_[i], n));
+      Rf_copyMostAttrib(output_[i], copy);
+      output_[i] = copy;
     }
   }
 
@@ -617,7 +619,7 @@ List df_parse_xpt(Rcpp::List spec, std::string encoding = "") {
   DfReader builder(HAVEN_XPT);
   InputClass builder_input(spec);
 
-  readstat_parser_t* parser = haven_init_parser();
+  readstat_parser_t* parser = haven_init_parser(encoding);
   haven_init_io(parser, builder_input);
 
   readstat_error_t result = readstat_parse_xport(parser, "", &builder);

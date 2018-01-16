@@ -7,6 +7,9 @@
   * Stata: reorder labelled vectors on write (#327)
   * SAS: can now write wide/long rows (#272, #335).
 
+* `read_por()` and `read_xpt()` now correctly preserve attributes if
+  output needs to be reallocated (which is typical behaviour) (#313)
+
 * `read_sas()` recognises date/times format with trailing separator and width
   specifications (#324)
 
