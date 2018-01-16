@@ -64,7 +64,8 @@ test_that("spss labelleds are round tripped", {
     x = labelled_spss(
       c(1, 2, 1, 9),
       labels = c(no = 1, yes = 2, unknown = 9),
-      na_values = 9
+      na_values = 9,
+      na_range = c(80, 90)
     )
   )
 
@@ -74,12 +75,11 @@ test_that("spss labelleds are round tripped", {
   df2 <- read_sav(path)
   expect_s3_class(df2$x, "labelled")
 
-  # TODO: write out custom NA values
   df3 <- read_sav(path, user_na = TRUE)
-  expect_s3_class(df3$x, "labelled")
+  expect_s3_class(df3$x, "labelled_spss")
+  expect_equal(attr(df3$x, "na_values"), attr(df$x, "na_values"))
+  expect_equal(attr(df3$x, "na_range"), attr(df$x, "na_range"))
 })
-
-
 
 test_that("factors become labelleds", {
   f <- factor(c("a", "b"), levels = letters[1:3])

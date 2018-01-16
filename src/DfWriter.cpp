@@ -241,11 +241,27 @@ public:
 
     readstat_variable_t* var =
       readstat_add_variable(writer_, name, READSTAT_TYPE_DOUBLE, 0);
+
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(x));
+
+    if (Rf_inherits(x, "labelled_spss")) {
+      SEXP na_range = x.attr("na_range");
+      if (TYPEOF(na_range) == REALSXP && Rf_length(na_range) == 2) {
+        readstat_variable_add_missing_double_range(var, REAL(na_range)[0], REAL(na_range)[1]);
+      }
+
+      SEXP na_values = x.attr("na_values");
+      if (TYPEOF(na_values) == REALSXP) {
+        int n = Rf_length(na_values);
+        for (int i = 0; i < n; ++i) {
+          readstat_variable_add_missing_double_value(var, REAL(na_values)[i]);
+        }
+      }
+    }
   }
 
   void defineVariable(CharacterVector x, const char* name, const char* format = NULL) {
@@ -259,7 +275,6 @@ public:
       for (int i = 0; i < values.size(); ++i)
         readstat_label_string_value(labelSet, string_utf8(values, i), string_utf8(labels, i));
     }
-
     int max_length = 0;
     for (int i = 0; i < x.size(); ++i) {
       int length = strlen(string_utf8(x, i));
