@@ -28,7 +28,7 @@ least one new line to be recognised as data (instead of a path).}
 \item{encoding}{The character encoding used for the file. This defaults to
 the encoding specified in the file, or UTF-8. But older versions of Stata
 (13 and earlier) did not store the encoding used, and you'll need to
-specify manually. A commonly used value is "Win 1252".}
+specify manually. A commonly used value is "windows-1252".}
 
 \item{data}{Data frame to write.}
 

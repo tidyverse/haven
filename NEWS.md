@@ -5,6 +5,7 @@
   * SPSS: empty charater columns now read as character (#311)
   * SPSS: now write long strings (#266)
   * Stata: reorder labelled vectors on write (#327)
+  * State: `encoding` now affects value labels (#325)
   * SAS: can now write wide/long rows (#272, #335).
   * SAS: can now handle Windows Vietnamese character set (#336)
 
