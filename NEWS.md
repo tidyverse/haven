@@ -6,6 +6,7 @@
   * SPSS: now write long strings (#266)
   * Stata: reorder labelled vectors on write (#327)
   * SAS: can now write wide/long rows (#272, #335).
+  * SAS: can now handle Windows Vietnamese character set (#336)
 
 * `read_por()` and `read_xpt()` now correctly preserve attributes if
   output needs to be reallocated (which is typical behaviour) (#313)
