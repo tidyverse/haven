@@ -7,6 +7,9 @@
   * Stata: reorder labelled vectors on write (#327)
   * SAS: can now write wide/long rows (#272, #335).
 
+* `read_sas()` recognises date/times format with trailing separator and width
+  specifications (#324)
+
 * `write_dta()` now checks for bad labels in all columns, not just the first
   (#326).
 

@@ -55,14 +55,15 @@ inline VarType numType(FileType type, const char* var_format) {
   switch(type) {
   case HAVEN_XPT:
   case HAVEN_SAS:
-    if      (format == "DATETIME") return HAVEN_DATETIME;
-    else if (format == "WEEKDATE") return HAVEN_DATE;
-    else if (format == "MMDDYY")   return HAVEN_DATE;
-    else if (format == "DDMMYY")   return HAVEN_DATE;
-    else if (format == "YYMMDD")   return HAVEN_DATE;
-    else if (format == "DATE")     return HAVEN_DATE;
-    else if (format == "TIME")     return HAVEN_TIME;
-    else if (format == "HHMM")     return HAVEN_TIME;
+    // http://support.sas.com/documentation/cdl/en/lrdict/64316/HTML/default/viewer.htm#a000589916.htm
+    if      (hasPrefix(format,"DATETIME")) return HAVEN_DATETIME;
+    else if (hasPrefix(format,"WEEKDATE")) return HAVEN_DATE;
+    else if (hasPrefix(format,"MMDDYY"))   return HAVEN_DATE;
+    else if (hasPrefix(format,"DDMMYY"))   return HAVEN_DATE;
+    else if (hasPrefix(format,"YYMMDD"))   return HAVEN_DATE;
+    else if (hasPrefix(format,"DATE"))     return HAVEN_DATE;
+    else if (hasPrefix(format,"TIME"))     return HAVEN_TIME;
+    else if (hasPrefix(format,"HHMM"))     return HAVEN_TIME;
     else                           return HAVEN_DEFAULT;
   case HAVEN_SPSS:
     // http://www-01.ibm.com/support/knowledgecenter/?lang=en#!/SSLVMB_20.0.0/com.ibm.spss.statistics.help/syn_date_and_time_date_time_formats.htm
