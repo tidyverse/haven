@@ -2,3 +2,8 @@
 .Rhistory
 .RData
 inst/doc
+revdep/checks
+revdep/library
+revdep/checks.noindex
+revdep/library.noindex
+revdep/data.sqlite
