@@ -1,37 +1,39 @@
 Package: haven
-Version: 1.1.0.9000
 Title: Import and Export 'SPSS', 'Stata' and 'SAS' Files
+Version: 1.1.0.9000
+Authors@R: c(
+    person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
+    person("Evan", "Miller", 
+      role = c("aut", "cph"),
+      comment = "Author of included ReadStat code"
+    ),
+    person("RStudio", role = c("cph", "fnd"))
+  )
 Description: Import foreign statistical formats into R via the embedded
     'ReadStat' C library, <https://github.com/WizardMac/ReadStat>.
 License: MIT + file LICENSE
-Authors@R: c(
-    person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
-    person("Evan", "Miller", , role = c("aut", "cph"),
-      comment = "Author of included ReadStat code"),
-    person("RStudio", role = c("cph", "fnd"))
-  )
-Depends: 
-    R (>= 3.1)
-Suggests:
-    testthat,
-    knitr,
-    rmarkdown,
-    covr
-LinkingTo:
-    Rcpp
-Imports:
-    Rcpp (>= 0.11.4),
-    readr (>= 0.1.0),
-    hms,
-    tibble,
-    forcats (>= 0.2.0)
-LazyData: true
 URL:
     http://haven.tidyverse.org, 
     https://github.com/tidyverse/haven,
     https://github.com/WizardMac/ReadStat
-BugReports: https://github.com/hadley/haven/issues
+BugReports: https://github.com/tidyverse/haven/issues
+Depends: 
+    R (>= 3.1)
+Imports: 
+    forcats (>= 0.2.0),
+    hms,
+    Rcpp (>= 0.11.4),
+    readr (>= 0.1.0),
+    tibble
+Suggests: 
+    covr,
+    knitr,
+    rmarkdown,
+    testthat
+LinkingTo: 
+    Rcpp
 VignetteBuilder: knitr
-SystemRequirements: GNU make
-RoxygenNote: 6.0.1
 Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+SystemRequirements: GNU make
