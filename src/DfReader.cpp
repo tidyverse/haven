@@ -637,7 +637,8 @@ List df_parse_xpt(Rcpp::List spec, std::string encoding = "") {
 
 template<typename InputClass>
 List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
-                  std::string encoding, std::vector<std::string> cols_only) {
+                  std::string encoding, std::string catalog_encoding,
+                  std::vector<std::string> cols_only) {
   DfReader builder(HAVEN_SAS);
 
   if (!cols_only.empty()) {
@@ -647,12 +648,15 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 
   InputClass builder_input_dat(spec_b7dat);
 
-  readstat_parser_t* parser = haven_init_parser(encoding);
+  readstat_parser_t* parser = haven_init_parser();
   haven_init_io(parser, builder_input_dat);
 
   if (spec_b7cat.size() != 0) {
     InputClass builder_input_cat(spec_b7cat);
     readstat_set_io_ctx(parser, (void*) &builder_input_cat);
+    if (catalog_encoding != "") {
+      readstat_set_file_character_encoding(parser, catalog_encoding.c_str());
+    }
 
     readstat_error_t result = readstat_parse_sas7bcat(parser, "", &builder);
 
@@ -664,6 +668,10 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
   }
 
   readstat_set_io_ctx(parser, (void*) &builder_input_dat);
+  if (encoding != "") {
+    readstat_set_file_character_encoding(parser, encoding.c_str());
+  }
+
   readstat_error_t result = readstat_parse_sas7bdat(parser, "", &builder);
   readstat_parser_free(parser);
 
@@ -677,13 +685,15 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 
 // [[Rcpp::export]]
 List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
-                       std::string encoding, std::vector<std::string> cols_only) {
-  return df_parse_sas<DfReaderInputFile>(spec_b7dat, spec_b7cat, encoding, cols_only);
+                       std::string encoding, std::string catalog_encoding,
+                       std::vector<std::string> cols_only) {
+  return df_parse_sas<DfReaderInputFile>(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_only);
 }
 // [[Rcpp::export]]
 List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
-                      std::string encoding, std::vector<std::string> cols_only) {
-  return df_parse_sas<DfReaderInputRaw>(spec_b7dat, spec_b7cat, encoding, cols_only);
+                      std::string encoding, std::string catalog_encoding,
+                      std::vector<std::string> cols_only) {
+  return df_parse_sas<DfReaderInputRaw>(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_only);
 }
 
 // [[Rcpp::export]]

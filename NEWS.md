@@ -13,6 +13,9 @@
 
 * `read_sas()` recognises date/times format with trailing separator and width
   specifications (#324)
+  
+* `read_sas()` gains a `catalog_encoding` argument so you can independently
+  specify encoding of data and catalog (#312)
 
 * `write_dta()` now checks for bad labels in all columns, not just the first
   (#326).

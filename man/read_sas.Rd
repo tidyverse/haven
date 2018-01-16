@@ -6,7 +6,7 @@
 \title{Read and write SAS files.}
 \usage{
 read_sas(data_file, catalog_file = NULL, encoding = NULL,
-  cols_only = NULL)
+  catalog_encoding = encoding, cols_only = NULL)
 
 write_sas(data, path)
 }
@@ -14,9 +14,10 @@ write_sas(data, path)
 \item{data_file, catalog_file}{Path to data and catalog files. The files are
 processed with \code{\link[readr]{datasource}()}.}
 
-\item{encoding}{The character encoding used for the file. This defaults to
-the encoding specified in the file, or UTF-8. You can use this argument
-to override the value stored in the file if it is correct}
+\item{encoding, catalog_encoding}{The character encoding used for the
+`data_file` and `catalog_encoding` respectively. A value of `NULL`
+uses the encoding specified in the file; use this argument to override it
+if it is incorrect.}
 
 \item{cols_only}{A character vector giving an experimental way to read in
 only specified columns.}
