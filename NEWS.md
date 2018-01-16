@@ -25,7 +25,8 @@
   (#326).
 
 * `write_sav()` no longer fails on empty factors or factors with an `NA`
-  level (#301).
+  level (#301) and writes out more metadata for `labelled_spss` vectors 
+  (#334).
  
 # haven 1.1.0
 

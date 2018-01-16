@@ -4,7 +4,6 @@ using namespace Rcpp;
 #include "haven_types.h"
 
 ssize_t data_writer(const void *data, size_t len, void *ctx);
-std::string rClass(RObject x);
 
 inline const char* string_utf8(SEXP x, int i) {
   return Rf_translateCharUTF8(STRING_ELT(x, i));
@@ -230,7 +229,7 @@ public:
 
   void defineVariable(NumericVector x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
-    if (rClass(x) == "labelled") {
+    if (Rf_inherits(x, "labelled")) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name);
 
       NumericVector values = as<NumericVector>(x.attr("labels"));
@@ -251,7 +250,7 @@ public:
 
   void defineVariable(CharacterVector x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
-    if (rClass(x) == "labelled") {
+    if (Rf_inherits(x, "labelled")) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name);
 
       CharacterVector values = as<CharacterVector>(x.attr("labels"));
@@ -320,15 +319,6 @@ ssize_t data_writer(const void *data, size_t len, void *ctx) {
   return ((Writer*) ctx)->write(data, len);
 }
 
-std::string rClass(RObject x) {
-  RObject klass_ = x.attr("class");
-  std::string klass;
-  if (klass_ == R_NilValue)
-    return "";
-
-  CharacterVector klassv = as<Rcpp::CharacterVector>(klass_);
-  return std::string(klassv[0]);
-}
 // [[Rcpp::export]]
 void write_sav_(List data, std::string path) {
   Writer(HAVEN_SPSS, data, path).write();
