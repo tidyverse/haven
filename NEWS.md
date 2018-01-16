@@ -10,6 +10,9 @@
 * `write_dta()` now checks for bad labels in all columns, not just the first
   (#326).
 
+* `write_sav()` no longer fails on empty factors or factors with an `NA`
+  level (#301).
+ 
 # haven 1.1.0
 
 * Update to latest readstat. Includes:

@@ -279,11 +279,3 @@ var_names <- function(data, i) {
   x <- names(data)[i]
   paste(encodeString(x, quote = "`"), collapse = ", ")
 }
-
-
-max_level_length <- function(x) {
-  if (!is.factor(x))
-    return(0L)
-
-  max(nchar(levels(x)))
-}
