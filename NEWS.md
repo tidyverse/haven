@@ -17,6 +17,10 @@
 * `read_sas()` gains a `catalog_encoding` argument so you can independently
   specify encoding of data and catalog (#312)
 
+* `write_*()` correctly measures lengths of non-ASCII labels (#258): this
+  fixes the cryptic error "A provided string value was longer than the 
+  available storage size of the specified column."
+
 * `write_dta()` now checks for bad labels in all columns, not just the first
   (#326).
 

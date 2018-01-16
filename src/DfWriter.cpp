@@ -263,7 +263,7 @@ public:
 
     int max_length = 0;
     for (int i = 0; i < x.size(); ++i) {
-      int length = std::string(x[i]).size();
+      int length = strlen(string_utf8(x, i));
       if (length > max_length)
         max_length = length;
     }
