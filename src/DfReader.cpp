@@ -683,6 +683,8 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
   return builder.output();
 }
 
+// # nocov start
+
 // [[Rcpp::export]]
 List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                        std::string encoding, std::string catalog_encoding,
@@ -731,3 +733,5 @@ List df_parse_por_file(Rcpp::List spec, bool user_na) {
 List df_parse_por_raw(Rcpp::List spec, bool user_na) {
   return df_parse_spss<DfReaderInputRaw>(spec, user_na, true);
 }
+
+// # nocov end
