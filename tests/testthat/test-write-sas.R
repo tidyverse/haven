@@ -24,6 +24,16 @@ test_that("can roundtrip date times", {
   expect_equal(roundtrip_var(x2, "sas"), x2)
 })
 
+test_that("can roundtrip format attribute", {
+  df <- data.frame(x = structure(1:5, format.sas = "xyz"))
+  path <- tempfile()
+
+  write_sas(df, path)
+  out <- read_sas(path)
+
+  expect_equal(df$x, out$x)
+})
+
 test_that("infinity gets converted to NA", {
   expect_equal(roundtrip_var(c(Inf, 0, -Inf), "sas"), c(NA, 0, NA))
 })
