@@ -1,6 +1,6 @@
 ## Test environments
 * local OS X install: R-release
-* travis-ci: R-oldrel, R-release, R-devel
+* travis-ci: R-3.1, R-3.2, R-oldrel, R-release, R-devel
 * win-builder: R-devel
 
 ## R CMD check results
