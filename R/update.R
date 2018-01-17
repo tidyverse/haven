@@ -1,3 +1,4 @@
+# nocov start
 update_readstat <- function() {
   tmp <- tempfile()
   utils::download.file(
@@ -25,3 +26,4 @@ update_readstat <- function() {
 
   invisible()
 }
+# nocov end
