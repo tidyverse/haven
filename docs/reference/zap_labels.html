@@ -142,20 +142,20 @@ replacing all with <code>NA</code>s.</p>
 <span class='co'># zap_labels also works with data frames</span>
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/tibble/topics/tibble'>data_frame</a></span>(<span class='no'>x1</span>, <span class='no'>x2</span>)
 <span class='no'>df</span></div><div class='output co'>#&gt; # A tibble: 5 x 2
-#&gt;          x1        x2
+#&gt;   x1        x2       
 #&gt;   &lt;int+lbl&gt; &lt;dbl+lbl&gt;
-#&gt; 1         1         1
-#&gt; 2         2         2
-#&gt; 3         3         3
-#&gt; 4         4         4
-#&gt; 5         5         9</div><div class='input'><span class='fu'>zap_labels</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 2
+#&gt; 1 1         1        
+#&gt; 2 2         2        
+#&gt; 3 3         3        
+#&gt; 4 4         4        
+#&gt; 5 5         9        </div><div class='input'><span class='fu'>zap_labels</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 2
 #&gt;      x1    x2
 #&gt;   &lt;int&gt; &lt;dbl&gt;
-#&gt; 1     1     1
-#&gt; 2     2     2
-#&gt; 3     3     3
-#&gt; 4     4     4
-#&gt; 5     5    NA</div></pre>
+#&gt; 1     1  1.00
+#&gt; 2     2  2.00
+#&gt; 3     3  3.00
+#&gt; 4     4  4.00
+#&gt; 5     5 NA   </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

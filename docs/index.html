@@ -75,12 +75,9 @@
       
       </header><div class="row">
   <div class="contents col-md-9">
-    <div id="haven" class="section level1">
+    <section class="level1">
 
-
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h2>
+<section class="level2"><h2>Overview</h2>
 <p>Haven enables R to read and write various data formats used by other statistical packages by wrapping the fantastic <a href="https://github.com/WizardMac/ReadStat">ReadStat</a> C library written by <a href="http://www.evanmiller.org">Evan Miller</a>. Haven is part of the <a href="http://tidyverse.org">tidyverse</a>. Currently it supports:</p>
 <ul>
 <li><p><strong>SAS</strong>: <code><a href="reference/read_sas.html">read_sas()</a></code> reads <code>.sas7bdat</code> + <code>.sas7bcat</code> files and <code><a href="reference/read_xpt.html">read_xpt()</a></code> reads SAS transport files (version 5 and version 8). <code><a href="reference/read_sas.html">write_sas()</a></code> writes <code>.sas7bdat</code> files.</p></li>
@@ -92,40 +89,41 @@
 <li><p>Are <a href="http://github.com/hadley/tibble">tibbles</a>, which have a better print method for very long and very wide files.</p></li>
 <li><p>Translate value labels into a new <code><a href="reference/labelled.html">labelled()</a></code> class, which preserves the original semantics and can easily be coerced to factors with <code><a href="reference/as_factor.html">as_factor()</a></code>. Special missing values are preserved. See <code><a href="articles/semantics.html">vignette("semantics")</a></code> for more details.</p></li>
 <li><p>Dates and times are converted to R date/time classes. Character vectors are not converted to factors.</p></li>
-</ul>
+</ul></section><section class="level2"><h2>Installation</h2>
+<pre class="sourceCode r" id="cb1"><code class="sourceCode r"><div class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># The easiest way to get haven is to install the whole tidyverse:</span></div>
+<div class="sourceLine" id="cb1-2" data-line-number="2">
+<span class="kw">install.packages</span>(<span class="st">"tidyverse"</span>)</div>
+<div class="sourceLine" id="cb1-3" data-line-number="3"></div>
+<div class="sourceLine" id="cb1-4" data-line-number="4"><span class="co"># Alternatively, install just haven:</span></div>
+<div class="sourceLine" id="cb1-5" data-line-number="5">
+<span class="kw">install.packages</span>(<span class="st">"haven"</span>)</div>
+<div class="sourceLine" id="cb1-6" data-line-number="6"></div>
+<div class="sourceLine" id="cb1-7" data-line-number="7"><span class="co"># Or the the development version from GitHub:</span></div>
+<div class="sourceLine" id="cb1-8" data-line-number="8"><span class="co"># install.packages("devtools")</span></div>
+<div class="sourceLine" id="cb1-9" data-line-number="9">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"tidyverse/haven"</span>)</div></code></pre>
+</section><section class="level2"><h2>Usage</h2>
+<pre class="sourceCode r" id="cb2"><code class="sourceCode r"><div class="sourceLine" id="cb2-1" data-line-number="1">
+<span class="kw">library</span>(haven)</div>
+<div class="sourceLine" id="cb2-2" data-line-number="2"></div>
+<div class="sourceLine" id="cb2-3" data-line-number="3"><span class="co"># SAS</span></div>
+<div class="sourceLine" id="cb2-4" data-line-number="4">
+<span class="kw"><a href="reference/read_sas.html">read_sas</a></span>(<span class="st">"mtcars.sas7bdat"</span>)</div>
+<div class="sourceLine" id="cb2-5" data-line-number="5">
+<span class="kw"><a href="reference/read_sas.html">write_sas</a></span>(mtcars, <span class="st">"mtcars.sas7bdat"</span>)</div>
+<div class="sourceLine" id="cb2-6" data-line-number="6"></div>
+<div class="sourceLine" id="cb2-7" data-line-number="7"><span class="co"># SPSS</span></div>
+<div class="sourceLine" id="cb2-8" data-line-number="8">
+<span class="kw"><a href="reference/read_spss.html">read_sav</a></span>(<span class="st">"mtcars.sav"</span>)</div>
+<div class="sourceLine" id="cb2-9" data-line-number="9">
+<span class="kw"><a href="reference/read_spss.html">write_sav</a></span>(mtcars, <span class="st">"mtcars.sav"</span>)</div>
+<div class="sourceLine" id="cb2-10" data-line-number="10"></div>
+<div class="sourceLine" id="cb2-11" data-line-number="11"><span class="co"># Stata</span></div>
+<div class="sourceLine" id="cb2-12" data-line-number="12">
+<span class="kw"><a href="reference/read_dta.html">read_dta</a></span>(<span class="st">"mtcars.dta"</span>)</div>
+<div class="sourceLine" id="cb2-13" data-line-number="13">
+<span class="kw"><a href="reference/read_dta.html">write_dta</a></span>(mtcars, <span class="st">"mtcars.dta"</span>)</div></code></pre>
+</section></section>
 </div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The easiest way to get haven is to install the whole tidyverse:</span>
-<span class="kw">install.packages</span>(<span class="st">"tidyverse"</span>)
-
-<span class="co"># Alternatively, install just haven:</span>
-<span class="kw">install.packages</span>(<span class="st">"haven"</span>)
-
-<span class="co"># Or the the development version from GitHub:</span>
-<span class="co"># install.packages("devtools")</span>
-devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"tidyverse/haven"</span>)</code></pre></div>
-</div>
-<div id="usage" class="section level2">
-<h2 class="hasAnchor">
-<a href="#usage" class="anchor"></a>Usage</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(haven)
-
-<span class="co"># SAS</span>
-<span class="kw"><a href="reference/read_sas.html">read_sas</a></span>(<span class="st">"mtcars.sas7bdat"</span>)
-<span class="kw"><a href="reference/read_sas.html">write_sas</a></span>(mtcars, <span class="st">"mtcars.sas7bdat"</span>)
-
-<span class="co"># SPSS</span>
-<span class="kw"><a href="reference/read_spss.html">read_sav</a></span>(<span class="st">"mtcars.sav"</span>)
-<span class="kw"><a href="reference/read_spss.html">write_sav</a></span>(mtcars, <span class="st">"mtcars.sav"</span>)
-
-<span class="co"># Stata</span>
-<span class="kw"><a href="reference/read_dta.html">read_dta</a></span>(<span class="st">"mtcars.dta"</span>)
-<span class="kw"><a href="reference/read_dta.html">write_dta</a></span>(mtcars, <span class="st">"mtcars.dta"</span>)</code></pre></div>
-</div>
-</div>
-  </div>
 
   <div class="col-md-3" id="sidebar">
     <h2>Links</h2>
@@ -134,7 +132,7 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 </li>
 <li>Browse source code at <br><a href="https://github.com/tidyverse/haven">https://​github.com/​tidyverse/​haven</a>
 </li>
-<li>Report a bug at <br><a href="https://github.com/hadley/haven/issues">https://​github.com/​hadley/​haven/​issues</a>
+<li>Report a bug at <br><a href="https://github.com/tidyverse/haven/issues">https://​github.com/​tidyverse/​haven/​issues</a>
 </li>
 </ul>
 <h2>License</h2>
@@ -144,10 +142,10 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 <li>
 <a href="http://hadley.nz">Hadley Wickham</a> <br><small class="roles"> Author, maintainer </small> </li>
 <li>
-<a href="http://www.evanmiller.org">Evan Miller</a> <br><small class="roles"> Author, copyright holder </small> <br><small>(Author of included ReadStat code)</small>
+<a href="http://www.evanmiller.org">Evan Miller</a> <br><small class="roles"> Author, copyright holder </small> <br><small>(Author of included ReadStat code)</small>
 </li>
 <li>
-<a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" height="24"></a> <br><small class="roles"> Copyright holder, funder </small> </li>
+<a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" height="24"></a> <br><small class="roles"> Copyright holder, funder </small> </li>
 </ul>
 <h2>Dev status</h2>
 <ul class="list-unstyled">
