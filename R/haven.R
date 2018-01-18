@@ -97,6 +97,9 @@ write_xpt <- function(data, path, version = 8) {
 #' @inheritParams readr::datasource
 #' @param path Path to a file where the data will be written.
 #' @param data Data frame to write.
+#' @param encoding The character encoding used for the file. The default,
+#'   `NULL`, use the encoding specified in the file, but sometimes this
+#'   value is incorrect and it is useful to be able to override it.
 #' @return A tibble, data frame variant with nice defaults.
 #'
 #'   Variable labels are stored in the "label" attribute of each variable.
@@ -113,22 +116,28 @@ NULL
 
 #' @export
 #' @rdname read_spss
-read_sav <- function(file, user_na = FALSE) {
+read_sav <- function(file, encoding = NULL, user_na = FALSE) {
   spec <- readr::datasource(file)
+  if (is.null(encoding)) {
+    encoding <- ""
+  }
   switch(class(spec)[1],
-    source_file = df_parse_sav_file(spec, user_na),
-    source_raw = df_parse_sav_raw(spec, user_na),
+    source_file = df_parse_sav_file(spec, encoding, user_na),
+    source_raw = df_parse_sav_raw(spec, encoding, user_na),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
 
 #' @export
 #' @rdname read_spss
-read_por <- function(file, user_na = FALSE) {
+read_por <- function(file, encoding = NULL, user_na = FALSE) {
   spec <- readr::datasource(file)
+  if (is.null(encoding)) {
+    encoding <- ""
+  }
   switch(class(spec)[1],
-    source_file = df_parse_por_file(spec, user_na),
-    source_raw = df_parse_por_raw(spec, user_na),
+    source_file = df_parse_por_file(spec, encoding, user_na),
+    source_raw = df_parse_por_raw(spec, encoding, user_na),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }

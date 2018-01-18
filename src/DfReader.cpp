@@ -569,11 +569,11 @@ std::string haven_error_message(Rcpp::List spec) {
 }
 
 template<typename InputClass>
-List df_parse_spss(Rcpp::List spec, bool user_na = false, bool por = false) {
+List df_parse_spss(Rcpp::List spec, std::string encoding = "", bool user_na = false, bool por = false) {
   DfReader builder(HAVEN_SPSS, user_na);
   InputClass builder_input(spec);
 
-  readstat_parser_t* parser = haven_init_parser();
+  readstat_parser_t* parser = haven_init_parser(encoding);
   haven_init_io(parser, builder_input);
 
   readstat_error_t result;
@@ -717,21 +717,21 @@ List df_parse_dta_raw(Rcpp::List spec, std::string encoding) {
 }
 
 // [[Rcpp::export]]
-List df_parse_sav_file(Rcpp::List spec, bool user_na) {
-  return df_parse_spss<DfReaderInputFile>(spec, user_na, false);
+List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na) {
+  return df_parse_spss<DfReaderInputFile>(spec, encoding, user_na, false);
 }
 // [[Rcpp::export]]
-List df_parse_sav_raw(Rcpp::List spec, bool user_na) {
-  return df_parse_spss<DfReaderInputRaw>(spec, user_na, false);
+List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na) {
+  return df_parse_spss<DfReaderInputRaw>(spec, encoding, user_na, false);
 }
 
 // [[Rcpp::export]]
-List df_parse_por_file(Rcpp::List spec, bool user_na) {
-  return df_parse_spss<DfReaderInputFile>(spec, user_na, true);
+List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na) {
+  return df_parse_spss<DfReaderInputFile>(spec, encoding, user_na, true);
 }
 // [[Rcpp::export]]
-List df_parse_por_raw(Rcpp::List spec, bool user_na) {
-  return df_parse_spss<DfReaderInputRaw>(spec, user_na, true);
+List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na) {
+  return df_parse_spss<DfReaderInputRaw>(spec, encoding, user_na, true);
 }
 
 // # nocov end

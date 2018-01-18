@@ -83,50 +83,54 @@ BEGIN_RCPP
 END_RCPP
 }
 // df_parse_sav_file
-List df_parse_sav_file(Rcpp::List spec, bool user_na);
-RcppExport SEXP _haven_df_parse_sav_file(SEXP specSEXP, SEXP user_naSEXP) {
+List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na);
+RcppExport SEXP _haven_df_parse_sav_file(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    Rcpp::traits::input_parameter< std::string >::type encoding(encodingSEXP);
     Rcpp::traits::input_parameter< bool >::type user_na(user_naSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_sav_file(spec, user_na));
+    rcpp_result_gen = Rcpp::wrap(df_parse_sav_file(spec, encoding, user_na));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_sav_raw
-List df_parse_sav_raw(Rcpp::List spec, bool user_na);
-RcppExport SEXP _haven_df_parse_sav_raw(SEXP specSEXP, SEXP user_naSEXP) {
+List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na);
+RcppExport SEXP _haven_df_parse_sav_raw(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    Rcpp::traits::input_parameter< std::string >::type encoding(encodingSEXP);
     Rcpp::traits::input_parameter< bool >::type user_na(user_naSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_sav_raw(spec, user_na));
+    rcpp_result_gen = Rcpp::wrap(df_parse_sav_raw(spec, encoding, user_na));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_por_file
-List df_parse_por_file(Rcpp::List spec, bool user_na);
-RcppExport SEXP _haven_df_parse_por_file(SEXP specSEXP, SEXP user_naSEXP) {
+List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na);
+RcppExport SEXP _haven_df_parse_por_file(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    Rcpp::traits::input_parameter< std::string >::type encoding(encodingSEXP);
     Rcpp::traits::input_parameter< bool >::type user_na(user_naSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_por_file(spec, user_na));
+    rcpp_result_gen = Rcpp::wrap(df_parse_por_file(spec, encoding, user_na));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_por_raw
-List df_parse_por_raw(Rcpp::List spec, bool user_na);
-RcppExport SEXP _haven_df_parse_por_raw(SEXP specSEXP, SEXP user_naSEXP) {
+List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na);
+RcppExport SEXP _haven_df_parse_por_raw(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    Rcpp::traits::input_parameter< std::string >::type encoding(encodingSEXP);
     Rcpp::traits::input_parameter< bool >::type user_na(user_naSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_por_raw(spec, user_na));
+    rcpp_result_gen = Rcpp::wrap(df_parse_por_raw(spec, encoding, user_na));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -188,10 +192,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_haven_df_parse_xpt_raw", (DL_FUNC) &_haven_df_parse_xpt_raw, 1},
     {"_haven_df_parse_dta_file", (DL_FUNC) &_haven_df_parse_dta_file, 2},
     {"_haven_df_parse_dta_raw", (DL_FUNC) &_haven_df_parse_dta_raw, 2},
-    {"_haven_df_parse_sav_file", (DL_FUNC) &_haven_df_parse_sav_file, 2},
-    {"_haven_df_parse_sav_raw", (DL_FUNC) &_haven_df_parse_sav_raw, 2},
-    {"_haven_df_parse_por_file", (DL_FUNC) &_haven_df_parse_por_file, 2},
-    {"_haven_df_parse_por_raw", (DL_FUNC) &_haven_df_parse_por_raw, 2},
+    {"_haven_df_parse_sav_file", (DL_FUNC) &_haven_df_parse_sav_file, 3},
+    {"_haven_df_parse_sav_raw", (DL_FUNC) &_haven_df_parse_sav_raw, 3},
+    {"_haven_df_parse_por_file", (DL_FUNC) &_haven_df_parse_por_file, 3},
+    {"_haven_df_parse_por_raw", (DL_FUNC) &_haven_df_parse_por_raw, 3},
     {"_haven_write_sav_", (DL_FUNC) &_haven_write_sav_, 2},
     {"_haven_write_dta_", (DL_FUNC) &_haven_write_dta_, 3},
     {"_haven_write_sas_", (DL_FUNC) &_haven_write_sas_, 2},

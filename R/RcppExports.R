@@ -25,20 +25,20 @@ df_parse_dta_raw <- function(spec, encoding) {
     .Call(`_haven_df_parse_dta_raw`, spec, encoding)
 }
 
-df_parse_sav_file <- function(spec, user_na) {
-    .Call(`_haven_df_parse_sav_file`, spec, user_na)
+df_parse_sav_file <- function(spec, encoding, user_na) {
+    .Call(`_haven_df_parse_sav_file`, spec, encoding, user_na)
 }
 
-df_parse_sav_raw <- function(spec, user_na) {
-    .Call(`_haven_df_parse_sav_raw`, spec, user_na)
+df_parse_sav_raw <- function(spec, encoding, user_na) {
+    .Call(`_haven_df_parse_sav_raw`, spec, encoding, user_na)
 }
 
-df_parse_por_file <- function(spec, user_na) {
-    .Call(`_haven_df_parse_por_file`, spec, user_na)
+df_parse_por_file <- function(spec, encoding, user_na) {
+    .Call(`_haven_df_parse_por_file`, spec, encoding, user_na)
 }
 
-df_parse_por_raw <- function(spec, user_na) {
-    .Call(`_haven_df_parse_por_raw`, spec, user_na)
+df_parse_por_raw <- function(spec, encoding, user_na) {
+    .Call(`_haven_df_parse_por_raw`, spec, encoding, user_na)
 }
 
 write_sav_ <- function(data, path) {

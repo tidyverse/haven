@@ -8,9 +8,9 @@
 \alias{read_spss}
 \title{Read SPSS (SAV & POR) files. Write SAV files.}
 \usage{
-read_sav(file, user_na = FALSE)
+read_sav(file, encoding = NULL, user_na = FALSE)
 
-read_por(file, user_na = FALSE)
+read_por(file, encoding = NULL, user_na = FALSE)
 
 write_sav(data, path)
 
@@ -28,6 +28,10 @@ decompressed.
 
 Literal data is most useful for examples and tests. It must contain at
 least one new line to be recognised as data (instead of a path).}
+
+\item{encoding}{The character encoding used for the file. The default,
+`NULL`, use the encoding specified in the file, but sometimes this
+value is incorrect and it is useful to be able to override it.}
 
 \item{user_na}{If \code{TRUE} variables with user defined missing will
 be read into \code{\link{labelled_spss}} objects. If \code{FALSE}, the
