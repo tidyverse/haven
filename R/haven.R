@@ -171,12 +171,23 @@ read_spss <- function(file, user_na = FALSE) {
 #' and factors. See \code{\link{labelled}} for how labelled variables in
 #' Stata are handled in R.
 #'
+#' @section Character encoding:
+#' Prior to Stata 14, files did not declare a text encoding, and the
+#' default encoding differed across platforms. If `encoding = NULL`,
+#' haven assumes the encoding is windows-1252, the text encoding used by
+#' Stata on Windows. Unfortunately Stata on Mac and Linux use a different
+#' default encoding, "latin1". If you encounter an error such as
+#' "Unable to convert string to the requested encoding", try
+#' `encoding = "latin1"`
+#'
+#' For Stata 14 and later, you should not need to manually specify `encoding`
+#' value unless the value was incorrectly recorded in the source file.
+#'
 #' @inheritParams readr::datasource
 #' @inheritParams read_spss
-#' @param encoding The character encoding used for the file. This defaults to
-#'   the encoding specified in the file, or UTF-8. But older versions of Stata
-#'   (13 and earlier) did not store the encoding used, and you'll need to
-#'   specify manually. A commonly used value is "windows-1252".
+#' @param encoding The character encoding used for the file. Generally,
+#'   only needed for Stata 13 files and earlier. See Encoding section
+#'   for details.
 #' @return A tibble, data frame variant with nice defaults.
 #'
 #'   Variable labels are stored in the "label" attribute of each variable.
