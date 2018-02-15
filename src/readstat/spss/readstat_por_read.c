@@ -35,7 +35,7 @@ static readstat_error_t read_string(por_ctx_t *ctx, char *data, size_t len);
 
 static readstat_error_t por_update_progress(por_ctx_t *ctx) {
     readstat_io_t *io = ctx->io;
-    return io->update(ctx->file_size, ctx->progress_handler, ctx->user_ctx, io->io_ctx);
+    return io->update(ctx->file_size, ctx->handle.progress, ctx->user_ctx, io->io_ctx);
 }
 
 static ssize_t read_bytes(por_ctx_t *ctx, void *dst, size_t len) {
@@ -119,21 +119,21 @@ static readstat_error_t read_double_with_peek(por_ctx_t *ctx, double *out_double
 
     len = por_utf8_encode(buffer, i, utf8_buffer, sizeof(utf8_buffer), ctx->byte2unicode);
     if (len == -1) {
-        if (ctx->error_handler) {
+        if (ctx->handle.error) {
             snprintf(error_buf, sizeof(error_buf), "Error converting double string (length=%" PRId64 "): %.*s", 
                     i, (int)i, buffer);
-            ctx->error_handler(error_buf, ctx->user_ctx);
+            ctx->handle.error(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_CONVERT;
         goto cleanup;
     }
     
-    bytes_read = readstat_por_parse_double(utf8_buffer, len, &value, ctx->error_handler, ctx->user_ctx);
+    bytes_read = readstat_por_parse_double(utf8_buffer, len, &value, ctx->handle.error, ctx->user_ctx);
     if (bytes_read == -1) {
-        if (ctx->error_handler) {
+        if (ctx->handle.error) {
             snprintf(error_buf, sizeof(error_buf), "Error parsing double string (length=%" PRId64 "): %.*s [%s]", 
                     len, (int)len, utf8_buffer, buffer);
-            ctx->error_handler(error_buf, ctx->user_ctx);
+            ctx->handle.error(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
@@ -218,10 +218,10 @@ static readstat_error_t maybe_read_string(por_ctx_t *ctx, char *data, size_t len
     size_t bytes_encoded = por_utf8_encode(ctx->string_buffer, string_length, 
             data, len - 1, ctx->byte2unicode);
     if (bytes_encoded == -1) {
-        if (ctx->error_handler) {
+        if (ctx->handle.error) {
             snprintf(error_buf, sizeof(error_buf), "Error converting string: %.*s", 
                     (int)string_length, ctx->string_buffer);
-            ctx->error_handler(error_buf, ctx->user_ctx);
+            ctx->handle.error(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_CONVERT;
         goto cleanup;
@@ -261,12 +261,22 @@ static readstat_error_t read_variable_count_record(por_ctx_t *ctx) {
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;
     }
-    if (ctx->info_handler) {
-        if (ctx->info_handler(-1, ctx->var_count, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+
+    if (ctx->handle.metadata) {
+        readstat_metadata_t metadata = {
+            .row_count = -1,
+            .var_count = ctx->var_count,
+            .creation_time = ctx->timestamp,
+            .modified_time = ctx->timestamp,
+            .file_format_version = ctx->version,
+            .file_label = ctx->file_label
+        };
+        if (ctx->handle.metadata(&metadata, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
     }
+        
 cleanup:
     return retval;
 }
@@ -473,8 +483,8 @@ static readstat_error_t read_document_record(por_ctx_t *ctx) {
         if ((retval = read_string(ctx, string, sizeof(string))) != READSTAT_OK) {
             goto cleanup;
         }
-        if (ctx->note_handler) {
-            if (ctx->note_handler(i, string, ctx->user_ctx) != READSTAT_OK) {
+        if (ctx->handle.note) {
+            if (ctx->handle.note(i, string, ctx->user_ctx) != READSTAT_OK) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
             }
@@ -551,7 +561,7 @@ static readstat_error_t read_value_label_record(por_ctx_t *ctx) {
             }
             value.v.double_value = dval;
         }
-        if (ctx->value_label_handler(label_name_buf, value, label_buf, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+        if (ctx->handle.value_label(label_name_buf, value, label_buf, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -581,10 +591,10 @@ static readstat_error_t read_por_file_data(por_ctx_t *ctx) {
             if (info->type == READSTAT_TYPE_STRING) {
                 rs_retval = maybe_read_string(ctx, input_string, sizeof(input_string), &finished);
                 if (rs_retval != READSTAT_OK) {
-                    if (ctx->error_handler) {
+                    if (ctx->handle.error) {
                         snprintf(error_buf, sizeof(error_buf), "Error in %s (row=%d)", 
                                 info->name, ctx->obs_count+1);
-                        ctx->error_handler(error_buf, ctx->user_ctx);
+                        ctx->handle.error(error_buf, ctx->user_ctx);
                     }
                     goto cleanup;
                 } else if (finished) {
@@ -601,10 +611,10 @@ static readstat_error_t read_por_file_data(por_ctx_t *ctx) {
             } else if (info->type == READSTAT_TYPE_DOUBLE) {
                 rs_retval = maybe_read_double(ctx, &value.v.double_value, &finished);
                 if (rs_retval != READSTAT_OK) {
-                    if (ctx->error_handler) {
+                    if (ctx->handle.error) {
                         snprintf(error_buf, sizeof(error_buf), "Error in %s (row=%d)", 
                                 info->name, ctx->obs_count+1);
-                        ctx->error_handler(error_buf, ctx->user_ctx);
+                        ctx->handle.error(error_buf, ctx->user_ctx);
                     }
                     goto cleanup;
                 } else if (finished) {
@@ -614,8 +624,8 @@ static readstat_error_t read_por_file_data(por_ctx_t *ctx) {
                 }
                 value.is_system_missing = isnan(value.v.double_value);
             }
-            if (ctx->value_handler && !ctx->variables[i]->skip) {
-                if (ctx->value_handler(ctx->obs_count, ctx->variables[i], value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+            if (ctx->handle.value && !ctx->variables[i]->skip) {
+                if (ctx->handle.value(ctx->obs_count, ctx->variables[i], value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     rs_retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -685,8 +695,8 @@ readstat_error_t handle_variables(por_ctx_t *ctx) {
 
         int cb_retval = READSTAT_HANDLER_OK;
 
-        if (ctx->variable_handler) {
-            cb_retval = ctx->variable_handler(i, ctx->variables[i],
+        if (ctx->handle.variable) {
+            cb_retval = ctx->handle.variable(i, ctx->variables[i],
                     info->labels_index == -1 ? NULL : label_name_buf,
                     ctx->user_ctx);
         }
@@ -702,11 +712,11 @@ readstat_error_t handle_variables(por_ctx_t *ctx) {
             index_after_skipping++;
         }
     }
-    if (ctx->fweight_handler && ctx->fweight_name[0]) {
+    if (ctx->handle.fweight && ctx->fweight_name[0]) {
         for (i=0; i<ctx->var_count; i++) {
             spss_varinfo_t *info = &ctx->varinfo[i];
             if (strcmp(info->name, ctx->fweight_name) == 0) {
-                if (ctx->fweight_handler(ctx->variables[i], ctx->user_ctx) != READSTAT_HANDLER_OK) {
+                if (ctx->handle.fweight(ctx->variables[i], ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -723,20 +733,11 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
     readstat_io_t *io = parser->io;
     unsigned char reverse_lookup[256];
     char vanity[5][40];
-    char file_label[21];
     char error_buf[1024];
 
     por_ctx_t *ctx = por_ctx_init();
     
-    ctx->info_handler = parser->info_handler;
-    ctx->metadata_handler = parser->metadata_handler;
-    ctx->note_handler = parser->note_handler;
-    ctx->fweight_handler = parser->fweight_handler;
-    ctx->variable_handler = parser->variable_handler;
-    ctx->value_handler = parser->value_handler;
-    ctx->value_label_handler = parser->value_label_handler;
-    ctx->error_handler = parser->error_handler;
-    ctx->progress_handler = parser->progress_handler;
+    ctx->handle = parser->handlers;
     ctx->user_ctx = user_ctx;
     ctx->io = io;
     ctx->row_limit = parser->row_limit;
@@ -772,7 +773,9 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
         goto cleanup;
     }
 
-    readstat_convert(file_label, sizeof(file_label), vanity[1] + 20, 20, NULL);
+    retval = readstat_convert(ctx->file_label, sizeof(ctx->file_label), vanity[1] + 20, 20, NULL);
+    if (retval != READSTAT_OK)
+        goto cleanup;
     
     if (read_bytes(ctx, reverse_lookup, sizeof(reverse_lookup)) != sizeof(reverse_lookup)) {
         retval = READSTAT_ERROR_READ;
@@ -802,9 +805,9 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
     }
     
     if (por_utf8_encode(check, sizeof(check), tr_check, sizeof(tr_check), ctx->byte2unicode) == -1) {
-        if (ctx->error_handler) {
+        if (ctx->handle.error) {
             snprintf(error_buf, sizeof(error_buf), "Error converting check string: %.*s", (int)sizeof(check), check);
-            ctx->error_handler(error_buf, ctx->user_ctx);
+            ctx->handle.error(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_CONVERT;
         goto cleanup;
@@ -823,13 +826,6 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    if (ctx->metadata_handler) {
-        if (ctx->metadata_handler(file_label, NULL, ctx->timestamp, ctx->version, ctx->user_ctx) != READSTAT_HANDLER_OK) {
-            retval = READSTAT_ERROR_USER_ABORT;
-            goto cleanup;
-        }
-    }
-        
     while (1) {
         uint16_t tr_tag = read_tag(ctx);
         switch (tr_tag) {
@@ -881,7 +877,7 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
                 if (retval != READSTAT_OK)
                     goto cleanup;
 
-                if (ctx->value_handler) {
+                if (ctx->handle.value) {
                     retval = read_por_file_data(ctx);
                 }
                 goto cleanup;

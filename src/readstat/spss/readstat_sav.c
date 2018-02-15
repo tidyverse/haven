@@ -21,15 +21,19 @@
 #define SAV_VARINFO_INITIAL_CAPACITY  512
 
 sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io) {
-    sav_ctx_t *ctx = NULL;
-    if ((ctx = readstat_malloc(sizeof(sav_ctx_t))) == NULL) {
+    sav_ctx_t *ctx = readstat_calloc(1, sizeof(sav_ctx_t));
+    if (ctx == NULL) {
         return NULL;
     }
-    memset(ctx, 0, sizeof(sav_ctx_t));
     
     ctx->bswap = !(header->layout_code == 2 || header->layout_code == 3);
+    ctx->endianness = (machine_is_little_endian() ^ ctx->bswap) ? READSTAT_ENDIAN_LITTLE : READSTAT_ENDIAN_BIG;
 
-    ctx->data_is_compressed = (header->compressed != 0);
+    if (header->compression == 1 || byteswap4(header->compression) == 1) {
+        ctx->compression = READSTAT_COMPRESS_ROWS;
+    } else if (header->compression == 2 || byteswap4(header->compression) == 2) {
+        ctx->compression = READSTAT_COMPRESS_BINARY;
+    }
     ctx->record_count = ctx->bswap ? byteswap4(header->ncases) : header->ncases;
     ctx->fweight_index = ctx->bswap ? byteswap4(header->weight_index) : header->weight_index;
 
@@ -37,12 +41,8 @@ sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io) {
     ctx->lowest_double = SAV_LOWEST_DOUBLE;
     ctx->highest_double = SAV_HIGHEST_DOUBLE;
     
-    double bias = ctx->bswap ? byteswap_double(header->bias) : header->bias;
-    
-    if (bias != 100.0) {
-        sav_ctx_free(ctx);
-        return NULL;
-    }
+    ctx->bias = ctx->bswap ? byteswap_double(header->bias) : header->bias;
+    ctx->format_version = header->rec_type[3] == '3' ? 3 : 2;
     
     ctx->varinfo_capacity = SAV_VARINFO_INITIAL_CAPACITY;
     

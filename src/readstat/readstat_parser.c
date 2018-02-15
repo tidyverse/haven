@@ -24,48 +24,43 @@ void readstat_parser_free(readstat_parser_t *parser) {
     }
 }
 
-readstat_error_t readstat_set_info_handler(readstat_parser_t *parser, readstat_info_handler info_handler) {
-    parser->info_handler = info_handler;
-    return READSTAT_OK;
-}
-
 readstat_error_t readstat_set_metadata_handler(readstat_parser_t *parser, readstat_metadata_handler metadata_handler) {
-    parser->metadata_handler = metadata_handler;
+    parser->handlers.metadata = metadata_handler;
     return READSTAT_OK;
 }
 
 readstat_error_t readstat_set_note_handler(readstat_parser_t *parser, readstat_note_handler note_handler) {
-    parser->note_handler = note_handler;
+    parser->handlers.note = note_handler;
     return READSTAT_OK;
 }
 
 readstat_error_t readstat_set_variable_handler(readstat_parser_t *parser, readstat_variable_handler variable_handler) {
-    parser->variable_handler = variable_handler;
+    parser->handlers.variable = variable_handler;
     return READSTAT_OK;
 }
 
 readstat_error_t readstat_set_value_handler(readstat_parser_t *parser, readstat_value_handler value_handler) {
-    parser->value_handler = value_handler;
+    parser->handlers.value = value_handler;
     return READSTAT_OK;
 }
 
 readstat_error_t readstat_set_value_label_handler(readstat_parser_t *parser, readstat_value_label_handler label_handler) {
-    parser->value_label_handler = label_handler;
+    parser->handlers.value_label = label_handler;
     return READSTAT_OK;
 }
 
 readstat_error_t readstat_set_error_handler(readstat_parser_t *parser, readstat_error_handler error_handler) {
-    parser->error_handler = error_handler;
+    parser->handlers.error = error_handler;
     return READSTAT_OK;
 }
 
 readstat_error_t readstat_set_progress_handler(readstat_parser_t *parser, readstat_progress_handler progress_handler) {
-    parser->progress_handler = progress_handler;
+    parser->handlers.progress = progress_handler;
     return READSTAT_OK;
 }
 
 readstat_error_t readstat_set_fweight_handler(readstat_parser_t *parser, readstat_fweight_handler fweight_handler) {
-    parser->fweight_handler = fweight_handler;
+    parser->handlers.fweight = fweight_handler;
     return READSTAT_OK;
 }
 

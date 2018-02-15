@@ -291,13 +291,23 @@ static readstat_error_t xport_write_descriptor_header_record(readstat_writer_t *
 
 static readstat_error_t xport_write_member_record_v8(readstat_writer_t *writer,
         char *timestamp) {
+    readstat_error_t retval = READSTAT_OK;
     char member_header[RECORD_LEN+1];
+    char *ds_name = "DATASET";
+    if (writer->table_name[0])
+        ds_name = writer->table_name;
+
+    if ((retval = sas_validate_name(ds_name, 32)) != READSTAT_OK)
+        goto cleanup;
 
     snprintf(member_header, sizeof(member_header),
             "%-8.8s" "%-32.32s"   "%-8.8s"   "%-8.8s" "%-8.8s" "%16.16s",
-            "SAS",   "DATASET", "SASDATA", "6.06",  "bsd4.2", timestamp);
+            "SAS",   ds_name, "SASDATA", "6.06",  "bsd4.2", timestamp);
 
-    return xport_write_record(writer, member_header);
+    retval = xport_write_record(writer, member_header);
+
+cleanup:
+    return retval;
 }
 
 static readstat_error_t xport_write_member_record(readstat_writer_t *writer,
@@ -305,12 +315,23 @@ static readstat_error_t xport_write_member_record(readstat_writer_t *writer,
     if (writer->version == 8)
         return xport_write_member_record_v8(writer, timestamp);
 
+    readstat_error_t retval = READSTAT_OK;
     char member_header[RECORD_LEN+1];
-    snprintf(member_header, sizeof(member_header),
-            "%-8.8s" "%-8.8s"   "%-8.8s"   "%-8.8s" "%-8.8s"  "%-24.24s" "%16.16s",
-            "SAS",   "DATASET", "SASDATA", "6.06",  "bsd4.2", "",        timestamp);
+    char *ds_name = "DATASET";
+    if (writer->table_name[0])
+        ds_name = writer->table_name;
 
-    return xport_write_record(writer, member_header);
+    if ((retval = sas_validate_name(ds_name, 8)) != READSTAT_OK)
+        goto cleanup;
+
+    snprintf(member_header, sizeof(member_header),
+            "%-8.8s" "%-8.8s" "%-8.8s"   "%-8.8s" "%-8.8s"  "%-24.24s" "%16.16s",
+            "SAS",   ds_name, "SASDATA", "6.06",  "bsd4.2", "",        timestamp);
+
+    retval = xport_write_record(writer, member_header);
+
+cleanup:
+    return retval;
 }
 
 static readstat_error_t xport_write_file_label_record(readstat_writer_t *writer,

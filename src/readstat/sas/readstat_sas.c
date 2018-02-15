@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include <limits.h>
 #include <inttypes.h>
 
 #include "readstat_sas.h"
@@ -12,8 +13,9 @@
 #include "../readstat_convert.h"
 #include "../readstat_writer.h"
 
-#define HEADER_SIZE 1024
-#define PAGE_SIZE   4096
+#define SAS_FILE_HEADER_SIZE_32BIT 1024
+#define SAS_FILE_HEADER_SIZE_64BIT 8192
+#define SAS_DEFAULT_PAGE_SIZE      4096
 
 #define SAS_DEFAULT_STRING_ENCODING "WINDOWS-1252"
 
@@ -68,6 +70,17 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 140,   .name = "EUC-KR" }
 };
 
+static time_t sas_convert_time(double time, time_t epoch) {
+    time += epoch;
+    if (isnan(time))
+        return 0;
+    if (time > 1.0 * LONG_MAX)
+        return LONG_MAX;
+    if (time < 1.0 * LONG_MIN)
+        return LONG_MIN;
+    return time;
+}
+
 uint64_t sas_read8(const char *data, int bswap) {
     uint64_t tmp;
     memcpy(&tmp, data, 8);
@@ -84,17 +97,6 @@ uint16_t sas_read2(const char *data, int bswap) {
     uint16_t tmp;
     memcpy(&tmp, data, 2);
     return bswap ? byteswap2(tmp) : tmp;
-}
-
-time_t sas_convert_time(double time, time_t epoch) {
-    time += epoch;
-    if (isnan(time))
-        return 0;
-    if (time > 1.0 * INT64_MAX)
-        return INT64_MAX;
-    if (time < 1.0 * INT64_MIN)
-        return INT64_MIN;
-    return time;
 }
 
 readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo, 
@@ -327,7 +329,7 @@ readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *
         goto cleanup;
 
     char release[32];
-    snprintf(release, sizeof(release), "%1ld.%04ldM0", writer->version / 10000, writer->version % 10000);
+    snprintf(release, sizeof(release), "%1ld.%04dM0", writer->version, 101);
     strncpy(header_end.release, release, sizeof(header_end.release));
 
     retval = readstat_write_bytes(writer, &header_end, sizeof(sas_header_end_t));
@@ -346,14 +348,15 @@ sas_header_info_t *sas_header_info_init(readstat_writer_t *writer, int is_64bit)
     sas_header_info_t *hinfo = calloc(1, sizeof(sas_header_info_t));
     hinfo->creation_time = writer->timestamp;
     hinfo->modification_time = writer->timestamp;
-    hinfo->header_size = HEADER_SIZE;
-    hinfo->page_size = PAGE_SIZE;
+    hinfo->page_size = SAS_DEFAULT_PAGE_SIZE;
     hinfo->u64 = !!is_64bit;
 
     if (hinfo->u64) {
+        hinfo->header_size = SAS_FILE_HEADER_SIZE_64BIT;
         hinfo->page_header_size = SAS_PAGE_HEADER_SIZE_64BIT;
         hinfo->subheader_pointer_size = SAS_SUBHEADER_POINTER_SIZE_64BIT;
     } else {
+        hinfo->header_size = SAS_FILE_HEADER_SIZE_32BIT;
         hinfo->page_header_size = SAS_PAGE_HEADER_SIZE_32BIT;
         hinfo->subheader_pointer_size = SAS_SUBHEADER_POINTER_SIZE_32BIT;
     }
@@ -370,7 +373,7 @@ readstat_error_t sas_fill_page(readstat_writer_t *writer, sas_header_info_t *hin
     return READSTAT_OK;
 }
 
-static readstat_error_t sas_validate_name(const char *name) {
+readstat_error_t sas_validate_name(const char *name, size_t max_len) {
     int j;
     for (j=0; name[j]; j++) {
         if (name[j] != '_' &&
@@ -392,12 +395,12 @@ static readstat_error_t sas_validate_name(const char *name) {
         return READSTAT_ERROR_NAME_IS_RESERVED_WORD;
     }
 
-    if (strlen(name) > 32)
+    if (strlen(name) > max_len)
         return READSTAT_ERROR_NAME_IS_TOO_LONG;
 
     return READSTAT_OK;
 }
 
 readstat_error_t sas_validate_variable(readstat_variable_t *variable) {
-    return sas_validate_name(readstat_variable_get_name(variable));
+    return sas_validate_name(readstat_variable_get_name(variable), 32);
 }

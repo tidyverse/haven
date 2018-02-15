@@ -7,9 +7,18 @@ typedef struct dta_header_s {
     unsigned char    byteorder;
     unsigned char    filetype;
     unsigned char    unused;
-    int16_t          nvar;
-    int32_t          nobs;
+    uint16_t         nvar;
+    uint32_t         nobs;
 } dta_header_t;
+
+typedef struct dta_header64_s {
+    unsigned char    ds_format;
+    unsigned char    byteorder;
+    unsigned char    filetype;
+    unsigned char    unused;
+    uint32_t         nvar;
+    uint64_t         nobs;
+} dta_header64_t;
 
 typedef struct dta_117_strl_header_s {
     uint32_t        v;
@@ -73,16 +82,17 @@ typedef struct dta_ctx_s {
     int64_t        strls_offset;
     int64_t        value_labels_offset;
 
+    int            ds_format;
     int            nvar;
     int64_t        nobs;
     size_t         record_len;
     int64_t        row_limit;
     int64_t        current_row;
 
-    int            bswap;
-    int            machine_is_twos_complement;
-    int            file_is_xmlish;
-    int            supports_tagged_missing;
+    unsigned int   bswap:1;
+    unsigned int   machine_is_twos_complement:1;
+    unsigned int   file_is_xmlish:1;
+    unsigned int   supports_tagged_missing:1;
 
     int8_t         max_int8;
     int16_t        max_int16;
@@ -94,19 +104,15 @@ typedef struct dta_ctx_s {
     size_t         strls_count;
     size_t         strls_capacity;
 
-    readstat_variable_t     **variables;
+    readstat_variable_t  **variables;
+    readstat_endian_t    endianness;
 
-    iconv_t        converter;
-    readstat_error_handler error_handler;
-    readstat_progress_handler progress_handler;
-    readstat_note_handler note_handler;
-    readstat_variable_handler variable_handler;
-    readstat_value_handler value_handler;
-    readstat_value_label_handler value_label_handler;
-    size_t                    file_size;
-    void                     *user_ctx;
-    readstat_io_t            *io;
-    int                       initialized;
+    iconv_t              converter;
+    readstat_callbacks_t handle;
+    size_t               file_size;
+    void                *user_ctx;
+    readstat_io_t       *io;
+    int                  initialized;
 
     char            error_buf[256];
 } dta_ctx_t;
@@ -167,7 +173,7 @@ typedef struct dta_ctx_s {
 #define DTA_OLD_TYPE_CODE_DOUBLE   'd'
 
 dta_ctx_t *dta_ctx_alloc(readstat_io_t *io);
-readstat_error_t dta_ctx_init(dta_ctx_t *ctx, int16_t nvar, int32_t nobs, 
+readstat_error_t dta_ctx_init(dta_ctx_t *ctx, uint32_t nvar, uint64_t nobs, 
         unsigned char byteorder, unsigned char ds_format,
         const char *input_encoding, const char *output_encoding);
 void dta_ctx_free(dta_ctx_t *ctx);

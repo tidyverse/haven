@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#define MAX_MALLOC_SIZE (1<<20) /* One megabyte ought to be enough for anyone */
+#define MAX_MALLOC_SIZE 0x3FF000 /* i.e. the default block size used in ZSAV files, ~4MB */
 
 void *readstat_malloc(size_t len) {
     if (len > MAX_MALLOC_SIZE || len == 0) {

@@ -28,7 +28,7 @@ static readstat_error_t dta_update_progress(dta_ctx_t *ctx) {
     double progress = 0.0;
     if (ctx->row_limit > 0)
         progress = 1.0 * ctx->current_row / ctx->row_limit;
-    if (ctx->progress_handler && ctx->progress_handler(progress, ctx->user_ctx) != READSTAT_HANDLER_OK)
+    if (ctx->handle.progress && ctx->handle.progress(progress, ctx->user_ctx) != READSTAT_HANDLER_OK)
         return READSTAT_ERROR_USER_ABORT;
     return READSTAT_OK;
 }
@@ -183,12 +183,13 @@ static readstat_error_t dta_read_expansion_fields(dta_ctx_t *ctx) {
     if (ctx->expansion_len_len == 0)
         return READSTAT_OK;
 
-    if (ctx->file_is_xmlish && !ctx->note_handler) {
+    if (ctx->file_is_xmlish && !ctx->handle.note) {
         if (io->seek(ctx->data_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
-            if (ctx->error_handler) {
-                snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to data section (offset=%" PRId64 ")",
+            if (ctx->handle.error) {
+                snprintf(ctx->error_buf, sizeof(ctx->error_buf),
+                        "Failed to seek to data section (offset=%" PRId64 ")",
                         ctx->data_offset);
-                ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+                ctx->handle.error(ctx->error_buf, ctx->user_ctx);
             }
             return READSTAT_ERROR_SEEK;
         }
@@ -251,7 +252,7 @@ static readstat_error_t dta_read_expansion_fields(dta_ctx_t *ctx) {
             goto cleanup;
         }
 
-        if (ctx->note_handler && len >= 2 * ctx->ch_metadata_len) {
+        if (ctx->handle.note && len >= 2 * ctx->ch_metadata_len) {
             if ((buffer = readstat_realloc(buffer, len + 1)) == NULL) {
                 retval = READSTAT_ERROR_MALLOC;
                 goto cleanup;
@@ -265,7 +266,7 @@ static readstat_error_t dta_read_expansion_fields(dta_ctx_t *ctx) {
             int index = 0;
             if (strncmp(&buffer[0], "_dta", 4) == 0 &&
                     sscanf(&buffer[ctx->ch_metadata_len], "note%d", &index) == 1) {
-                if (ctx->note_handler(index, &buffer[2*ctx->ch_metadata_len], ctx->user_ctx) != READSTAT_HANDLER_OK) {
+                if (ctx->handle.note(index, &buffer[2*ctx->ch_metadata_len], ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -319,10 +320,9 @@ static int dta_compare_strls(const void *elem1, const void *elem2) {
 
 static dta_strl_t dta_interpret_strl_vo_bytes(dta_ctx_t *ctx, const unsigned char *vo_bytes) {
     dta_strl_t strl = {0};
-    int file_is_big_endian = (!machine_is_little_endian() ^ ctx->bswap);
 
     if (ctx->strl_v_len == 2) {
-        if (file_is_big_endian) {
+        if (ctx->endianness == READSTAT_ENDIAN_BIG) {
             strl.v = (vo_bytes[0] << 8) + vo_bytes[1];
             strl.o = (((uint64_t)vo_bytes[2] << 40) 
                     + ((uint64_t)vo_bytes[3] << 32)
@@ -402,10 +402,10 @@ static readstat_error_t dta_read_strls(dta_ctx_t *ctx) {
     readstat_io_t *io = ctx->io;
 
     if (io->seek(ctx->strls_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
-        if (ctx->error_handler) {
+        if (ctx->handle.error) {
             snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to strls section (offset=%" PRId64 ")",
                     ctx->strls_offset);
-            ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+            ctx->handle.error(ctx->error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
@@ -629,7 +629,7 @@ static readstat_error_t dta_handle_row(const unsigned char *buf, dta_ctx_t *ctx)
             value = dta_interpret_double_bytes(ctx, &buf[offset]);
         }
 
-        if (ctx->value_handler(ctx->current_row, ctx->variables[j], value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+        if (ctx->handle.value(ctx->current_row, ctx->variables[j], value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -681,15 +681,15 @@ static readstat_error_t dta_read_data(dta_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     readstat_io_t *io = ctx->io;
 
-    if (!ctx->value_handler) {
+    if (!ctx->handle.value) {
         return READSTAT_OK;
     }
 
     if (io->seek(ctx->data_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
-        if (ctx->error_handler) {
+        if (ctx->handle.error) {
             snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to data section (offset=%" PRId64 ")",
                     ctx->data_offset);
-            ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+            ctx->handle.error(ctx->error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
@@ -711,9 +711,25 @@ cleanup:
     return retval;
 }
 
-static readstat_error_t dta_read_xmlish_preamble(dta_ctx_t *ctx, dta_header_t *header) {
+static readstat_error_t dta_read_header(dta_ctx_t *ctx, dta_header_t *header) {
     readstat_error_t retval = READSTAT_OK;
     readstat_io_t *io = ctx->io;
+    int bswap = 0;
+
+    if (io->read(header, sizeof(dta_header_t), io->io_ctx) != sizeof(dta_header_t)) {
+        retval = READSTAT_ERROR_READ;
+        goto cleanup;
+    }
+    bswap = (header->byteorder == DTA_LOHI) ^ machine_is_little_endian();
+    header->nvar = bswap ? byteswap2(header->nvar) : header->nvar;
+    header->nobs = bswap ? byteswap4(header->nobs) : header->nobs;
+
+cleanup:
+    return retval;
+}
+
+static readstat_error_t dta_read_xmlish_header(dta_ctx_t *ctx, dta_header64_t *header) {
+    readstat_error_t retval = READSTAT_OK;
     
     if ((retval = dta_read_tag(ctx, "<stata_dta>")) != READSTAT_OK) {
         goto cleanup;
@@ -731,6 +747,7 @@ static readstat_error_t dta_read_xmlish_preamble(dta_ctx_t *ctx, dta_header_t *h
     header->ds_format = 100 * (ds_format[0] - '0') + 10 * (ds_format[1] - '0') + (ds_format[2] - '0');
 
     char byteorder[3];
+    int byteswap = 0;
     if ((retval = dta_read_chunk(ctx, "<byteorder>", byteorder, 
                     sizeof(byteorder), "</byteorder>")) != READSTAT_OK) {
         goto cleanup;
@@ -743,35 +760,38 @@ static readstat_error_t dta_read_xmlish_preamble(dta_ctx_t *ctx, dta_header_t *h
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
     }
+    byteswap = (header->byteorder == DTA_LOHI) ^ machine_is_little_endian();
 
-    if ((retval = dta_read_chunk(ctx, "<K>", &header->nvar, 
-                    sizeof(int16_t), "</K>")) != READSTAT_OK) {
-        goto cleanup;
-    }
-
-    if ((retval = dta_read_tag(ctx, "<N>")) != READSTAT_OK) {
-        goto cleanup;
-    }
-    if (io->read(&header->nobs, sizeof(int32_t), io->io_ctx) != sizeof(int32_t)) {
-        retval = READSTAT_ERROR_READ;
-        goto cleanup;
-    }
-    if (header->ds_format >= 118) {
-        /* Only support files < 4 billion rows for now */
-        if (header->byteorder == DTA_HILO) {
-            if (io->read(&header->nobs, sizeof(int32_t), io->io_ctx) != sizeof(int32_t)) {
-                retval = READSTAT_ERROR_READ;
-                goto cleanup;
-            }
-        } else {
-            if (io->seek(4, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
-                retval = READSTAT_ERROR_SEEK;
-                goto cleanup;
-            }
+    if (header->ds_format >= 119) {
+        uint32_t nvar;
+        if ((retval = dta_read_chunk(ctx, "<K>", &nvar, 
+                        sizeof(uint32_t), "</K>")) != READSTAT_OK) {
+            goto cleanup;
         }
+        header->nvar = byteswap ? byteswap4(nvar) : nvar;
+    } else {
+        uint16_t nvar;
+        if ((retval = dta_read_chunk(ctx, "<K>", &nvar, 
+                        sizeof(uint16_t), "</K>")) != READSTAT_OK) {
+            goto cleanup;
+        }
+        header->nvar = byteswap ? byteswap2(nvar) : nvar;
     }
-    if ((retval = dta_read_tag(ctx, "</N>")) != READSTAT_OK) {
-        goto cleanup;
+
+    if (header->ds_format >= 118) {
+        uint64_t nobs;
+        if ((retval = dta_read_chunk(ctx, "<N>", &nobs, 
+                        sizeof(uint64_t), "</N>")) != READSTAT_OK) {
+            goto cleanup;
+        }
+        header->nobs = byteswap ? byteswap8(nobs) : nobs;
+    } else {
+        uint32_t nobs;
+        if ((retval = dta_read_chunk(ctx, "<N>", &nobs, 
+                        sizeof(uint32_t), "</N>")) != READSTAT_OK) {
+            goto cleanup;
+        }
+        header->nobs = byteswap ? byteswap4(nobs) : nobs;
     }
 
 cleanup:
@@ -871,7 +891,7 @@ static readstat_error_t dta_read_label_and_timestamp(dta_ctx_t *ctx) {
                 timestamp_buffer[0] = last_data_label_char;
             }
             if ((retval = dta_parse_timestamp(timestamp_buffer, timestamp_len,
-                            &timestamp, ctx->error_handler, ctx->user_ctx)) != READSTAT_OK) {
+                            &timestamp, ctx->handle.error, ctx->user_ctx)) != READSTAT_OK) {
                 goto cleanup;
             }
 
@@ -893,7 +913,7 @@ cleanup:
 }
 
 static readstat_error_t dta_handle_variables(dta_ctx_t *ctx) {
-    if (!ctx->variable_handler)
+    if (!ctx->handle.variable)
         return READSTAT_OK;
 
     readstat_error_t retval = READSTAT_OK;
@@ -921,7 +941,7 @@ static readstat_error_t dta_handle_variables(dta_ctx_t *ctx) {
         if (ctx->lbllist[ctx->lbllist_entry_len*i])
             value_labels = &ctx->lbllist[ctx->lbllist_entry_len*i];
 
-        int cb_retval = ctx->variable_handler(i, ctx->variables[i], value_labels, ctx->user_ctx);
+        int cb_retval = ctx->handle.variable(i, ctx->variables[i], value_labels, ctx->user_ctx);
 
         if (cb_retval == READSTAT_HANDLER_ABORT) {
             retval = READSTAT_ERROR_USER_ABORT;
@@ -945,10 +965,10 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
     char *utf8_buffer = NULL;
 
     if (io->seek(ctx->value_labels_offset, READSTAT_SEEK_SET, io->io_ctx) == -1) {
-        if (ctx->error_handler) {
+        if (ctx->handle.error) {
             snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to value labels section (offset=%" PRId64 ")",
                     ctx->value_labels_offset);
-            ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+            ctx->handle.error(ctx->error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
@@ -957,7 +977,7 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
         goto cleanup;
     }
 
-    if (!ctx->value_label_handler) {
+    if (!ctx->handle.value_label) {
         return READSTAT_OK;
     }
 
@@ -1016,7 +1036,7 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
                 if (retval != READSTAT_OK)
                     goto cleanup;
 
-                if (label_buf[0] && ctx->value_label_handler(labname, value, label_buf, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+                if (label_buf[0] && ctx->handle.value_label(labname, value, label_buf, ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -1088,7 +1108,7 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
                 if (retval != READSTAT_OK)
                     goto cleanup;
 
-                if (ctx->value_label_handler(labname, value, utf8_buffer, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+                if (ctx->handle.value_label(labname, value, utf8_buffer, ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
                 }
@@ -1109,7 +1129,6 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *path,
     readstat_error_t retval = READSTAT_OK;
     readstat_io_t *io = parser->io;
     int i;
-    dta_header_t  header;
     dta_ctx_t    *ctx;
     size_t file_size = 0;
 
@@ -1128,46 +1147,45 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *path,
 
     file_size = io->seek(0, READSTAT_SEEK_END, io->io_ctx);
     if (file_size == -1) {
-        if (ctx->error_handler) {
+        if (ctx->handle.error) {
             snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to end of file");
-            ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+            ctx->handle.error(ctx->error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
 
     if (io->seek(0, READSTAT_SEEK_SET, io->io_ctx) == -1) {
-        if (ctx->error_handler) {
+        if (ctx->handle.error) {
             snprintf(ctx->error_buf, sizeof(ctx->error_buf), "Failed to seek to start of file");
-            ctx->error_handler(ctx->error_buf, ctx->user_ctx);
+            ctx->handle.error(ctx->error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
 
     if (strncmp(magic, "<sta", 4) == 0) {
-        retval = dta_read_xmlish_preamble(ctx, &header);
-    } else {
-        if (io->read(&header, sizeof(header), io->io_ctx) != sizeof(header)) {
-            retval = READSTAT_ERROR_READ;
+        dta_header64_t header;
+        if ((retval = dta_read_xmlish_header(ctx, &header)) != READSTAT_OK) {
             goto cleanup;
         }
+        retval = dta_ctx_init(ctx, header.nvar, header.nobs, header.byteorder, header.ds_format,
+                parser->input_encoding, parser->output_encoding);
+    } else {
+        dta_header_t header;
+        if ((retval = dta_read_header(ctx, &header)) != READSTAT_OK) {
+            goto cleanup;
+        }
+        retval = dta_ctx_init(ctx, header.nvar, header.nobs, header.byteorder, header.ds_format,
+                parser->input_encoding, parser->output_encoding);
     }
-
-    retval = dta_ctx_init(ctx, header.nvar, header.nobs, header.byteorder, header.ds_format,
-            parser->input_encoding, parser->output_encoding);
     if (retval != READSTAT_OK) {
         goto cleanup;
     }
 
     ctx->user_ctx = user_ctx;
     ctx->file_size = file_size;
-    ctx->error_handler = parser->error_handler;
-    ctx->progress_handler = parser->progress_handler;
-    ctx->note_handler = parser->note_handler;
-    ctx->variable_handler = parser->variable_handler;
-    ctx->value_handler = parser->value_handler;
-    ctx->value_label_handler = parser->value_label_handler;
+    ctx->handle = parser->handlers;
     ctx->row_limit = ctx->nobs;
     if (parser->row_limit > 0 && parser->row_limit < ctx->nobs)
         ctx->row_limit = parser->row_limit;
@@ -1176,13 +1194,6 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *path,
     if (retval != READSTAT_OK)
         goto cleanup;
     
-    if (parser->info_handler) {
-        if (parser->info_handler(ctx->row_limit, ctx->nvar, user_ctx) != READSTAT_HANDLER_OK) {
-            retval = READSTAT_ERROR_USER_ABORT;
-            goto cleanup;
-        }
-    }
-    
     if ((retval = dta_read_label_and_timestamp(ctx)) != READSTAT_OK)
         goto cleanup;
 
@@ -1190,8 +1201,18 @@ readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *path,
         goto cleanup;
     }
 
-    if (parser->metadata_handler) {
-        if (parser->metadata_handler(ctx->data_label, NULL, ctx->timestamp, header.ds_format, user_ctx) != READSTAT_HANDLER_OK) {
+    if (ctx->handle.metadata) {
+        readstat_metadata_t metadata = {
+            .row_count = ctx->row_limit,
+            .var_count = ctx->nvar,
+            .file_label = ctx->data_label,
+            .creation_time = ctx->timestamp,
+            .modified_time = ctx->timestamp,
+            .file_format_version = ctx->ds_format,
+            .is64bit = ctx->ds_format >= 118,
+            .endianness = ctx->endianness
+        };
+        if (ctx->handle.metadata(&metadata, user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }

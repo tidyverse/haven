@@ -3,6 +3,8 @@
 * `read_sav()` gains an `encoding` argument to override the encoding stored in 
   the file (#305).
 
+* Update to latest readstat.
+
 # haven 1.1.1
 
 * Update to latest readstat. Includes:

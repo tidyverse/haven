@@ -114,11 +114,11 @@ static readstat_error_t readstat_begin_writing_data(readstat_writer_t *writer) {
                 goto cleanup;
         }
     }
+    writer->row_len = row_len;
+    writer->row = malloc(writer->row_len);
     if (writer->callbacks.begin_data) {
         retval = writer->callbacks.begin_data(writer);
     }
-    writer->row_len = row_len;
-    writer->row = malloc(writer->row_len);
 
 cleanup:
     return retval;
@@ -441,6 +441,11 @@ readstat_error_t readstat_writer_set_file_timestamp(readstat_writer_t *writer, t
     return READSTAT_OK;
 }
 
+readstat_error_t readstat_writer_set_table_name(readstat_writer_t *writer, const char *table_name) {
+    snprintf(writer->table_name, sizeof(writer->table_name), "%s", table_name);
+    return READSTAT_OK;
+}
+
 readstat_error_t readstat_writer_set_fweight_variable(readstat_writer_t *writer, const readstat_variable_t *variable) {
     if (readstat_variable_get_type_class(variable) == READSTAT_TYPE_CLASS_STRING)
         return READSTAT_ERROR_BAD_FREQUENCY_WEIGHT;
@@ -449,7 +454,7 @@ readstat_error_t readstat_writer_set_fweight_variable(readstat_writer_t *writer,
     return READSTAT_OK;
 }
 
-readstat_error_t readstat_writer_set_file_format_version(readstat_writer_t *writer, long version) {
+readstat_error_t readstat_writer_set_file_format_version(readstat_writer_t *writer, uint8_t version) {
     writer->version = version;
     return READSTAT_OK;
 }

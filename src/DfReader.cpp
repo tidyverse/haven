@@ -155,7 +155,7 @@ public:
     var_types_.resize(ncols_);
   }
 
-  void setMetadata(const char *file_label, time_t timestamp, long format_version) {
+  void setMetadata(const char *file_label) {
     if (file_label != NULL && strcmp(file_label, "") != 0) {
       output_.attr("label") = CharacterVector::create(Rf_mkCharCE(file_label, CE_UTF8));
     }
@@ -404,13 +404,12 @@ public:
 
 };
 
-int dfreader_info(int obs_count, int var_count, void *ctx) {
-  ((DfReader*) ctx)->setInfo(obs_count, var_count);
-  return 0;
-}
-
-int dfreader_metadata(const char *file_label, const char *orig_encoding, time_t timestamp, long format_version, void *ctx) {
-  ((DfReader*) ctx)->setMetadata(file_label, timestamp, format_version);
+int dfreader_metadata(readstat_metadata_t *metadata, void *ctx) {
+  ((DfReader*) ctx)->setInfo(
+      readstat_get_row_count(metadata),
+      readstat_get_var_count(metadata)
+  );
+  ((DfReader*) ctx)->setMetadata(readstat_get_file_label(metadata));
   return 0;
 }
 
@@ -537,7 +536,6 @@ readstat_error_t dfreader_update(long file_size, readstat_progress_handler progr
 
 readstat_parser_t* haven_init_parser(std::string encoding = "") {
   readstat_parser_t* parser = readstat_parser_init();
-  readstat_set_info_handler(parser, dfreader_info);
   readstat_set_metadata_handler(parser, dfreader_metadata);
   readstat_set_note_handler(parser, dfreader_note);
   readstat_set_variable_handler(parser, dfreader_variable);

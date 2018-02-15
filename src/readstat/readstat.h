@@ -54,8 +54,15 @@ typedef enum readstat_alignment_e {
 
 typedef enum readstat_compress_e {
     READSTAT_COMPRESS_NONE,
-    READSTAT_COMPRESS_ROWS
+    READSTAT_COMPRESS_ROWS,
+    READSTAT_COMPRESS_BINARY
 } readstat_compress_t;
+
+typedef enum readstat_endian_e {
+    READSTAT_ENDIAN_NONE,
+    READSTAT_ENDIAN_LITTLE,
+    READSTAT_ENDIAN_BIG
+} readstat_endian_t;
 
 typedef enum readstat_error_e {
     READSTAT_OK,
@@ -94,10 +101,37 @@ typedef enum readstat_error_e {
     READSTAT_ERROR_STRING_REFS_NOT_SUPPORTED,
     READSTAT_ERROR_STRING_REF_IS_REQUIRED,
     READSTAT_ERROR_ROW_IS_TOO_WIDE_FOR_PAGE,
-    READSTAT_ERROR_ROW_IS_EMPTY
+    READSTAT_ERROR_TOO_FEW_COLUMNS,
+    READSTAT_ERROR_TOO_MANY_COLUMNS
 } readstat_error_t;
 
 const char *readstat_error_message(readstat_error_t error_code);
+
+typedef struct readstat_metadata_s {
+    int64_t     row_count;
+    int64_t     var_count;
+    time_t      creation_time;
+    time_t      modified_time;
+    int64_t     file_format_version;
+    readstat_compress_t compression;
+    readstat_endian_t endianness;
+    const char *table_name;
+    const char *file_label;
+    const char *file_encoding;
+    unsigned int is64bit:1;
+} readstat_metadata_t;
+
+int readstat_get_row_count(readstat_metadata_t *metadata);
+int readstat_get_var_count(readstat_metadata_t *metadata);
+time_t readstat_get_creation_time(readstat_metadata_t *metadata);
+time_t readstat_get_modified_time(readstat_metadata_t *metadata);
+int readstat_get_file_format_version(readstat_metadata_t *metadata);
+int readstat_get_file_format_is_64bit(readstat_metadata_t *metadata);
+readstat_compress_t readstat_get_compression(readstat_metadata_t *metadata);
+readstat_endian_t readstat_get_endianness(readstat_metadata_t *metadata);
+const char *readstat_get_table_name(readstat_metadata_t *metadata);
+const char *readstat_get_file_label(readstat_metadata_t *metadata);
+const char *readstat_get_file_encoding(readstat_metadata_t *metadata);
 
 typedef struct readstat_value_s {
     union {
@@ -227,9 +261,7 @@ readstat_value_t readstat_variable_get_missing_range_hi(const readstat_variable_
 /* If the variable handler returns READSTAT_HANDLER_SKIP_VARIABLE, the value handler will not be called on
  * the associated variable. (Note that subsequent variables will retain their original index values.)
  */
-typedef int (*readstat_info_handler)(int obs_count, int var_count, void *ctx);
-typedef int (*readstat_metadata_handler)(const char *file_label, const char *orig_encoding,
-        time_t timestamp, long format_version, void *ctx);
+typedef int (*readstat_metadata_handler)(readstat_metadata_t *metadata, void *ctx);
 typedef int (*readstat_note_handler)(int note_index, const char *note, void *ctx);
 typedef int (*readstat_variable_handler)(int index, readstat_variable_t *variable, 
         const char *val_labels, void *ctx);
@@ -271,27 +303,29 @@ typedef struct readstat_io_s {
     int                            io_ctx_needs_free;
 } readstat_io_t;
 
+typedef struct readstat_callbacks_s {
+    readstat_metadata_handler      metadata;
+    readstat_note_handler          note;
+    readstat_variable_handler      variable;
+    readstat_fweight_handler       fweight;
+    readstat_value_handler         value;
+    readstat_value_label_handler   value_label;
+    readstat_error_handler         error;
+    readstat_progress_handler      progress;
+} readstat_callbacks_t;
+
 typedef struct readstat_parser_s {
-    readstat_info_handler          info_handler;
-    readstat_metadata_handler      metadata_handler;
-    readstat_note_handler          note_handler;
-    readstat_variable_handler      variable_handler;
-    readstat_fweight_handler       fweight_handler;
-    readstat_value_handler         value_handler;
-    readstat_value_label_handler   value_label_handler;
-    readstat_error_handler         error_handler;
-    readstat_progress_handler      progress_handler;
-    readstat_io_t                 *io;
-    const char                    *input_encoding;
-    const char                    *output_encoding;
-    long                           row_limit;
+    readstat_callbacks_t    handlers;
+    readstat_io_t          *io;
+    const char             *input_encoding;
+    const char             *output_encoding;
+    long                    row_limit;
 } readstat_parser_t;
 
 readstat_parser_t *readstat_parser_init(void);
 void readstat_parser_free(readstat_parser_t *parser);
 void readstat_io_free(readstat_io_t *io);
 
-readstat_error_t readstat_set_info_handler(readstat_parser_t *parser, readstat_info_handler info_handler);
 readstat_error_t readstat_set_metadata_handler(readstat_parser_t *parser, readstat_metadata_handler metadata_handler);
 readstat_error_t readstat_set_note_handler(readstat_parser_t *parser, readstat_note_handler note_handler);
 readstat_error_t readstat_set_variable_handler(readstat_parser_t *parser, readstat_variable_handler variable_handler);
@@ -405,6 +439,7 @@ typedef struct readstat_writer_s {
     int                         row_count;
     int                         current_row;
     char                        file_label[100];
+    char                        table_name[33];
     const readstat_variable_t  *fweight_variable;
 
     readstat_writer_callbacks_t callbacks;
@@ -465,12 +500,22 @@ readstat_string_ref_t *readstat_get_string_ref(readstat_writer_t *writer, int in
 readstat_error_t readstat_writer_set_file_label(readstat_writer_t *writer, const char *file_label);
 readstat_error_t readstat_writer_set_file_timestamp(readstat_writer_t *writer, time_t timestamp);
 readstat_error_t readstat_writer_set_fweight_variable(readstat_writer_t *writer, const readstat_variable_t *variable);
+
 readstat_error_t readstat_writer_set_file_format_version(readstat_writer_t *writer, 
-        long file_format_version); // e.g. 104-118 for DTA; 5 or 8 for SAS Transport
+        uint8_t file_format_version);
+// e.g. 104-119 for DTA; 5 or 8 for SAS Transport.
+// SAV files support 2 or 3, where 3 is equivalent to setting 
+// readstat_writer_set_compression(READSTAT_COMPRESS_BINARY)
+
+readstat_error_t readstat_writer_set_table_name(readstat_writer_t *writer, const char *table_name);
+// Only used in XPORT files at the moment (defaults to DATASET)
+
 readstat_error_t readstat_writer_set_file_format_is_64bit(readstat_writer_t *writer,
         int is_64bit); // applies only to SAS files; defaults to 1=true
 readstat_error_t readstat_writer_set_compression(readstat_writer_t *writer,
-        readstat_compress_t compression); // applies only to SAS and SAV files
+        readstat_compress_t compression); 
+        // READSTAT_COMPRESS_BINARY is supported only with SAV files (i.e. ZSAV files)
+        // READSTAT_COMPRESS_ROWS is supported only with sas7bdat and SAV files
 
 // Optional error handler
 readstat_error_t readstat_writer_set_error_handler(readstat_writer_t *writer, 
