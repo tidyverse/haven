@@ -10,7 +10,7 @@
 \usage{
 read_sav(file, encoding = NULL, user_na = FALSE)
 
-read_por(file, encoding = NULL, user_na = FALSE)
+read_por(file, user_na = FALSE)
 
 write_sav(data, path)
 

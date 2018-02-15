@@ -1,7 +1,7 @@
 # haven 1.1.1.9000
 
-* `read_por()` and `read_sav()` gain an `encoding` argument to override
-  the encoding stored in the file (#305).
+* `read_sav()` gains an `encoding` argument to override the encoding stored in 
+  the file (#305).
 
 # haven 1.1.1
 
