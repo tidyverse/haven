@@ -6,13 +6,13 @@
 \alias{read_por}
 \alias{write_sav}
 \alias{read_spss}
-\title{Read SPSS (SAV & POR) files. Write SAV files.}
+\title{Read SPSS (`.sav`, `.zsav`, `.por`) files. Write `.sav` and `.zsav` files.}
 \usage{
 read_sav(file, encoding = NULL, user_na = FALSE)
 
 read_por(file, user_na = FALSE)
 
-write_sav(data, path)
+write_sav(data, path, compress = FALSE)
 
 read_spss(file, user_na = FALSE)
 }
@@ -40,6 +40,9 @@ default, user-defined missings will be converted to \code{NA}.}
 \item{data}{Data frame to write.}
 
 \item{path}{Path to a file where the data will be written.}
+
+\item{compress}{If `TRUE`, will compress the file, resulting in a `.zsav`
+file.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
@@ -48,6 +51,10 @@ A tibble, data frame variant with nice defaults.
   It is not printed on the console, but the RStudio viewer will show it.
 }
 \description{
+`read_sav()` reads both `.sav` and `.zsav` files; `write_sav()` creates
+`.zsav` files when `compress = TRUE`.
+}
+\details{
 Currently haven can read and write logical, integer, numeric, character
 and factors. See \code{\link{labelled_spss}} for how labelled variables in
 SPSS are handled in R. \code{read_spss} is an alias for \code{read_sav}.
