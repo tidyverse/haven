@@ -254,7 +254,7 @@ validate_dta <- function(data) {
 
   # Check for labelled double vectors
   is_labelled <- vapply(data, is.labelled, logical(1))
-  is_integer <- vapply(data, typeof, character(1)) == "integer"
+  is_integer <- vapply(data, is_integerish, logical(1))
   bad_labels <- is_labelled & !is_integer
   if (any(bad_labels)) {
     stop(

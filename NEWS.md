@@ -1,5 +1,8 @@
 # haven 1.1.1.9000
 
+* `write_dta()` uses a less strict check for integers (#343) so that double
+  containing only integer values can written.
+
 * `read_sav()` gains an `encoding` argument to override the encoding stored in 
   the file (#305).
 
