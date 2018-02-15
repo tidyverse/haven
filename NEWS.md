@@ -9,6 +9,7 @@
 * Update to latest readstat.
 
   * Fixes out of memory error (#342)
+  * Now supports reading and writing stata 15 files (#339)
 
 # haven 1.1.1
 

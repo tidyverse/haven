@@ -87,3 +87,15 @@ test_that("can not write labelled non-integers (#343)", {
   df <- data.frame(x = labelled(c(1.5, 2, 3), c("a" = 1)))
   expect_error(write_dta(df, tempfile()), "supports labelled integers")
 })
+
+test_that("supports stata version 15", {
+  df <- tibble(x = factor(letters), y = runif(26))
+
+  path <- tempfile()
+  write_dta(df, path, version = 15)
+  df2 <- read_dta(path)
+
+  df2$x <- as_factor(df2$x)
+  df2$y <- zap_formats(df2$y)
+  expect_equal(df2, df)
+})

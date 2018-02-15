@@ -34,7 +34,7 @@ specify manually. A commonly used value is "windows-1252".}
 
 \item{path}{Path to a file where the data will be written.}
 
-\item{version}{File version to use. Supports versions 8-14.}
+\item{version}{File version to use. Supports versions 8-15.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
