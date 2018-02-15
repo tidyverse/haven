@@ -1,5 +1,8 @@
 # haven 1.1.1.9000
 
+* `write_xpt()` can now set the "member" name, which defaults to the file name
+  san extension (#328).
+
 * `read_sav()` can now read `.zsav` files; `write_sav()` produces `.zsav` 
   files when `compress = TRUE` (#338).
 

@@ -170,14 +170,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // write_xpt_
-void write_xpt_(List data, std::string path, int version);
-RcppExport SEXP _haven_write_xpt_(SEXP dataSEXP, SEXP pathSEXP, SEXP versionSEXP) {
+void write_xpt_(List data, std::string path, int version, std::string name);
+RcppExport SEXP _haven_write_xpt_(SEXP dataSEXP, SEXP pathSEXP, SEXP versionSEXP, SEXP nameSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type data(dataSEXP);
     Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
     Rcpp::traits::input_parameter< int >::type version(versionSEXP);
-    write_xpt_(data, path, version);
+    Rcpp::traits::input_parameter< std::string >::type name(nameSEXP);
+    write_xpt_(data, path, version, name);
     return R_NilValue;
 END_RCPP
 }
@@ -200,7 +201,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_haven_write_sav_", (DL_FUNC) &_haven_write_sav_, 3},
     {"_haven_write_dta_", (DL_FUNC) &_haven_write_dta_, 3},
     {"_haven_write_sas_", (DL_FUNC) &_haven_write_sas_, 2},
-    {"_haven_write_xpt_", (DL_FUNC) &_haven_write_xpt_, 3},
+    {"_haven_write_xpt_", (DL_FUNC) &_haven_write_xpt_, 4},
     {"is_tagged_na_",            (DL_FUNC) &is_tagged_na_,            2},
     {"na_tag_",                  (DL_FUNC) &na_tag_,                  1},
     {"tagged_na_",               (DL_FUNC) &tagged_na_,               1},

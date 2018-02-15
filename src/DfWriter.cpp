@@ -76,6 +76,10 @@ public:
     readstat_writer_set_file_format_version(writer_, version);
   }
 
+  void setName(const std::string& name) {
+    readstat_writer_set_table_name(writer_, name.c_str());
+  }
+
   void write() {
     int p = x_.size();
     if (p == 0)
@@ -359,8 +363,9 @@ void write_sas_(List data, std::string path) {
 }
 
 // [[Rcpp::export]]
-void write_xpt_(List data, std::string path, int version) {
+void write_xpt_(List data, std::string path, int version, std::string name) {
   Writer writer(HAVEN_XPT, data, path);
   writer.setVersion(version);
+  writer.setName(name);
   writer.write();
 }

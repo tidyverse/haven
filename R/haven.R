@@ -81,12 +81,38 @@ read_xpt <- function(file) {
 #' @export
 #' @rdname read_xpt
 #' @param version Version of transport file specification to use: either 5 or 8.
-write_xpt <- function(data, path, version = 8) {
+#' @param name Member name to record in file. Defaults to file name sans
+#'   extension. Must be <= 8 characters for version 5, and <= 32 characters
+#'   for version 8.
+write_xpt <- function(data, path, version = 8, name = NULL) {
   stopifnot(version %in% c(5, 8))
 
-  write_xpt_(data, normalizePath(path, mustWork = FALSE), version)
+  if (is.null(name)) {
+    name <- tools::file_path_sans_ext(basename(path))
+  }
+  name <- validate_xpt_name(name, version)
+
+  write_xpt_(
+    data,
+    normalizePath(path, mustWork = FALSE),
+    version = version,
+    name = name
+  )
 }
 
+validate_xpt_name <- function(name, version) {
+  if (version == 5) {
+    if (nchar(name) > 8) {
+      stop("`name` must be 8 characters or fewer", call. = FALSE)
+    }
+
+  } else {
+    if (nchar(name) > 32) {
+      stop("`name` must be 32 characters or fewer", call. = FALSE)
+    }
+  }
+  name
+}
 
 #' Read SPSS (`.sav`, `.zsav`, `.por`) files. Write `.sav` and `.zsav` files.
 #'
