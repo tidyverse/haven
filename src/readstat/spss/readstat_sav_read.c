@@ -773,35 +773,36 @@ static readstat_error_t sav_read_compressed_data(sav_ctx_t *ctx,
     }
 
     while (1) {
-        if (state.avail_in == 0) {
-            if ((buffer_used = io->read(buffer, sizeof(buffer), io->io_ctx)) == -1 ||
-                buffer_used == 0 || (buffer_used % 8) != 0)
-                goto done;
-
-            data_offset = 0;
-        }
-
-        state.next_in = &buffer[data_offset];
-        state.avail_in = buffer_used - data_offset;
-
-        state.next_out = &uncompressed_row[uncompressed_offset];
-        state.avail_out = uncompressed_row_len - uncompressed_offset;
-
-        int finished = sav_decompress_row(&state);
-
-        uncompressed_offset = uncompressed_row_len - state.avail_out;
-        data_offset = buffer_used - state.avail_in;
-
-        if (state.avail_out == 0) {
-            retval = row_handler(uncompressed_row, uncompressed_row_len, ctx);
-            if (retval != READSTAT_OK)
-                goto done;
-
-            uncompressed_offset = 0;
-        }
-
-        if (finished || ctx->current_row == ctx->row_limit)
+        buffer_used = io->read(buffer, sizeof(buffer), io->io_ctx);
+        if (buffer_used == -1 || buffer_used == 0 || (buffer_used % 8) != 0)
             goto done;
+
+        state.status = SAV_ROW_STREAM_HAVE_DATA;
+        data_offset = 0;
+
+        while (state.status != SAV_ROW_STREAM_NEED_DATA) {
+            state.next_in = &buffer[data_offset];
+            state.avail_in = buffer_used - data_offset;
+
+            state.next_out = &uncompressed_row[uncompressed_offset];
+            state.avail_out = uncompressed_row_len - uncompressed_offset;
+
+            sav_decompress_row(&state);
+
+            uncompressed_offset = uncompressed_row_len - state.avail_out;
+            data_offset = buffer_used - state.avail_in;
+
+            if (state.status == SAV_ROW_STREAM_FINISHED_ROW) {
+                retval = row_handler(uncompressed_row, uncompressed_row_len, ctx);
+                if (retval != READSTAT_OK)
+                    goto done;
+
+                uncompressed_offset = 0;
+            }
+
+            if (state.status == SAV_ROW_STREAM_FINISHED_ALL || ctx->current_row == ctx->row_limit)
+                goto done;
+        }
     }
 
 done:

@@ -118,61 +118,62 @@ readstat_error_t zsav_read_compressed_data(sav_ctx_t *ctx,
     }
 
     while (1) {
-        if (state.avail_in == 0) {
-            if (block_i == n_blocks)
-                goto cleanup;
-
-            struct ztrailer_entry *entry = &ztrailer_entries[block_i];
-            if (io->seek(entry->compressed_ofs, READSTAT_SEEK_SET, io->io_ctx) == -1) {
-                retval = READSTAT_ERROR_SEEK;
-                goto cleanup;
-            }
-            if ((compressed_block = readstat_realloc(compressed_block, entry->compressed_size)) == NULL) {
-                retval = READSTAT_ERROR_MALLOC;
-                goto cleanup;
-            }
-            if (io->read(compressed_block, entry->compressed_size, io->io_ctx) != entry->compressed_size) {
-                retval = READSTAT_ERROR_READ;
-                goto cleanup;
-            }
-
-            uncompressed_block_len = entry->uncompressed_size;
-            if ((uncompressed_block = readstat_realloc(uncompressed_block, uncompressed_block_len)) == NULL) {
-                retval = READSTAT_ERROR_MALLOC;
-                goto cleanup;
-            }
-            int status = uncompress(uncompressed_block, &uncompressed_block_len,
-                    compressed_block, entry->compressed_size);
-            if (status != Z_OK || uncompressed_block_len != entry->uncompressed_size) {
-                retval = READSTAT_ERROR_PARSE;
-                goto cleanup;
-            }
-
-            block_i++;
-            data_offset = 0;
-        }
-
-        state.next_in = &uncompressed_block[data_offset];
-        state.avail_in = uncompressed_block_len - data_offset;
-
-        state.next_out = &uncompressed_row[uncompressed_offset];
-        state.avail_out = uncompressed_row_len - uncompressed_offset;
-
-        int finished = sav_decompress_row(&state);
-
-        uncompressed_offset = uncompressed_row_len - state.avail_out;
-        data_offset = uncompressed_block_len - state.avail_in;
-
-        if (state.avail_out == 0) {
-            retval = row_handler(uncompressed_row, uncompressed_row_len, ctx);
-            if (retval != READSTAT_OK)
-                goto cleanup;
-
-            uncompressed_offset = 0;
-        }
-
-        if (finished || ctx->current_row == ctx->row_limit)
+        if (block_i == n_blocks)
             goto cleanup;
+
+        struct ztrailer_entry *entry = &ztrailer_entries[block_i];
+        if (io->seek(entry->compressed_ofs, READSTAT_SEEK_SET, io->io_ctx) == -1) {
+            retval = READSTAT_ERROR_SEEK;
+            goto cleanup;
+        }
+        if ((compressed_block = readstat_realloc(compressed_block, entry->compressed_size)) == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
+        if (io->read(compressed_block, entry->compressed_size, io->io_ctx) != entry->compressed_size) {
+            retval = READSTAT_ERROR_READ;
+            goto cleanup;
+        }
+
+        uncompressed_block_len = entry->uncompressed_size;
+        if ((uncompressed_block = readstat_realloc(uncompressed_block, uncompressed_block_len)) == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
+        int status = uncompress(uncompressed_block, &uncompressed_block_len,
+                compressed_block, entry->compressed_size);
+        if (status != Z_OK || uncompressed_block_len != entry->uncompressed_size) {
+            retval = READSTAT_ERROR_PARSE;
+            goto cleanup;
+        }
+
+        block_i++;
+        state.status = SAV_ROW_STREAM_HAVE_DATA;
+        data_offset = 0;
+
+        while (state.status != SAV_ROW_STREAM_NEED_DATA) {
+            state.next_in = &uncompressed_block[data_offset];
+            state.avail_in = uncompressed_block_len - data_offset;
+
+            state.next_out = &uncompressed_row[uncompressed_offset];
+            state.avail_out = uncompressed_row_len - uncompressed_offset;
+
+            sav_decompress_row(&state);
+
+            uncompressed_offset = uncompressed_row_len - state.avail_out;
+            data_offset = uncompressed_block_len - state.avail_in;
+
+            if (state.status == SAV_ROW_STREAM_FINISHED_ROW) {
+                retval = row_handler(uncompressed_row, uncompressed_row_len, ctx);
+                if (retval != READSTAT_OK)
+                    goto cleanup;
+
+                uncompressed_offset = 0;
+            }
+
+            if (state.status == SAV_ROW_STREAM_FINISHED_ALL || ctx->current_row == ctx->row_limit)
+                goto cleanup;
+        }
     }
 
 cleanup:

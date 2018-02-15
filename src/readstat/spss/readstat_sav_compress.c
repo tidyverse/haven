@@ -73,14 +73,15 @@ size_t sav_compress_row(void *output_row, void *input_row, size_t input_len,
     return output_offset;
 }
 
-int sav_decompress_row(struct sav_row_stream_s *state) {
+void sav_decompress_row(struct sav_row_stream_s *state) {
     double fp_value;
     int i = 8 - state->i;
-    int finished = 0;
     while (1) {
         if (i == 8) {
-            if (state->avail_in < 8)
+            if (state->avail_in < 8) {
+                state->status = SAV_ROW_STREAM_NEED_DATA;
                 goto done;
+            }
 
             memcpy(state->chunk, state->next_in, 8);
             state->next_in += 8;
@@ -93,11 +94,13 @@ int sav_decompress_row(struct sav_row_stream_s *state) {
                 case 0:
                     break;
                 case 252:
-                    finished = 1;
+                    state->status = SAV_ROW_STREAM_FINISHED_ALL;
                     goto done;
                 case 253:
-                    if (state->avail_in < 8)
+                    if (state->avail_in < 8) {
+                        state->status = SAV_ROW_STREAM_NEED_DATA;
                         goto done;
+                    }
                     memcpy(state->next_out, state->next_in, 8);
                     state->next_out += 8;
                     state->avail_out -= 8;
@@ -122,12 +125,12 @@ int sav_decompress_row(struct sav_row_stream_s *state) {
                     break;
             }
             i++;
-            if (state->avail_out < 8)
+            if (state->avail_out < 8) {
+                state->status = SAV_ROW_STREAM_FINISHED_ROW;
                 goto done;
+            }
         }
     }
 done:
     state->i = 8 - i;
-
-    return finished;
 }
