@@ -8,6 +8,8 @@
 
 * Update to latest readstat.
 
+  * Fixes out of memory error (#342)
+
 # haven 1.1.1
 
 * Update to latest readstat. Includes:
