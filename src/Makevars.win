@@ -3,4 +3,4 @@ include Makevars
 # This is also defined in Makevars, but somehow the definition from there is not used
 OBJECTS = $(CFILES:.c=.o) $(CPPFILES:.cpp=.o)
 
-PKG_LIBS=-lRiconv
+PKG_LIBS=-lRiconv -lz

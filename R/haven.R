@@ -88,7 +88,10 @@ write_xpt <- function(data, path, version = 8) {
 }
 
 
-#' Read SPSS (SAV & POR) files. Write SAV files.
+#' Read SPSS (`.sav`, `.zsav`, `.por`) files. Write `.sav` and `.zsav` files.
+#'
+#' `read_sav()` reads both `.sav` and `.zsav` files; `write_sav()` creates
+#' `.zsav` files when `compress = TRUE`.
 #'
 #' Currently haven can read and write logical, integer, numeric, character
 #' and factors. See \code{\link{labelled_spss}} for how labelled variables in
@@ -144,9 +147,11 @@ read_por <- function(file, user_na = FALSE) {
 
 #' @export
 #' @rdname read_spss
-write_sav <- function(data, path) {
+#' @param compress If `TRUE`, will compress the file, resulting in a `.zsav`
+#'   file.
+write_sav <- function(data, path, compress = FALSE) {
   validate_sav(data)
-  write_sav_(data, normalizePath(path, mustWork = FALSE))
+  write_sav_(data, normalizePath(path, mustWork = FALSE), compress = compress)
 }
 
 

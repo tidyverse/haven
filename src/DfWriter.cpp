@@ -68,6 +68,10 @@ public:
     } catch (...) {};
   }
 
+  void setCompression(readstat_compress_t version) {
+    readstat_writer_set_compression(writer_, version);
+  }
+
   void setVersion(int version) {
     readstat_writer_set_file_format_version(writer_, version);
   }
@@ -335,8 +339,11 @@ ssize_t data_writer(const void *data, size_t len, void *ctx) {
 }
 
 // [[Rcpp::export]]
-void write_sav_(List data, std::string path) {
-  Writer(HAVEN_SPSS, data, path).write();
+void write_sav_(List data, std::string path, bool compress) {
+  Writer writer(HAVEN_SPSS, data, path);
+  if (compress)
+    writer.setCompression(READSTAT_COMPRESS_BINARY);
+  writer.write();
 }
 
 // [[Rcpp::export]]

@@ -135,13 +135,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // write_sav_
-void write_sav_(List data, std::string path);
-RcppExport SEXP _haven_write_sav_(SEXP dataSEXP, SEXP pathSEXP) {
+void write_sav_(List data, std::string path, bool compress);
+RcppExport SEXP _haven_write_sav_(SEXP dataSEXP, SEXP pathSEXP, SEXP compressSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type data(dataSEXP);
     Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
-    write_sav_(data, path);
+    Rcpp::traits::input_parameter< bool >::type compress(compressSEXP);
+    write_sav_(data, path, compress);
     return R_NilValue;
 END_RCPP
 }
@@ -196,7 +197,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_haven_df_parse_sav_raw", (DL_FUNC) &_haven_df_parse_sav_raw, 3},
     {"_haven_df_parse_por_file", (DL_FUNC) &_haven_df_parse_por_file, 3},
     {"_haven_df_parse_por_raw", (DL_FUNC) &_haven_df_parse_por_raw, 3},
-    {"_haven_write_sav_", (DL_FUNC) &_haven_write_sav_, 2},
+    {"_haven_write_sav_", (DL_FUNC) &_haven_write_sav_, 3},
     {"_haven_write_dta_", (DL_FUNC) &_haven_write_dta_, 3},
     {"_haven_write_sas_", (DL_FUNC) &_haven_write_sas_, 2},
     {"_haven_write_xpt_", (DL_FUNC) &_haven_write_xpt_, 3},

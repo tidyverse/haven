@@ -1,5 +1,8 @@
 # haven 1.1.1.9000
 
+* `read_sav()` can now read `.zsav` files; `write_sav()` produces `.zsav` 
+  files when `compress = TRUE` (#338).
+
 * `write_dta()` uses a less strict check for integers (#343) so that double
   containing only integer values can written.
 

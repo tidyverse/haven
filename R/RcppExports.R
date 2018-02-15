@@ -41,8 +41,8 @@ df_parse_por_raw <- function(spec, encoding, user_na) {
     .Call(`_haven_df_parse_por_raw`, spec, encoding, user_na)
 }
 
-write_sav_ <- function(data, path) {
-    invisible(.Call(`_haven_write_sav_`, data, path))
+write_sav_ <- function(data, path, compress) {
+    invisible(.Call(`_haven_write_sav_`, data, path, compress))
 }
 
 write_dta_ <- function(data, path, version) {
