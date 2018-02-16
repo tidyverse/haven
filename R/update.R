@@ -7,22 +7,12 @@ update_readstat <- function() {
   )
   utils::unzip(tmp, exdir = tempdir())
 
-  zip_dir <- file.path(tempdir(), "ReadStat-master", "src")
-  src <- dir(zip_dir, "\\.[ch]$", recursive = TRUE)
+  in_dir <- fs::path(tempdir(), "ReadStat-master", "src")
+  out_dir <- fs::path("src", "readstat")
 
-  # Drop test & bin
-  ignore <- dirname(src) %in% c("test", "bin", "bin/modules", "bin/util", "fuzz")
-  src <- src[!ignore]
-
-
-  dirs <- file.path("src", "readstat", c("sas", "stata", "spss"))
-  lapply(dirs, dir.create, showWarnings = FALSE, recursive = TRUE)
-
-  ok <- file.copy(file.path(zip_dir, src), file.path("src", "readstat", src), overwrite = TRUE)
-
-  if (any(!ok)) {
-    stop("Failed to copy: ", paste(src[!ok], collapse = ", "), call. = FALSE)
-  }
+  fs::dir_delete(out_dir)
+  fs::dir_copy(in_dir, out_dir)
+  fs::dir_delete(fs::path(out_dir, c("bin", "fuzz", "test")))
 
   invisible()
 }

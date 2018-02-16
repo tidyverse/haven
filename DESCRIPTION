@@ -27,6 +27,7 @@ Imports:
     tibble
 Suggests: 
     covr,
+    fs,
     knitr,
     rmarkdown,
     testthat
