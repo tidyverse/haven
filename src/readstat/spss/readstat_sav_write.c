@@ -66,8 +66,15 @@ static readstat_error_t sav_encode_variable_format(int32_t *out_code,
     return retval;
 }
 
-static size_t sav_format_variable_name(char *output, size_t output_len, int i) {
-    snprintf(output, output_len, "VAR%d", (unsigned int)i % 100000);
+static size_t sav_format_variable_name(char *output, size_t output_len,
+        unsigned int index) {
+    snprintf(output, output_len, "VAR%d", index % 100000);
+    return strlen(output);
+}
+
+static size_t sav_format_ghost_variable_name(char *output, size_t output_len,
+        unsigned int index, unsigned int segment) {
+    snprintf(output, output_len, "V%05d%02d", index % 100000, segment % 100);
     return strlen(output);
 }
 
@@ -343,9 +350,6 @@ cleanup:
 static readstat_error_t sav_emit_full_variable_record(readstat_writer_t *writer, readstat_variable_t *r_variable) {
     readstat_error_t retval = READSTAT_OK;
     
-    char name_data[9];
-    sav_format_variable_name(name_data, sizeof(name_data), r_variable->index);
-
     retval = sav_emit_base_variable_record(writer, r_variable);
     if (retval != READSTAT_OK)
         goto cleanup;
@@ -358,10 +362,13 @@ static readstat_error_t sav_emit_full_variable_record(readstat_writer_t *writer,
 
         int i;
         for (i=1; i<n_segments; i++) {
+            char name_data[9];
             size_t storage_size = MAX_STRING_SIZE;
             if (i == n_segments - 1) {
                 storage_size = (r_variable->user_width - (n_segments - 1) * 252);
             }
+            sav_format_ghost_variable_name(name_data, sizeof(name_data),
+                    r_variable->index, i);
             retval = sav_emit_ghost_variable_record(writer, name_data, storage_size);
             if (retval != READSTAT_OK)
                 goto cleanup;
@@ -623,12 +630,15 @@ static readstat_error_t sav_emit_long_var_name_record(readstat_writer_t *writer)
     info_header.count = 0;
     
     for (i=0; i<writer->variables_count; i++) {
-        char name_data[9];
-        size_t name_data_len = sav_format_variable_name(name_data, sizeof(name_data), i);
-        
         readstat_variable_t *r_variable = readstat_get_variable(writer, i);
+
+        char name_data[9];
+        size_t name_data_len = sav_format_variable_name(name_data, sizeof(name_data),
+                r_variable->index);
+
         const char *title_data = r_variable->name;
         size_t title_data_len = strlen(title_data);
+
         if (title_data_len > 0 && name_data_len > 0) {
             if (title_data_len > 64)
                 title_data_len = 64;
@@ -650,10 +660,11 @@ static readstat_error_t sav_emit_long_var_name_record(readstat_writer_t *writer)
         int is_first = 1;
         
         for (i=0; i<writer->variables_count; i++) {
-            char name_data[9];
-            sav_format_variable_name(name_data, sizeof(name_data), i);
-
             readstat_variable_t *r_variable = readstat_get_variable(writer, i);
+
+            char name_data[9];
+            sav_format_variable_name(name_data, sizeof(name_data), r_variable->index);
+
             const char *title_data = r_variable->name;
             size_t title_data_len = strlen(title_data);
             
@@ -709,7 +720,7 @@ static readstat_error_t sav_emit_very_long_string_record(readstat_writer_t *writ
             continue;
 
         char name_data[9];
-        sav_format_variable_name(name_data, sizeof(name_data), i);
+        sav_format_variable_name(name_data, sizeof(name_data), r_variable->index);
 
         char kv_data[8+1+5+1];
         snprintf(kv_data, sizeof(kv_data), "%.8s=%05d", 
@@ -731,7 +742,7 @@ static readstat_error_t sav_emit_very_long_string_record(readstat_writer_t *writ
             continue;
 
         char name_data[9];
-        sav_format_variable_name(name_data, sizeof(name_data), i);
+        sav_format_variable_name(name_data, sizeof(name_data), r_variable->index);
 
         char kv_data[8+1+5+1];
         snprintf(kv_data, sizeof(kv_data), "%.8s=%05d", 
