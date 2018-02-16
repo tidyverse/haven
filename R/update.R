@@ -5,9 +5,9 @@ update_readstat <- function() {
     "https://github.com/WizardMac/ReadStat/archive/master.zip", tmp,
     method = "wget"
   )
-  utils::unzip(tmp, exdir = tempdir())
+  base <- fs::path_common(utils::unzip(tmp, exdir = tempdir()))
 
-  in_dir <- fs::path(tempdir(), "ReadStat-master", "src")
+  in_dir <- fs::path(base, "src")
   out_dir <- fs::path("src", "readstat")
 
   fs::dir_delete(out_dir)
