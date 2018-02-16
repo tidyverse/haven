@@ -762,10 +762,8 @@ static readstat_error_t sav_read_compressed_data(sav_ctx_t *ctx,
 
     struct sav_row_stream_s state = { 
         .missing_value = ctx->missing_double,
-        .bias = ctx->bias };
-
-    int bswap = ctx->bswap;
-    ctx->bswap = 0;
+        .bias = ctx->bias,
+        .bswap = ctx->bswap };
 
     if (uncompressed_row_len && (uncompressed_row = readstat_malloc(uncompressed_row_len)) == NULL) {
         retval = READSTAT_ERROR_MALLOC;
@@ -808,8 +806,6 @@ static readstat_error_t sav_read_compressed_data(sav_ctx_t *ctx,
 done:
     if (uncompressed_row)
         free(uncompressed_row);
-
-    ctx->bswap = bswap;
 
     return retval;
 }

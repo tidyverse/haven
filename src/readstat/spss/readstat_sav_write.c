@@ -51,15 +51,26 @@ static int readstat_label_set_needs_long_value_labels_record(readstat_label_set_
 }
 
 static int32_t sav_encode_format(spss_format_t *spss_format) {
-    return ((spss_format->type << 16) |
-            (spss_format->width << 8) |
+    uint8_t width = spss_format->width > 0xff ? 0xff : spss_format->width;
+    return ((spss_format->type << 16) | (width << 8) |
             spss_format->decimal_places);
 }
 
-static readstat_error_t sav_encode_variable_format(int32_t *out_code, 
-        readstat_variable_t *r_variable) {
+static readstat_error_t sav_encode_base_variable_format(readstat_variable_t *r_variable,
+        int32_t *out_code) {
     spss_format_t spss_format;
     readstat_error_t retval = spss_format_for_variable(r_variable, &spss_format);
+    if (retval == READSTAT_OK && out_code)
+        *out_code = sav_encode_format(&spss_format);
+
+    return retval;
+}
+
+static readstat_error_t sav_encode_ghost_variable_format(readstat_variable_t *r_variable,
+        size_t user_width, int32_t *out_code) {
+    spss_format_t spss_format;
+    readstat_error_t retval = spss_format_for_variable(r_variable, &spss_format);
+    spss_format.width = user_width;
     if (retval == READSTAT_OK && out_code)
         *out_code = sav_encode_format(&spss_format);
 
@@ -255,6 +266,7 @@ static readstat_error_t sav_emit_blank_variable_records(readstat_writer_t *write
         memset(&variable, '\0', sizeof(variable));
         memset(variable.name, ' ', sizeof(variable.name));
         variable.type = -1;
+        variable.print = variable.write = 0x011d01;
         retval = readstat_write_bytes(writer, &variable, sizeof(variable));
         if (retval != READSTAT_OK)
             goto cleanup;
@@ -285,7 +297,7 @@ static readstat_error_t sav_emit_base_variable_record(readstat_writer_t *writer,
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    retval = sav_encode_variable_format(&variable.print, r_variable);
+    retval = sav_encode_base_variable_format(r_variable, &variable.print);
     if (retval != READSTAT_OK)
         goto cleanup;
 
@@ -320,23 +332,29 @@ cleanup:
 }
 
 static readstat_error_t sav_emit_ghost_variable_record(readstat_writer_t *writer, 
-        const char *name, size_t user_width) {
+        readstat_variable_t *r_variable, int segment, size_t user_width) {
     readstat_error_t retval = READSTAT_OK;
     int32_t rec_type = SAV_RECORD_TYPE_VARIABLE;
-
-    size_t name_len = strlen(name);
+    sav_variable_record_t variable = {0};
+    char name_data[9];
+    size_t name_len = sav_format_ghost_variable_name(name_data, sizeof(name_data),
+            r_variable->index, segment);
 
     retval = readstat_write_bytes(writer, &rec_type, sizeof(rec_type));
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    sav_variable_record_t variable = {0};
-
     variable.type = user_width;
+
+    retval = sav_encode_ghost_variable_format(r_variable, user_width, &variable.print);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    variable.write = variable.print;
 
     memset(variable.name, ' ', sizeof(variable.name));
     if (name_len > 0 && name_len <= sizeof(variable.name))
-        memcpy(variable.name, name, name_len);
+        memcpy(variable.name, name_data, name_len);
 
     retval = readstat_write_bytes(writer, &variable, sizeof(variable));
     if (retval != READSTAT_OK)
@@ -364,14 +382,11 @@ static readstat_error_t sav_emit_full_variable_record(readstat_writer_t *writer,
     int n_segments = sav_variable_segments(r_variable->type, r_variable->user_width);
     int i;
     for (i=1; i<n_segments; i++) {
-        char name_data[9];
         size_t storage_size = MAX_STRING_SIZE;
         if (i == n_segments - 1) {
             storage_size = (r_variable->user_width - (n_segments - 1) * 252);
         }
-        sav_format_ghost_variable_name(name_data, sizeof(name_data),
-                r_variable->index, i);
-        retval = sav_emit_ghost_variable_record(writer, name_data, storage_size);
+        retval = sav_emit_ghost_variable_record(writer, r_variable, i, storage_size);
         if (retval != READSTAT_OK)
             goto cleanup;
     }

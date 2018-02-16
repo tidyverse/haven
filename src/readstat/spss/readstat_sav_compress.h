@@ -16,6 +16,7 @@ struct sav_row_stream_s {
 
     unsigned char         chunk[8];
     int                   i;
+    int                   bswap;
 
     enum sav_row_stream_status status;
 };
