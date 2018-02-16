@@ -78,6 +78,13 @@ static size_t sav_format_ghost_variable_name(char *output, size_t output_len,
     return strlen(output);
 }
 
+static int sav_variable_segments(readstat_type_t type, size_t user_width) {
+    if (type == READSTAT_TYPE_STRING && user_width > MAX_STRING_SIZE) {
+        return (user_width + 251) / 252;
+    }
+    return 1;
+}
+
 static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
     time_t now = writer->timestamp;
@@ -354,25 +361,19 @@ static readstat_error_t sav_emit_full_variable_record(readstat_writer_t *writer,
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    if (r_variable->type == READSTAT_TYPE_STRING) {
-        size_t n_segments = 1;
-        if (r_variable->user_width > MAX_STRING_SIZE) {
-            n_segments = (r_variable->user_width + 251) / 252;
+    int n_segments = sav_variable_segments(r_variable->type, r_variable->user_width);
+    int i;
+    for (i=1; i<n_segments; i++) {
+        char name_data[9];
+        size_t storage_size = MAX_STRING_SIZE;
+        if (i == n_segments - 1) {
+            storage_size = (r_variable->user_width - (n_segments - 1) * 252);
         }
-
-        int i;
-        for (i=1; i<n_segments; i++) {
-            char name_data[9];
-            size_t storage_size = MAX_STRING_SIZE;
-            if (i == n_segments - 1) {
-                storage_size = (r_variable->user_width - (n_segments - 1) * 252);
-            }
-            sav_format_ghost_variable_name(name_data, sizeof(name_data),
-                    r_variable->index, i);
-            retval = sav_emit_ghost_variable_record(writer, name_data, storage_size);
-            if (retval != READSTAT_OK)
-                goto cleanup;
-        }
+        sav_format_ghost_variable_name(name_data, sizeof(name_data),
+                r_variable->index, i);
+        retval = sav_emit_ghost_variable_record(writer, name_data, storage_size);
+        if (retval != READSTAT_OK)
+            goto cleanup;
     }
 
 cleanup:
@@ -581,10 +582,16 @@ static readstat_error_t sav_emit_variable_display_record(readstat_writer_t *writ
     int i;
     sav_info_record_t info_header = {0};
 
+    int total_segments = 0;
+    for (i=0; i<writer->variables_count; i++) {
+        readstat_variable_t *r_variable = readstat_get_variable(writer, i);
+        total_segments += sav_variable_segments(r_variable->type, r_variable->user_width);
+    }
+
     info_header.rec_type = SAV_RECORD_TYPE_HAS_DATA;
     info_header.subtype = SAV_RECORD_SUBTYPE_VAR_DISPLAY;
     info_header.size = sizeof(int32_t);
-    info_header.count = 3 * writer->variables_count;
+    info_header.count = 3 * total_segments;
 
     retval = readstat_write_bytes(writer, &info_header, sizeof(info_header));
     if (retval != READSTAT_OK)
@@ -592,27 +599,32 @@ static readstat_error_t sav_emit_variable_display_record(readstat_writer_t *writ
  
     for (i=0; i<writer->variables_count; i++) {
         readstat_variable_t *r_variable = readstat_get_variable(writer, i);
+
         readstat_measure_t measure = readstat_variable_get_measure(r_variable);
         int32_t sav_measure = spss_measure_from_readstat_measure(measure);
-
-        retval = readstat_write_bytes(writer, &sav_measure, sizeof(int32_t));
-        if (retval != READSTAT_OK)
-            goto cleanup;
 
         int32_t sav_display_width = readstat_variable_get_display_width(r_variable);
         if (sav_display_width <= 0)
             sav_display_width = 8;
 
-        retval = readstat_write_bytes(writer, &sav_display_width, sizeof(int32_t));
-        if (retval != READSTAT_OK)
-            goto cleanup;
-
         readstat_alignment_t alignment = readstat_variable_get_alignment(r_variable);
         int32_t sav_alignment = spss_alignment_from_readstat_alignment(alignment);
 
-        retval = readstat_write_bytes(writer, &sav_alignment, sizeof(int32_t));
-        if (retval != READSTAT_OK)
-            goto cleanup;
+        int n_segments = sav_variable_segments(r_variable->type, r_variable->user_width);
+
+        while (n_segments--) {
+            retval = readstat_write_bytes(writer, &sav_measure, sizeof(int32_t));
+            if (retval != READSTAT_OK)
+                goto cleanup;
+
+            retval = readstat_write_bytes(writer, &sav_display_width, sizeof(int32_t));
+            if (retval != READSTAT_OK)
+                goto cleanup;
+
+            retval = readstat_write_bytes(writer, &sav_alignment, sizeof(int32_t));
+            if (retval != READSTAT_OK)
+                goto cleanup;
+        }
     }
 
 cleanup:
@@ -939,7 +951,7 @@ static readstat_error_t sav_write_missing_number(void *row, const readstat_varia
 static size_t sav_variable_width(readstat_type_t type, size_t user_width) {
     if (type == READSTAT_TYPE_STRING) {
         if (user_width > MAX_STRING_SIZE) {
-            size_t n_segments = (user_width + 251) / 252;
+            size_t n_segments = sav_variable_segments(type, user_width);
             size_t last_segment_width = ((user_width - (n_segments - 1) * 252) + 7)/8*8;
             return (n_segments-1)*256 + last_segment_width;
         }
