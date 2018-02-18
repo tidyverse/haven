@@ -49,6 +49,8 @@ A tibble, data frame variant with nice defaults.
 
   Variable labels are stored in the "label" attribute of each variable.
   It is not printed on the console, but the RStudio viewer will show it.
+
+  \code{write_sav()} returns the input \code{data} invisibly.
 }
 \description{
 `read_sav()` reads both `.sav` and `.zsav` files; `write_sav()` creates
