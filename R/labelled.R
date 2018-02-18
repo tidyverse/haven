@@ -201,8 +201,8 @@ val_pillar_info <- function(x) {
   MIN_CHR_DISPLAY <- 4
   val_pillar <- pillar::pillar_shaft(zap_labels.labelled(x))
   if (is.numeric(x)) {
-    disp_short <- trimws(format(val_pillar, attr(val_pillar, "min_width")), "right")
-    disp_full <- trimws(format(val_pillar, attr(val_pillar, "width")), "right")
+    disp_short <- trim_ws_rhs(format(val_pillar, attr(val_pillar, "min_width")))
+    disp_full <- trim_ws_rhs(format(val_pillar, attr(val_pillar, "width")))
 
     ret <- list(
       type = "numeric",
@@ -212,7 +212,7 @@ val_pillar_info <- function(x) {
       wid_full = pillar::get_extent(disp_full)
     )
   } else {
-    disp_full <- trimws(format(val_pillar, attr(val_pillar, "width")), "right")
+    disp_full <- trim_ws_rhs(format(val_pillar, attr(val_pillar, "width")))
     wid_full <- pillar::get_extent(disp_full)
 
     ret <- list(
@@ -287,3 +287,6 @@ truncate_labelled_pillar <- function(vals, nas, lbls, desired_width, width) {
   paste0(val_display, nas$disp_full, lbls_display)
 }
 
+trim_ws_rhs <- function(x) {
+  sub("[:blank:]+$", "", x)
+}
