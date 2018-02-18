@@ -27,8 +27,17 @@
   * Now supports reading and writing stata 15 files (#339)
   * Negative integer labelled values were tagged as missing (#367)
 
-* Fix for when `as_factor()` with option `levels="labels"` is used on tagged NAs
-  (#340, @gergness)
+
+* The `labelled` class now gets pretty printing that shows the labels and NA values
+  when inside of a `tbl_df`. Includes the ability to turn off this behavior using 
+  `option(haven.show_pillar_labels = FALSE)` (#340, @gergness)
+
+* Subsetting `labelled_spss` values keeps the original class instead of converting
+  to `labelled` (#340 @gergness)
+
+* Fix for `as_factor()` when the option levels="labels" and there are tagged NAs
+  (#340 @gergness)
+
 
 # haven 1.1.1
 
