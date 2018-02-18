@@ -75,6 +75,11 @@ is.labelled <- function(x) inherits(x, "labelled")
 }
 
 #' @export
+`[.labelled_spss` <- function(x, ...) {
+  labelled_spss(NextMethod(), attr(x, "labels"), attr(x, "na_values"), attr(x, "na_range"))
+}
+
+#' @export
 print.labelled <- function(x, ..., digits = getOption("digits")) {
   cat("<Labelled ", typeof(x), ">\n", sep = "")
 
