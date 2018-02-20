@@ -24,7 +24,7 @@ NULL
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #'
-#'   \code{write_sas()} returns the input \code{data} invisibly.
+#'   `write_sas()` returns the input `data` invisibly.
 #' @export
 #' @examples
 #' path <- system.file("examples", "iris.sas7bdat", package = "haven")
@@ -72,7 +72,7 @@ write_sas <- function(data, path) {
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #'
-#'   \code{write_xpt()} returns the input \code{data} invisibly.
+#'   `write_xpt()` returns the input `data` invisibly.
 #' @export
 #' @examples
 #' tmp <- tempfile(fileext = ".xpt")
@@ -144,7 +144,7 @@ validate_xpt_name <- function(name, version) {
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #'
-#'   \code{write_sav()} returns the input \code{data} invisibly.
+#'   `write_sav()` returns the input `data` invisibly.
 #' @name read_spss
 #' @examples
 #' path <- system.file("examples", "iris.sav", package = "haven")
@@ -237,7 +237,7 @@ read_spss <- function(file, user_na = FALSE) {
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #'
-#'   \code{write_dta()} returns the input \code{data} invisibly.
+#'   `write_dta()` returns the input `data` invisibly.
 #' @export
 #' @examples
 #' path <- system.file("examples", "iris.dta", package = "haven")

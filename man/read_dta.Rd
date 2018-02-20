@@ -41,7 +41,7 @@ A tibble, data frame variant with nice defaults.
   Variable labels are stored in the "label" attribute of each variable.
   It is not printed on the console, but the RStudio viewer will show it.
 
-  \code{write_dta()} returns the input \code{data} invisibly.
+  `write_dta()` returns the input `data` invisibly.
 }
 \description{
 Currently haven can read and write logical, integer, numeric, character
