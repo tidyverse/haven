@@ -31,6 +31,8 @@ A tibble, data frame variant with nice defaults.
 
   Variable labels are stored in the "label" attribute of each variable.
   It is not printed on the console, but the RStudio viewer will show it.
+
+  `write_sas()` returns the input `data` invisibly.
 }
 \description{
 Reading supports both sas7bdat files and the accompanying sas7bdat files

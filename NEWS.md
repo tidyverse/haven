@@ -1,5 +1,7 @@
 # haven 1.1.1.9000
 
+* `write_*()` now invisibly return the input data frame as documented (#349, @austensen).
+
 * `write_xpt()` can now set the "member" name, which defaults to the file name
   san extension (#328).
 

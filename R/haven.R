@@ -23,6 +23,8 @@ NULL
 #'
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
+#'
+#'   `write_sas()` returns the input `data` invisibly.
 #' @export
 #' @examples
 #' path <- system.file("examples", "iris.sas7bdat", package = "haven")
@@ -56,6 +58,7 @@ read_sas <- function(data_file, catalog_file = NULL,
 write_sas <- function(data, path) {
   validate_sas(data)
   write_sas_(data, normalizePath(path, mustWork = FALSE))
+  invisible(data)
 }
 
 #' Read and write SAS transport files
@@ -64,6 +67,12 @@ write_sas <- function(data, path) {
 #' of the data to the FDA.
 #'
 #' @inherit read_spss
+#' @return A tibble, data frame variant with nice defaults.
+#'
+#'   Variable labels are stored in the "label" attribute of each variable.
+#'   It is not printed on the console, but the RStudio viewer will show it.
+#'
+#'   `write_xpt()` returns the input `data` invisibly.
 #' @export
 #' @examples
 #' tmp <- tempfile(fileext = ".xpt")
@@ -98,6 +107,7 @@ write_xpt <- function(data, path, version = 8, name = NULL) {
     version = version,
     name = name
   )
+  invisible(data)
 }
 
 validate_xpt_name <- function(name, version) {
@@ -133,6 +143,8 @@ validate_xpt_name <- function(name, version) {
 #'
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
+#'
+#'   `write_sav()` returns the input `data` invisibly.
 #' @name read_spss
 #' @examples
 #' path <- system.file("examples", "iris.sav", package = "haven")
@@ -178,6 +190,7 @@ read_por <- function(file, user_na = FALSE) {
 write_sav <- function(data, path, compress = FALSE) {
   validate_sav(data)
   write_sav_(data, normalizePath(path, mustWork = FALSE), compress = compress)
+  invisible(data)
 }
 
 
@@ -223,6 +236,8 @@ read_spss <- function(file, user_na = FALSE) {
 #'
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
+#'
+#'   `write_dta()` returns the input `data` invisibly.
 #' @export
 #' @examples
 #' path <- system.file("examples", "iris.dta", package = "haven")
@@ -260,6 +275,7 @@ write_dta <- function(data, path, version = 14) {
     normalizePath(path, mustWork = FALSE),
     version = stata_file_format(version)
   )
+  invisible(data)
 }
 
 stata_file_format <- function(version) {
