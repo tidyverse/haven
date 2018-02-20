@@ -115,6 +115,7 @@ uint64_t sas_read8(const char *data, int bswap);
 uint32_t sas_read4(const char *data, int bswap);
 uint16_t sas_read2(const char *data, int bswap);
 readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *ctx, readstat_error_handler error_handler, void *user_ctx);
+size_t sas_subheader_remainder(size_t len, size_t signature_len);
 
 sas_header_info_t *sas_header_info_init(readstat_writer_t *writer, int is_64bit);
 readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *hinfo, sas_header_start_t header_start);

@@ -226,7 +226,7 @@ static sas7bdat_subheader_t *sas7bdat_col_name_subheader_init(readstat_writer_t 
         sas_header_info_t *hinfo, sas7bdat_column_text_array_t *column_text_array) {
     size_t len = sas7bdat_col_name_subheader_length(writer, hinfo);
     size_t signature_len = hinfo->u64 ? 8 : 4;
-    uint16_t remainder = len - (4+2*signature_len);
+    uint16_t remainder = sas_subheader_remainder(len, signature_len);
     sas7bdat_subheader_t *subheader = sas7bdat_subheader_init(
             SAS_SUBHEADER_SIGNATURE_COLUMN_NAME, len);
     memcpy(&subheader->data[signature_len], &remainder, sizeof(uint16_t));
@@ -255,7 +255,7 @@ static sas7bdat_subheader_t *sas7bdat_col_attrs_subheader_init(readstat_writer_t
         sas_header_info_t *hinfo) {
     size_t len = sas7bdat_col_attrs_subheader_length(writer, hinfo);
     size_t signature_len = hinfo->u64 ? 8 : 4;
-    uint16_t remainder = len - (4+2*signature_len);
+    uint16_t remainder = sas_subheader_remainder(len, signature_len);
     sas7bdat_subheader_t *subheader = sas7bdat_subheader_init(
             SAS_SUBHEADER_SIGNATURE_COLUMN_ATTRS, len);
     memcpy(&subheader->data[signature_len], &remainder, sizeof(uint16_t));
@@ -330,7 +330,7 @@ static sas7bdat_subheader_t *sas7bdat_col_text_subheader_init(readstat_writer_t 
     sas7bdat_subheader_t *subheader = sas7bdat_subheader_init(
             SAS_SUBHEADER_SIGNATURE_COLUMN_TEXT, len);
 
-    uint16_t used = len - (4+2*signature_len);
+    uint16_t used = sas_subheader_remainder(len, signature_len);
     memcpy(&subheader->data[signature_len], &used, sizeof(uint16_t));
     memset(&subheader->data[signature_len+12], ' ', 8);
     memcpy(&subheader->data[signature_len+28], column_text->data, column_text->used);

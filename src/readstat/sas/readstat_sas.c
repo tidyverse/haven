@@ -99,6 +99,10 @@ uint16_t sas_read2(const char *data, int bswap) {
     return bswap ? byteswap2(tmp) : tmp;
 }
 
+size_t sas_subheader_remainder(size_t len, size_t signature_len) {
+    return len - (4+2*signature_len);
+}
+
 readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo, 
         readstat_error_handler error_handler, void *user_ctx) {
     sas_header_start_t  header_start;

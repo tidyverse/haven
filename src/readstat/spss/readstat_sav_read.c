@@ -205,6 +205,9 @@ static readstat_error_t sav_read_variable_label(spss_varinfo_t *info, sav_ctx_t 
     }
     label_len = ctx->bswap ? byteswap4(label_len) : label_len;
 
+    if (label_len == 0)
+        goto cleanup;
+
     label_capacity = (label_len + 3) / 4 * 4;
     if ((label_buf = readstat_malloc(label_capacity)) == NULL) {
         retval = READSTAT_ERROR_MALLOC;
