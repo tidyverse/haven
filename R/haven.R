@@ -10,7 +10,7 @@ NULL
 #' supported.
 #'
 #' @param data_file,catalog_file Path to data and catalog files. The files are
-#'   processed with \code{\link[readr]{datasource}()}.
+#'   processed with [readr::datasource()].
 #' @param data Data frame to write.
 #' @param path Path to file where the data will be written.
 #' @param encoding,catalog_encoding The character encoding used for the
@@ -130,8 +130,8 @@ validate_xpt_name <- function(name, version) {
 #' `.zsav` files when `compress = TRUE`.
 #'
 #' Currently haven can read and write logical, integer, numeric, character
-#' and factors. See \code{\link{labelled_spss}} for how labelled variables in
-#' SPSS are handled in R. \code{read_spss} is an alias for \code{read_sav}.
+#' and factors. See [labelled_spss()] for how labelled variables in
+#' SPSS are handled in R. `read_spss` is an alias for `read_sav`.
 #'
 #' @inheritParams readr::datasource
 #' @param path Path to a file where the data will be written.
@@ -196,9 +196,9 @@ write_sav <- function(data, path, compress = FALSE) {
 
 #' @export
 #' @rdname read_spss
-#' @param user_na If \code{TRUE} variables with user defined missing will
-#'   be read into \code{\link{labelled_spss}} objects. If \code{FALSE}, the
-#'   default, user-defined missings will be converted to \code{NA}.
+#' @param user_na If `TRUE` variables with user defined missing will
+#'   be read into [labelled_spss()] objects. If `FALSE`, the
+#'   default, user-defined missings will be converted to `NA`.
 read_spss <- function(file, user_na = FALSE) {
   ext <- tolower(tools::file_ext(file))
 
@@ -212,7 +212,7 @@ read_spss <- function(file, user_na = FALSE) {
 #' Read and write Stata DTA files.
 #'
 #' Currently haven can read and write logical, integer, numeric, character
-#' and factors. See \code{\link{labelled}} for how labelled variables in
+#' and factors. See [labelled()] for how labelled variables in
 #' Stata are handled in R.
 #'
 #' @section Character encoding:

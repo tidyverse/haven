@@ -1,13 +1,13 @@
 #' Labelled vectors for SPSS
 #'
-#' This class is only used when \code{user_na = TRUE} in
-#' \code{\link{read_sav}()}. It is similar to the \code{\link{labelled}} class
+#' This class is only used when `user_na = TRUE` in
+#' [read_sav()]. It is similar to the [labelled()] class
 #' but it also models SPSS's user-defined missings, which can be up to
 #' three distinct values, or for numeric vectors a range.
 #'
 #' @param na_values A vector of values that should also be considered as missing.
 #' @param na_range A numeric vector of length two giving the (inclusive) extents
-#'   of the range. Use \code{-Inf} and \code{Inf} if you want the range to be
+#'   of the range. Use `-Inf` and `Inf` if you want the range to be
 #'   open ended.
 #' @inheritParams labelled
 #' @export

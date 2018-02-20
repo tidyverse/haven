@@ -6,7 +6,7 @@
 \alias{read_por}
 \alias{write_sav}
 \alias{read_spss}
-\title{Read SPSS (`.sav`, `.zsav`, `.por`) files. Write `.sav` and `.zsav` files.}
+\title{Read SPSS (\code{.sav}, \code{.zsav}, \code{.por}) files. Write \code{.sav} and \code{.zsav} files.}
 \usage{
 read_sav(file, encoding = NULL, user_na = FALSE)
 
@@ -30,35 +30,35 @@ Literal data is most useful for examples and tests. It must contain at
 least one new line to be recognised as data (instead of a path).}
 
 \item{encoding}{The character encoding used for the file. The default,
-`NULL`, use the encoding specified in the file, but sometimes this
+\code{NULL}, use the encoding specified in the file, but sometimes this
 value is incorrect and it is useful to be able to override it.}
 
 \item{user_na}{If \code{TRUE} variables with user defined missing will
-be read into \code{\link{labelled_spss}} objects. If \code{FALSE}, the
+be read into \code{\link[=labelled_spss]{labelled_spss()}} objects. If \code{FALSE}, the
 default, user-defined missings will be converted to \code{NA}.}
 
 \item{data}{Data frame to write.}
 
 \item{path}{Path to a file where the data will be written.}
 
-\item{compress}{If `TRUE`, will compress the file, resulting in a `.zsav`
+\item{compress}{If \code{TRUE}, will compress the file, resulting in a \code{.zsav}
 file.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
 
-  Variable labels are stored in the "label" attribute of each variable.
-  It is not printed on the console, but the RStudio viewer will show it.
+Variable labels are stored in the "label" attribute of each variable.
+It is not printed on the console, but the RStudio viewer will show it.
 
-  `write_sav()` returns the input `data` invisibly.
+\code{write_sav()} returns the input \code{data} invisibly.
 }
 \description{
-`read_sav()` reads both `.sav` and `.zsav` files; `write_sav()` creates
-`.zsav` files when `compress = TRUE`.
+\code{read_sav()} reads both \code{.sav} and \code{.zsav} files; \code{write_sav()} creates
+\code{.zsav} files when \code{compress = TRUE}.
 }
 \details{
 Currently haven can read and write logical, integer, numeric, character
-and factors. See \code{\link{labelled_spss}} for how labelled variables in
+and factors. See \code{\link[=labelled_spss]{labelled_spss()}} for how labelled variables in
 SPSS are handled in R. \code{read_spss} is an alias for \code{read_sav}.
 }
 \examples{

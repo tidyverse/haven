@@ -24,7 +24,7 @@ A labelled vector is a common data structure in other statistical
 environments, allowing you to assign text labels to specific values.
 This class makes it possible to import such labelled vectors in to R
 without loss of fidelity. This class provides few methods, as I
-expect you'll coerce to a standard R class (e.g. a \code{\link{factor}})
+expect you'll coerce to a standard R class (e.g. a \code{\link[=factor]{factor()}})
 soon after importing.
 }
 \examples{

@@ -12,7 +12,7 @@ zap_labels(x)
 \description{
 Removes labels, leaving unlabelled vectors as is. Use this if you want to
 simply drop all labelling from a data frame. Zapping labels from
-\code{\link{labelled_spss}} also removes user-defined missing values,
+\code{\link[=labelled_spss]{labelled_spss()}} also removes user-defined missing values,
 replacing all with \code{NA}s.
 }
 \examples{

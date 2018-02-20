@@ -1,7 +1,7 @@
 #' Zap special missings to regular R missings
 #'
 #' This is useful if you want to convert tagged missing values from SAS or
-#' Stata, or user-defined missings from SPSS, to regular R \code{NA}.
+#' Stata, or user-defined missings from SPSS, to regular R `NA`.
 #'
 #' @param x A vector or data frame
 #' @export

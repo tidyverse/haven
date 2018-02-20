@@ -22,7 +22,7 @@ open ended.}
 }
 \description{
 This class is only used when \code{user_na = TRUE} in
-\code{\link{read_sav}()}. It is similar to the \code{\link{labelled}} class
+\code{\link[=read_sav]{read_sav()}}. It is similar to the \code{\link[=labelled]{labelled()}} class
 but it also models SPSS's user-defined missings, which can be up to
 three distinct values, or for numeric vectors a range.
 }

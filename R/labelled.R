@@ -4,13 +4,13 @@
 #' environments, allowing you to assign text labels to specific values.
 #' This class makes it possible to import such labelled vectors in to R
 #' without loss of fidelity. This class provides few methods, as I
-#' expect you'll coerce to a standard R class (e.g. a \code{\link{factor}})
+#' expect you'll coerce to a standard R class (e.g. a [factor()])
 #' soon after importing.
 #'
 #' @param x A vector to label. Must be either numeric (integer or double) or
 #'   character.
 #' @param labels A named vector. The vector should be the same type as
-#'   \code{x}. Unlike factors, labels don't need to be exhaustive: only a fraction
+#'   `x`. Unlike factors, labels don't need to be exhaustive: only a fraction
 #'   of the values might be labelled.
 #' @param ... Ignored
 #' @export

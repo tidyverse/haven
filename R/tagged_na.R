@@ -5,7 +5,7 @@
 #' a letter ("a" to "z"). When by loading a SAS and Stata file, the tagged
 #' missing values always use lower case values.
 #'
-#' \code{format_tagged_na()} and \code{print_tagged_na()} format tagged
+#' `format_tagged_na()` and `print_tagged_na()` format tagged
 #' NA's as NA(a), NA(b), etc.
 #'
 #' @param ... Vectors containing single character. The letter will be used to
@@ -42,7 +42,7 @@ na_tag <- function(x) {
   .Call(na_tag_, x)
 }
 
-#' @param tag If \code{NULL}, will only return true if the tag has this value.
+#' @param tag If `NULL`, will only return true if the tag has this value.
 #' @rdname tagged_na
 #' @export
 is_tagged_na <- function(x, tag = NULL) {

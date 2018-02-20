@@ -35,10 +35,10 @@ for version 8.}
 \value{
 A tibble, data frame variant with nice defaults.
 
-  Variable labels are stored in the "label" attribute of each variable.
-  It is not printed on the console, but the RStudio viewer will show it.
+Variable labels are stored in the "label" attribute of each variable.
+It is not printed on the console, but the RStudio viewer will show it.
 
-  `write_xpt()` returns the input `data` invisibly.
+\code{write_xpt()} returns the input \code{data} invisibly.
 }
 \description{
 The SAS transport format is a open format, as is required for submission
@@ -46,7 +46,7 @@ of the data to the FDA.
 }
 \details{
 Currently haven can read and write logical, integer, numeric, character
-and factors. See \code{\link{labelled_spss}} for how labelled variables in
+and factors. See \code{\link[=labelled_spss]{labelled_spss()}} for how labelled variables in
 SPSS are handled in R. \code{read_spss} is an alias for \code{read_sav}.
 }
 \examples{

@@ -1,9 +1,9 @@
 #' Convert input to a factor.
 #'
-#' The base function \code{as.factor()} is not a generic, but this variant
+#' The base function `as.factor()` is not a generic, but this variant
 #' is. Methods are provided for factors, character vectors, labelled
 #' vectors, and data frames. By default, when applied to a data frame,
-#' it only affects \code{labelled} columns.
+#' it only affects `labelled` columns.
 #'
 #' @param x Object to coerce to a factor.
 #' @param ... Other arguments passed down to method.
@@ -38,16 +38,15 @@ as_factor.data.frame <- function(x, ..., only_labelled = TRUE) {
   x
 }
 
-#' @param ordered If \code{TRUE} create an ordered (ordinal) factor, if
-#'   \code{FALSE} (the default) create a regular (nominal) factor.
+#' @param ordered If `TRUE` create an ordered (ordinal) factor, if
+#'   `FALSE` (the default) create a regular (nominal) factor.
 #' @param levels How to create the levels of the generated factor:
 #'
-#'   \itemize{
-#'   \item "default": uses labels where available, otherwise the values. Labels are sorted by value.
-#'   \item "both": like "default", but pastes together the level and value
-#'   \item "label": use only the labels; unlabelled values become \code{NA}
-#'   \item "values: use only the values
-#'   }
+#'   * "default": uses labels where available, otherwise the values.
+#'     Labels are sorted by value.
+#'   * "both": like "default", but pastes together the level and value
+#'   * "label": use only the labels; unlabelled values become `NA`
+#'   * "values: use only the values
 #' @rdname as_factor
 #' @export
 as_factor.labelled <- function(x, levels = c("default", "labels", "values", "both"),

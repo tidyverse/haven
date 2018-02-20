@@ -38,27 +38,27 @@ for details.}
 \value{
 A tibble, data frame variant with nice defaults.
 
-  Variable labels are stored in the "label" attribute of each variable.
-  It is not printed on the console, but the RStudio viewer will show it.
+Variable labels are stored in the "label" attribute of each variable.
+It is not printed on the console, but the RStudio viewer will show it.
 
-  `write_dta()` returns the input `data` invisibly.
+\code{write_dta()} returns the input \code{data} invisibly.
 }
 \description{
 Currently haven can read and write logical, integer, numeric, character
-and factors. See \code{\link{labelled}} for how labelled variables in
+and factors. See \code{\link[=labelled]{labelled()}} for how labelled variables in
 Stata are handled in R.
 }
 \section{Character encoding}{
 
 Prior to Stata 14, files did not declare a text encoding, and the
-default encoding differed across platforms. If `encoding = NULL`,
+default encoding differed across platforms. If \code{encoding = NULL},
 haven assumes the encoding is windows-1252, the text encoding used by
 Stata on Windows. Unfortunately Stata on Mac and Linux use a different
 default encoding, "latin1". If you encounter an error such as
 "Unable to convert string to the requested encoding", try
-`encoding = "latin1"`
+\code{encoding = "latin1"}
 
-For Stata 14 and later, you should not need to manually specify `encoding`
+For Stata 14 and later, you should not need to manually specify \code{encoding}
 value unless the value was incorrectly recorded in the source file.
 }
 
