@@ -29,7 +29,7 @@ test_that("subsetting labelled_spss retains class", {
     na_range = c(3, Inf)
   )
 
-  expect_equal(class(x), class(x[1:2]))
+  expect_identical(x, x[1:5])
 })
 
 
