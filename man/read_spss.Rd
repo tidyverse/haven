@@ -54,12 +54,14 @@ It is not printed on the console, but the RStudio viewer will show it.
 }
 \description{
 \code{read_sav()} reads both \code{.sav} and \code{.zsav} files; \code{write_sav()} creates
-\code{.zsav} files when \code{compress = TRUE}.
+\code{.zsav} files when \code{compress = TRUE}. \code{read_por()} reads \code{.por} files.
+\code{read_spss()} uses either \code{read_por()} or \code{read_sav()} based on the
+file extension.
 }
 \details{
 Currently haven can read and write logical, integer, numeric, character
 and factors. See \code{\link[=labelled_spss]{labelled_spss()}} for how labelled variables in
-SPSS are handled in R. \code{read_spss} is an alias for \code{read_sav}.
+SPSS are handled in R.
 }
 \examples{
 path <- system.file("examples", "iris.sav", package = "haven")

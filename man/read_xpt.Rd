@@ -47,7 +47,7 @@ of the data to the FDA.
 \details{
 Currently haven can read and write logical, integer, numeric, character
 and factors. See \code{\link[=labelled_spss]{labelled_spss()}} for how labelled variables in
-SPSS are handled in R. \code{read_spss} is an alias for \code{read_sav}.
+SPSS are handled in R.
 }
 \examples{
 tmp <- tempfile(fileext = ".xpt")

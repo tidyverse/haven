@@ -127,11 +127,13 @@ validate_xpt_name <- function(name, version) {
 #' Read SPSS (`.sav`, `.zsav`, `.por`) files. Write `.sav` and `.zsav` files.
 #'
 #' `read_sav()` reads both `.sav` and `.zsav` files; `write_sav()` creates
-#' `.zsav` files when `compress = TRUE`.
+#' `.zsav` files when `compress = TRUE`. `read_por()` reads `.por` files.
+#' `read_spss()` uses either `read_por()` or `read_sav()` based on the
+#' file extension.
 #'
 #' Currently haven can read and write logical, integer, numeric, character
 #' and factors. See [labelled_spss()] for how labelled variables in
-#' SPSS are handled in R. `read_spss` is an alias for `read_sav`.
+#' SPSS are handled in R.
 #'
 #' @inheritParams readr::datasource
 #' @param path Path to a file where the data will be written.
@@ -204,6 +206,7 @@ read_spss <- function(file, user_na = FALSE) {
 
   switch(ext,
     sav = read_sav(file, user_na = user_na),
+    zsav = read_sav(file, user_na = user_na),
     por = read_por(file, user_na = user_na),
     stop("Unknown extension '.", ext, "'", call. = FALSE)
   )
