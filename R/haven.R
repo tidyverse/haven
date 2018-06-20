@@ -175,9 +175,7 @@ read_sav <- function(file, encoding = NULL, user_na = FALSE) {
 #' @rdname read_spss
 read_por <- function(file, user_na = FALSE) {
   spec <- readr::datasource(file)
-  if (is.null(encoding)) {
-    encoding <- ""
-  }
+
   switch(class(spec)[1],
     source_file = df_parse_por_file(spec, encoding = "", user_na = user_na),
     source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na),
