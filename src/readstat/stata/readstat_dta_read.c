@@ -605,7 +605,12 @@ static readstat_error_t dta_handle_row(const unsigned char *buf, dta_ctx_t *ctx)
         }
 
         if (value.type == READSTAT_TYPE_STRING) {
-            retval = readstat_convert(str_buf, sizeof(str_buf), (const char *)&buf[offset], max_len, ctx->converter);
+            size_t str_len = 0;
+            while (str_len < max_len && buf[offset + str_len] != '\0') {
+                str_len++;
+            }
+            retval = readstat_convert(str_buf, sizeof(str_buf),
+                    (const char *)&buf[offset], str_len, ctx->converter);
             if (retval != READSTAT_OK)
                 goto cleanup;
             value.v.string_value = str_buf;

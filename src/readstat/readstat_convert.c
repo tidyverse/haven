@@ -24,6 +24,8 @@ readstat_error_t readstat_convert(char *dst, size_t dst_len, const char *src, si
             }
         }
         dst[dst_len - dst_left] = '\0';
+    } else if (src_len + 1 > dst_len) {
+        return READSTAT_ERROR_CONVERT_LONG_STRING;
     } else {
         memcpy(dst, src, src_len);
         dst[src_len] = '\0';

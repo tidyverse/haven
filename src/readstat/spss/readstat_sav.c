@@ -46,7 +46,7 @@ sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io) {
     
     ctx->varinfo_capacity = SAV_VARINFO_INITIAL_CAPACITY;
     
-    if ((ctx->varinfo = readstat_calloc(ctx->varinfo_capacity, sizeof(spss_varinfo_t))) == NULL) {
+    if ((ctx->varinfo = readstat_calloc(ctx->varinfo_capacity, sizeof(spss_varinfo_t *))) == NULL) {
         sav_ctx_free(ctx);
         return NULL;
     }
@@ -59,9 +59,13 @@ sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io) {
 void sav_ctx_free(sav_ctx_t *ctx) {
     if (ctx->varinfo) {
         int i;
-        for (i=0; i<ctx->var_count; i++) {
-            if (ctx->varinfo[i].label)
-                free(ctx->varinfo[i].label);
+        for (i=0; i<ctx->var_index; i++) {
+            spss_varinfo_t *info = ctx->varinfo[i];
+            if (info) {
+                if (info->label)
+                    free(info->label);
+                free(info);
+            }
         }
         free(ctx->varinfo);
     }
@@ -77,9 +81,8 @@ void sav_ctx_free(sav_ctx_t *ctx) {
         free(ctx->raw_string);
     if (ctx->utf8_string)
         free(ctx->utf8_string);
-    if (ctx->converter) {
+    if (ctx->converter)
         iconv_close(ctx->converter);
-    }
     if (ctx->variable_display_values) {
         free(ctx->variable_display_values);
     }

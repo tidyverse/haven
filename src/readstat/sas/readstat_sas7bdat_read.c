@@ -19,10 +19,10 @@ typedef struct col_info_s {
     sas_text_ref_t  format_ref;
     sas_text_ref_t  label_ref;
 
-    int    index;
-    int    offset;
-    int    width;
-    int    type;
+    int         index;
+    uint64_t    offset;
+    uint32_t    width;
+    int         type;
 } col_info_t;
 
 typedef struct sas7bdat_ctx_s {
@@ -217,7 +217,7 @@ static readstat_error_t sas7bdat_parse_row_size_subheader(const char *subheader,
     }
 
     ctx->row_length = row_length;
-    ctx->row = readstat_malloc(ctx->row_length);
+    ctx->row = readstat_realloc(ctx->row, ctx->row_length);
     if (ctx->row == NULL) {
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;
@@ -326,7 +326,7 @@ static readstat_error_t sas7bdat_parse_column_attributes_subheader(const char *s
             }
         } else if (cap[off+6] == SAS_COLUMN_TYPE_CHR) {
             ctx->col_info[i].type = READSTAT_TYPE_STRING;
-            if (ctx->col_info[i].width < 0) {
+            if (ctx->col_info[i].width > INT16_MAX || ctx->col_info[i].width == 0) {
                 retval = READSTAT_ERROR_PARSE;
                 goto cleanup;
             }
@@ -446,7 +446,7 @@ static readstat_error_t sas7bdat_parse_single_row(const char *data, sas7bdat_ctx
             if (variable->skip)
                 continue;
 
-            if (col_info->offset < 0 || col_info->offset + col_info->width > ctx->row_length) {
+            if (col_info->offset > ctx->row_length || col_info->offset + col_info->width > ctx->row_length) {
                 retval = READSTAT_ERROR_PARSE;
                 goto cleanup;
             }

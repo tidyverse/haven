@@ -202,9 +202,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_haven_write_dta_", (DL_FUNC) &_haven_write_dta_, 3},
     {"_haven_write_sas_", (DL_FUNC) &_haven_write_sas_, 2},
     {"_haven_write_xpt_", (DL_FUNC) &_haven_write_xpt_, 4},
-    {"is_tagged_na_",            (DL_FUNC) &is_tagged_na_,            2},
-    {"na_tag_",                  (DL_FUNC) &na_tag_,                  1},
-    {"tagged_na_",               (DL_FUNC) &tagged_na_,               1},
+    {"is_tagged_na_", (DL_FUNC) &is_tagged_na_, 2},
+    {"na_tag_",       (DL_FUNC) &na_tag_,       1},
+    {"tagged_na_",    (DL_FUNC) &tagged_na_,    1},
     {NULL, NULL, 0}
 };
 

@@ -113,9 +113,10 @@ static readstat_charset_entry_t _charset_table[] = {
 #define SAV_LABEL_NAME_PREFIX         "labels"
 
 typedef struct value_label_s {
-    char          value[8];
-    unsigned char label_len;
-    char          label[256*4+1];
+    char             raw_value[8];
+    char             utf8_string_value[8*4+1];
+    readstat_value_t final_value;
+    char            *label;
 } value_label_t;
 
 static readstat_error_t sav_update_progress(sav_ctx_t *ctx);
@@ -222,8 +223,6 @@ static readstat_error_t sav_read_variable_label(spss_varinfo_t *info, sav_ctx_t 
 
     if (io->read(label_buf, label_capacity, io->io_ctx) < label_capacity) {
         retval = READSTAT_ERROR_READ;
-        free(info->label);
-        info->label = NULL;
         goto cleanup;
     }
 
@@ -234,6 +233,13 @@ static readstat_error_t sav_read_variable_label(spss_varinfo_t *info, sav_ctx_t 
 cleanup:
     if (label_buf)
         free(label_buf);
+
+    if (retval != READSTAT_OK) {
+        if (info->label) {
+            free(info->label);
+            info->label = NULL;
+        }
+    }
 
     return retval;
 }
@@ -280,10 +286,11 @@ cleanup:
 
 static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
     readstat_io_t *io = ctx->io;
-    sav_variable_record_t variable;
+    sav_variable_record_t variable = { 0 };
+    spss_varinfo_t *info = NULL;
     readstat_error_t retval = READSTAT_OK;
     if (ctx->var_index == ctx->varinfo_capacity) {
-        if ((ctx->varinfo = readstat_realloc(ctx->varinfo, (ctx->varinfo_capacity *= 2) * sizeof(spss_varinfo_t))) == NULL) {
+        if ((ctx->varinfo = readstat_realloc(ctx->varinfo, (ctx->varinfo_capacity *= 2) * sizeof(spss_varinfo_t *))) == NULL) {
             retval = READSTAT_ERROR_MALLOC;
             goto cleanup;
         }
@@ -301,12 +308,14 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
             return READSTAT_ERROR_PARSE;
         }
         ctx->var_offset++;
-        spss_varinfo_t *prev = &ctx->varinfo[ctx->var_index-1];
-        prev->width++;
+        ctx->varinfo[ctx->var_index-1]->width++;
         return 0;
     }
-    spss_varinfo_t *info = &ctx->varinfo[ctx->var_index];
-    memset(info, 0, sizeof(spss_varinfo_t));
+
+    if ((info = readstat_calloc(1, sizeof(spss_varinfo_t))) == NULL) {
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
+    }
     info->width = 1;
     info->n_segments = 1;
     info->index = ctx->var_index;
@@ -350,11 +359,17 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
         }
     }
     
+    ctx->varinfo[ctx->var_index] = info;
+
     ctx->var_index++;
     ctx->var_offset++;
     
 cleanup:
-    
+    if (retval != READSTAT_OK) {
+        if (info)
+            free(info);
+    }
+
     return retval;
 }
 
@@ -372,13 +387,18 @@ static readstat_error_t sav_skip_value_label_record(sav_ctx_t *ctx) {
         label_count = byteswap4(label_count);
     int i;
     for (i=0; i<label_count; i++) {
-        value_label_t vlabel;
-        if (io->read(&vlabel, 9, io->io_ctx) < 9) {
+        unsigned char unpadded_len = 0;
+        size_t padded_len = 0;
+        if (io->seek(8, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
+            retval = READSTAT_ERROR_SEEK;
+            goto cleanup;
+        }
+        if (io->read(&unpadded_len, 1, io->io_ctx) < 1) {
             retval = READSTAT_ERROR_READ;
             goto cleanup;
         }
-        size_t label_len = (vlabel.label_len + 8) / 8 * 8 - 1;
-        if (io->seek(label_len, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
+        padded_len = (unpadded_len + 8) / 8 * 8 - 1;
+        if (io->seek(padded_len, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
             retval = READSTAT_ERROR_SEEK;
             goto cleanup;
         }
@@ -421,24 +441,7 @@ static readstat_error_t sav_submit_value_labels(value_label_t *value_labels, int
 
     for (i=0; i<label_count; i++) {
         value_label_t *vlabel = &value_labels[i];
-        readstat_value_t value = { .type = value_type };
-        double val_d = 0.0;
-        char unpadded_val[8*4+1];
-        if (value_type == READSTAT_TYPE_DOUBLE) {
-            memcpy(&val_d, vlabel->value, 8);
-            if (ctx->bswap)
-                val_d = byteswap_double(val_d);
-
-            value.v.double_value = val_d;
-            sav_tag_missing_double(&value, ctx);
-        } else {
-            retval = readstat_convert(unpadded_val, sizeof(unpadded_val), vlabel->value, 8, ctx->converter);
-            if (retval != READSTAT_OK)
-                break;
-
-            value.v.string_value = unpadded_val;
-        }
-        if (ctx->handle.value_label(label_name_buf, value, vlabel->label, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+        if (ctx->handle.value_label(label_name_buf, vlabel->final_value, vlabel->label, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
         }
@@ -465,7 +468,7 @@ static readstat_error_t sav_read_value_label_record(sav_ctx_t *ctx) {
     if (ctx->bswap)
         label_count = byteswap4(label_count);
     
-    if (label_count && (value_labels = readstat_malloc(label_count * sizeof(value_label_t))) == NULL) {
+    if (label_count && (value_labels = readstat_calloc(label_count, sizeof(value_label_t))) == NULL) {
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;
     }
@@ -473,16 +476,31 @@ static readstat_error_t sav_read_value_label_record(sav_ctx_t *ctx) {
     int i;
     for (i=0; i<label_count; i++) {
         value_label_t *vlabel = &value_labels[i];
-        if (io->read(vlabel, 9, io->io_ctx) < 9) {
+        unsigned char unpadded_label_len = 0;
+        size_t padded_label_len = 0, utf8_label_len = 0;
+
+        if (io->read(vlabel->raw_value, 8, io->io_ctx) < 8) {
             retval = READSTAT_ERROR_READ;
             goto cleanup;
         }
-        size_t label_len = (vlabel->label_len + 8) / 8 * 8 - 1;
-        if (io->read(label_buf, label_len, io->io_ctx) < label_len) {
+        if (io->read(&unpadded_label_len, 1, io->io_ctx) < 1) {
             retval = READSTAT_ERROR_READ;
             goto cleanup;
         }
-        retval = readstat_convert(vlabel->label, sizeof(vlabel->label), label_buf, label_len, ctx->converter);
+
+        padded_label_len = (unpadded_label_len + 8) / 8 * 8 - 1;
+        if (io->read(label_buf, padded_label_len, io->io_ctx) < padded_label_len) {
+            retval = READSTAT_ERROR_READ;
+            goto cleanup;
+        }
+
+        utf8_label_len = padded_label_len*4+1;
+        if ((vlabel->label = readstat_malloc(utf8_label_len)) == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
+
+        retval = readstat_convert(vlabel->label, utf8_label_len, label_buf, padded_label_len, ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
     }
@@ -519,14 +537,35 @@ static readstat_error_t sav_read_value_label_record(sav_ctx_t *ctx) {
             var_offset = byteswap4(var_offset);
 
         var_offset--; // Why subtract 1????
-        spss_varinfo_t *var = bsearch(&var_offset, ctx->varinfo, ctx->var_index, sizeof(spss_varinfo_t),
+        spss_varinfo_t **var = bsearch(&var_offset, ctx->varinfo, ctx->var_index, sizeof(spss_varinfo_t *),
                 &spss_varinfo_compare);
         if (var) {
-            var->labels_index = ctx->value_labels_count;
-
-            value_type = var->type;
+            (*var)->labels_index = ctx->value_labels_count;
+            value_type = (*var)->type;
         }
     }
+
+    for (i=0; i<label_count; i++) {
+        value_label_t *vlabel = &value_labels[i];
+        double val_d = 0.0;
+        vlabel->final_value.type = value_type;
+        if (value_type == READSTAT_TYPE_DOUBLE) {
+            memcpy(&val_d, vlabel->raw_value, 8);
+            if (ctx->bswap)
+                val_d = byteswap_double(val_d);
+
+            vlabel->final_value.v.double_value = val_d;
+            sav_tag_missing_double(&vlabel->final_value, ctx);
+        } else {
+            retval = readstat_convert(vlabel->utf8_string_value, sizeof(vlabel->utf8_string_value),
+                    vlabel->raw_value, 8, ctx->converter);
+            if (retval != READSTAT_OK)
+                break;
+
+            vlabel->final_value.v.string_value = vlabel->utf8_string_value;
+        }
+    }
+
     if (ctx->handle.value_label) {
         sav_submit_value_labels(value_labels, label_count, value_type, ctx);
     }
@@ -534,8 +573,14 @@ static readstat_error_t sav_read_value_label_record(sav_ctx_t *ctx) {
 cleanup:
     if (vars)
         free(vars);
-    if (value_labels)
+    if (value_labels) {
+        for (i=0; i<label_count; i++) {
+            value_label_t *vlabel = &value_labels[i];
+            if (vlabel->label)
+                free(vlabel->label);
+        }
         free(value_labels);
+    }
     
     return retval;
 }
@@ -617,8 +662,8 @@ static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len
     int var_index = 0, col = 0;
 
     while (data_offset < buffer_len && col < ctx->var_index) {
-        spss_varinfo_t *col_info = &ctx->varinfo[col];
-        spss_varinfo_t *var_info = &ctx->varinfo[var_index];
+        spss_varinfo_t *col_info = ctx->varinfo[col];
+        spss_varinfo_t *var_info = ctx->varinfo[var_index];
         readstat_value_t value = { .type = var_info->type };
         if (offset > 31) {
             retval = READSTAT_ERROR_PARSE;
@@ -679,14 +724,15 @@ done:
 
 static readstat_error_t sav_read_data(sav_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
-    int longest_string = 256;
+    size_t longest_string = 256;
     int i;
 
-    for (i=0; i<ctx->var_count; i++) {
-        spss_varinfo_t *info = &ctx->varinfo[i];
+    for (i=0; i<ctx->var_index;) {
+        spss_varinfo_t *info = ctx->varinfo[i];
         if (info->string_length > longest_string) {
             longest_string = info->string_length;
         }
+        i += info->n_segments;
     }
 
     ctx->raw_string_len = longest_string + sizeof(SAV_EIGHT_SPACES)-2;
@@ -849,6 +895,9 @@ static readstat_error_t sav_parse_machine_integer_info_record(const void *data, 
         if (converter == (iconv_t)-1) {
             return READSTAT_ERROR_UNSUPPORTED_CHARSET;
         }
+        if (ctx->converter) {
+            iconv_close(ctx->converter);
+        }
         ctx->converter = converter;
     }
     return READSTAT_OK;
@@ -900,7 +949,7 @@ static readstat_error_t sav_parse_variable_display_parameter_record(sav_ctx_t *c
     int has_display_width = ctx->var_count > 0 && (count / ctx->var_count == 3);
     int offset = 0;
     for (i=0; i<ctx->var_index;) {
-        spss_varinfo_t *info = &ctx->varinfo[i];
+        spss_varinfo_t *info = ctx->varinfo[i];
         info->measure = spss_measure_to_readstat_measure(ctx->variable_display_values[offset++]);
         if (has_display_width) {
             info->display_width = ctx->variable_display_values[offset++];
@@ -954,7 +1003,7 @@ static readstat_error_t sav_parse_long_value_labels_record(const void *data, siz
     data_ptr += label_name_len;
 
     for (i=0; i<ctx->var_index;) {
-        spss_varinfo_t *info = &ctx->varinfo[i];
+        spss_varinfo_t *info = ctx->varinfo[i];
         if (strcmp(var_name_buf, info->longname) == 0) {
             info->labels_index = ctx->value_labels_count++;
             snprintf(label_name_buf, sizeof(label_name_buf),
@@ -1261,7 +1310,7 @@ static void sav_set_n_segments_and_var_count(sav_ctx_t *ctx) {
     int i;
     ctx->var_count = 0;
     for (i=0; i<ctx->var_index;) {
-        spss_varinfo_t *info = &ctx->varinfo[i];
+        spss_varinfo_t *info = ctx->varinfo[i];
         if (info->string_length) {
             info->n_segments = (info->string_length + 251) / 252;
         }
@@ -1281,7 +1330,7 @@ static readstat_error_t sav_handle_variables(sav_ctx_t *ctx) {
 
     for (i=0; i<ctx->var_index;) {
         char label_name_buf[256];
-        spss_varinfo_t *info = &ctx->varinfo[i];
+        spss_varinfo_t *info = ctx->varinfo[i];
         ctx->variables[info->index] = spss_init_variable_for_info(info, index_after_skipping);
 
         snprintf(label_name_buf, sizeof(label_name_buf), SAV_LABEL_NAME_PREFIX "%d", info->labels_index);
@@ -1312,7 +1361,7 @@ static readstat_error_t sav_handle_fweight(sav_ctx_t *ctx) {
     int i;
     if (ctx->handle.fweight && ctx->fweight_index >= 0) {
         for (i=0; i<ctx->var_index;) {
-            spss_varinfo_t *info = &ctx->varinfo[i];
+            spss_varinfo_t *info = ctx->varinfo[i];
             if (info->offset == ctx->fweight_index - 1) {
                 if (ctx->handle.fweight(ctx->variables[info->index], ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;

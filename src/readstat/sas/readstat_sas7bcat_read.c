@@ -279,13 +279,14 @@ static readstat_error_t sas7bcat_read_block(char *buffer, size_t buffer_len,
     readstat_io_t *io = ctx->io;
     int next_page = start_page;
     int next_page_pos = start_page_pos;
+    int link_count = 0;
 
     int chain_link_len = 0;
     int buffer_offset = 0;
 
     char chain_link[16];
 
-    while (next_page > 0 && next_page_pos > 0) {
+    while (next_page > 0 && next_page_pos > 0 && next_page <= ctx->page_count && link_count++ < ctx->page_count) {
         if (io->seek(ctx->header_size+(next_page-1)*ctx->page_size+next_page_pos, READSTAT_SEEK_SET, io->io_ctx) == -1) {
             retval = READSTAT_ERROR_SEEK;
             goto cleanup;

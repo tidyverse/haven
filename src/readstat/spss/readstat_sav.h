@@ -64,12 +64,12 @@ typedef struct sav_dictionary_termination_record_s {
 #pragma pack(pop)
 
 typedef struct sav_ctx_s {
-    readstat_callbacks_t    handle;
-    size_t                          file_size;
-    readstat_io_t                  *io;
-    void                           *user_ctx;
+    readstat_callbacks_t  handle;
+    size_t                file_size;
+    readstat_io_t        *io;
+    void                 *user_ctx;
 
-    spss_varinfo_t       *varinfo;
+    spss_varinfo_t      **varinfo;
     size_t                varinfo_capacity;
     readstat_variable_t **variables;
 

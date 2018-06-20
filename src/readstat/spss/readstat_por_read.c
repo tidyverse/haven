@@ -561,9 +561,11 @@ static readstat_error_t read_value_label_record(por_ctx_t *ctx) {
             }
             value.v.double_value = dval;
         }
-        if (ctx->handle.value_label(label_name_buf, value, label_buf, ctx->user_ctx) != READSTAT_HANDLER_OK) {
-            retval = READSTAT_ERROR_USER_ABORT;
-            goto cleanup;
+        if (ctx->handle.value_label) {
+            if (ctx->handle.value_label(label_name_buf, value, label_buf, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+                retval = READSTAT_ERROR_USER_ABORT;
+                goto cleanup;
+            }
         }
     }
     ctx->labels_offset++;

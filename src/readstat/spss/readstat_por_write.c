@@ -226,13 +226,17 @@ static readstat_error_t por_emit_version_and_timestamp(readstat_writer_t *writer
 
     char date[9];
     snprintf(date, sizeof(date), "%04d%02d%02d",
-            timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday);
+            (unsigned int)(timestamp->tm_year + 1900) % 10000,
+            (unsigned int)(timestamp->tm_mon + 1) % 100,
+            (unsigned int)(timestamp->tm_mday) % 100);
     if ((retval = por_write_string_field(writer, ctx, date)) != READSTAT_OK)
         goto cleanup;
 
     char time[7];
     snprintf(time, sizeof(time), "%02d%02d%02d",
-            timestamp->tm_hour, timestamp->tm_min, timestamp->tm_sec);
+            (unsigned int)timestamp->tm_hour % 100,
+            (unsigned int)timestamp->tm_min % 100,
+            (unsigned int)timestamp->tm_sec % 100);
     if ((retval = por_write_string_field(writer, ctx, time)) != READSTAT_OK)
         goto cleanup;
 

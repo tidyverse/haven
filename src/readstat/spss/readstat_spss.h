@@ -34,17 +34,8 @@
 #define SPSS_FORMAT_TYPE_CCE      37
 #define SPSS_FORMAT_TYPE_EDATE    38
 #define SPSS_FORMAT_TYPE_SDATE    39
-
-#define spss_format_is_date(type) \
-    (type == SPSS_FORMAT_TYPE_DATE || \
-     type == SPSS_FORMAT_TYPE_DATETIME || \
-     type == SPSS_FORMAT_TYPE_ADATE || \
-     type == SPSS_FORMAT_TYPE_JDATE || \
-     type == SPSS_FORMAT_TYPE_SDATE || \
-     type == SPSS_FORMAT_TYPE_EDATE || \
-     type == SPSS_FORMAT_TYPE_QYR || \
-     type == SPSS_FORMAT_TYPE_MOYR || \
-     type == SPSS_FORMAT_TYPE_WKYR)
+#define SPSS_FORMAT_TYPE_MTIME    40
+#define SPSS_FORMAT_TYPE_YMDHMS   41
 
 #define SPSS_DOC_LINE_SIZE  80
 
@@ -73,7 +64,7 @@ typedef struct spss_varinfo_s {
     int              index;
     int              offset;
     int              width;
-    int              string_length;
+    unsigned int     string_length;
     spss_format_t    print_format;
     spss_format_t    write_format;
     int              n_segments;
