@@ -22,6 +22,15 @@ test_that("printed output is stable", {
   expect_output_file(print(x), "labelled-spss-output.txt")
 })
 
+test_that("subsetting preserves attributes", {
+  x <- labelled_spss(
+    1:5, c("Good" = 1, "Bad" = 5),
+    na_value = c(1, 2),
+    na_range = c(3, Inf)
+  )
+  expect_identical(x, x[])
+})
+
 
 # is.na -------------------------------------------------------------------
 

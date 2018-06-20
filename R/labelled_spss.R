@@ -40,6 +40,15 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL) {
   )
 }
 
+#' @export
+`[.labelled_spss` <- function(x, ...) {
+  labelled_spss(
+    NextMethod(),
+    labels = attr(x, "labels"),
+    na_values = attr(x, "na_values"),
+    na_range = attr(x, "na_range")
+  )
+}
 
 #' @export
 print.labelled_spss <- function(x, ...) {
