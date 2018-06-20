@@ -21,6 +21,12 @@
   * Fixes out of memory error (#342)
   * Now supports reading and writing stata 15 files (#339)
 
+* Subsetting `labelled_spss` values keeps the original class instead of converting
+  to `labelled` (#340 @gergness)
+
+* Fix for `as_factor()` when the option levels="labels" and there are tagged NAs
+  (#340 @gergness)
+
 # haven 1.1.1
 
 * Update to latest readstat. Includes:
