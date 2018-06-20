@@ -52,7 +52,9 @@ class Writer {
   FILE* pOut_;
 
 public:
-  Writer(FileType type, List x, std::string path): type_(type), x_(x) {
+  Writer(FileType type, List x, CharacterVector pathEnc): type_(type), x_(x) {
+    std::string path(Rf_translateChar(pathEnc[0]));
+
     pOut_ = fopen(path.c_str(), "wb");
     if (pOut_ == NULL)
       stop("Failed to open '%s' for writing", path);
@@ -343,7 +345,7 @@ ssize_t data_writer(const void *data, size_t len, void *ctx) {
 }
 
 // [[Rcpp::export]]
-void write_sav_(List data, std::string path, bool compress) {
+void write_sav_(List data, CharacterVector path, bool compress) {
   Writer writer(HAVEN_SPSS, data, path);
   if (compress)
     writer.setCompression(READSTAT_COMPRESS_BINARY);
@@ -351,19 +353,19 @@ void write_sav_(List data, std::string path, bool compress) {
 }
 
 // [[Rcpp::export]]
-void write_dta_(List data, std::string path, int version) {
+void write_dta_(List data, CharacterVector path, int version) {
   Writer writer(HAVEN_STATA, data, path);
   writer.setVersion(version);
   writer.write();
 }
 
 // [[Rcpp::export]]
-void write_sas_(List data, std::string path) {
+void write_sas_(List data, CharacterVector path) {
   Writer(HAVEN_SAS, data, path).write();
 }
 
 // [[Rcpp::export]]
-void write_xpt_(List data, std::string path, int version, std::string name) {
+void write_xpt_(List data, CharacterVector path, int version, std::string name) {
   Writer writer(HAVEN_XPT, data, path);
   writer.setVersion(version);
   writer.setName(name);

@@ -135,47 +135,47 @@ BEGIN_RCPP
 END_RCPP
 }
 // write_sav_
-void write_sav_(List data, std::string path, bool compress);
+void write_sav_(List data, CharacterVector path, bool compress);
 RcppExport SEXP _haven_write_sav_(SEXP dataSEXP, SEXP pathSEXP, SEXP compressSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type path(pathSEXP);
     Rcpp::traits::input_parameter< bool >::type compress(compressSEXP);
     write_sav_(data, path, compress);
     return R_NilValue;
 END_RCPP
 }
 // write_dta_
-void write_dta_(List data, std::string path, int version);
+void write_dta_(List data, CharacterVector path, int version);
 RcppExport SEXP _haven_write_dta_(SEXP dataSEXP, SEXP pathSEXP, SEXP versionSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type path(pathSEXP);
     Rcpp::traits::input_parameter< int >::type version(versionSEXP);
     write_dta_(data, path, version);
     return R_NilValue;
 END_RCPP
 }
 // write_sas_
-void write_sas_(List data, std::string path);
+void write_sas_(List data, CharacterVector path);
 RcppExport SEXP _haven_write_sas_(SEXP dataSEXP, SEXP pathSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type path(pathSEXP);
     write_sas_(data, path);
     return R_NilValue;
 END_RCPP
 }
 // write_xpt_
-void write_xpt_(List data, std::string path, int version, std::string name);
+void write_xpt_(List data, CharacterVector path, int version, std::string name);
 RcppExport SEXP _haven_write_xpt_(SEXP dataSEXP, SEXP pathSEXP, SEXP versionSEXP, SEXP nameSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< std::string >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< CharacterVector >::type path(pathSEXP);
     Rcpp::traits::input_parameter< int >::type version(versionSEXP);
     Rcpp::traits::input_parameter< std::string >::type name(nameSEXP);
     write_xpt_(data, path, version, name);
@@ -202,9 +202,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_haven_write_dta_", (DL_FUNC) &_haven_write_dta_, 3},
     {"_haven_write_sas_", (DL_FUNC) &_haven_write_sas_, 2},
     {"_haven_write_xpt_", (DL_FUNC) &_haven_write_xpt_, 4},
-    {"is_tagged_na_", (DL_FUNC) &is_tagged_na_, 2},
-    {"na_tag_",       (DL_FUNC) &na_tag_,       1},
-    {"tagged_na_",    (DL_FUNC) &tagged_na_,    1},
+    {"is_tagged_na_",            (DL_FUNC) &is_tagged_na_,            2},
+    {"na_tag_",                  (DL_FUNC) &na_tag_,                  1},
+    {"tagged_na_",               (DL_FUNC) &tagged_na_,               1},
     {NULL, NULL, 0}
 };
 

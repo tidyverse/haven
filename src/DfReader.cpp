@@ -484,7 +484,8 @@ class DfReaderInputFile : public DfReaderInputStream<std::ifstream> {
 
 public:
   DfReaderInputFile(Rcpp::List spec) {
-    filename_ = as<std::string>(spec[0]);
+    CharacterVector path(spec[0]);
+    filename_ = std::string(Rf_translateChar(path[0]));
   }
 
   int open(void* io_ctx) {
