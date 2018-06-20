@@ -1,0 +1,9 @@
+pandoc: 2.2.1
+pkgdown: 1.1.0
+pkgdown_sha: ~
+articles:
+  datetimes: datetimes.html
+  haven-0.1.0: releases/haven-0.1.0.html
+  haven-1.0.0: releases/haven-1.0.0.html
+  semantics: semantics.html
+

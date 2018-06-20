@@ -91,22 +91,26 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Read and write SAS transport files</h1>
+    <small class="dont-index">Source: <a href='https://github.com/tidyverse/haven/blob/master/R/haven.R'><code>R/haven.R</code></a></small>
+    <div class="hidden name"><code>read_xpt.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>The SAS transport format is a open format, as is required for submission
 of the data to the FDA.</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>read_xpt</span>(<span class='no'>file</span>)
 
-<span class='fu'>write_xpt</span>(<span class='no'>data</span>, <span class='no'>path</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='fl'>8</span>)</pre>
+<span class='fu'>write_xpt</span>(<span class='no'>data</span>, <span class='no'>path</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='fl'>8</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -133,13 +137,20 @@ least one new line to be recognised as data (instead of a path).</p></td>
       <th>version</th>
       <td><p>Version of transport file specification to use: either 5 or 8.</p></td>
     </tr>
+    <tr>
+      <th>name</th>
+      <td><p>Member name to record in file. Defaults to file name sans
+extension. Must be &lt;= 8 characters for version 5, and &lt;= 32 characters
+for version 8.</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A tibble, data frame variant with nice defaults.</p>
 <p>Variable labels are stored in the "label" attribute of each variable.
-  It is not printed on the console, but the RStudio viewer will show it.</p>
+It is not printed on the console, but the RStudio viewer will show it.</p>
+<p><code>write_xpt()</code> returns the input <code>data</code> invisibly.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -148,16 +159,16 @@ least one new line to be recognised as data (instead of a path).</p></td>
 <span class='fu'>read_xpt</span>(<span class='no'>tmp</span>)</div><div class='output co'>#&gt; # A tibble: 32 x 11
 #&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-#&gt;  1  21.0  6.00   160 110    3.90  2.62  16.5  0     1.00  4.00  4.00
-#&gt;  2  21.0  6.00   160 110    3.90  2.88  17.0  0     1.00  4.00  4.00
-#&gt;  3  22.8  4.00   108  93.0  3.85  2.32  18.6  1.00  1.00  4.00  1.00
-#&gt;  4  21.4  6.00   258 110    3.08  3.22  19.4  1.00  0     3.00  1.00
-#&gt;  5  18.7  8.00   360 175    3.15  3.44  17.0  0     0     3.00  2.00
-#&gt;  6  18.1  6.00   225 105    2.76  3.46  20.2  1.00  0     3.00  1.00
-#&gt;  7  14.3  8.00   360 245    3.21  3.57  15.8  0     0     3.00  4.00
-#&gt;  8  24.4  4.00   147  62.0  3.69  3.19  20.0  1.00  0     4.00  2.00
-#&gt;  9  22.8  4.00   141  95.0  3.92  3.15  22.9  1.00  0     4.00  2.00
-#&gt; 10  19.2  6.00   168 123    3.92  3.44  18.3  1.00  0     4.00  4.00
+#&gt;  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
+#&gt;  2  21       6  160    110  3.9   2.88  17.0     0     1     4     4
+#&gt;  3  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1
+#&gt;  4  21.4     6  258    110  3.08  3.22  19.4     1     0     3     1
+#&gt;  5  18.7     8  360    175  3.15  3.44  17.0     0     0     3     2
+#&gt;  6  18.1     6  225    105  2.76  3.46  20.2     1     0     3     1
+#&gt;  7  14.3     8  360    245  3.21  3.57  15.8     0     0     3     4
+#&gt;  8  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
+#&gt;  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2
+#&gt; 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4
 #&gt; # ... with 22 more rows</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -179,21 +190,23 @@ least one new line to be recognised as data (instead of a path).</p></td>
 </div>
 
 <div class="author">
-  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
-  <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='https://tidyverse.org/rstudio-logo.svg' alt='RStudio' height='24' /></a>.</p>
+  <p>Site built by <a href="http://pkgdown.r-lib.org">pkgdown</a>.</p>
 </div>
 
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-115082821-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ window.dataLayer = window.dataLayer || [];
+ function gtag(){dataLayer.push(arguments);}
+ gtag('js', new Date());
 
-  ga('create', 'UA-67989-18', 'auto');
-  ga('send', 'pageview');
+ gtag('config', 'UA-115082821-1');
 </script>
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+

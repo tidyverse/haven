@@ -15,7 +15,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-vignette">
+    <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -74,19 +74,21 @@
 
       
       </header><div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>haven 1.0.0</h1>
             
             <h4 class="date">2016-09-30</h4>
-          </div>
+      
+      <small class="dont-index">Source: <a href="https://github.com/tidyverse/haven/blob/master/vignettes/releases/haven-1.0.0.Rmd"><code>vignettes/releases/haven-1.0.0.Rmd</code></a></small>
+      <div class="hidden name"><code>haven-1.0.0.Rmd</code></div>
+
+    </div>
 
     
     
-<div class="contents">
 <p>I’m pleased to announce the release of haven. Haven is designed to faciliate the transfer of data between R and SAS, SPSS, and Stata. It makes it easy to read SAS, SPSS, and Stata file formats in to R data frames, and makes it easy to save your R data frames in to SAS, SPSS, and Stata if you need to collaborate with others using closed source statistical software. Install haven by running:</p>
-<pre class="sourceCode r" id="cb1"><code class="sourceCode r"><div class="sourceLine" id="cb1-1" data-line-number="1">
-<span class="kw">install.packages</span>(<span class="st">"haven"</span>)</div></code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">install.packages</span>(<span class="st">"haven"</span>)</a></code></pre></div>
 <p>haven 1.0.0 is a major release, and indicates that haven is now largely feature complete and has been tested on many real world datasets. There are four major changes in this version of haven:</p>
 <ol style="list-style-type: decimal">
 <li>Improvements to the underlying ReadStat library</li>
@@ -146,7 +148,6 @@
 <li><p>Added support for reading file “label” and “notes”. These are not currently printed, but are stored in the attributes if you need to access them.</p></li>
 </ul>
 </div>
-</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -170,20 +171,20 @@
 </div>
 
 <div class="author">
-  <p>Developed by <a href="http://hadley.nz">Hadley Wickham</a>, <a href="http://www.evanmiller.org">Evan Miller</a>, <a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" height="24"></a>.</p>
-  <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Developed by <a href="http://hadley.nz">Hadley Wickham</a>, <a href="http://www.evanmiller.org">Evan Miller</a>, <a href="https://www.rstudio.com"><img src="https://tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.</p>
+  <p>Site built by <a href="http://pkgdown.r-lib.org">pkgdown</a>.</p>
 </div>
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-115082821-1"></script><script>
+ window.dataLayer = window.dataLayer || [];
+ function gtag(){dataLayer.push(arguments);}
+ gtag('js', new Date());
 
-  ga('create', 'UA-67989-18', 'auto');
-  ga('send', 'pageview');
+ gtag('config', 'UA-115082821-1');
 </script></footer>
 </div>
+
+  
 
   </body>
 </html>

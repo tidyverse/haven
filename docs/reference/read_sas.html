@@ -91,35 +91,39 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Read and write SAS files.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/tidyverse/haven/blob/master/R/haven.R'><code>R/haven.R</code></a></small>
+    <div class="hidden name"><code>read_sas.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>Reading supports both sas7bdat files and the accompanying sas7bdat files
 that SAS uses to record value labels. Writing value labels is not currently
 supported.</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>read_sas</span>(<span class='no'>data_file</span>, <span class='kw'>catalog_file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>catalog_encoding</span> <span class='kw'>=</span> <span class='no'>encoding</span>, <span class='kw'>cols_only</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
 <span class='fu'>write_sas</span>(<span class='no'>data</span>, <span class='no'>path</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>data_file, catalog_file</th>
       <td><p>Path to data and catalog files. The files are
-processed with <code><a href='http://www.rdocumentation.org/packages/readr/topics/datasource'>datasource</a>()</code>.</p></td>
+processed with <code><a href='http://www.rdocumentation.org/packages/readr/topics/datasource'>readr::datasource()</a></code>.</p></td>
     </tr>
     <tr>
       <th>encoding, catalog_encoding</th>
       <td><p>The character encoding used for the
-`data_file` and `catalog_encoding` respectively. A value of `NULL`
+<code>data_file</code> and <code>catalog_encoding</code> respectively. A value of <code>NULL</code>
 uses the encoding specified in the file; use this argument to override it
 if it is incorrect.</p></td>
     </tr>
@@ -142,7 +146,8 @@ only specified columns.</p></td>
 
     <p>A tibble, data frame variant with nice defaults.</p>
 <p>Variable labels are stored in the "label" attribute of each variable.
-  It is not printed on the console, but the RStudio viewer will show it.</p>
+It is not printed on the console, but the RStudio viewer will show it.</p>
+<p><code>write_sas()</code> returns the input <code>data</code> invisibly.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -150,16 +155,16 @@ only specified columns.</p></td>
 <span class='fu'>read_sas</span>(<span class='no'>path</span>)</div><div class='output co'>#&gt; # A tibble: 150 x 5
 #&gt;    Sepal_Length Sepal_Width Petal_Length Petal_Width Species
 #&gt;           &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;chr&gt;  
-#&gt;  1         5.10        3.50         1.40       0.200 setosa 
-#&gt;  2         4.90        3.00         1.40       0.200 setosa 
-#&gt;  3         4.70        3.20         1.30       0.200 setosa 
-#&gt;  4         4.60        3.10         1.50       0.200 setosa 
-#&gt;  5         5.00        3.60         1.40       0.200 setosa 
-#&gt;  6         5.40        3.90         1.70       0.400 setosa 
-#&gt;  7         4.60        3.40         1.40       0.300 setosa 
-#&gt;  8         5.00        3.40         1.50       0.200 setosa 
-#&gt;  9         4.40        2.90         1.40       0.200 setosa 
-#&gt; 10         4.90        3.10         1.50       0.100 setosa 
+#&gt;  1          5.1         3.5          1.4         0.2 setosa 
+#&gt;  2          4.9         3            1.4         0.2 setosa 
+#&gt;  3          4.7         3.2          1.3         0.2 setosa 
+#&gt;  4          4.6         3.1          1.5         0.2 setosa 
+#&gt;  5          5           3.6          1.4         0.2 setosa 
+#&gt;  6          5.4         3.9          1.7         0.4 setosa 
+#&gt;  7          4.6         3.4          1.4         0.3 setosa 
+#&gt;  8          5           3.4          1.5         0.2 setosa 
+#&gt;  9          4.4         2.9          1.4         0.2 setosa 
+#&gt; 10          4.9         3.1          1.5         0.1 setosa 
 #&gt; # ... with 140 more rows</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -181,21 +186,23 @@ only specified columns.</p></td>
 </div>
 
 <div class="author">
-  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
-  <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='https://tidyverse.org/rstudio-logo.svg' alt='RStudio' height='24' /></a>.</p>
+  <p>Site built by <a href="http://pkgdown.r-lib.org">pkgdown</a>.</p>
 </div>
 
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-115082821-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ window.dataLayer = window.dataLayer || [];
+ function gtag(){dataLayer.push(arguments);}
+ gtag('js', new Date());
 
-  ga('create', 'UA-67989-18', 'auto');
-  ga('send', 'pageview');
+ gtag('config', 'UA-115082821-1');
 </script>
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+

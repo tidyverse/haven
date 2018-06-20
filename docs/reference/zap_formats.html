@@ -91,22 +91,26 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Remove format attributes</h1>
+    <small class="dont-index">Source: <a href='https://github.com/tidyverse/haven/blob/master/R/zap_formats.R'><code>R/zap_formats.R</code></a></small>
+    <div class="hidden name"><code>zap_formats.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>To provide some mild support for round-tripping variables between Stata/SPSS
 and R, haven stores variable formats in an attribute: <code>format.stata</code>,
 <code>format.spss</code>, or <code>format.sas</code>. If this causes problems for your
 code, you can get rid of them with <code>zap_formats</code>.</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>zap_formats</span>(<span class='no'>x</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -117,8 +121,8 @@ code, you can get rid of them with <code>zap_formats</code>.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p>Other zappers: <code><a href='zap_empty.html'>zap_empty</a></code>,
-  <code><a href='zap_labels.html'>zap_labels</a></code>, <code><a href='zap_widths.html'>zap_widths</a></code></p>
+    <div class='dont-index'><p>Other zappers: <code><a href='zap_empty.html'>zap_empty</a></code>,
+  <code><a href='zap_labels.html'>zap_labels</a></code>, <code><a href='zap_widths.html'>zap_widths</a></code></p></div>
     
 
   </div>
@@ -139,21 +143,23 @@ code, you can get rid of them with <code>zap_formats</code>.</p>
 </div>
 
 <div class="author">
-  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
-  <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='https://tidyverse.org/rstudio-logo.svg' alt='RStudio' height='24' /></a>.</p>
+  <p>Site built by <a href="http://pkgdown.r-lib.org">pkgdown</a>.</p>
 </div>
 
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-115082821-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ window.dataLayer = window.dataLayer || [];
+ function gtag(){dataLayer.push(arguments);}
+ gtag('js', new Date());
 
-  ga('create', 'UA-67989-18', 'auto');
-  ga('send', 'pageview');
+ gtag('config', 'UA-115082821-1');
 </script>
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+

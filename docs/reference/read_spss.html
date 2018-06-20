@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Read SPSS (SAV &amp; POR) files. Write SAV files. — read_spss • haven</title>
+<title>Read SPSS (<code>.sav</code>, <code>.zsav</code>, <code>.por</code>) files. Write <code>.sav</code> and <code>.zsav</code> files. — read_spss • haven</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -91,27 +91,32 @@
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Read SPSS (SAV &amp; POR) files. Write SAV files.</h1>
+    <h1>Read SPSS (<code>.sav</code>, <code>.zsav</code>, <code>.por</code>) files. Write <code>.sav</code> and <code>.zsav</code> files.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/tidyverse/haven/blob/master/R/haven.R'><code>R/haven.R</code></a></small>
+    <div class="hidden name"><code>read_spss.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
-    <p>Currently haven can read and write logical, integer, numeric, character
-and factors. See <code><a href='labelled_spss.html'>labelled_spss</a></code> for how labelled variables in
-SPSS are handled in R. <code>read_spss</code> is an alias for <code>read_sav</code>.</p>
+    <p><code>read_sav()</code> reads both <code>.sav</code> and <code>.zsav</code> files; <code>write_sav()</code> creates
+<code>.zsav</code> files when <code>compress = TRUE</code>. <code>read_por()</code> reads <code>.por</code> files.
+<code>read_spss()</code> uses either <code>read_por()</code> or <code>read_sav()</code> based on the
+file extension.</p>
     
+    </div>
 
-    <pre class="usage"><span class='fu'>read_sav</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>read_sav</span>(<span class='no'>file</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='fu'>read_por</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
-<span class='fu'>write_sav</span>(<span class='no'>data</span>, <span class='no'>path</span>)
+<span class='fu'>write_sav</span>(<span class='no'>data</span>, <span class='no'>path</span>, <span class='kw'>compress</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='fu'>read_spss</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -127,9 +132,15 @@ decompressed.</p>
 least one new line to be recognised as data (instead of a path).</p></td>
     </tr>
     <tr>
+      <th>encoding</th>
+      <td><p>The character encoding used for the file. The default,
+<code>NULL</code>, use the encoding specified in the file, but sometimes this
+value is incorrect and it is useful to be able to override it.</p></td>
+    </tr>
+    <tr>
       <th>user_na</th>
       <td><p>If <code>TRUE</code> variables with user defined missing will
-be read into <code><a href='labelled_spss.html'>labelled_spss</a></code> objects. If <code>FALSE</code>, the
+be read into <code><a href='labelled_spss.html'>labelled_spss()</a></code> objects. If <code>FALSE</code>, the
 default, user-defined missings will be converted to <code>NA</code>.</p></td>
     </tr>
     <tr>
@@ -140,13 +151,25 @@ default, user-defined missings will be converted to <code>NA</code>.</p></td>
       <th>path</th>
       <td><p>Path to a file where the data will be written.</p></td>
     </tr>
+    <tr>
+      <th>compress</th>
+      <td><p>If <code>TRUE</code>, will compress the file, resulting in a <code>.zsav</code>
+file.</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A tibble, data frame variant with nice defaults.</p>
 <p>Variable labels are stored in the "label" attribute of each variable.
-  It is not printed on the console, but the RStudio viewer will show it.</p>
+It is not printed on the console, but the RStudio viewer will show it.</p>
+<p><code>write_sav()</code> returns the input <code>data</code> invisibly.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Currently haven can read and write logical, integer, numeric, character
+and factors. See <code><a href='labelled_spss.html'>labelled_spss()</a></code> for how labelled variables in
+SPSS are handled in R.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -154,32 +177,32 @@ default, user-defined missings will be converted to <code>NA</code>.</p></td>
 <span class='fu'>read_sav</span>(<span class='no'>path</span>)</div><div class='output co'>#&gt; # A tibble: 150 x 5
 #&gt;    Sepal.Length Sepal.Width Petal.Length Petal.Width Species  
 #&gt;           &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl+lbl&gt;
-#&gt;  1         5.10        3.50         1.40       0.200 1        
-#&gt;  2         4.90        3.00         1.40       0.200 1        
-#&gt;  3         4.70        3.20         1.30       0.200 1        
-#&gt;  4         4.60        3.10         1.50       0.200 1        
-#&gt;  5         5.00        3.60         1.40       0.200 1        
-#&gt;  6         5.40        3.90         1.70       0.400 1        
-#&gt;  7         4.60        3.40         1.40       0.300 1        
-#&gt;  8         5.00        3.40         1.50       0.200 1        
-#&gt;  9         4.40        2.90         1.40       0.200 1        
-#&gt; 10         4.90        3.10         1.50       0.100 1        
+#&gt;  1          5.1         3.5          1.4         0.2 1        
+#&gt;  2          4.9         3            1.4         0.2 1        
+#&gt;  3          4.7         3.2          1.3         0.2 1        
+#&gt;  4          4.6         3.1          1.5         0.2 1        
+#&gt;  5          5           3.6          1.4         0.2 1        
+#&gt;  6          5.4         3.9          1.7         0.4 1        
+#&gt;  7          4.6         3.4          1.4         0.3 1        
+#&gt;  8          5           3.4          1.5         0.2 1        
+#&gt;  9          4.4         2.9          1.4         0.2 1        
+#&gt; 10          4.9         3.1          1.5         0.1 1        
 #&gt; # ... with 140 more rows</div><div class='input'>
 <span class='no'>tmp</span> <span class='kw'>&lt;-</span> <span class='fu'>tempfile</span>(<span class='kw'>fileext</span> <span class='kw'>=</span> <span class='st'>".sav"</span>)
 <span class='fu'>write_sav</span>(<span class='no'>mtcars</span>, <span class='no'>tmp</span>)
 <span class='fu'>read_sav</span>(<span class='no'>tmp</span>)</div><div class='output co'>#&gt; # A tibble: 32 x 11
 #&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-#&gt;  1  21.0  6.00   160 110    3.90  2.62  16.5  0     1.00  4.00  4.00
-#&gt;  2  21.0  6.00   160 110    3.90  2.88  17.0  0     1.00  4.00  4.00
-#&gt;  3  22.8  4.00   108  93.0  3.85  2.32  18.6  1.00  1.00  4.00  1.00
-#&gt;  4  21.4  6.00   258 110    3.08  3.22  19.4  1.00  0     3.00  1.00
-#&gt;  5  18.7  8.00   360 175    3.15  3.44  17.0  0     0     3.00  2.00
-#&gt;  6  18.1  6.00   225 105    2.76  3.46  20.2  1.00  0     3.00  1.00
-#&gt;  7  14.3  8.00   360 245    3.21  3.57  15.8  0     0     3.00  4.00
-#&gt;  8  24.4  4.00   147  62.0  3.69  3.19  20.0  1.00  0     4.00  2.00
-#&gt;  9  22.8  4.00   141  95.0  3.92  3.15  22.9  1.00  0     4.00  2.00
-#&gt; 10  19.2  6.00   168 123    3.92  3.44  18.3  1.00  0     4.00  4.00
+#&gt;  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
+#&gt;  2  21       6  160    110  3.9   2.88  17.0     0     1     4     4
+#&gt;  3  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1
+#&gt;  4  21.4     6  258    110  3.08  3.22  19.4     1     0     3     1
+#&gt;  5  18.7     8  360    175  3.15  3.44  17.0     0     0     3     2
+#&gt;  6  18.1     6  225    105  2.76  3.46  20.2     1     0     3     1
+#&gt;  7  14.3     8  360    245  3.21  3.57  15.8     0     0     3     4
+#&gt;  8  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
+#&gt;  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2
+#&gt; 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4
 #&gt; # ... with 22 more rows</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -188,6 +211,8 @@ default, user-defined missings will be converted to <code>NA</code>.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
@@ -201,21 +226,23 @@ default, user-defined missings will be converted to <code>NA</code>.</p></td>
 </div>
 
 <div class="author">
-  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='http://tidyverse.org/rstudio-logo.svg' height='24' /></a>.</p>
-  <p>Site built by <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='https://tidyverse.org/rstudio-logo.svg' alt='RStudio' height='24' /></a>.</p>
+  <p>Site built by <a href="http://pkgdown.r-lib.org">pkgdown</a>.</p>
 </div>
 
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-115082821-1"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ window.dataLayer = window.dataLayer || [];
+ function gtag(){dataLayer.push(arguments);}
+ gtag('js', new Date());
 
-  ga('create', 'UA-67989-18', 'auto');
-  ga('send', 'pageview');
+ gtag('config', 'UA-115082821-1');
 </script>
       </footer>
    </div>
 
+  
+
   </body>
 </html>
+
