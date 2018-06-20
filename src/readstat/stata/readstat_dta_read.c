@@ -470,9 +470,10 @@ cleanup:
     return retval;
 }
 
-static readstat_value_t dta_interpret_int8_bytes(dta_ctx_t *ctx, const unsigned char *buf) {
+static readstat_value_t dta_interpret_int8_bytes(dta_ctx_t *ctx, const void *buf) {
     readstat_value_t value = { .type = READSTAT_TYPE_INT8 };
-    int8_t byte = (int8_t)buf[0];
+    int8_t byte = 0;
+    memcpy(&byte, buf, sizeof(int8_t));
     if (ctx->machine_is_twos_complement) {
         byte = ones_to_twos_complement1(byte);
     }
@@ -489,7 +490,7 @@ static readstat_value_t dta_interpret_int8_bytes(dta_ctx_t *ctx, const unsigned 
     return value;
 }
 
-static readstat_value_t dta_interpret_int16_bytes(dta_ctx_t *ctx, const unsigned char *buf) {
+static readstat_value_t dta_interpret_int16_bytes(dta_ctx_t *ctx, const void *buf) {
     readstat_value_t value = { .type = READSTAT_TYPE_INT16 };
     int16_t num = 0;
     memcpy(&num, buf, sizeof(int16_t));
@@ -512,7 +513,7 @@ static readstat_value_t dta_interpret_int16_bytes(dta_ctx_t *ctx, const unsigned
     return value;
 }
 
-static readstat_value_t dta_interpret_int32_bytes(dta_ctx_t *ctx, const unsigned char *buf) {
+static readstat_value_t dta_interpret_int32_bytes(dta_ctx_t *ctx, const void *buf) {
     readstat_value_t value = { .type = READSTAT_TYPE_INT32 };
     int32_t num = 0;
     memcpy(&num, buf, sizeof(int32_t));
@@ -535,7 +536,7 @@ static readstat_value_t dta_interpret_int32_bytes(dta_ctx_t *ctx, const unsigned
     return value;
 }
 
-static readstat_value_t dta_interpret_float_bytes(dta_ctx_t *ctx, const unsigned char *buf) {
+static readstat_value_t dta_interpret_float_bytes(dta_ctx_t *ctx, const void *buf) {
     readstat_value_t value = { .type = READSTAT_TYPE_FLOAT };
     float f_num = NAN;
     int32_t num = 0;
@@ -558,7 +559,7 @@ static readstat_value_t dta_interpret_float_bytes(dta_ctx_t *ctx, const unsigned
     return value;
 }
 
-static readstat_value_t dta_interpret_double_bytes(dta_ctx_t *ctx, const unsigned char *buf) {
+static readstat_value_t dta_interpret_double_bytes(dta_ctx_t *ctx, const void *buf) {
     readstat_value_t value = { .type = READSTAT_TYPE_DOUBLE };
     double d_num = NAN;
     int64_t num = 0;
@@ -1080,12 +1081,6 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
             if (ctx->bswap) {
                 for (i=0; i<n; i++) {
                     off[i] = byteswap4(off[i]);
-                    val[i] = byteswap4(val[i]);
-                }
-            }
-            if (ctx->machine_is_twos_complement) {
-                for (i=0; i<n; i++) {
-                    val[i] = ones_to_twos_complement4(val[i]);
                 }
             }
 
@@ -1095,19 +1090,10 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
                     goto cleanup;
                 }
 
-                readstat_value_t value = { .v = { .i32_value = val[i] }, .type = READSTAT_TYPE_INT32 };
+                readstat_value_t value = dta_interpret_int32_bytes(ctx, &val[i]);
                 size_t max_label_len = txtlen - off[i];
                 if (max_label_len > MAX_VALUE_LABEL_LEN)
                     max_label_len = MAX_VALUE_LABEL_LEN;
-
-                if (val[i] > ctx->max_int32) {
-                    if (ctx->supports_tagged_missing && val[i] > DTA_113_MISSING_INT32) {
-                        value.tag = 'a' + (val[i] - DTA_113_MISSING_INT32_A);
-                        value.is_tagged_missing = 1;
-                    } else{
-                        value.is_system_missing = 1;
-                    }
-                }
 
                 retval = readstat_convert(utf8_buffer, utf8_buffer_len, &txt[off[i]], max_label_len, ctx->converter);
                 if (retval != READSTAT_OK)

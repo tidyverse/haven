@@ -264,10 +264,11 @@ cleanup:
     return error;
 }
 
-static readstat_error_t dta_validate_name(const char *name, size_t max_len) {
+static readstat_error_t dta_validate_name_chars(const char *name, int unicode) {
+    /* TODO check Unicode class */
     int j;
     for (j=0; name[j]; j++) {
-        if (name[j] != '_' &&
+        if ((name[j] > 0 || !unicode) && name[j] != '_' &&
                 !(name[j] >= 'a' && name[j] <= 'z') &&
                 !(name[j] >= 'A' && name[j] <= 'Z') &&
                 !(name[j] >= '0' && name[j] <= '9')) {
@@ -275,11 +276,15 @@ static readstat_error_t dta_validate_name(const char *name, size_t max_len) {
         }
     }
     char first_char = name[0];
-    if (first_char != '_' &&
+    if ((first_char > 0 || !unicode) && first_char != '_' &&
             !(first_char >= 'a' && first_char <= 'z') &&
             !(first_char >= 'A' && first_char <= 'Z')) {
         return READSTAT_ERROR_NAME_BEGINS_WITH_ILLEGAL_CHARACTER;
     }
+    return READSTAT_OK;
+}
+
+static readstat_error_t dta_validate_name_unreserved(const char *name) {
     if (strcmp(name, "_all") == 0 || strcmp(name, "_b") == 0 ||
             strcmp(name, "byte") == 0 || strcmp(name, "_coef") == 0 ||
             strcmp(name, "_cons") == 0 || strcmp(name, "double") == 0 ||
@@ -296,22 +301,31 @@ static readstat_error_t dta_validate_name(const char *name, size_t max_len) {
     if (sscanf(name, "str%d", &len) == 1)
         return READSTAT_ERROR_NAME_IS_RESERVED_WORD;
 
-    if (strlen(name) > max_len)
-        return READSTAT_ERROR_NAME_IS_TOO_LONG;
-
     return READSTAT_OK;
 }
 
+static readstat_error_t dta_validate_name(const char *name, int unicode, size_t max_len) {
+    readstat_error_t error = READSTAT_OK;
+
+    if ((error = dta_validate_name_chars(name, unicode)) != READSTAT_OK)
+        return error;
+
+    if (strlen(name) > max_len)
+        return READSTAT_ERROR_NAME_IS_TOO_LONG;
+
+    return dta_validate_name_unreserved(name);
+}
+
 static readstat_error_t dta_old_variable_ok(readstat_variable_t *variable) {
-    return dta_validate_name(readstat_variable_get_name(variable), DTA_OLD_MAX_NAME_LEN);
+    return dta_validate_name(readstat_variable_get_name(variable), 0, DTA_OLD_MAX_NAME_LEN);
 }
 
 static readstat_error_t dta_110_variable_ok(readstat_variable_t *variable) {
-    return dta_validate_name(readstat_variable_get_name(variable), DTA_110_MAX_NAME_LEN);
+    return dta_validate_name(readstat_variable_get_name(variable), 0, DTA_110_MAX_NAME_LEN);
 }
 
 static readstat_error_t dta_118_variable_ok(readstat_variable_t *variable) {
-    return dta_validate_name(readstat_variable_get_name(variable), DTA_118_MAX_NAME_LEN);
+    return dta_validate_name(readstat_variable_get_name(variable), 1, DTA_118_MAX_NAME_LEN);
 }
 
 static readstat_error_t dta_emit_varlist(readstat_writer_t *writer, dta_ctx_t *ctx) {

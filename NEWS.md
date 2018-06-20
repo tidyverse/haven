@@ -22,6 +22,7 @@
 
   * Fixes out of memory error (#342)
   * Now supports reading and writing stata 15 files (#339)
+  * Negative integer labelled values were tagged as missing (#367)
 
 # haven 1.1.1
 
