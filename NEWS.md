@@ -2,6 +2,17 @@
 
 # haven 1.1.2
 
+* `labelled()` and `labelled_spss()` now support adding the `label`
+  attribute to the resulting object. The `label` is a short,
+  human-readable description of the object, and is now also used
+  when printing, and can be easily removed using the new `zap_label()`
+  function. (#362, @huftis)
+  
+  Previously, the `label` attribute was supported both when reading
+  and writing SPSS files, but it was not possible to actually create
+  objects in R having the `label` attribute using the constructors
+  `labelled()` or `labelled_spss()`.
+
 * haven can read and write non-ASCII paths in R 3.5 (#371).
 
 * `labelled_spss` objects preserve their attributes when subsetted 

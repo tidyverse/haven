@@ -1,13 +1,16 @@
 #' Zap labels
 #'
 #' Removes labels, leaving unlabelled vectors as is. Use this if you want to
-#' simply drop all labelling from a data frame. Zapping labels from
+#' simply drop all `labels` from a data frame. Zapping labels from
 #' [labelled_spss()] also removes user-defined missing values,
 #' replacing all with `NA`s.
 #'
 #' @param x A vector or data frame
 #' @family zappers
 #' @export
+#' @note This function doesn't remove any `label` attribute(s),
+#'       just the `labels` attribute(s). Use \code{\link{zap_label}}
+#'       to remove `label` attribute(s).
 #' @examples
 #' x1 <- labelled(1:5, c(good = 1, bad = 5))
 #' x1
