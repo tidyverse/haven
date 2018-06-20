@@ -271,7 +271,7 @@ read_stata <- function(file, encoding = NULL) {
 #' @rdname read_dta
 #' @param version File version to use. Supports versions 8-15.
 write_dta <- function(data, path, version = 14) {
-  validate_dta(data)
+  validate_dta(data, version = version)
   write_dta_(data,
     normalizePath(path, mustWork = FALSE),
     version = stata_file_format(version)
@@ -300,12 +300,12 @@ stata_file_format <- function(version) {
   }
 }
 
-validate_dta <- function(data) {
+validate_dta <- function(data, version) {
   stopifnot(is.data.frame(data))
 
   # Check variable names
   bad_names <- !grepl("^[A-Za-z_]{1}[A-Za-z0-9_]{0,31}$", names(data))
-  if (any(bad_names)) {
+  if (version < 14 && any(bad_names)) {
     stop(
       "The following variable names are not valid Stata variables: ",
       var_names(data, bad_names),

@@ -1,5 +1,8 @@
 # haven 1.1.1.9000
 
+* `write_dta()` now allows non-ASCII variable labels for version 14 and above 
+  (#383).
+
 * Subsetting a `labelled_spss()` object preserves attributes (#360, @gergness).
 
 * haven can read and write non-ASCII paths in R 3.5 (#371).
