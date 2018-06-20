@@ -44,11 +44,6 @@ It is not printed on the console, but the RStudio viewer will show it.
 The SAS transport format is a open format, as is required for submission
 of the data to the FDA.
 }
-\details{
-Currently haven can read and write logical, integer, numeric, character
-and factors. See \code{\link[=labelled_spss]{labelled_spss()}} for how labelled variables in
-SPSS are handled in R.
-}
 \examples{
 tmp <- tempfile(fileext = ".xpt")
 write_xpt(mtcars, tmp)

@@ -66,7 +66,7 @@ write_sas <- function(data, path) {
 #' The SAS transport format is a open format, as is required for submission
 #' of the data to the FDA.
 #'
-#' @inherit read_spss
+#' @inheritParams read_spss
 #' @return A tibble, data frame variant with nice defaults.
 #'
 #'   Variable labels are stored in the "label" attribute of each variable.
