@@ -17,8 +17,8 @@
   * Fixes out of memory error (#342)
   * Now supports reading and writing stata 15 files (#339)
 
-* Fix for `as_factor()` when the option levels="labels" and there are tagged NAs
-  (#340 @gergness)
+* Fix for when `as_factor()` with option `levels="labels"` is used on tagged NAs
+  (#340, @gergness)
 
 # haven 1.1.1
 
