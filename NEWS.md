@@ -27,6 +27,9 @@
   * Now supports reading and writing stata 15 files (#339)
   * Negative integer labelled values were tagged as missing (#367)
 
+* Fix for when `as_factor()` with option `levels="labels"` is used on tagged NAs
+  (#340, @gergness)
+
 # haven 1.1.1
 
 * Update to latest readstat. Includes:

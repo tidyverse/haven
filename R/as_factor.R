@@ -76,7 +76,8 @@ as_factor.labelled <- function(x, levels = c("default", "labels", "values", "bot
       labels = names(labels),
       values = levs
     )
-    x <- factor(x, levs, labels = labs, ordered = ordered)
+    x <- replace_with(x, levs, labs)
+    x <- factor(x, labs, ordered = ordered)
   }
 
   structure(x, label = label)

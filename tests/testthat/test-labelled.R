@@ -36,3 +36,8 @@ test_that("given correct name in data frame", {
   expect_named(data.frame(x), "x")
   expect_named(data.frame(y = x), "y")
 })
+
+test_that("can convert to factor with using labels with labelled na's", {
+  x <- labelled(c(1:2, tagged_na("a")), c(a = 1, c = tagged_na("a")))
+  expect_equal(as_factor(x, "labels"), factor(c("a", NA, "c")))
+})
