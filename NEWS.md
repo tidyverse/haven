@@ -1,5 +1,3 @@
-# haven 1.1.2.9000
-
 # haven 1.1.2
 
 * `labelled()` and `labelled_spss()` now support adding the `label`
