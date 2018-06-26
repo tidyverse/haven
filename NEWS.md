@@ -1,25 +1,24 @@
 # haven 1.1.1.9000
 
-* `write_dta()` now allows non-ASCII variable labels for version 14 and above 
-  (#383).
-
-* Subsetting a `labelled_spss()` object preserves attributes (#360, @gergness).
-
 * haven can read and write non-ASCII paths in R 3.5 (#371).
 
-* `write_*()` now invisibly return the input data frame as documented (#349, @austensen).
+* `labelled_spss` objects preserve their attributes when subsetted 
+  (#360, @gergness).
+
+* `read_sav()` gains an `encoding` argument to override the encoding stored in 
+  the file (#305). `read_sav()` can now read `.zsav` files (#338). 
+  
+* `write_*()` functions now invisibly return the input data frame 
+  (as documented) (#349, @austensen).
+
+* `write_dta()` allows non-ASCII variable labels for version 14 and above 
+  (#383). It also uses a less strict check for integers so that a 
+  labelled double containing only integer values can written (#343).
+
+* `write_sav()` produces `.zsav` files when `compress = TRUE` (#338).
 
 * `write_xpt()` can now set the "member" name, which defaults to the file name
   san extension (#328).
-
-* `read_sav()` can now read `.zsav` files; `write_sav()` produces `.zsav` 
-  files when `compress = TRUE` (#338).
-
-* `write_dta()` uses a less strict check for integers (#343) so that double
-  containing only integer values can written.
-
-* `read_sav()` gains an `encoding` argument to override the encoding stored in 
-  the file (#305).
 
 * Update to latest readstat.
 
