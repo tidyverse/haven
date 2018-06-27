@@ -48,6 +48,8 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL, label = 
 `[.labelled_spss` <- function(x, ...) {
   labelled_spss(
     NextMethod(),
+    labels = attr(x, "labels"),
+    label = attr(x, "label", exact = TRUE),
     na_values = attr(x, "na_values"),
     na_range = attr(x, "na_range")
   )
