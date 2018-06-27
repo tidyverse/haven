@@ -1,3 +1,5 @@
+# haven 1.1.2.9000
+
 # haven 1.1.2
 
 * haven can read and write non-ASCII paths in R 3.5 (#371).
