@@ -5,7 +5,7 @@
 \alias{is.labelled}
 \title{Create a labelled vector.}
 \usage{
-labelled(x, labels)
+labelled(x, labels, label = NULL)
 
 is.labelled(x)
 }
@@ -17,7 +17,7 @@ character.}
 \code{x}. Unlike factors, labels don't need to be exhaustive: only a fraction
 of the values might be labelled.}
 
-\item{...}{Ignored}
+\item{label}{A short, human-readable description of the vector.}
 }
 \description{
 A labelled vector is a common data structure in other statistical
@@ -30,6 +30,8 @@ soon after importing.
 \examples{
 s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
 s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
+s3 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2),
+               label="Assigned sex at birth")
 
 # Unfortunately it's not possible to make as.factor work for labelled objects
 # so instead use as_factor. This works for all types of labelled vectors.
