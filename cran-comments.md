@@ -1,3 +1,7 @@
+This is a resubmission that fixes the rchk problem. Contrary to my previous email, I believe that the gcc8 issue has already been fixed upstream.
+
+---
+
 ## Test environments
 * local OS X install: R-release
 * travis-ci: R-3.1, R-3.2, R-oldrel, R-release, R-devel
