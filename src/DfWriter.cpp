@@ -87,7 +87,7 @@ public:
     if (p == 0)
       return;
 
-    CharacterVector names = as<CharacterVector>(x_.attr("names"));
+    CharacterVector names(as<CharacterVector>(x_.attr("names")));
 
     // Define variables
     for (int j = 0; j < p; ++j) {
