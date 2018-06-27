@@ -98,23 +98,27 @@
       <small>Source: <a href='https://github.com/tidyverse/haven/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="haven-1-1-1-9000" class="section level1">
+    <div id="haven-1-1-2" class="section level1">
 <h1 class="page-header">
-<a href="#haven-1-1-1-9000" class="anchor"></a>haven 1.1.1.9000<small> Unreleased </small>
+<a href="#haven-1-1-2" class="anchor"></a>haven 1.1.2<small> Unreleased </small>
 </h1>
 <ul>
-<li><p><code>write_*()</code> now invisibly return the input data frame as documented (<a href='https://github.com/tidyverse/haven/issues/349'>#349</a>, <a href='http://github.com/austensen'>@austensen</a>).</p></li>
+<li><p>haven can read and write non-ASCII paths in R 3.5 (<a href='https://github.com/tidyverse/haven/issues/371'>#371</a>).</p></li>
+<li><p><code>labelled_spss</code> objects preserve their attributes when subsetted (<a href='https://github.com/tidyverse/haven/issues/360'>#360</a>, <a href='http://github.com/gergness'>@gergness</a>).</p></li>
+<li><p><code><a href="../reference/read_spss.html">read_sav()</a></code> gains an <code>encoding</code> argument to override the encoding stored in the file (<a href='https://github.com/tidyverse/haven/issues/305'>#305</a>). <code><a href="../reference/read_spss.html">read_sav()</a></code> can now read <code>.zsav</code> files (<a href='https://github.com/tidyverse/haven/issues/338'>#338</a>).</p></li>
+<li><p><code>write_*()</code> functions now invisibly return the input data frame (as documented) (<a href='https://github.com/tidyverse/haven/issues/349'>#349</a>, <a href='http://github.com/austensen'>@austensen</a>).</p></li>
+<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> allows non-ASCII variable labels for version 14 and above (<a href='https://github.com/tidyverse/haven/issues/383'>#383</a>). It also uses a less strict check for integers so that a labelled double containing only integer values can written (<a href='https://github.com/tidyverse/haven/issues/343'>#343</a>).</p></li>
+<li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> produces <code>.zsav</code> files when <code>compress = TRUE</code> (<a href='https://github.com/tidyverse/haven/issues/338'>#338</a>).</p></li>
 <li><p><code><a href="../reference/read_xpt.html">write_xpt()</a></code> can now set the “member” name, which defaults to the file name san extension (<a href='https://github.com/tidyverse/haven/issues/328'>#328</a>).</p></li>
-<li><p><code><a href="../reference/read_spss.html">read_sav()</a></code> can now read <code>.zsav</code> files; <code><a href="../reference/read_spss.html">write_sav()</a></code> produces <code>.zsav</code> files when <code>compress = TRUE</code> (<a href='https://github.com/tidyverse/haven/issues/338'>#338</a>).</p></li>
-<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> uses a less strict check for integers (<a href='https://github.com/tidyverse/haven/issues/343'>#343</a>) so that double containing only integer values can written.</p></li>
-<li><p><code><a href="../reference/read_spss.html">read_sav()</a></code> gains an <code>encoding</code> argument to override the encoding stored in the file (<a href='https://github.com/tidyverse/haven/issues/305'>#305</a>).</p></li>
 <li>
 <p>Update to latest readstat.</p>
 <ul>
 <li>Fixes out of memory error (<a href='https://github.com/tidyverse/haven/issues/342'>#342</a>)</li>
 <li>Now supports reading and writing stata 15 files (<a href='https://github.com/tidyverse/haven/issues/339'>#339</a>)</li>
+<li>Negative integer labelled values were tagged as missing (<a href='https://github.com/tidyverse/haven/issues/367'>#367</a>)</li>
 </ul>
 </li>
+<li><p>Fix for when <code><a href="../reference/as_factor.html">as_factor()</a></code> with option <code>levels="labels"</code> is used on tagged NAs (<a href='https://github.com/tidyverse/haven/issues/340'>#340</a>, <a href='http://github.com/gergness'>@gergness</a>)</p></li>
 </ul>
 </div>
     <div id="haven-1-1-1" class="section level1">
@@ -243,7 +247,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#haven-1-1-1-9000">1.1.1.9000</a></li>
+        <li><a href="#haven-1-1-2">1.1.2</a></li>
         <li><a href="#haven-1-1-1">1.1.1</a></li>
         <li><a href="#haven-1-1-0">1.1.0</a></li>
         <li><a href="#haven-1-0-0">1.0.0</a></li>

@@ -1,6 +1,7 @@
 #' @useDynLib haven, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
 #' @importFrom tibble tibble
+#' @importFrom hms hms
 NULL
 
 #' Read and write SAS files.
