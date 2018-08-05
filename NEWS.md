@@ -1,5 +1,8 @@
 # haven 1.1.2.9000
-
+* The `labelled` class now gets pretty printing that shows the labels and NA values
+  when inside of a `tbl_df`. Includes the ability to turn off this behavior using 
+  `option(haven.show_pillar_labels = FALSE)` (#340, @gergness)
+  
 # haven 1.1.2
 
 * haven can read and write non-ASCII paths in R 3.5 (#371).
@@ -27,14 +30,6 @@
   * Fixes out of memory error (#342)
   * Now supports reading and writing stata 15 files (#339)
   * Negative integer labelled values were tagged as missing (#367)
-
-
-* The `labelled` class now gets pretty printing that shows the labels and NA values
-  when inside of a `tbl_df`. Includes the ability to turn off this behavior using 
-  `option(haven.show_pillar_labels = FALSE)` (#340, @gergness)
-
-* Subsetting `labelled_spss` values keeps the original class instead of converting
-  to `labelled` (#340 @gergness)
 
 * Fix for `as_factor()` when the option levels="labels" and there are tagged NAs
   (#340 @gergness)
