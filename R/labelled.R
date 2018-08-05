@@ -288,5 +288,5 @@ truncate_labelled_pillar <- function(vals, nas, lbls, desired_width, width) {
 }
 
 trim_ws_rhs <- function(x) {
-  sub("[:blank:]+$", "", x)
+  sub("[ \t\r\n]+$", "", x)
 }
