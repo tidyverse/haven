@@ -102,10 +102,11 @@ replace_with <- function (x, from, to) {
   }
 
   matches <- match(na_tag(x), na_tag(from), incomparables = NA)
-  if (anyNA(matches)) {
+  #
+  # if (anyNA(matches)) {
     out[!is.na(matches)] <- to[matches[!is.na(matches)]]
-  } else {
-    out <- to[matches]
-  }
+  # } else {
+  #   out <- to[matches]
+  # }
   out
 }
