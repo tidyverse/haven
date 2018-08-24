@@ -1,5 +1,7 @@
 # haven 1.1.2.9000
 
+* `as_factor(x)` is now faster when `x` does not contain any missing values
+
 # haven 1.1.2
 
 * haven can read and write non-ASCII paths in R 3.5 (#371).
