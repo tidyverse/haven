@@ -13,3 +13,4 @@
 ^docs$
 ^appveyor\.yml$
 ^\.github$
+^\.httr-oauth$
