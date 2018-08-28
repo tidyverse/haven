@@ -1,8 +1,19 @@
 # haven 1.1.2.9000
+(to become haven 2.0.0)
 
-* `labelled()` and `labelled_spss()` now produce objects with class
-  "haven_labelled" and "haven_labelled_spss". Previously, the "labelled"
-  class name clashed with the labelled class defined by Hmisc (#329).
+## BREAKING CHANGES
+
+*   `labelled()` and `labelled_spss()` now produce objects with class
+    "haven_labelled" and "haven_labelled_spss". Previously, the "labelled"
+    class name clashed with the labelled class defined by Hmisc (#329).
+    
+    Unfortunately I couldn't come up with a way to fix this problem except
+    to change the class name; it seems reasonable that haven should be the one 
+    to change names given that Hmisc has been around much longer. This
+    will require some changes to packages that use haven, but shouldn't
+    affect user code.
+
+## Minor improvements
 
 * `labelled()` and `labelled_spss()` now support adding the `label`
   attribute to the resulting object. The `label` is a short,

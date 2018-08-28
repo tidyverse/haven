@@ -1,4 +1,4 @@
-release_date: ???
-rel_release_date: ???
-my_news_url: ???
-release_version: ???
+release_date: Oct 8
+rel_release_date: six weeks
+my_news_url: https://github.com/tidyverse/haven/blob/master/NEWS.md#haven-1129000
+release_version: 2.0.0
