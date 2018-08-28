@@ -16,8 +16,8 @@ Haven enables R to read and write various data formats used by other statistical
 * __SPSS__: `read_sav()` reads `.sav` files and `read_por()` reads the 
   older `.por` files. `write_sav()` writes `.sav` files.
   
-* __Stata__: `read_dta()` reads `.dta` files (up to version 14). 
-  `write_dta()` writes `.dta` files (versions 8-14).
+* __Stata__: `read_dta()` reads `.dta` files (up to version 15). 
+  `write_dta()` writes `.dta` files (versions 8-15).
 
 The output objects:
 
