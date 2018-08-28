@@ -13,7 +13,7 @@ test_that("converts user-defined missings", {
   x2 <- zap_missing(x1)
 
   expect_equal(x2[[3]], NA_real_)
-  expect_s3_class(x2, "labelled")
+  expect_s3_class(x2, "haven_labelled")
 })
 
 test_that("converts data frame", {

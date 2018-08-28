@@ -29,7 +29,7 @@ zap_label.default <- function(x) {
 }
 
 #' @export
-zap_label.labelled <- function(x) {
+zap_label.haven_labelled <- function(x) {
   attr(x, "label") <- NULL
   x
 }

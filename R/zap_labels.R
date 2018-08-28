@@ -34,7 +34,7 @@ zap_labels.default <- function(x) {
 }
 
 #' @export
-zap_labels.labelled <- function(x) {
+zap_labels.haven_labelled <- function(x) {
   attr(x, "labels") <- NULL
   class(x) <- NULL
 
@@ -42,7 +42,7 @@ zap_labels.labelled <- function(x) {
 }
 
 #' @export
-zap_labels.labelled_spss <- function(x) {
+zap_labels.haven_labelled_spss <- function(x) {
   x[is.na(x)] <- NA
 
   attr(x, "labels") <- NULL

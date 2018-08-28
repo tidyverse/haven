@@ -40,12 +40,12 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL, label = 
     labelled(x, labels, label = label),
     na_values = na_values,
     na_range = na_range,
-    class = c("labelled_spss", "labelled")
+    class = c("haven_labelled_spss", "haven_labelled")
   )
 }
 
 #' @export
-`[.labelled_spss` <- function(x, ...) {
+`[.haven_labelled_spss` <- function(x, ...) {
   labelled_spss(
     NextMethod(),
     labels = attr(x, "labels"),
@@ -56,7 +56,7 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL, label = 
 }
 
 #' @export
-print.labelled_spss <- function(x, ...) {
+print.haven_labelled_spss <- function(x, ...) {
   cat("<Labelled SPSS ", typeof(x), ">", get_labeltext(x), "\n", sep = "")
 
   xx <- x
@@ -79,7 +79,7 @@ print.labelled_spss <- function(x, ...) {
 
 
 #' @export
-is.na.labelled_spss <- function(x) {
+is.na.haven_labelled_spss <- function(x) {
   miss <- NextMethod()
 
   na_values <- attr(x, "na_values")

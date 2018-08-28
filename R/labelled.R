@@ -55,7 +55,7 @@ labelled <- function(x, labels, label = NULL) {
   structure(x,
     label = label,
     labels = labels,
-    class = "labelled"
+    class = "haven_labelled"
   )
 }
 
@@ -73,15 +73,15 @@ is_coercible <- function(x, labels) {
 
 #' @export
 #' @rdname labelled
-is.labelled <- function(x) inherits(x, "labelled")
+is.labelled <- function(x) inherits(x, "haven_labelled")
 
 #' @export
-`[.labelled` <- function(x, ...) {
+`[.haven_labelled` <- function(x, ...) {
   labelled(NextMethod(), attr(x, "labels"), attr(x, "label", exact = TRUE))
 }
 
 #' @export
-print.labelled <- function(x, ..., digits = getOption("digits")) {
+print.haven_labelled <- function(x, ..., digits = getOption("digits")) {
   cat("<Labelled ", typeof(x), ">", get_labeltext(x), "\n", sep = "")
 
   if (is.double(x)) {
@@ -132,7 +132,7 @@ print_labels <- function(x, name = NULL) {
 }
 
 #' @export
-as.data.frame.labelled <- function(x, ...) {
+as.data.frame.haven_labelled <- function(x, ...) {
   df <- list(x)
   class(df) <- "data.frame"
   attr(df, "row.names") <- .set_row_names(length(x))
@@ -150,7 +150,7 @@ label_length <- function(x) {
 
 #' @export
 #' @importFrom tibble type_sum
-type_sum.labelled <- function(x) {
+type_sum.haven_labelled <- function(x) {
   paste0(tibble::type_sum(unclass(x)), "+lbl")
 }
 

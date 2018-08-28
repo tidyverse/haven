@@ -1,5 +1,8 @@
 # haven 1.1.2.9000
 
+* `labelled()` and `labelled_spss()` now produce objects with class
+  "haven_labelled" and "haven_labelled_spss". Previously, the "labelled"
+  class name clashed with the labelled class defined by Hmisc (#329).
 
 * `labelled()` and `labelled_spss()` now support adding the `label`
   attribute to the resulting object. The `label` is a short,

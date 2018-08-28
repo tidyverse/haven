@@ -37,7 +37,7 @@ test_that("factors become labelleds", {
   f <- factor(c("a", "b"), levels = letters[1:3])
   rt <- roundtrip_var(f, "sav")
 
-  expect_is(rt, "labelled")
+  expect_s3_class(rt, "haven_labelled")
   expect_equal(as.vector(rt), 1:2)
   expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
 })
@@ -73,10 +73,10 @@ test_that("spss labelleds are round tripped", {
   write_sav(df, path)
 
   df2 <- read_sav(path)
-  expect_s3_class(df2$x, "labelled")
+  expect_s3_class(df2$x, "haven_labelled")
 
   df3 <- read_sav(path, user_na = TRUE)
-  expect_s3_class(df3$x, "labelled_spss")
+  expect_s3_class(df3$x, "haven_labelled_spss")
   expect_equal(attr(df3$x, "na_values"), attr(df$x, "na_values"))
   expect_equal(attr(df3$x, "na_range"), attr(df$x, "na_range"))
 })
@@ -85,7 +85,7 @@ test_that("factors become labelleds", {
   f <- factor(c("a", "b"), levels = letters[1:3])
   rt <- roundtrip_var(f, "sav")
 
-  expect_is(rt, "labelled")
+  expect_s3_class(rt, "haven_labelled")
   expect_equal(as.vector(rt), 1:2)
   expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
 })

@@ -94,7 +94,7 @@ test_that("user-defined missing values read as missing by default", {
 test_that("user-defined missing values can be preserved", {
   num <- read_spss(test_path("labelled-num-na.sav"), user_na = TRUE)[[1]]
 
-  expect_s3_class(num, "labelled_spss")
+  expect_s3_class(num, "haven_labelled_spss")
   expect_equal(num[[2]], 9)
 
   expect_equal(attr(num, "na_values"), 9)
