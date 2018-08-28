@@ -4,7 +4,7 @@
 \alias{labelled_spss}
 \title{Labelled vectors for SPSS}
 \usage{
-labelled_spss(x, labels, na_values = NULL, na_range = NULL)
+labelled_spss(x, labels, na_values = NULL, na_range = NULL, label = NULL)
 }
 \arguments{
 \item{x}{A vector to label. Must be either numeric (integer or double) or
@@ -19,6 +19,8 @@ of the values might be labelled.}
 \item{na_range}{A numeric vector of length two giving the (inclusive) extents
 of the range. Use \code{-Inf} and \code{Inf} if you want the range to be
 open ended.}
+
+\item{label}{A short, human-readable description of the vector.}
 }
 \description{
 This class is only used when \code{user_na = TRUE} in
@@ -30,6 +32,10 @@ three distinct values, or for numeric vectors a range.
 x1 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_values = c(9, 10))
 is.na(x1)
 
-x2 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf))
+x2 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf),
+                    label = "Quality rating")
 is.na(x2)
+
+# Print data and metadata
+x2
 }

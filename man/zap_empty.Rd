@@ -21,5 +21,6 @@ zap_empty(x)
 }
 \seealso{
 Other zappers: \code{\link{zap_formats}},
-  \code{\link{zap_labels}}, \code{\link{zap_widths}}
+  \code{\link{zap_labels}}, \code{\link{zap_label}},
+  \code{\link{zap_widths}}
 }

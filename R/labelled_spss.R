@@ -15,9 +15,13 @@
 #' x1 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_values = c(9, 10))
 #' is.na(x1)
 #'
-#' x2 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf))
+#' x2 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf),
+#'                     label = "Quality rating")
 #' is.na(x2)
-labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL) {
+#'
+#' # Print data and metadata
+#' x2
+labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL, label = NULL) {
   if (!is.null(na_values)) {
     if (!is_coercible(x, na_values)) {
       stop("`x` and `na_values` must be same type", call. = FALSE)
@@ -33,7 +37,7 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL) {
   }
 
   structure(
-    labelled(x, labels),
+    labelled(x, labels, label = label),
     na_values = na_values,
     na_range = na_range,
     class = c("labelled_spss", "labelled")
@@ -45,6 +49,7 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL) {
   labelled_spss(
     NextMethod(),
     labels = attr(x, "labels"),
+    label = attr(x, "label", exact = TRUE),
     na_values = attr(x, "na_values"),
     na_range = attr(x, "na_range")
   )
@@ -52,7 +57,7 @@ labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL) {
 
 #' @export
 print.labelled_spss <- function(x, ...) {
-  cat("<Labelled SPSS ", typeof(x), ">\n", sep = "")
+  cat("<Labelled SPSS ", typeof(x), ">", get_labeltext(x), "\n", sep = "")
 
   xx <- x
   attributes(xx) <- NULL
