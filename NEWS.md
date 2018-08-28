@@ -1,6 +1,5 @@
 # haven 1.1.2.9000
 
-# haven 1.1.2
 
 * `labelled()` and `labelled_spss()` now support adding the `label`
   attribute to the resulting object. The `label` is a short,
@@ -12,6 +11,8 @@
   and writing SPSS files, but it was not possible to actually create
   objects in R having the `label` attribute using the constructors
   `labelled()` or `labelled_spss()`.
+
+# haven 1.1.2
 
 * haven can read and write non-ASCII paths in R 3.5 (#371).
 
