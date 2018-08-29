@@ -83,7 +83,7 @@ as_factor.labelled <- function(x, levels = c("default", "labels", "values", "bot
   structure(x, label = label)
 }
 
-replace_with <- function (x, from, to) {
+replace_with <- function(x, from, to) {
   stopifnot(length(from) == length(to))
 
   out <- x

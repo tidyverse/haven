@@ -1,6 +1,7 @@
 # haven 1.1.2.9000
 
 * `as_factor(x)` is now faster when `x` does not contain any missing values
+  (@hughparsonage).
 
 # haven 1.1.2
 
