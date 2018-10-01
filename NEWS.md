@@ -25,6 +25,8 @@
   and writing SPSS files, but it was not possible to actually create
   objects in R having the `label` attribute using the constructors
   `labelled()` or `labelled_spss()`.
+  
+* Now `labelled()` tests that value labels are unique (@larmarange, #364).
 
 # haven 1.1.2
 
