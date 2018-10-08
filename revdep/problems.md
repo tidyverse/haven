@@ -48,6 +48,20 @@ ERROR: lazy loading failed for package ‘BEACH’
 * removing ‘/Users/hadley/Documents/ingest/haven/revdep/checks.noindex/BEACH/old/BEACH.Rcheck/BEACH’
 
 ```
+# Blaunet
+
+Version: 2.0.8
+
+## In both
+
+*   checking package dependencies ... ERROR
+    ```
+    Package required but not available: ‘gWidgetsRGtk2’
+    
+    See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
+    manual.
+    ```
+
 # bpnreg
 
 Version: 1.0.0
@@ -92,16 +106,16 @@ ERROR: compilation failed for package ‘bpnreg’
 
 Version: 0.6.3
 
-## Newly broken
+## In both
 
 *   checking examples ... ERROR
     ```
     Running examples in ‘codebook-Ex.R’ failed
     The error most likely occurred in:
     
-    > ### Name: codebook_component_scale
-    > ### Title: Codebook component for scales
-    > ### Aliases: codebook_component_scale
+    > ### Name: codebook
+    > ### Title: Generate rmarkdown codebook
+    > ### Aliases: codebook
     > 
     > ### ** Examples
     > 
@@ -110,22 +124,13 @@ Version: 0.6.3
     > knitr::opts_knit$set(base.dir = tempdir())
     > on.exit(knitr::opts_knit$set(base.dir = old_base_dir))
     > data("bfi")
-    > bfi <- bfi[,c("BFIK_open", paste0("BFIK_open_", 1:4))]
-    > codebook_component_scale(bfi[,1], "BFIK_open", bfi[,-1],
-    +    reliabilities = list(BFIK_open = psych::alpha(bfi[,-1])))
-    Error: C stack usage  7969520 is too close to the limit
+    > bfi <- bfi[, c("BFIK_open_1", "BFIK_open_1")]
+    > md <- codebook(bfi, survey_repetition = "single", metadata_table = FALSE)
+    No missings.
+    Error: Can't convert an environment to function
+    [90mCall `rlang::last_error()` to see a backtrace[39m
     Execution halted
     ```
-
-*   checking re-building of vignette outputs ... WARNING
-    ```
-    Error in re-building vignettes:
-      ...
-    Error: C stack usage  7970832 is too close to the limit
-    Execution halted
-    ```
-
-## In both
 
 *   checking dependencies in R code ... NOTE
     ```
@@ -143,30 +148,6 @@ Version: 0.6.3
 
 Version: 0.1.1
 
-## Newly broken
-
-*   checking tests ...
-    ```
-     ERROR
-    Running the tests in ‘tests/testthat.R’ failed.
-    Last 13 lines of output:
-      > test_check("crosswalkr")
-      [31m──[39m [31m1. Failure: Failed to assign proper values (@test-encodefrom.R#67) [39m [31m─────────────────────────────────────────────[39m
-      haven::zap_labels(vec) not equal to `act_vals`.
-      Attributes: < Modes: list, NULL >
-      Attributes: < Lengths: 2, 0 >
-      Attributes: < names for target but not for current >
-      Attributes: < current is not list-like >
-      target is labelled, current is character
-      
-      ══ testthat results  ═══════════════════════════════════════════════════════════════════════════════════════════════
-      OK: 36 SKIPPED: 0 FAILED: 1
-      1. Failure: Failed to assign proper values (@test-encodefrom.R#67) 
-      
-      Error: testthat unit tests failed
-      Execution halted
-    ```
-
 ## In both
 
 *   checking dependencies in R code ... NOTE
@@ -177,58 +158,53 @@ Version: 0.1.1
 
 # crunch
 
-Version: 1.23.0
+Version: 1.24.0
 
-## Newly broken
+## In both
 
-*   checking tests ...
+*   checking installed package size ... NOTE
     ```
-     ERROR
-    Running the tests in ‘tests/testthat.R’ failed.
-    Last 13 lines of output:
-         })(list("haven_labelled_spss"), new("standardGeneric", .Data = function (x, ...) 
-         standardGeneric("toVariable"), generic = structure("toVariable", package = "crunch"), package = "crunch", group = list(), 
-             valueClass = character(0), signature = "x", default = NULL, skeleton = (function (x, ...) 
-             stop("invalid call in method dispatch to 'toVariable' (no default method)", domain = NA))(x, ...)), <environment>)
-      6: stop(gettextf("unable to find an inherited method for function %s for signature %s", sQuote(fdef@generic), sQuote(cnames)), 
-             domain = NA)
-      
-      
-      ══ testthat results  ═══════════════════════════════════════════════════════════════════════════════════════════════
-      OK: 2662 SKIPPED: 14 FAILED: 2
-      1. Error: toVariable parses haven::labelled (@test-add-variable.R#49) 
-      2. Error: toVariable parses haven::labelled_spss (@test-add-variable.R#87) 
-      
-      Error: testthat unit tests failed
-      Execution halted
+      installed size is  6.9Mb
+      sub-directories of 1Mb or more:
+        R     4.1Mb
+        doc   1.1Mb
+    ```
+
+# datadigest
+
+Version: 1.0.2
+
+## In both
+
+*   checking dependencies in R code ... NOTE
+    ```
+    Namespace in Imports field not imported from: ‘miniUI’
+      All declared Imports should be used.
     ```
 
 # dataMaid
 
-Version: 1.1.2
+Version: 1.2.0
 
-## Newly broken
+## In both
 
-*   checking tests ...
+*   checking dependencies in R code ... NOTE
     ```
-     ERROR
-    Running the tests in ‘tests/testthat.R’ failed.
-    Last 13 lines of output:
-      
-      [31m──[39m [31m3. Failure: variableType returns the right value (@testvariableType.R#18) [39m [31m──────────────────────────────────────[39m
-      variableType(typelab)$value not equal to "labelled".
-      1/1 mismatches
-      x[1]: "haven_labelled"
-      y[1]: "labelled"
-      
-      ══ testthat results  ═══════════════════════════════════════════════════════════════════════════════════════════════
-      OK: 75 SKIPPED: 0 FAILED: 3
-      1. Failure: check return the right number of tests for (most) atomic vectors (@testcheck.R#47) 
-      2. Failure: summarize return the right number of tests for (most) atomic vectors (@testsummarize.R#44) 
-      3. Failure: variableType returns the right value (@testvariableType.R#18) 
-      
-      Error: testthat unit tests failed
-      Execution halted
+    Namespace in Imports field not imported from: ‘DT’
+      All declared Imports should be used.
+    ```
+
+# duawranglr
+
+Version: 0.6.3
+
+## In both
+
+*   checking dependencies in R code ... NOTE
+    ```
+    Namespaces in Imports field not imported from:
+      ‘digest’ ‘dplyr’
+      All declared Imports should be used.
     ```
 
 # ess
@@ -243,11 +219,11 @@ Version: 0.1.1
     Running the tests in ‘tests/testthat.R’ failed.
     Last 13 lines of output:
       
-      [31m──[39m [31m5. Failure: show_country_rounds returns correct rounds for countries (@test-show_.R#101) [39m [31m───────────────────────[39m
+      [31m──[39m [31m5. Failure: show_country_rounds returns correct rounds for countries (@test-show_.R#101) [39m [31m────[39m
       show_country_rounds("Spain") not equal to 1:7.
       Lengths differ: 9 is not 7
       
-      ══ testthat results  ═══════════════════════════════════════════════════════════════════════════════════════════════
+      ══ testthat results  ════════════════════════════════════════════════════════════════════════════
       OK: 33 SKIPPED: 23 FAILED: 5
       1. Failure: show_country_rounds returns correct rounds for countries (@test-show_.R#97) 
       2. Failure: show_country_rounds returns correct rounds for countries (@test-show_.R#98) 
@@ -263,6 +239,51 @@ Version: 0.1.1
     ```
     Namespace in Imports field not imported from: ‘tibble’
       All declared Imports should be used.
+    ```
+
+# HMP16SData
+
+Version: 1.0.1
+
+## In both
+
+*   checking re-building of vignette outputs ... WARNING
+    ```
+    ...
+    Attaching package: 'dendextend'
+    
+    The following object is masked from 'package:stats':
+    
+        cutree
+    
+    ========================================
+    circlize version 0.4.4
+    CRAN page: https://cran.r-project.org/package=circlize
+    Github page: https://github.com/jokergoo/circlize
+    Documentation: http://jokergoo.github.io/circlize_book/book/
+    
+    If you use it in published research, please cite:
+    Gu, Z. circlize implements and enhances circular visualization 
+      in R. Bioinformatics 2014.
+    ========================================
+    
+    Quitting from lines 58-71 (HMP16SData.Rmd) 
+    Error: processing vignette 'HMP16SData.Rmd' failed with diagnostics:
+    there is no package called 'curatedMetagenomicData'
+    Execution halted
+    ```
+
+*   checking package dependencies ... NOTE
+    ```
+    Package suggested but not available for checking: ‘curatedMetagenomicData’
+    ```
+
+*   checking installed package size ... NOTE
+    ```
+      installed size is 19.1Mb
+      sub-directories of 1Mb or more:
+        doc       1.5Mb
+        extdata  17.4Mb
     ```
 
 # ImportExport
@@ -321,18 +342,14 @@ ERROR: lazy loading failed for package ‘ImportExport’
 ```
 # ipumsr
 
-Version: 0.2.0
+Version: 0.3.0
 
-## Newly broken
+## In both
 
-*   checking re-building of vignette outputs ... WARNING
+*   checking dependencies in R code ... NOTE
     ```
-    Error in re-building vignettes:
-      ...
-    Quitting from lines 127-148 (ipums.Rmd) 
-    Error: processing vignette 'ipums.Rmd' failed with diagnostics:
-    Evaluation error: no applicable method for 'as_factor' applied to an object of class "labelled".
-    Execution halted
+    Namespace in Imports field not imported from: ‘R6’
+      All declared Imports should be used.
     ```
 
 # labelled
@@ -343,27 +360,18 @@ Version: 1.1.0
 
 *   checking examples ... ERROR
     ```
-    ...
-    > ### Title: Get / Set SPSS missing values
-    > ### Aliases: na_values na_values<- na_range na_range<- set_na_values
-    > ###   set_na_range
+    Running examples in ‘labelled-Ex.R’ failed
+    The error most likely occurred in:
+    
+    > ### Name: labelled_spss
+    > ### Title: Create a labelled vector with SPSS style of missing values.
+    > ### Aliases: labelled_spss
     > 
     > ### ** Examples
     > 
-    > v <- labelled(c(1,2,2,2,3,9,1,3,2,NA), c(yes = 1, no = 3, "don't know" = 9))
-    > v
-    <Labelled double>
-     [1]  1  2  2  2  3  9  1  3  2 NA
-    
-    Labels:
-     value      label
-         1        yes
-         3         no
-         9 don't know
-    > na_values(v) <- 9
-    Error in `na_values<-.default`(`*tmp*`, value = 9) : 
-      Value labels need to be defined first. Please use val_labels().
-    Calls: na_values<- -> na_values<-.default
+    > x1 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_values = c(9, 10))
+    Error in labelled(x, labels, label = label) : unused argument (labels)
+    Calls: labelled_spss -> structure
     Execution halted
     ```
 
@@ -372,17 +380,17 @@ Version: 1.1.0
      ERROR
     Running the tests in ‘tests/testthat.R’ failed.
     Last 13 lines of output:
-      ══ testthat results  ═══════════════════════════════════════════════════════════════════════════════════════════════
-      OK: 20 SKIPPED: 0 FAILED: 18
-      1. Failure: labelled return an object of class labelled (@test-labelled.r#6) 
-      2. Failure: labelled preserves variable label (@test-labelled.r#27) 
-      3. Failure: val_labels preserves variable label (@test-labelled.r#36) 
-      4. Failure: val_labels preserves variable label (@test-labelled.r#39) 
-      5. Failure: val_label preserves variable label (@test-labelled.r#46) 
-      6. Error: val_label preserves variable label (@test-labelled.r#48) 
-      7. Error: val_labels and val_label preserves spss missing values (@test-labelled.r#55) 
-      8. Failure: value labels can't be removed if missing values are defined (@test-labelled.r#72) 
-      9. Failure: remove_labels strips labelled attributes (@test-labelled.r#83) 
+      ══ testthat results  ════════════════════════════════════════════════════════════════════════════
+      OK: 18 SKIPPED: 0 FAILED: 19
+      1. Error: data.frame variables are named correctly (@test-dataframes.R#4) 
+      2. Failure: labelled return an object of class labelled (@test-labelled.r#6) 
+      3. Failure: labelled preserves variable label (@test-labelled.r#27) 
+      4. Failure: val_labels preserves variable label (@test-labelled.r#36) 
+      5. Failure: val_labels preserves variable label (@test-labelled.r#39) 
+      6. Failure: val_label preserves variable label (@test-labelled.r#46) 
+      7. Error: val_label preserves variable label (@test-labelled.r#48) 
+      8. Error: val_labels and val_label preserves spss missing values (@test-labelled.r#53) 
+      9. Error: value labels can't be removed if missing values are defined (@test-labelled.r#71) 
       1. ...
       
       Error: testthat unit tests failed
@@ -411,12 +419,20 @@ Version: 1.1.0
     ```
     Error in re-building vignettes:
       ...
-    Warning in engine$weave(file, quiet = quiet, encoding = enc) :
-      The vignette engine knitr::rmarkdown is not available, because the rmarkdown package is not installed. Please install it.
     Quitting from lines 73-77 (intro_labelled.Rmd) 
     Error: processing vignette 'intro_labelled.Rmd' failed with diagnostics:
     no applicable method for 'val_label<-' applied to an object of class "haven_labelled"
     Execution halted
+    ```
+
+*   checking R code for possible problems ... NOTE
+    ```
+    labelled_spss: warning in labelled(x, labels, label = label): partial
+      argument match of 'label' to 'labels'
+      (/private/tmp/RtmpASh5Pj/R.INSTALL126c5372c1a47/haven/R/labelled_spss.R:39-44)
+    labelled_spss: possible error in labelled(x, labels, label = label):
+      unused argument (labels)
+      (/private/tmp/RtmpASh5Pj/R.INSTALL126c5372c1a47/haven/R/labelled_spss.R:39-44)
     ```
 
 ## In both
@@ -429,6 +445,21 @@ Version: 1.1.0
 *   checking Rd cross-references ... NOTE
     ```
     Package unavailable to check Rd xrefs: ‘memisc’
+    ```
+
+# memapp
+
+Version: 2.10
+
+## In both
+
+*   checking dependencies in R code ... NOTE
+    ```
+    Namespaces in Imports field not imported from:
+      ‘DT’ ‘RColorBrewer’ ‘RODBC’ ‘dplyr’ ‘foreign’ ‘formattable’ ‘ggplot2’
+      ‘haven’ ‘magrittr’ ‘mem’ ‘openxlsx’ ‘plotly’ ‘readxl’ ‘shinyBS’
+      ‘shinydashboard’ ‘shinyjs’ ‘shinythemes’ ‘stringi’ ‘stringr’ ‘tidyr’
+      All declared Imports should be used.
     ```
 
 # netCoin
@@ -455,48 +486,16 @@ Version: 2.0.8
 
 # pubh
 
-Version: 0.4.1
+Version: 0.4.2
 
 ## In both
 
 *   checking dependencies in R code ... NOTE
     ```
     Namespaces in Imports field not imported from:
-      ‘bookdown’ ‘effects’ ‘kableExtra’ ‘knitr’ ‘lme4’ ‘nlme’ ‘nnet’
-      ‘ordinal’ ‘papeR’ ‘rmdformats’
+      ‘bookdown’ ‘desctable’ ‘effects’ ‘knitr’ ‘latex2exp’ ‘lme4’ ‘nlme’
+      ‘nnet’ ‘ordinal’ ‘pander’ ‘papeR’
       All declared Imports should be used.
-    ```
-
-# rio
-
-Version: 0.5.10
-
-## Newly broken
-
-*   checking examples ... ERROR
-    ```
-    ...
-    List of 5
-     $ label    : chr "1978 Automobile Data"
-     $ notes    : chr [1:2] "from Consumer Reports with permission" "1"
-     $ names    : chr [1:12] "make" "price" "mpg" "rep78" ...
-     $ row.names: int [1:74] 1 2 3 4 5 6 7 8 9 10 ...
-     $ class    : chr "data.frame"
-    > str(g)
-    'data.frame':	74 obs. of  12 variables:
-     $ make        : chr  "AMC Concord" "AMC Pacer" "AMC Spirit" "Buick Century" ...
-     $ price       : num  4099 4749 3799 4816 7827 ...
-     $ mpg         : num  22 17 22 20 15 18 26 20 16 19 ...
-     $ rep78       : num  3 3 NA 3 4 3 NA 3 3 3 ...
-     $ headroom    : num  2.5 3 3 4.5 4 4 3 2 3.5 3.5 ...
-     $ trunk       : num  11 11 12 16 20 21 10 16 17 13 ...
-     $ weight      : num  2930 3350 2640 3250 4080 3670 2230 3280 3880 3400 ...
-     $ length      : num  186 173 168 196 222 218 170 200 207 200 ...
-     $ turn        : num  40 40 35 40 43 43 34 42 43 42 ...
-     $ displacement: num  121 258 121 196 350 231 304 196 231 231 ...
-     $ gear_ratio  : num  3.58 2.53 3.08 2.93 2.41 ...
-     $ foreign     :Error: `x` and `labels` must be same type
-    Execution halted
     ```
 
 # simPop
@@ -528,6 +527,32 @@ Version: 1.2.1
 Version: 0.0.1
 
 ## In both
+
+*   checking examples ... ERROR
+    ```
+    ...
+    53       adm0, adm1, adm2, priogrid day*, month, week, year
+    54       adm0, adm1, adm2, priogrid day*, month, week, year
+    55       adm0, adm1, adm2, priogrid day*, month, week, year
+    56       adm0, adm1, adm2, priogrid day*, month, week, year
+    57       adm0, adm1, adm2, priogrid day*, month, week, year
+    58 adm0, adm1, adm2, clea, priogrid day*, month, week, year
+    59 adm0, adm1, adm2, clea, priogrid day*, month, week, year
+    60       adm0, adm1, adm2, priogrid day*, month, week, year
+    [1] "* daily-level data available only for adm0, adm1"
+    [1] "For more info, subset by country"
+    > 
+    > # Download ACLED data for Egypt, at country-year level
+    > my_file <- get_xSub(data_source = "ACLED",country_iso3 = "EGY",
+    +            space_unit = "adm0",time_unit = "year")
+    Loading required package: bitops
+    Warning in download.file(file_url, temp, cacheOK = TRUE, quiet = (!verbose)) :
+      cannot open URL 'http://cross-sub.org/download/file/xSub_ACLED_EGY_adm0_year.csv': HTTP status was '404 Not Found'
+    Error in download.file(file_url, temp, cacheOK = TRUE, quiet = (!verbose)) : 
+      cannot open URL 'http://cross-sub.org/download/file/xSub_ACLED_EGY_adm0_year.csv'
+    Calls: get_xSub -> download.file
+    Execution halted
+    ```
 
 *   checking data for non-ASCII characters ... NOTE
     ```
