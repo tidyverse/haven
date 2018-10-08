@@ -1,5 +1,4 @@
-# haven 1.1.2.9000
-(to become haven 2.0.0)
+# haven 2.0.0
 
 ## BREAKING CHANGES
 
