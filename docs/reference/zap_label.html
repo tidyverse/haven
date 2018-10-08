@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Zap labels — zap_labels • haven</title>
+<title>Zap label — zap_label • haven</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -29,12 +29,10 @@
 <script src="../pkgdown.js"></script>
 <link href="../tidyverse-2.css" rel="stylesheet">
 
-<meta property="og:title" content="Zap labels — zap_labels" />
+<meta property="og:title" content="Zap label — zap_label" />
 
-<meta property="og:description" content="Removes labels, leaving unlabelled vectors as is. Use this if you want to
-simply drop all labels from a data frame. Zapping labels from
-labelled_spss() also removes user-defined missing values,
-replacing all with NAs." />
+<meta property="og:description" content="Removes label, leaving unlabelled vectors as is. Use this if you want to
+simply drop all label attributes from a data frame." />
 
 <meta property="og:image" content="/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -126,21 +124,19 @@ replacing all with NAs." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Zap labels</h1>
-    <small class="dont-index">Source: <a href='https://github.com/tidyverse/haven/blob/master/R/zap_labels.R'><code>R/zap_labels.R</code></a></small>
-    <div class="hidden name"><code>zap_labels.Rd</code></div>
+    <h1>Zap label</h1>
+    <small class="dont-index">Source: <a href='https://github.com/tidyverse/haven/blob/master/R/zap_label.R'><code>R/zap_label.R</code></a></small>
+    <div class="hidden name"><code>zap_label.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Removes labels, leaving unlabelled vectors as is. Use this if you want to
-simply drop all <code>labels</code> from a data frame. Zapping labels from
-<code><a href='labelled_spss.html'>labelled_spss()</a></code> also removes user-defined missing values,
-replacing all with <code>NA</code>s.</p>
+    <p>Removes label, leaving unlabelled vectors as is. Use this if you want to
+simply drop all <code>label</code> attributes from a data frame.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>zap_labels</span>(<span class='no'>x</span>)</pre>
+    <pre class="usage"><span class='fu'>zap_label</span>(<span class='no'>x</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -151,16 +147,10 @@ replacing all with <code>NA</code>s.</p>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
-
-    <p>This function doesn't remove any <code>label</code> attribute(s),
-just the <code>labels</code> attribute(s). Use <code><a href='zap_label.html'>zap_label</a></code>
-to remove <code>label</code> attribute(s).</p>
-    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other zappers: <code><a href='zap_empty.html'>zap_empty</a></code>,
-  <code><a href='zap_formats.html'>zap_formats</a></code>, <code><a href='zap_label.html'>zap_label</a></code>,
+  <code><a href='zap_formats.html'>zap_formats</a></code>, <code><a href='zap_labels.html'>zap_labels</a></code>,
   <code><a href='zap_widths.html'>zap_widths</a></code></p></div>
     
 
@@ -172,7 +162,13 @@ to remove <code>label</code> attribute(s).</p>
 #&gt; Labels:
 #&gt;  value label
 #&gt;      1  good
-#&gt;      5   bad</div><div class='input'><span class='fu'>zap_labels</span>(<span class='no'>x1</span>)</div><div class='output co'>#&gt; [1] 1 2 3 4 5</div><div class='input'>
+#&gt;      5   bad</div><div class='input'><span class='fu'>zap_label</span>(<span class='no'>x1</span>)</div><div class='output co'>#&gt; &lt;Labelled integer&gt;
+#&gt; [1] 1 2 3 4 5
+#&gt; 
+#&gt; Labels:
+#&gt;  value label
+#&gt;      1  good
+#&gt;      5   bad</div><div class='input'>
 <span class='no'>x2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled_spss.html'>labelled_spss</a></span>(<span class='fu'>c</span>(<span class='fl'>1</span>:<span class='fl'>4</span>, <span class='fl'>9</span>), <span class='fu'>c</span>(<span class='kw'>good</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>bad</span> <span class='kw'>=</span> <span class='fl'>5</span>), <span class='kw'>na_values</span> <span class='kw'>=</span> <span class='fl'>9</span>)
 <span class='no'>x2</span></div><div class='output co'>#&gt; &lt;Labelled SPSS double&gt;
 #&gt; [1] 1 2 3 4 9
@@ -181,8 +177,15 @@ to remove <code>label</code> attribute(s).</p>
 #&gt; Labels:
 #&gt;  value label
 #&gt;      1  good
-#&gt;      5   bad</div><div class='input'><span class='fu'>zap_labels</span>(<span class='no'>x2</span>)</div><div class='output co'>#&gt; [1]  1  2  3  4 NA</div><div class='input'>
-<span class='co'># zap_labels also works with data frames</span>
+#&gt;      5   bad</div><div class='input'><span class='fu'>zap_label</span>(<span class='no'>x2</span>)</div><div class='output co'>#&gt; &lt;Labelled SPSS double&gt;
+#&gt; [1] 1 2 3 4 9
+#&gt; Missing values: 9
+#&gt; 
+#&gt; Labels:
+#&gt;  value label
+#&gt;      1  good
+#&gt;      5   bad</div><div class='input'>
+<span class='co'># zap_label also works with data frames</span>
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/tibble/topics/tibble'>data_frame</a></span>(<span class='no'>x1</span>, <span class='no'>x2</span>)
 <span class='no'>df</span></div><div class='output co'>#&gt; # A tibble: 5 x 2
 #&gt;   x1        x2       
@@ -191,22 +194,20 @@ to remove <code>label</code> attribute(s).</p>
 #&gt; 2 2         2        
 #&gt; 3 3         3        
 #&gt; 4 4         4        
-#&gt; 5 5         9        </div><div class='input'><span class='fu'>zap_labels</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 2
-#&gt;      x1    x2
-#&gt;   &lt;int&gt; &lt;dbl&gt;
-#&gt; 1     1     1
-#&gt; 2     2     2
-#&gt; 3     3     3
-#&gt; 4     4     4
-#&gt; 5     5    NA</div></pre>
+#&gt; 5 5         9        </div><div class='input'><span class='fu'>zap_label</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 2
+#&gt;   x1        x2       
+#&gt;   &lt;int+lbl&gt; &lt;dbl+lbl&gt;
+#&gt; 1 1         1        
+#&gt; 2 2         2        
+#&gt; 3 3         3        
+#&gt; 4 4         4        
+#&gt; 5 5         9        </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#note">Note</a></li>
-
       <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
