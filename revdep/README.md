@@ -3,14 +3,14 @@
 |field    |value                        |
 |:--------|:----------------------------|
 |version  |R version 3.5.1 (2018-07-02) |
-|os       |macOS High Sierra 10.13.6    |
+|os       |macOS  10.14.1               |
 |system   |x86_64, darwin15.6.0         |
 |ui       |RStudio                      |
 |language |(EN)                         |
 |collate  |en_US.UTF-8                  |
 |ctype    |en_US.UTF-8                  |
 |tz       |America/Chicago              |
-|date     |2018-10-23                   |
+|date     |2018-11-20                   |
 
 # Dependencies
 
@@ -28,9 +28,9 @@
 |pillar     |1.3.0    |1.3.0    |   |
 |pkgconfig  |2.0.2    |2.0.2    |   |
 |R6         |2.3.0    |2.3.0    |   |
-|Rcpp       |0.12.19  |0.12.19  |   |
+|Rcpp       |1.0.0    |1.0.0    |   |
 |readr      |1.1.1    |1.1.1    |   |
-|rlang      |0.3.0    |0.3.0    |   |
+|rlang      |0.3.0.1  |0.3.0.1  |   |
 |tibble     |1.4.2    |1.4.2    |   |
 |utf8       |1.1.4    |1.1.4    |   |
 
@@ -52,7 +52,7 @@
 |[labelled](problems.md#labelled)     |1.1.0   |__+2__ |__+2__  |2    |
 |[rio](problems.md#rio)               |0.5.10  |__+1__ |        |     |
 
-## All (44)
+## All (45)
 
 |package                                  |version |error  |warning |note |
 |:----------------------------------------|:-------|:------|:-------|:----|
@@ -65,27 +65,28 @@
 |[crunch](problems.md#crunch)             |1.24.0  |       |        |2    |
 |[datadigest](problems.md#datadigest)     |1.0.2   |       |        |1    |
 |[dataMaid](problems.md#datamaid)         |1.2.0   |       |        |1    |
-|[descriptr](problems.md#descriptr)       |0.4.1   |1      |        |     |
+|descriptr                                |0.4.1   |       |        |     |
 |DHS.rates                                |0.4.0   |       |        |     |
 |[duawranglr](problems.md#duawranglr)     |0.6.3   |       |        |1    |
-|EdSurvey                                 |2.0.3   |       |        |     |
+|[EdSurvey](problems.md#edsurvey)         |2.2.2   |       |        |1    |
 |electionsBR                              |0.3.0   |       |        |     |
 |[ess](problems.md#ess)                   |0.1.1   |1      |        |1    |
 |essurvey                                 |1.0.2   |       |        |     |
+|frequency                                |0.3.1   |       |        |     |
 |ggplotgui                                |1.0.0   |       |        |     |
-|[HMP16SData](problems.md#hmp16sdata)     |1.0.1   |       |1       |2    |
+|[HMP16SData](problems.md#hmp16sdata)     |1.2.0   |       |1       |2    |
 |[ImportExport](problems.md#importexport) |1.1     |1      |        |     |
 |inferr                                   |0.3.0   |       |        |     |
-|[ipumsr](problems.md#ipumsr)             |0.3.0   |       |        |2    |
+|[ipumsr](problems.md#ipumsr)             |0.3.0   |       |        |1    |
 |[labelled](problems.md#labelled)         |1.1.0   |__+2__ |__+2__  |2    |
 |[manifestoR](problems.md#manifestor)     |1.3.0   |       |        |2    |
-|[memapp](problems.md#memapp)             |2.10    |       |        |1    |
+|[memapp](problems.md#memapp)             |2.11    |       |        |1    |
 |miceadds                                 |2.15-22 |       |        |     |
 |mitml                                    |0.3-6   |       |        |     |
 |[netCoin](problems.md#netcoin)           |0.3.0   |       |        |1    |
 |olsrr                                    |0.5.1   |       |        |     |
-|[opencpu](problems.md#opencpu)           |2.0.8   |1      |        |     |
-|[pubh](problems.md#pubh)                 |0.4.2   |       |        |1    |
+|[opencpu](problems.md#opencpu)           |2.1     |       |        |1    |
+|[pubh](problems.md#pubh)                 |0.4.3   |       |        |1    |
 |RcmdrMisc                                |2.5-1   |       |        |     |
 |[readit](problems.md#readit)             |1.0.0   |       |        |1    |
 |rfm                                      |0.1.0   |       |        |     |
@@ -96,7 +97,7 @@
 |sdcMicro                                 |5.3.0   |       |        |     |
 |[simPop](problems.md#simpop)             |1.1.1   |       |        |1    |
 |sjlabelled                               |1.0.14  |       |        |     |
-|sjmisc                                   |2.7.5   |       |        |     |
+|sjmisc                                   |2.7.6   |       |        |     |
 |[tidyverse](problems.md#tidyverse)       |1.2.1   |       |        |1    |
 |webuse                                   |0.1.3   |       |        |     |
 |[xSub](problems.md#xsub)                 |2.0.1   |       |        |1    |

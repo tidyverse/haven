@@ -20,7 +20,7 @@ Version: 2.0.8
 
 *   checking package dependencies ... ERROR
     ```
-    Package required but not available: ‘gWidgetsRGtk2’
+    Packages required but not available: ‘gWidgetsRGtk2’ ‘RGtk2’
     
     See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
     manual.
@@ -91,7 +91,7 @@ Version: 0.6.3
     > bfi <- bfi[,c("BFIK_open", paste0("BFIK_open_", 1:4))]
     > codebook_component_scale(bfi[,1], "BFIK_open", bfi[,-1],
     +    reliabilities = list(BFIK_open = psych::alpha(bfi[,-1])))
-    Error: C stack usage  7969616 is too close to the limit
+    Error: C stack usage  7969220 is too close to the limit
     Execution halted
     ```
 
@@ -99,7 +99,7 @@ Version: 0.6.3
     ```
     Error in re-building vignettes:
       ...
-    Error: C stack usage  7970928 is too close to the limit
+    Error: C stack usage  7970848 is too close to the limit
     Execution halted
     ```
 
@@ -129,7 +129,7 @@ Version: 0.1.1
     Running the tests in ‘tests/testthat.R’ failed.
     Last 13 lines of output:
       > test_check("crosswalkr")
-      [31m──[39m [31m1. Failure: Failed to assign proper values (@test-encodefrom.R#67) [39m [31m──────────────────────────────────────────────────────────────[39m
+      [31m──[39m [31m1. Failure: Failed to assign proper values (@test-encodefrom.R#67) [39m [31m─────────────────────────────────────────────[39m
       haven::zap_labels(vec) not equal to `act_vals`.
       Attributes: < Modes: list, NULL >
       Attributes: < Lengths: 2, 0 >
@@ -137,7 +137,7 @@ Version: 0.1.1
       Attributes: < current is not list-like >
       target is labelled, current is character
       
-      ══ testthat results  ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+      ══ testthat results  ═══════════════════════════════════════════════════════════════════════════════════════════════
       OK: 36 SKIPPED: 0 FAILED: 1
       1. Failure: Failed to assign proper values (@test-encodefrom.R#67) 
       
@@ -196,38 +196,6 @@ Version: 1.2.0
       All declared Imports should be used.
     ```
 
-# descriptr
-
-Version: 0.4.1
-
-## In both
-
-*   checking examples ... ERROR
-    ```
-    ...
-    |              |         0.13 |         0.33 |          0.2 |              |
-    ----------------------------------------------------------------------------
-    |            8 |           12 |            0 |            2 |           14 |
-    |              |        0.375 |            0 |        0.062 |              |
-    |              |         0.86 |            0 |         0.14 |         0.44 |
-    |              |          0.8 |            0 |          0.4 |              |
-    ----------------------------------------------------------------------------
-    | Column Total |           15 |           12 |            5 |           32 |
-    |              |        0.468 |        0.375 |        0.155 |              |
-    ----------------------------------------------------------------------------
-    > 
-    > # bar plots
-    > plot(k)
-    > plot(k, stacked = TRUE)
-    > plot(k, proportional = TRUE)
-    > 
-    > # alternate
-    > ds_twoway_table(mtcarz, cyl, gear)
-    Error in n() : could not find function "n"
-    Calls: ds_twoway_table ... <Anonymous> -> summarise -> summarise.tbl_df -> summarise_impl
-    Execution halted
-    ```
-
 # duawranglr
 
 Version: 0.6.3
@@ -239,6 +207,19 @@ Version: 0.6.3
     Namespaces in Imports field not imported from:
       ‘digest’ ‘dplyr’
       All declared Imports should be used.
+    ```
+
+# EdSurvey
+
+Version: 2.2.2
+
+## In both
+
+*   checking installed package size ... NOTE
+    ```
+      installed size is  5.8Mb
+      sub-directories of 1Mb or more:
+        R   4.1Mb
     ```
 
 # ess
@@ -253,11 +234,11 @@ Version: 0.1.1
     Running the tests in ‘tests/testthat.R’ failed.
     Last 13 lines of output:
       
-      [31m──[39m [31m5. Failure: show_country_rounds returns correct rounds for countries (@test-show_.R#101) [39m [31m────────────────────────────────────────[39m
+      [31m──[39m [31m5. Failure: show_country_rounds returns correct rounds for countries (@test-show_.R#101) [39m [31m───────────────────────[39m
       show_country_rounds("Spain") not equal to 1:7.
       Lengths differ: 9 is not 7
       
-      ══ testthat results  ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+      ══ testthat results  ═══════════════════════════════════════════════════════════════════════════════════════════════
       OK: 33 SKIPPED: 23 FAILED: 5
       1. Failure: show_country_rounds returns correct rounds for countries (@test-show_.R#97) 
       2. Failure: show_country_rounds returns correct rounds for countries (@test-show_.R#98) 
@@ -277,7 +258,7 @@ Version: 0.1.1
 
 # HMP16SData
 
-Version: 1.0.1
+Version: 1.2.0
 
 ## In both
 
@@ -381,11 +362,6 @@ Version: 0.3.0
 
 ## In both
 
-*   checking package dependencies ... NOTE
-    ```
-    Package suggested but not available for checking: ‘sf’
-    ```
-
 *   checking dependencies in R code ... NOTE
     ```
     Namespace in Imports field not imported from: ‘R6’
@@ -429,7 +405,7 @@ Version: 1.1.0
      ERROR
     Running the tests in ‘tests/testthat.R’ failed.
     Last 13 lines of output:
-      ══ testthat results  ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+      ══ testthat results  ═══════════════════════════════════════════════════════════════════════════════════════════════
       OK: 20 SKIPPED: 0 FAILED: 18
       1. Failure: labelled return an object of class labelled (@test-labelled.r#6) 
       2. Failure: labelled preserves variable label (@test-labelled.r#27) 
@@ -468,6 +444,8 @@ Version: 1.1.0
     ```
     Error in re-building vignettes:
       ...
+    Warning in engine$weave(file, quiet = quiet, encoding = enc) :
+      The vignette engine knitr::rmarkdown is not available, because the rmarkdown package is not installed. Please install it.
     Quitting from lines 73-77 (intro_labelled.Rmd) 
     Error: processing vignette 'intro_labelled.Rmd' failed with diagnostics:
     no applicable method for 'val_label<-' applied to an object of class "haven_labelled"
@@ -510,7 +488,7 @@ Version: 1.3.0
 
 # memapp
 
-Version: 2.10
+Version: 2.11
 
 ## In both
 
@@ -518,8 +496,9 @@ Version: 2.10
     ```
     Namespaces in Imports field not imported from:
       ‘DT’ ‘RColorBrewer’ ‘RODBC’ ‘dplyr’ ‘foreign’ ‘formattable’ ‘ggplot2’
-      ‘haven’ ‘magrittr’ ‘mem’ ‘openxlsx’ ‘plotly’ ‘readxl’ ‘shinyBS’
-      ‘shinydashboard’ ‘shinyjs’ ‘shinythemes’ ‘stringi’ ‘stringr’ ‘tidyr’
+      ‘haven’ ‘mem’ ‘openxlsx’ ‘plotly’ ‘readxl’ ‘shinyBS’ ‘shinydashboard’
+      ‘shinydashboardPlus’ ‘shinyjs’ ‘shinythemes’ ‘stringi’ ‘stringr’
+      ‘tidyr’
       All declared Imports should be used.
     ```
 
@@ -536,21 +515,18 @@ Version: 0.3.0
 
 # opencpu
 
-Version: 2.0.8
+Version: 2.1
 
 ## In both
 
-*   checking package dependencies ... ERROR
+*   checking data for non-ASCII characters ... NOTE
     ```
-    Package required but not available: ‘devtools’
-    
-    See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
-    manual.
+      Note: found 4 marked UTF-8 strings
     ```
 
 # pubh
 
-Version: 0.4.2
+Version: 0.4.3
 
 ## In both
 
