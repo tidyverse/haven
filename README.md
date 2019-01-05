@@ -3,12 +3,17 @@
 
 # haven <a href='https:/haven.tidyverse.org'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
-[![Travis-CI Build
-Status](https://travis-ci.org/tidyverse/haven.svg?branch=master)](https://travis-ci.org/tidyverse/haven)
-[![AppVeyor Build
-Status](https://ci.appveyor.com/api/projects/status/github/tidyverse/haven?branch=master&svg=true)](https://ci.appveyor.com/project/tidyverse/haven)
-[![codecov](https://codecov.io/gh/tidyverse/haven/branch/master/graph/badge.svg)](https://codecov.io/gh/tidyverse/haven)
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/haven)](https://cran.r-project.org/package=haven)
+<!-- badges: start -->
+
+[![CRAN
+status](https://www.r-pkg.org/badges/version/haven)](https://cran.r-project.org/package=haven)
+[![Travis build
+status](https://travis-ci.org/tidyverse/haven.svg?branch=master)](https://travis-ci.org/tidyverse/haven)
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/tidyverse/haven?branch=master&svg=true)](https://ci.appveyor.com/project/tidyverse/haven)
+[![Codecov test
+coverage](https://codecov.io/gh/tidyverse/haven/branch/master/graph/badge.svg)](https://codecov.io/gh/tidyverse/haven?branch=master)
+<!-- badges: end -->
 
 ## Overview
 
