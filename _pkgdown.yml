@@ -1,6 +1,8 @@
 template:
   package: tidytemplate
 
+url: https://haven.tidyverse.org
+
 home:
   strip_header: true
 
