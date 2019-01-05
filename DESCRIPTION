@@ -1,19 +1,22 @@
 Package: haven
 Title: Import and Export 'SPSS', 'Stata' and 'SAS' Files
 Version: 2.0.0.9000
-Authors@R: c(
-    person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
-    person("Evan", "Miller", 
-      role = c("aut", "cph"),
-      comment = "Author of included ReadStat code"
-    ),
-    person("RStudio", role = c("cph", "fnd"))
-  )
-Description: Import foreign statistical formats into R via the embedded
-    'ReadStat' C library, <https://github.com/WizardMac/ReadStat>.
+Authors@R: 
+    c(person(given = "Hadley",
+             family = "Wickham",
+             role = c("aut", "cre"),
+             email = "hadley@rstudio.com"),
+      person(given = "Evan",
+             family = "Miller",
+             role = c("aut", "cph"),
+             comment = "Author of included ReadStat code"),
+      person(given = "RStudio",
+             role = c("cph", "fnd")))
+Description: Import foreign statistical formats into R via the
+    embedded 'ReadStat' C library,
+    <https://github.com/WizardMac/ReadStat>.
 License: MIT + file LICENSE
-URL:
-    http://haven.tidyverse.org, 
+URL: http://haven.tidyverse.org,
     https://github.com/tidyverse/haven,
     https://github.com/WizardMac/ReadStat
 BugReports: https://github.com/tidyverse/haven/issues
@@ -33,9 +36,10 @@ Suggests:
     testthat
 LinkingTo: 
     Rcpp
-VignetteBuilder: knitr
+VignetteBuilder: 
+    knitr
 Encoding: UTF-8
 LazyData: true
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 SystemRequirements: GNU make
-Roxygen: list(markdown = TRUE)
