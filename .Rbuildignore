@@ -1,3 +1,4 @@
+^\.covrignore$
 ^CRAN-RELEASE$
 ^.*\.Rproj$
 ^\.Rproj\.user$
