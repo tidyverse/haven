@@ -23,7 +23,7 @@ x2
 zap_label(x2)
 
 # zap_label also works with data frames
-df <- tibble::data_frame(x1, x2)
+df <- tibble::tibble(x1, x2)
 df
 zap_label(df)
 }

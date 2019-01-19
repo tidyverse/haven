@@ -21,7 +21,7 @@
 #' zap_labels(x2)
 #'
 #' # zap_labels also works with data frames
-#' df <- tibble::data_frame(x1, x2)
+#' df <- tibble::tibble(x1, x2)
 #' df
 #' zap_labels(df)
 zap_labels <- function(x) {
