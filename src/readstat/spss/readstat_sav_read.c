@@ -249,17 +249,18 @@ static readstat_error_t sav_read_variable_missing_values(spss_varinfo_t *info, s
     readstat_error_t retval = READSTAT_OK;
     int i;
 
+    if (info->n_missing_values > 3 || info->n_missing_values < -3) {
+        retval = READSTAT_ERROR_PARSE;
+        goto cleanup;
+    }
     if (info->n_missing_values < 0) {
         info->missing_range = 1;
         info->n_missing_values = abs(info->n_missing_values);
     } else {
         info->missing_range = 0;
     }
-    if (info->n_missing_values > 3) {
-        retval = READSTAT_ERROR_PARSE;
-        goto cleanup;
-    }
-    if (io->read(info->missing_values, info->n_missing_values * sizeof(double), io->io_ctx) < info->n_missing_values * sizeof(double)) {
+    if (io->read(info->missing_values, info->n_missing_values * sizeof(double), io->io_ctx)
+            < info->n_missing_values * sizeof(double)) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
@@ -366,8 +367,7 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
     
 cleanup:
     if (retval != READSTAT_OK) {
-        if (info)
-            free(info);
+        spss_varinfo_free(info);
     }
 
     return retval;
@@ -661,7 +661,7 @@ static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len
     int segment_offset = 0;
     int var_index = 0, col = 0;
 
-    while (data_offset < buffer_len && col < ctx->var_index) {
+    while (data_offset < buffer_len && col < ctx->var_index && var_index < ctx->var_index) {
         spss_varinfo_t *col_info = ctx->varinfo[col];
         spss_varinfo_t *var_info = ctx->varinfo[var_index];
         readstat_value_t value = { .type = var_info->type };

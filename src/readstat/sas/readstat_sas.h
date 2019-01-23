@@ -122,3 +122,5 @@ readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *
 readstat_error_t sas_fill_page(readstat_writer_t *writer, sas_header_info_t *hinfo);
 readstat_error_t sas_validate_variable(readstat_variable_t *variable);
 readstat_error_t sas_validate_name(const char *name, size_t max_len);
+readstat_error_t sas_validate_tag(char tag);
+void sas_assign_tag(readstat_value_t *value, uint8_t tag);

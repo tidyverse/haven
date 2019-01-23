@@ -1,5 +1,9 @@
 # haven (development version)
 
+* Update to latest readstat.
+
+  * Fixes error when reading SAS file with zero columns (#420)
+
 # haven 2.0.0
 
 ## BREAKING CHANGES
