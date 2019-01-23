@@ -4,6 +4,7 @@
 
   * Fixes error when reading SAS file with zero columns (#420)
   * `read_por()` used base-10 instead of base-30 for the exponent (#413)
+  * `write_sav()` creates incorrect column names when >10k columns (#410)
 
 # haven 2.0.0
 
