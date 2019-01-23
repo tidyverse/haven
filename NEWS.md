@@ -1,5 +1,8 @@
 # haven (development version)
 
+* `as_factor(x)` is now faster when `x` does not contain any missing values
+  (@hughparsonage).
+
 * Update to latest readstat.
 
   * Fixes error when reading SAS file with zero columns (#420)
