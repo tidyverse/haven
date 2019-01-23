@@ -172,7 +172,7 @@ static readstat_error_t sas7bdat_parse_column_size_subheader(const char *subhead
     uint64_t col_count;
     readstat_error_t retval = READSTAT_OK;
 
-    if (ctx->column_count) {
+    if (ctx->column_count || ctx->did_submit_columns) {
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
     }
@@ -407,12 +407,7 @@ static readstat_error_t sas7bdat_handle_data_value(readstat_variable_t *variable
 
         if (isnan(dval)) {
             value.v.double_value = NAN;
-            value.tag = ~((val >> 40) & 0xFF);
-            if (value.tag) {
-                value.is_tagged_missing = 1;
-            } else {
-                value.is_system_missing = 1;
-            }
+            sas_assign_tag(&value, ~((val >> 40) & 0xFF));
         } else {
             value.v.double_value = dval;
         }
@@ -604,8 +599,10 @@ static readstat_error_t sas7bdat_submit_columns(sas7bdat_ctx_t *ctx, int compres
             goto cleanup;
         }
     }
-    ctx->variables = readstat_calloc(ctx->column_count, sizeof(readstat_variable_t *));
-    if (ctx->variables == NULL) {
+    if (ctx->column_count == 0)
+        goto cleanup;
+
+    if ((ctx->variables = readstat_calloc(ctx->column_count, sizeof(readstat_variable_t *))) == NULL) {
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;
     }
@@ -691,7 +688,7 @@ static readstat_error_t sas7bdat_parse_page_pass1(const char *page, size_t page_
                 goto cleanup;
             }
             if (compression == SAS_COMPRESSION_NONE) {
-                if (len < signature_len) {
+                if (len < signature_len || offset + 4 > page_size) {
                     retval = READSTAT_ERROR_PARSE;
                     goto cleanup;
                 }

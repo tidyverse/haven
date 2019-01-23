@@ -974,13 +974,13 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
     size_t str_len = 0;
 
     size_t error_buf_len = 1024 + count;
-    char *error_buf = readstat_malloc(error_buf_len);
+    char *error_buf = NULL;
     unsigned char *p = NULL;
     unsigned char *pe = NULL;
 
     unsigned char *output_buffer = NULL;
-
-    varlookup_t *table = build_lookup_table(var_count, ctx);
+    varlookup_t *table = NULL;
+    int cs;
 
     if (ctx->converter) {
         size_t input_len = count;
@@ -993,15 +993,15 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
                 (char **)&pe, &output_len);
         if (status == (size_t)-1) {
             free(output_buffer);
-            free(error_buf);
             return READSTAT_ERROR_PARSE;
         }
     } else {
         p = c_data;
         pe = c_data + count;
     }
-    
-    int cs;
+
+    error_buf = readstat_malloc(error_buf_len);
+    table = build_lookup_table(var_count, ctx);
     
     
 #line 1008 "src/spss/readstat_sav_parse.c"

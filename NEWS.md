@@ -1,4 +1,40 @@
-# haven 1.1.2.9000
+# haven (development version)
+
+* Update to latest readstat.
+
+  * Fixes error when reading SAS file with zero columns (#420)
+  * `read_por()` used base-10 instead of base-30 for the exponent (#413)
+  * `write_sav()` creates incorrect column names when >10k columns (#410)
+  * `read_sav()` reads long strings (#381)
+  * `read_sav()` has greater memory limit allowing it to read more labels (#418)
+  * `read_por()` can now read files from SPSS 25 (#412)
+
+# haven 2.0.0
+
+## BREAKING CHANGES
+
+*   `labelled()` and `labelled_spss()` now produce objects with class
+    "haven_labelled" and "haven_labelled_spss". Previously, the "labelled"
+    class name clashed with the labelled class defined by Hmisc (#329).
+    
+    Unfortunately I couldn't come up with a way to fix this problem except
+    to change the class name; it seems reasonable that haven should be the one 
+    to change names given that Hmisc has been around much longer. This
+    will require some changes to packages that use haven, but shouldn't
+    affect user code.
+
+## Minor improvements
+
+* `labelled()` and `labelled_spss()` now support adding the `label`
+  attribute to the resulting object. The `label` is a short,
+  human-readable description of the object, and is now also used
+  when printing, and can be easily removed using the new `zap_label()`
+  function. (#362, @huftis)
+  
+  Previously, the `label` attribute was supported both when reading
+  and writing SPSS files, but it was not possible to actually create
+  objects in R having the `label` attribute using the constructors
+  `labelled()` or `labelled_spss()`.
 
 * `as_factor(x)` is now faster when `x` does not contain any missing values
   (@hughparsonage).

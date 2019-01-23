@@ -22,7 +22,7 @@
 #' zap_missing(x2)
 #'
 #' # You can also apply to data frames
-#' df <- tibble::data_frame(x1, x2, y = 4:1)
+#' df <- tibble::tibble(x1, x2, y = 4:1)
 #' df
 #' zap_missing(df)
 zap_missing <- function(x) {
@@ -35,7 +35,7 @@ zap_missing.default <- function(x) {
 }
 
 #' @export
-zap_missing.labelled <- function(x) {
+zap_missing.haven_labelled <- function(x) {
   x[is.na(x)] <- NA
 
   labels <- attr(x, "labels")
@@ -46,12 +46,12 @@ zap_missing.labelled <- function(x) {
 }
 
 #' @export
-zap_missing.labelled_spss <- function(x) {
+zap_missing.haven_labelled_spss <- function(x) {
   is.na(x) <- is.na(x)
 
   attr(x, "na_values") <- NULL
   attr(x, "na_range") <- NULL
-  class(x) <- "labelled"
+  class(x) <- "haven_labelled"
 
   x
 }

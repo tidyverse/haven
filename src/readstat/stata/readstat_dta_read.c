@@ -324,17 +324,18 @@ static dta_strl_t dta_interpret_strl_vo_bytes(dta_ctx_t *ctx, const unsigned cha
     if (ctx->strl_v_len == 2) {
         if (ctx->endianness == READSTAT_ENDIAN_BIG) {
             strl.v = (vo_bytes[0] << 8) + vo_bytes[1];
-            strl.o = (((uint64_t)vo_bytes[2] << 40) 
+            strl.o = (((uint64_t)vo_bytes[2] << 40)
                     + ((uint64_t)vo_bytes[3] << 32)
-                    + (vo_bytes[4] << 24) 
+                    + ((uint64_t)vo_bytes[4] << 24)
                     + (vo_bytes[5] << 16)
-                    + (vo_bytes[6] << 8) 
+                    + (vo_bytes[6] << 8)
                     + vo_bytes[7]);
         } else {
             strl.v = vo_bytes[0] + (vo_bytes[1] << 8);
             strl.o = (vo_bytes[2] + (vo_bytes[3] << 8)
-                    + (vo_bytes[4] << 16) + (vo_bytes[5] << 24)
-                    + ((uint64_t)vo_bytes[6] << 32) 
+                    + (vo_bytes[4] << 16)
+                    + ((uint64_t)vo_bytes[5] << 24)
+                    + ((uint64_t)vo_bytes[6] << 32)
                     + ((uint64_t)vo_bytes[7] << 40));
         }
     } else if (ctx->strl_v_len == 4) {

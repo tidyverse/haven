@@ -3,13 +3,13 @@
 \name{as_factor}
 \alias{as_factor}
 \alias{as_factor.data.frame}
-\alias{as_factor.labelled}
+\alias{as_factor.haven_labelled}
 \title{Convert input to a factor.}
 \usage{
 \method{as_factor}{data.frame}(x, ..., only_labelled = TRUE)
 
-\method{as_factor}{labelled}(x, levels = c("default", "labels", "values",
-  "both"), ordered = FALSE, ...)
+\method{as_factor}{haven_labelled}(x, levels = c("default", "labels",
+  "values", "both"), ordered = FALSE, ...)
 }
 \arguments{
 \item{x}{Object to coerce to a factor.}

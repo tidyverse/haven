@@ -218,7 +218,7 @@ public:
       CharacterVector levels = as<CharacterVector>(x.attr("levels"));
       for (int i = 0; i < levels.size(); ++i)
         readstat_label_int32_value(labelSet, i + 1, string_utf8(levels, i));
-    } else if (Rf_inherits(x, "labelled")) {
+    } else if (Rf_inherits(x, "haven_labelled")) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
 
       IntegerVector values = as<IntegerVector>(x.attr("labels"));
@@ -239,7 +239,7 @@ public:
 
   void defineVariable(NumericVector x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
-    if (Rf_inherits(x, "labelled")) {
+    if (Rf_inherits(x, "haven_labelled")) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name);
 
       NumericVector values = as<NumericVector>(x.attr("labels"));
@@ -258,7 +258,7 @@ public:
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(x));
 
-    if (Rf_inherits(x, "labelled_spss")) {
+    if (Rf_inherits(x, "haven_labelled_spss")) {
       SEXP na_range = x.attr("na_range");
       if (TYPEOF(na_range) == REALSXP && Rf_length(na_range) == 2) {
         readstat_variable_add_missing_double_range(var, REAL(na_range)[0], REAL(na_range)[1]);
@@ -276,7 +276,7 @@ public:
 
   void defineVariable(CharacterVector x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
-    if (Rf_inherits(x, "labelled")) {
+    if (Rf_inherits(x, "haven_labelled")) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name);
 
       CharacterVector values = as<CharacterVector>(x.attr("labels"));

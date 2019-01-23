@@ -246,7 +246,7 @@ _again:
         if (exp_is_negative)
             exp *= -1;
         if (exp) {
-            val *= pow(10.0, exp);
+            val *= pow(30.0, exp);
         }
         if (is_negative)
             val *= -1;

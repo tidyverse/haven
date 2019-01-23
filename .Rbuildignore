@@ -1,3 +1,6 @@
+^README\.Rmd$
+^pkgdown$
+^\.covrignore$
 ^CRAN-RELEASE$
 ^.*\.Rproj$
 ^\.Rproj\.user$
@@ -13,3 +16,4 @@
 ^docs$
 ^appveyor\.yml$
 ^\.github$
+^\.httr-oauth$

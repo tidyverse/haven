@@ -45,7 +45,7 @@ test_that("datetime values correctly imported (offset)", {
 })
 
 test_that("formats roundtrip", {
-  df <- tibble::data_frame(
+  df <- tibble::tibble(
     a = structure(c(1, 1, 2), format.spss = "F1.0"),
     b = structure(4:6, format.spss = "F2.1"),
     c = structure(7:9, format.spss = "N2"),
@@ -65,7 +65,7 @@ test_that("formats roundtrip", {
 })
 
 test_that("widths roundtrip", {
-  df <- tibble::data_frame(
+  df <- tibble::tibble(
     a = structure(c(1, 1, 2), display_width = 10),
     b = structure(4:6, display_width = 11),
     c = structure(7:9, display_width = 12),
@@ -94,7 +94,7 @@ test_that("user-defined missing values read as missing by default", {
 test_that("user-defined missing values can be preserved", {
   num <- read_spss(test_path("labelled-num-na.sav"), user_na = TRUE)[[1]]
 
-  expect_s3_class(num, "labelled_spss")
+  expect_s3_class(num, "haven_labelled_spss")
   expect_equal(num[[2]], 9)
 
   expect_equal(attr(num, "na_values"), 9)

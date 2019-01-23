@@ -32,7 +32,7 @@ test_that("factors become labelleds", {
   f <- factor(c("a", "b"), levels = letters[1:3])
   rt <- roundtrip_var(f, "dta")
 
-  expect_is(rt, "labelled")
+  expect_s3_class(rt, "haven_labelled")
   expect_equal(as.vector(rt), 1:2)
   expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
 })
@@ -58,7 +58,7 @@ test_that("factors become labelleds", {
   f <- factor(c("a", "b"), levels = letters[1:3])
   rt <- roundtrip_var(f, "dta")
 
-  expect_is(rt, "labelled")
+  expect_s3_class(rt, "haven_labelled")
   expect_equal(as.vector(rt), 1:2)
   expect_equal(attr(rt, "labels"), c(a = 1, b = 2, c = 3))
 })
