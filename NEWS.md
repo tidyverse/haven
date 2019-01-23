@@ -1,5 +1,8 @@
 # haven (development version)
 
+* `as_factor(x)` is now faster when `x` does not contain any missing values
+  (@hughparsonage).
+
 * Update to latest readstat.
 
   * Fixes error when reading SAS file with zero columns (#420)
@@ -35,9 +38,6 @@
   and writing SPSS files, but it was not possible to actually create
   objects in R having the `label` attribute using the constructors
   `labelled()` or `labelled_spss()`.
-
-* `as_factor(x)` is now faster when `x` does not contain any missing values
-  (@hughparsonage).
 
 # haven 1.1.2
 
