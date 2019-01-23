@@ -7,6 +7,7 @@
   * `write_sav()` creates incorrect column names when >10k columns (#410)
   * `read_sav()` reads long strings (#381)
   * `read_sav()` has greater memory limit allowing it to read more labels (#418)
+  * `read_por()` can now read files from SPSS 25 (#412)
 
 # haven 2.0.0
 
