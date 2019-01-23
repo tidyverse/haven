@@ -660,14 +660,15 @@ static readstat_error_t sas7bdat_write_missing_tagged_raw(void *row, const reads
 }
 
 static readstat_error_t sas7bdat_write_missing_tagged(void *row, const readstat_variable_t *var, char tag) {
-    if (tag == '_' || (tag >= 'A' && tag <= 'Z'))
+    readstat_error_t error = sas_validate_tag(tag);
+    if (error == READSTAT_OK)
         return sas7bdat_write_missing_tagged_raw(row, var, tag);
 
-    return READSTAT_ERROR_TAGGED_VALUE_IS_OUT_OF_RANGE;
+    return error;
 }
 
 static readstat_error_t sas7bdat_write_missing_numeric(void *row, const readstat_variable_t *var) {
-    return sas7bdat_write_missing_tagged_raw(row, var, 0);
+    return sas7bdat_write_missing_tagged_raw(row, var, '.');
 }
 
 static readstat_error_t sas7bdat_write_string(void *row, const readstat_variable_t *var, const char *value) {

@@ -73,6 +73,14 @@ int spss_varinfo_compare(const void *elem1, const void *elem2) {
     return (offset > v->offset);
 }
 
+void spss_varinfo_free(spss_varinfo_t *info) {
+    if (info) {
+        if (info->label)
+            free(info->label);
+        free(info);
+    }
+}
+
 static readstat_value_t spss_boxed_value(double fp_value) {
     readstat_value_t value = {
         .type = READSTAT_TYPE_DOUBLE,

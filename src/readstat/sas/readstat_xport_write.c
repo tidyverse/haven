@@ -495,11 +495,11 @@ static readstat_error_t xport_write_missing_string(void *row, const readstat_var
 
 static readstat_error_t xport_write_missing_tagged(void *row, const readstat_variable_t *var, char tag) {
     char *row_bytes = (char *)row;
-    if (tag == '_' || (tag >= 'A' && tag <= 'Z')) {
+    readstat_error_t error = sas_validate_tag(tag);
+    if (error == READSTAT_OK) {
         row_bytes[0] = tag;
-        return READSTAT_OK;
     }
-    return READSTAT_ERROR_TAGGED_VALUE_IS_OUT_OF_RANGE;
+    return error;
 }
 
 readstat_error_t readstat_begin_writing_xport(readstat_writer_t *writer, void *user_ctx, long row_count) {

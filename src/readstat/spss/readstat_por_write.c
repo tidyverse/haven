@@ -19,6 +19,31 @@ typedef struct por_write_ctx_s {
     size_t           unicode2byte_len;
 } por_write_ctx_t;
 
+static inline char por_encode_base30_digit(uint64_t digit) {
+    if (digit < 10)
+        return '0' + digit;
+    return 'A' + (digit - 10);
+}
+
+static int por_write_base30_integer(char *string, size_t string_len, uint64_t integer) {
+    int start = 0;
+    int end = 0;
+    int offset = 0;
+    while (integer) {
+        string[offset++] = por_encode_base30_digit(integer % 30);
+        integer /= 30;
+    }
+    end = offset;
+    offset--;
+    while (offset > start) {
+        char tmp = string[start];
+        string[start] = string[offset];
+        string[offset] = tmp;
+        offset--; start++;
+    }
+    return end;
+}
+
 static readstat_error_t por_finish(readstat_writer_t *writer) {
     return readstat_write_line_padding(writer, 'Z', 80, "\r\n");
 }
@@ -76,35 +101,19 @@ static ssize_t por_write_double_to_buffer(char *string, size_t buffer_len, doubl
         double integer_part;
         double fraction = modf(fabs(value), &integer_part);
         int64_t integer = integer_part;
+        int64_t exponent = 0;
         if (value < 0.0) {
             string[offset++] = '-';
         }
         if (integer == 0) {
             string[offset++] = '0';
         } else {
-            int start = offset;
-            int end = offset;
-            while (integer) {
-                int64_t remainder = integer % 30;
-                if (remainder < 0) {
-                    return -1;
-                } else if (remainder < 10) {
-                    string[offset++] = '0' + remainder;
-                } else {
-                    string[offset++] = 'A' + (remainder - 10);
-                }
+            while (fraction == 0 && integer != 0 && (integer % 30) == 0) {
                 integer /= 30;
-                integers_printed++;
+                exponent++;
             }
-            end = offset;
-            offset--;
-            while (offset > start) {
-                char tmp = string[start];
-                string[start] = string[offset];
-                string[offset] = tmp;
-                offset--; start++;
-            }
-            offset = end;
+            integers_printed = por_write_base30_integer(&string[offset], buffer_len - offset, integer);
+            offset += integers_printed;
         }
         /* should use exponents for efficiency, but this works */
         if (fraction) {
@@ -115,12 +124,14 @@ static ssize_t por_write_double_to_buffer(char *string, size_t buffer_len, doubl
             integer = integer_part;
             if (integer < 0) {
                 return -1;
-            } else if (integer < 10) {
-                string[offset++] = '0' + integer;
             } else {
-                string[offset++] = 'A' + (integer - 10);
+                string[offset++] = por_encode_base30_digit(integer);
             }
             integers_printed++;
+        }
+        if (exponent) {
+            string[offset++] = '+';
+            offset += por_write_base30_integer(&string[offset], buffer_len - offset, exponent);
         }
         string[offset++] = '/';
     }

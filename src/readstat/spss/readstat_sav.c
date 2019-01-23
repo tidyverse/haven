@@ -60,12 +60,7 @@ void sav_ctx_free(sav_ctx_t *ctx) {
     if (ctx->varinfo) {
         int i;
         for (i=0; i<ctx->var_index; i++) {
-            spss_varinfo_t *info = ctx->varinfo[i];
-            if (info) {
-                if (info->label)
-                    free(info->label);
-                free(info);
-            }
+            spss_varinfo_free(ctx->varinfo[i]);
         }
         free(ctx->varinfo);
     }

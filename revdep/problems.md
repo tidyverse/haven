@@ -4,50 +4,28 @@ Version: 1.2.1
 
 ## In both
 
-*   checking whether package ‘BEACH’ can be installed ... ERROR
+*   checking package dependencies ... ERROR
     ```
-    Installation failed.
-    See ‘/Users/hadley/Documents/ingest/haven/revdep/checks.noindex/BEACH/new/BEACH.Rcheck/00install.out’ for details.
+    Package required but not available: ‘devtools’
+    
+    See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
+    manual.
     ```
 
-## Installation
+# Blaunet
 
-### Devel
+Version: 2.0.8
 
-```
-* installing *source* package ‘BEACH’ ...
-** package ‘BEACH’ successfully unpacked and MD5 sums checked
-** R
-** inst
-** byte-compile and prepare package for lazy loading
-Error : .onLoad failed in loadNamespace() for 'rJava', details:
-  call: dyn.load(file, DLLpath = DLLpath, ...)
-  error: unable to load shared object '/Users/hadley/Documents/ingest/haven/revdep/library.noindex/BEACH/rJava/libs/rJava.so':
-  dlopen(/Users/hadley/Documents/ingest/haven/revdep/library.noindex/BEACH/rJava/libs/rJava.so, 6): Library not loaded: /Library/Java/JavaVirtualMachines/jdk-9.jdk/Contents/Home/lib/server/libjvm.dylib
-  Referenced from: /Users/hadley/Documents/ingest/haven/revdep/library.noindex/BEACH/rJava/libs/rJava.so
-  Reason: image not found
-ERROR: lazy loading failed for package ‘BEACH’
-* removing ‘/Users/hadley/Documents/ingest/haven/revdep/checks.noindex/BEACH/new/BEACH.Rcheck/BEACH’
+## In both
 
-```
-### CRAN
+*   checking package dependencies ... ERROR
+    ```
+    Packages required but not available: ‘gWidgetsRGtk2’ ‘RGtk2’
+    
+    See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
+    manual.
+    ```
 
-```
-* installing *source* package ‘BEACH’ ...
-** package ‘BEACH’ successfully unpacked and MD5 sums checked
-** R
-** inst
-** byte-compile and prepare package for lazy loading
-Error : .onLoad failed in loadNamespace() for 'rJava', details:
-  call: dyn.load(file, DLLpath = DLLpath, ...)
-  error: unable to load shared object '/Users/hadley/Documents/ingest/haven/revdep/library.noindex/BEACH/rJava/libs/rJava.so':
-  dlopen(/Users/hadley/Documents/ingest/haven/revdep/library.noindex/BEACH/rJava/libs/rJava.so, 6): Library not loaded: /Library/Java/JavaVirtualMachines/jdk-9.jdk/Contents/Home/lib/server/libjvm.dylib
-  Referenced from: /Users/hadley/Documents/ingest/haven/revdep/library.noindex/BEACH/rJava/libs/rJava.so
-  Reason: image not found
-ERROR: lazy loading failed for package ‘BEACH’
-* removing ‘/Users/hadley/Documents/ingest/haven/revdep/checks.noindex/BEACH/old/BEACH.Rcheck/BEACH’
-
-```
 # bpnreg
 
 Version: 1.0.0
@@ -113,7 +91,7 @@ Version: 0.6.3
     > bfi <- bfi[,c("BFIK_open", paste0("BFIK_open_", 1:4))]
     > codebook_component_scale(bfi[,1], "BFIK_open", bfi[,-1],
     +    reliabilities = list(BFIK_open = psych::alpha(bfi[,-1])))
-    Error: C stack usage  7969520 is too close to the limit
+    Error: C stack usage  7969220 is too close to the limit
     Execution halted
     ```
 
@@ -121,7 +99,7 @@ Version: 0.6.3
     ```
     Error in re-building vignettes:
       ...
-    Error: C stack usage  7970832 is too close to the limit
+    Error: C stack usage  7970848 is too close to the limit
     Execution halted
     ```
 
@@ -177,58 +155,71 @@ Version: 0.1.1
 
 # crunch
 
-Version: 1.23.0
+Version: 1.24.0
 
-## Newly broken
+## In both
 
-*   checking tests ...
+*   checking package dependencies ... NOTE
     ```
-     ERROR
-    Running the tests in ‘tests/testthat.R’ failed.
-    Last 13 lines of output:
-         })(list("haven_labelled_spss"), new("standardGeneric", .Data = function (x, ...) 
-         standardGeneric("toVariable"), generic = structure("toVariable", package = "crunch"), package = "crunch", group = list(), 
-             valueClass = character(0), signature = "x", default = NULL, skeleton = (function (x, ...) 
-             stop("invalid call in method dispatch to 'toVariable' (no default method)", domain = NA))(x, ...)), <environment>)
-      6: stop(gettextf("unable to find an inherited method for function %s for signature %s", sQuote(fdef@generic), sQuote(cnames)), 
-             domain = NA)
-      
-      
-      ══ testthat results  ═══════════════════════════════════════════════════════════════════════════════════════════════
-      OK: 2662 SKIPPED: 14 FAILED: 2
-      1. Error: toVariable parses haven::labelled (@test-add-variable.R#49) 
-      2. Error: toVariable parses haven::labelled_spss (@test-add-variable.R#87) 
-      
-      Error: testthat unit tests failed
-      Execution halted
+    Package suggested but not available for checking: ‘devtools’
+    ```
+
+*   checking installed package size ... NOTE
+    ```
+      installed size is  6.9Mb
+      sub-directories of 1Mb or more:
+        R     4.1Mb
+        doc   1.1Mb
+    ```
+
+# datadigest
+
+Version: 1.0.2
+
+## In both
+
+*   checking dependencies in R code ... NOTE
+    ```
+    Namespace in Imports field not imported from: ‘miniUI’
+      All declared Imports should be used.
     ```
 
 # dataMaid
 
-Version: 1.1.2
+Version: 1.2.0
 
-## Newly broken
+## In both
 
-*   checking tests ...
+*   checking dependencies in R code ... NOTE
     ```
-     ERROR
-    Running the tests in ‘tests/testthat.R’ failed.
-    Last 13 lines of output:
-      
-      [31m──[39m [31m3. Failure: variableType returns the right value (@testvariableType.R#18) [39m [31m──────────────────────────────────────[39m
-      variableType(typelab)$value not equal to "labelled".
-      1/1 mismatches
-      x[1]: "haven_labelled"
-      y[1]: "labelled"
-      
-      ══ testthat results  ═══════════════════════════════════════════════════════════════════════════════════════════════
-      OK: 75 SKIPPED: 0 FAILED: 3
-      1. Failure: check return the right number of tests for (most) atomic vectors (@testcheck.R#47) 
-      2. Failure: summarize return the right number of tests for (most) atomic vectors (@testsummarize.R#44) 
-      3. Failure: variableType returns the right value (@testvariableType.R#18) 
-      
-      Error: testthat unit tests failed
-      Execution halted
+    Namespace in Imports field not imported from: ‘DT’
+      All declared Imports should be used.
+    ```
+
+# duawranglr
+
+Version: 0.6.3
+
+## In both
+
+*   checking dependencies in R code ... NOTE
+    ```
+    Namespaces in Imports field not imported from:
+      ‘digest’ ‘dplyr’
+      All declared Imports should be used.
+    ```
+
+# EdSurvey
+
+Version: 2.2.2
+
+## In both
+
+*   checking installed package size ... NOTE
+    ```
+      installed size is  5.8Mb
+      sub-directories of 1Mb or more:
+        R   4.1Mb
     ```
 
 # ess
@@ -263,6 +254,52 @@ Version: 0.1.1
     ```
     Namespace in Imports field not imported from: ‘tibble’
       All declared Imports should be used.
+    ```
+
+# HMP16SData
+
+Version: 1.2.0
+
+## In both
+
+*   checking re-building of vignette outputs ... WARNING
+    ```
+    ...
+    Attaching package: 'dendextend'
+    
+    The following object is masked from 'package:stats':
+    
+        cutree
+    
+    ========================================
+    circlize version 0.4.4
+    CRAN page: https://cran.r-project.org/package=circlize
+    Github page: https://github.com/jokergoo/circlize
+    Documentation: http://jokergoo.github.io/circlize_book/book/
+    
+    If you use it in published research, please cite:
+    Gu, Z. circlize implements and enhances circular visualization 
+      in R. Bioinformatics 2014.
+    ========================================
+    
+    Quitting from lines 58-71 (HMP16SData.Rmd) 
+    Error: processing vignette 'HMP16SData.Rmd' failed with diagnostics:
+    there is no package called 'curatedMetagenomicData'
+    Execution halted
+    ```
+
+*   checking package dependencies ... NOTE
+    ```
+    Packages suggested but not available for checking:
+      ‘curatedMetagenomicData’ ‘devtools’
+    ```
+
+*   checking installed package size ... NOTE
+    ```
+      installed size is 19.1Mb
+      sub-directories of 1Mb or more:
+        doc       1.5Mb
+        extdata  17.4Mb
     ```
 
 # ImportExport
@@ -321,18 +358,14 @@ ERROR: lazy loading failed for package ‘ImportExport’
 ```
 # ipumsr
 
-Version: 0.2.0
+Version: 0.3.0
 
-## Newly broken
+## In both
 
-*   checking re-building of vignette outputs ... WARNING
+*   checking dependencies in R code ... NOTE
     ```
-    Error in re-building vignettes:
-      ...
-    Quitting from lines 127-148 (ipums.Rmd) 
-    Error: processing vignette 'ipums.Rmd' failed with diagnostics:
-    Evaluation error: no applicable method for 'as_factor' applied to an object of class "labelled".
-    Execution halted
+    Namespace in Imports field not imported from: ‘R6’
+      All declared Imports should be used.
     ```
 
 # labelled
@@ -431,6 +464,44 @@ Version: 1.1.0
     Package unavailable to check Rd xrefs: ‘memisc’
     ```
 
+# manifestoR
+
+Version: 1.3.0
+
+## In both
+
+*   checking package dependencies ... NOTE
+    ```
+    Package suggested but not available for checking: ‘devtools’
+    ```
+
+*   checking R code for possible problems ... NOTE
+    ```
+    mp_corpus: no visible binding for global variable ‘annotations’
+      (/Users/hadley/Documents/ingest/haven/revdep/checks.noindex/manifestoR/new/manifestoR.Rcheck/00_pkg_src/manifestoR/R/manifesto.R:456-457)
+    print.ManifestoAvailability: no visible binding for global variable
+      ‘annotations’
+      (/Users/hadley/Documents/ingest/haven/revdep/checks.noindex/manifestoR/new/manifestoR.Rcheck/00_pkg_src/manifestoR/R/manifesto.R:371-374)
+    Undefined global functions or variables:
+      annotations
+    ```
+
+# memapp
+
+Version: 2.11
+
+## In both
+
+*   checking dependencies in R code ... NOTE
+    ```
+    Namespaces in Imports field not imported from:
+      ‘DT’ ‘RColorBrewer’ ‘RODBC’ ‘dplyr’ ‘foreign’ ‘formattable’ ‘ggplot2’
+      ‘haven’ ‘mem’ ‘openxlsx’ ‘plotly’ ‘readxl’ ‘shinyBS’ ‘shinydashboard’
+      ‘shinydashboardPlus’ ‘shinyjs’ ‘shinythemes’ ‘stringi’ ‘stringr’
+      ‘tidyr’
+      All declared Imports should be used.
+    ```
+
 # netCoin
 
 Version: 0.3.0
@@ -444,7 +515,7 @@ Version: 0.3.0
 
 # opencpu
 
-Version: 2.0.8
+Version: 2.1
 
 ## In both
 
@@ -455,16 +526,38 @@ Version: 2.0.8
 
 # pubh
 
-Version: 0.4.1
+Version: 0.4.3
 
 ## In both
 
 *   checking dependencies in R code ... NOTE
     ```
     Namespaces in Imports field not imported from:
-      ‘bookdown’ ‘effects’ ‘kableExtra’ ‘knitr’ ‘lme4’ ‘nlme’ ‘nnet’
-      ‘ordinal’ ‘papeR’ ‘rmdformats’
+      ‘bookdown’ ‘desctable’ ‘effects’ ‘knitr’ ‘latex2exp’ ‘lme4’ ‘nlme’
+      ‘nnet’ ‘ordinal’ ‘pander’ ‘papeR’
       All declared Imports should be used.
+    ```
+
+# readit
+
+Version: 1.0.0
+
+## In both
+
+*   checking package dependencies ... NOTE
+    ```
+    Package suggested but not available for checking: ‘devtools’
+    ```
+
+# Rilostat
+
+Version: 0.2.1
+
+## In both
+
+*   checking package dependencies ... NOTE
+    ```
+    Package suggested but not available for checking: ‘devtools’
     ```
 
 # rio
@@ -525,12 +618,12 @@ Version: 1.2.1
 
 # xSub
 
-Version: 0.0.1
+Version: 2.0.1
 
 ## In both
 
 *   checking data for non-ASCII characters ... NOTE
     ```
-      Note: found 63 marked UTF-8 strings
+      Note: found 268 marked UTF-8 strings
     ```
 
