@@ -22,7 +22,7 @@
 #' zap_missing(x2)
 #'
 #' # You can also apply to data frames
-#' df <- tibble::data_frame(x1, x2, y = 4:1)
+#' df <- tibble::tibble(x1, x2, y = 4:1)
 #' df
 #' zap_missing(df)
 zap_missing <- function(x) {
