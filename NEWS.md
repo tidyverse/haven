@@ -3,6 +3,7 @@
 * Update to latest readstat.
 
   * Fixes error when reading SAS file with zero columns (#420)
+  * `read_por()` used base-10 instead of base-30 for the exponent (#413)
 
 # haven 2.0.0
 
