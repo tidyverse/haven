@@ -6,7 +6,7 @@ NULL
 
 #' Read and write SAS files.
 #'
-#' Reading supports both sas7bdat files and the accompanying sas7bdat files
+#' Reading supports both sas7bdat files and the accompanying sas7bcat files
 #' that SAS uses to record value labels. Writing value labels is not currently
 #' supported.
 #'
