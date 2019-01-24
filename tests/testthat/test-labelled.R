@@ -23,6 +23,10 @@ test_that("label must be length 1 character or missing", {
                "character vector of length one")
 })
 
+test_that("labels must be unique", {
+  expect_error(labelled(1, c(female = 1, male = 1)), "must be unique")
+})
+
 # methods -----------------------------------------------------------------
 
 test_that("printed output is stable", {

@@ -48,6 +48,9 @@ labelled <- function(x, labels, label = NULL) {
   if (is.null(names(labels))) {
     stop("`labels` must have names", call. = FALSE)
   }
+  if (any(duplicated(stats::na.omit(labels)))) {
+    stop("`labels` must be unique", call. = FALSE)
+  }
   if (!is.null(label) && (!is.character(label) || length(label) != 1)) {
     stop("`label` must be a character vector of length one", call. = FALSE)
   }

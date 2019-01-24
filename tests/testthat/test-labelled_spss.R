@@ -32,6 +32,11 @@ test_that("subsetting preserves attributes", {
   expect_identical(x, x[])
 })
 
+test_that("labels must be unique", {
+  expect_error(
+    labelled_spss(1, c(female = 1, male = 1), na_values = 9),
+    "must be unique")
+})
 
 # is.na -------------------------------------------------------------------
 

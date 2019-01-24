@@ -1,5 +1,7 @@
 # haven (development version)
 
+* `labelled()` tests that value labels are unique (@larmarange, #364).
+
 * `as_factor(x)` is now faster when `x` does not contain any missing values
   (@hughparsonage).
 
