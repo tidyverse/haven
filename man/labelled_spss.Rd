@@ -11,8 +11,8 @@ labelled_spss(x, labels, na_values = NULL, na_range = NULL,
 \item{x}{A vector to label. Must be either numeric (integer or double) or
 character.}
 
-\item{labels}{A named vector. The vector should be the same type as
-\code{x}. Unlike factors, labels don't need to be exhaustive: only a fraction
+\item{labels}{A named vector or \code{NULL}. The vector should be the same type
+as \code{x}. Unlike factors, labels don't need to be exhaustive: only a fraction
 of the values might be labelled.}
 
 \item{na_values}{A vector of values that should also be considered as missing.}

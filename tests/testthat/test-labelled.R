@@ -10,6 +10,11 @@ test_that("x and labels must be compatible", {
   expect_error(labelled(1L, c(female = 2, male = 1)), NA)
 })
 
+test_that("labels can be NULL", {
+  x <- labelled(1:5, NULL)
+  expect_equal(x[], x)
+})
+
 test_that("labels must have names", {
   expect_error(labelled(1, 1), "must have names")
 })

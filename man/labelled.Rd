@@ -13,8 +13,8 @@ is.labelled(x)
 \item{x}{A vector to label. Must be either numeric (integer or double) or
 character.}
 
-\item{labels}{A named vector. The vector should be the same type as
-\code{x}. Unlike factors, labels don't need to be exhaustive: only a fraction
+\item{labels}{A named vector or \code{NULL}. The vector should be the same type
+as \code{x}. Unlike factors, labels don't need to be exhaustive: only a fraction
 of the values might be labelled.}
 
 \item{label}{A short, human-readable description of the vector.}

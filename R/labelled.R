@@ -9,8 +9,8 @@
 #'
 #' @param x A vector to label. Must be either numeric (integer or double) or
 #'   character.
-#' @param labels A named vector. The vector should be the same type as
-#'   `x`. Unlike factors, labels don't need to be exhaustive: only a fraction
+#' @param labels A named vector or `NULL`. The vector should be the same type
+#'   as `x`. Unlike factors, labels don't need to be exhaustive: only a fraction
 #'   of the values might be labelled.
 #' @param label A short, human-readable description of the vector.
 #' @export
@@ -42,10 +42,10 @@ labelled <- function(x, labels, label = NULL) {
   if (!is.numeric(x) && !is.character(x)) {
     stop("`x` must be a numeric or a character vector", call. = FALSE)
   }
-  if (!is_coercible(x, labels)) {
+  if (!is.null(labels) && !is_coercible(x, labels)) {
     stop("`x` and `labels` must be same type", call. = FALSE)
   }
-  if (is.null(names(labels))) {
+  if (!is.null(labels) && is.null(names(labels))) {
     stop("`labels` must have names", call. = FALSE)
   }
   if (any(duplicated(stats::na.omit(labels)))) {
