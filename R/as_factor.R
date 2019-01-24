@@ -3,7 +3,10 @@
 #' The base function `as.factor()` is not a generic, but this variant
 #' is. Methods are provided for factors, character vectors, labelled
 #' vectors, and data frames. By default, when applied to a data frame,
-#' it only affects `labelled` columns.
+#' it only affects [labelled] columns.
+#'
+#' Includes methods for both class `haven_labelled` and `labelled`
+#' for backward compatibility.
 #'
 #' @param x Object to coerce to a factor.
 #' @param ... Other arguments passed down to method.
@@ -82,6 +85,10 @@ as_factor.haven_labelled <- function(x, levels = c("default", "labels", "values"
 
   structure(x, label = label)
 }
+
+#' @export
+#' @rdname as_factor
+as_factor.labelled <- as_factor.haven_labelled
 
 replace_with <- function(x, from, to) {
   stopifnot(length(from) == length(to))
