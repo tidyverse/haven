@@ -143,7 +143,7 @@ it only affects labelled columns." />
     <p>The base function <code><a href='https://www.rdocumentation.org/packages/base/topics/factor'>as.factor()</a></code> is not a generic, but this variant
 is. Methods are provided for factors, character vectors, labelled
 vectors, and data frames. By default, when applied to a data frame,
-it only affects <code>labelled</code> columns.</p>
+it only affects <a href='labelled.html'>labelled</a> columns.</p>
     
     </div>
 
@@ -152,7 +152,11 @@ it only affects <code>labelled</code> columns.</p>
 
 <span class='co'># S3 method for haven_labelled</span>
 <span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"default"</span>, <span class='st'>"labels"</span>,
-  <span class='st'>"values"</span>, <span class='st'>"both"</span>), <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+  <span class='st'>"values"</span>, <span class='st'>"both"</span>), <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for labelled</span>
+<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"default"</span>, <span class='st'>"labels"</span>, <span class='st'>"values"</span>,
+  <span class='st'>"both"</span>), <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -186,6 +190,11 @@ Labels are sorted by value.</p></li>
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Includes methods for both class <code>haven_labelled</code> and <code>labelled</code>
+for backward compatibility.</p>
+    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sample'>sample</a></span>(<span class='fl'>5</span>, <span class='fl'>10</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>Bad</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>Good</span> <span class='kw'>=</span> <span class='fl'>5</span>))
@@ -205,7 +214,9 @@ Labels are sorted by value.</p></li>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-            
+      
+      <li><a href="#details">Details</a></li>
+      
       <li><a href="#examples">Examples</a></li>
     </ul>
 
