@@ -89,7 +89,11 @@ replace_with <- function(x, from, to) {
   out <- x
   # First replace regular values
   matches <- match(x, from, incomparables = NA)
-  out[!is.na(matches)] <- to[matches[!is.na(matches)]]
+  if (anyNA(matches)) {
+    out[!is.na(matches)] <- to[matches[!is.na(matches)]]
+  } else {
+    out <- to[matches]
+  }
 
   # Then tagged missing values
   tagged <- is_tagged_na(x)
@@ -98,7 +102,8 @@ replace_with <- function(x, from, to) {
   }
 
   matches <- match(na_tag(x), na_tag(from), incomparables = NA)
-  out[!is.na(matches)] <- to[matches[!is.na(matches)]]
 
+  # Could possibly be faster to use anyNA(matches)
+  out[!is.na(matches)] <- to[matches[!is.na(matches)]]
   out
 }
