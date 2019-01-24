@@ -161,7 +161,7 @@ type_sum.haven_labelled <- function(x) {
 #' @export
 
 #' @export
-pillar_shaft.labelled <- function(
+pillar_shaft.haven_labelled <- function(
   x,
   show_labels = getOption("haven.show_pillar_labels", TRUE),
   ...
@@ -208,7 +208,7 @@ str_trunc <- function(x, widths, subtle = FALSE) {
 
 val_pillar_info <- function(x) {
   MIN_CHR_DISPLAY <- 4
-  val_pillar <- pillar::pillar_shaft(zap_labels.labelled(x))
+  val_pillar <- pillar::pillar_shaft(zap_labels.haven_labelled(x))
   if (is.numeric(x)) {
     disp_short <- trim_ws_rhs(format(val_pillar, attr(val_pillar, "min_width")))
     disp_full <- trim_ws_rhs(format(val_pillar, attr(val_pillar, "width")))
@@ -240,7 +240,7 @@ na_pillar_info <- function(x) {
   if (is.double(x)) {
     na_display[is_tagged_na(x)] <- paste0("(", na_tag(x[is_tagged_na(x)]), ")")
   }
-  if (inherits(x, "labelled_spss")) {
+  if (inherits(x, "haven_labelled_spss")) {
     is_spss_na <- is.na(x) & !is.na(unclass(x))
     na_display[is_spss_na] <- "(NA)"
   }
