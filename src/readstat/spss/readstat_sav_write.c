@@ -182,7 +182,7 @@ static readstat_error_t sav_emit_variable_label(readstat_writer_t *writer, reads
     size_t title_data_len = strlen(title_data);
     if (title_data_len > 0) {
         char padded_label[MAX_LABEL_SIZE];
-        int32_t label_len = title_data_len;
+        uint32_t label_len = title_data_len;
         if (label_len > sizeof(padded_label))
             label_len = sizeof(padded_label);
 
@@ -468,9 +468,9 @@ static readstat_error_t sav_emit_value_label_records(readstat_writer_t *writer) 
                 
                 const char *label_data = r_value_label->label;
                 
-                char label_len = r_value_label->label_len;
-                if (label_len > MAX_VALUE_LABEL_SIZE)
-                    label_len = MAX_VALUE_LABEL_SIZE;
+                uint8_t label_len = MAX_VALUE_LABEL_SIZE;
+                if (label_len > r_value_label->label_len)
+                    label_len = r_value_label->label_len;
 
                 retval = readstat_write_bytes(writer, &label_len, sizeof(label_len));
                 if (retval != READSTAT_OK)

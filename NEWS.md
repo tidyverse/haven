@@ -13,6 +13,7 @@
   * `read_sav()` reads long strings (#381)
   * `read_sav()` has greater memory limit allowing it to read more labels (#418)
   * `read_por()` can now read files from SPSS 25 (#412)
+  * `write_sav()` no longer crashes when writing long label names (#395)
 
 # haven 2.0.0
 
