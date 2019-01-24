@@ -279,7 +279,7 @@ public:
 
       }
       }
-      col.attr("class") = CharacterVector::create("labelled_spss", "labelled");
+      col.attr("class") = CharacterVector::create("haven_labelled_spss", "haven_labelled");
     }
 
 
@@ -380,7 +380,7 @@ public:
 
       if (hasLabel(i)) {
         if (col.attr("class") == R_NilValue) {
-          col.attr("class") = "labelled";
+          col.attr("class") = "haven_labelled";
         }
         col.attr("labels") = label_sets_[val_labels_[i]].labels();
       }

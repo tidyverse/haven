@@ -13,13 +13,13 @@ test_that("converts user-defined missings", {
   x2 <- zap_missing(x1)
 
   expect_equal(x2[[3]], NA_real_)
-  expect_s3_class(x2, "labelled")
+  expect_s3_class(x2, "haven_labelled")
 })
 
 test_that("converts data frame", {
   x1 <- labelled(tagged_na("a", "b"), c(a = tagged_na("a"), b = 1))
 
-  df1 <- tibble::data_frame(x1 = 1, x2 = 2:1)
+  df1 <- tibble::tibble(x1 = 1, x2 = 2:1)
   df2 <- zap_missing(df1)
 
   expect_equal(na_tag(df1$x1), c(NA_character_, NA))

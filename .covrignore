@@ -1,0 +1,3 @@
+src/readstat/
+R/deprec-*.R
+R/compat-*.R

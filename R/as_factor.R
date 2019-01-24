@@ -3,7 +3,10 @@
 #' The base function `as.factor()` is not a generic, but this variant
 #' is. Methods are provided for factors, character vectors, labelled
 #' vectors, and data frames. By default, when applied to a data frame,
-#' it only affects `labelled` columns.
+#' it only affects [labelled] columns.
+#'
+#' Includes methods for both class `haven_labelled` and `labelled`
+#' for backward compatibility.
 #'
 #' @param x Object to coerce to a factor.
 #' @param ... Other arguments passed down to method.
@@ -49,7 +52,7 @@ as_factor.data.frame <- function(x, ..., only_labelled = TRUE) {
 #'   * "values: use only the values
 #' @rdname as_factor
 #' @export
-as_factor.labelled <- function(x, levels = c("default", "labels", "values", "both"),
+as_factor.haven_labelled <- function(x, levels = c("default", "labels", "values", "both"),
                                ordered = FALSE, ...) {
   levels <- match.arg(levels)
   label <- attr(x, "label", exact = TRUE)
@@ -83,13 +86,21 @@ as_factor.labelled <- function(x, levels = c("default", "labels", "values", "bot
   structure(x, label = label)
 }
 
+#' @export
+#' @rdname as_factor
+as_factor.labelled <- as_factor.haven_labelled
+
 replace_with <- function(x, from, to) {
   stopifnot(length(from) == length(to))
 
   out <- x
   # First replace regular values
   matches <- match(x, from, incomparables = NA)
-  out[!is.na(matches)] <- to[matches[!is.na(matches)]]
+  if (anyNA(matches)) {
+    out[!is.na(matches)] <- to[matches[!is.na(matches)]]
+  } else {
+    out <- to[matches]
+  }
 
   # Then tagged missing values
   tagged <- is_tagged_na(x)
@@ -98,7 +109,8 @@ replace_with <- function(x, from, to) {
   }
 
   matches <- match(na_tag(x), na_tag(from), incomparables = NA)
-  out[!is.na(matches)] <- to[matches[!is.na(matches)]]
 
+  # Could possibly be faster to use anyNA(matches)
+  out[!is.na(matches)] <- to[matches[!is.na(matches)]]
   out
 }

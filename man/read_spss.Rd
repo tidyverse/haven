@@ -5,7 +5,6 @@
 \alias{read_sav}
 \alias{read_por}
 \alias{write_sav}
-\alias{read_spss}
 \title{Read SPSS (\code{.sav}, \code{.zsav}, \code{.por}) files. Write \code{.sav} and \code{.zsav} files.}
 \usage{
 read_sav(file, encoding = NULL, user_na = FALSE)

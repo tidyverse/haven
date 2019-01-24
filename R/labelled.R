@@ -9,14 +9,16 @@
 #'
 #' @param x A vector to label. Must be either numeric (integer or double) or
 #'   character.
-#' @param labels A named vector. The vector should be the same type as
-#'   `x`. Unlike factors, labels don't need to be exhaustive: only a fraction
+#' @param labels A named vector or `NULL`. The vector should be the same type
+#'   as `x`. Unlike factors, labels don't need to be exhaustive: only a fraction
 #'   of the values might be labelled.
-#' @param ... Ignored
+#' @param label A short, human-readable description of the vector.
 #' @export
 #' @examples
 #' s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
 #' s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
+#' s3 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2),
+#'                label="Assigned sex at birth")
 #'
 #' # Unfortunately it's not possible to make as.factor work for labelled objects
 #' # so instead use as_factor. This works for all types of labelled vectors.
@@ -36,20 +38,27 @@
 #' # values
 #' x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 #' zap_labels(x)
-labelled <- function(x, labels) {
+labelled <- function(x, labels, label = NULL) {
   if (!is.numeric(x) && !is.character(x)) {
     stop("`x` must be a numeric or a character vector", call. = FALSE)
   }
-  if (!is_coercible(x, labels)) {
+  if (!is.null(labels) && !is_coercible(x, labels)) {
     stop("`x` and `labels` must be same type", call. = FALSE)
   }
-  if (is.null(names(labels))) {
+  if (!is.null(labels) && is.null(names(labels))) {
     stop("`labels` must have names", call. = FALSE)
+  }
+  if (any(duplicated(stats::na.omit(labels)))) {
+    stop("`labels` must be unique", call. = FALSE)
+  }
+  if (!is.null(label) && (!is.character(label) || length(label) != 1)) {
+    stop("`label` must be a character vector of length one", call. = FALSE)
   }
 
   structure(x,
+    label = label,
     labels = labels,
-    class = "labelled"
+    class = "haven_labelled"
   )
 }
 
@@ -67,16 +76,16 @@ is_coercible <- function(x, labels) {
 
 #' @export
 #' @rdname labelled
-is.labelled <- function(x) inherits(x, "labelled")
+is.labelled <- function(x) inherits(x, "haven_labelled")
 
 #' @export
-`[.labelled` <- function(x, ...) {
-  labelled(NextMethod(), attr(x, "labels"))
+`[.haven_labelled` <- function(x, ...) {
+  labelled(NextMethod(), attr(x, "labels"), attr(x, "label", exact = TRUE))
 }
 
 #' @export
-print.labelled <- function(x, ..., digits = getOption("digits")) {
-  cat("<Labelled ", typeof(x), ">\n", sep = "")
+print.haven_labelled <- function(x, ..., digits = getOption("digits")) {
+  cat("<Labelled ", typeof(x), ">", get_labeltext(x), "\n", sep = "")
 
   if (is.double(x)) {
     print_tagged_na(x, digits = digits)
@@ -101,7 +110,7 @@ print.labelled <- function(x, ..., digits = getOption("digits")) {
 #' @examples
 #' s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
 #' s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
-#' labelled_df <- tibble::data_frame(s1, s2)
+#' labelled_df <- tibble::tibble(s1, s2)
 #'
 #' for (var in names(labelled_df)) {
 #'   print_labels(labelled_df[[var]], var)
@@ -126,7 +135,7 @@ print_labels <- function(x, name = NULL) {
 }
 
 #' @export
-as.data.frame.labelled <- function(x, ...) {
+as.data.frame.haven_labelled <- function(x, ...) {
   df <- list(x)
   class(df) <- "data.frame"
   attr(df, "row.names") <- .set_row_names(length(x))
@@ -144,7 +153,7 @@ label_length <- function(x) {
 
 #' @export
 #' @importFrom tibble type_sum
-type_sum.labelled <- function(x) {
+type_sum.haven_labelled <- function(x) {
   paste0(tibble::type_sum(unclass(x)), "+lbl")
 }
 
@@ -289,4 +298,14 @@ truncate_labelled_pillar <- function(vals, nas, lbls, desired_width, width) {
 
 trim_ws_rhs <- function(x) {
   sub("[ \t\r\n]+$", "", x)
+}
+
+# Convenience function for getting the label with
+# with a prefix (if label is not empty), used for
+# printing 'label' and 'labelled_spss' vectors
+get_labeltext <- function(x, prefix=": ") {
+  label = attr(x, "label", exact = TRUE)
+  if(!is.null(label)) {
+    paste0(prefix, label)
+  }
 }

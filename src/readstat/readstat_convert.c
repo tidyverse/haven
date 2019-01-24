@@ -10,8 +10,10 @@ readstat_error_t readstat_convert(char *dst, size_t dst_len, const char *src, si
     while (src_len && src[src_len-1] == ' ') {
         src_len--;
     }
-    if (converter) {
-        size_t dst_left = dst_len;
+    if (dst_len == 0) {
+        return READSTAT_ERROR_CONVERT_LONG_STRING;
+    } else if (converter) {
+        size_t dst_left = dst_len - 1;
         char *dst_end = dst;
         size_t status = iconv(converter, (readstat_iconv_inbuf_t)&src, &src_len, &dst_end, &dst_left);
         if (status == (size_t)-1) {
@@ -23,7 +25,7 @@ readstat_error_t readstat_convert(char *dst, size_t dst_len, const char *src, si
                 return READSTAT_ERROR_CONVERT;
             }
         }
-        dst[dst_len - dst_left] = '\0';
+        dst[dst_len - dst_left - 1] = '\0';
     } else if (src_len + 1 > dst_len) {
         return READSTAT_ERROR_CONVERT_LONG_STRING;
     } else {

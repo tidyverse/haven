@@ -68,7 +68,7 @@ ssize_t readstat_por_parse_double(const char *data, size_t len, double *result,
         if (exp_is_negative)
             exp *= -1;
         if (exp) {
-            val *= pow(10.0, exp);
+            val *= pow(30.0, exp);
         }
         if (is_negative)
             val *= -1;
