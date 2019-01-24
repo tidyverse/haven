@@ -1,5 +1,8 @@
 # haven (development version)
 
+* `write_dta()` now checks that the labelled values are integers, not the 
+  values themselves (#401).
+
 * `labelled()` and `labelled_spss()` now allow `NULL` labels. This makes
   both classes more flexible, allowing you to use them for their other 
   attributes (#219)

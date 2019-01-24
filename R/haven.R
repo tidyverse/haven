@@ -314,17 +314,27 @@ validate_dta <- function(data, version) {
     )
   }
 
-  # Check for labelled double vectors
-  is_labelled <- vapply(data, is.labelled, logical(1))
-  is_integer <- vapply(data, is_integerish, logical(1))
-  bad_labels <- is_labelled & !is_integer
+  # Check double vectors can only have labelled integers
+  bad_labels <- vapply(data, has_non_integer_labels, logical(1))
   if (any(bad_labels)) {
     stop(
-      "Stata only supports labelled integers.\nProblems: ",
+      "Stata only supports labelling with integers.\nProblems: ",
       var_names(data, bad_labels),
       call. = FALSE
     )
   }
+}
+
+has_non_integer_labels <- function(x) {
+  if (!is.labelled(x)) {
+    return(FALSE)
+  }
+
+  if (!is.double(x)) {
+    return(FALSE)
+  }
+
+  !is_integerish(attr(x, "labels"))
 }
 
 validate_sav <- function(data) {

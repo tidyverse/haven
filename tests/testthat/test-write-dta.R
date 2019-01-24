@@ -80,12 +80,12 @@ test_that("throws error on invalid variable names", {
   expect_error(write_dta(df, tempfile(), version = 13), "not valid Stata variables: `x y`")
 })
 
-test_that("can not write labelled non-integers (#343)", {
-  df <- data.frame(x = labelled(c(1, 2, 3), c("a" = 1)))
+test_that("can not write non-integer labels (#401)", {
+  df <- data.frame(x = labelled(c(1, 2.5, 3), c("a" = 1)))
   expect_error(write_dta(df, tempfile()), NA)
 
-  df <- data.frame(x = labelled(c(1.5, 2, 3), c("a" = 1)))
-  expect_error(write_dta(df, tempfile()), "supports labelled integers")
+  df <- data.frame(x = labelled(c(1, 2.5, 3), c("b" = 1.5)))
+  expect_error(write_dta(df, tempfile()), "supports labelling with integers")
 })
 
 test_that("supports stata version 15", {
