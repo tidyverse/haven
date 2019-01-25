@@ -157,16 +157,15 @@ type_sum.haven_labelled <- function(x) {
   paste0(tibble::type_sum(unclass(x)), "+lbl")
 }
 
-#' @importFrom pillar pillar_shaft
-#' @export
-
-#' @export
+# Dynamically exported, see zzz.R
 pillar_shaft.haven_labelled <- function(
   x,
   show_labels = getOption("haven.show_pillar_labels", TRUE),
   ...
 ) {
-  if (!isTRUE(show_labels)) {
+  cli_available <- requireNamespace("cli", quietly = TRUE)
+  crayon_available <- requireNamespace("crayon", quietly = TRUE)
+  if (!isTRUE(show_labels) | !cli_available | !crayon_available) {
     return(pillar::pillar_shaft(unclass(x)))
   }
   val <- val_pillar_info(x)

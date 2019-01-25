@@ -27,16 +27,16 @@ Imports:
     hms,
     Rcpp (>= 0.11.4),
     readr (>= 0.1.0),
-    tibble,
-    pillar (>= 1.1.1),
-    cli,
-    crayon
+    tibble
 Suggests: 
     covr,
     fs,
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    pillar (>= 1.1.1),
+    cli,
+    crayon
 LinkingTo: 
     Rcpp
 VignetteBuilder: 
