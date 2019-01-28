@@ -1,5 +1,7 @@
 # haven (development version)
 
+* `as_factor.data.frame()` now correctly passes `...` along (#407, @zkamvar)
+
 * `write_dta()` now checks that the labelled values are integers, not the 
   values themselves (#401).
 
