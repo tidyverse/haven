@@ -33,9 +33,9 @@ NULL
 as_factor.data.frame <- function(x, ..., only_labelled = TRUE) {
   if (only_labelled) {
     labelled <- vapply(x, is.labelled, logical(1))
-    x[labelled] <- lapply(x[labelled], as_factor)
+    x[labelled] <- lapply(x[labelled], as_factor, ...)
   } else {
-    x[] <- lapply(x, as_factor)
+    x[] <- lapply(x, as_factor, ...)
   }
 
   x
