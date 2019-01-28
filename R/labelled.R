@@ -9,8 +9,8 @@
 #'
 #' @param x A vector to label. Must be either numeric (integer or double) or
 #'   character.
-#' @param labels A named vector. The vector should be the same type as
-#'   `x`. Unlike factors, labels don't need to be exhaustive: only a fraction
+#' @param labels A named vector or `NULL`. The vector should be the same type
+#'   as `x`. Unlike factors, labels don't need to be exhaustive: only a fraction
 #'   of the values might be labelled.
 #' @param label A short, human-readable description of the vector.
 #' @export
@@ -42,11 +42,14 @@ labelled <- function(x, labels, label = NULL) {
   if (!is.numeric(x) && !is.character(x)) {
     stop("`x` must be a numeric or a character vector", call. = FALSE)
   }
-  if (!is_coercible(x, labels)) {
+  if (!is.null(labels) && !is_coercible(x, labels)) {
     stop("`x` and `labels` must be same type", call. = FALSE)
   }
-  if (is.null(names(labels))) {
+  if (!is.null(labels) && is.null(names(labels))) {
     stop("`labels` must have names", call. = FALSE)
+  }
+  if (any(duplicated(stats::na.omit(labels)))) {
+    stop("`labels` must be unique", call. = FALSE)
   }
   if (!is.null(label) && (!is.character(label) || length(label) != 1)) {
     stop("`label` must be a character vector of length one", call. = FALSE)
@@ -107,7 +110,7 @@ print.haven_labelled <- function(x, ..., digits = getOption("digits")) {
 #' @examples
 #' s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
 #' s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
-#' labelled_df <- tibble::data_frame(s1, s2)
+#' labelled_df <- tibble::tibble(s1, s2)
 #'
 #' for (var in names(labelled_df)) {
 #'   print_labels(labelled_df[[var]], var)

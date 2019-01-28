@@ -1,5 +1,30 @@
-# haven 1.1.2.9000
-(to become haven 2.0.0)
+# haven (development version)
+
+* `write_dta()` now checks that the labelled values are integers, not the 
+  values themselves (#401).
+
+* `labelled()` and `labelled_spss()` now allow `NULL` labels. This makes
+  both classes more flexible, allowing you to use them for their other 
+  attributes (#219)
+
+* As `as_factor.labelled()` method for backward compatbility (#414).
+
+* `labelled()` tests that value labels are unique (@larmarange, #364).
+
+* `as_factor(x)` is now faster when `x` does not contain any missing values
+  (@hughparsonage).
+
+* Update to latest readstat.
+
+  * Fixes error when reading SAS file with zero columns (#420)
+  * `read_por()` used base-10 instead of base-30 for the exponent (#413)
+  * `write_sav()` creates incorrect column names when >10k columns (#410)
+  * `read_sav()` reads long strings (#381)
+  * `read_sav()` has greater memory limit allowing it to read more labels (#418)
+  * `read_por()` can now read files from SPSS 25 (#412)
+  * `write_sav()` no longer crashes when writing long label names (#395)
+
+# haven 2.0.0
 
 ## BREAKING CHANGES
 

@@ -282,7 +282,7 @@ static readstat_error_t xport_construct_format(char *dst, size_t dst_len,
         snprintf(dst, dst_len, "%s%d",
                 format, width);
     } else {
-        strcpy(dst, format);
+        snprintf(dst, dst_len, "%s", format);
     }
 
     return retval;
@@ -541,7 +541,7 @@ static readstat_error_t xport_process_row(xport_ctx_t *ctx, const char *row, siz
                     variable->storage_width >= XPORT_MIN_DOUBLE_SIZE) {
                 char full_value[8] = { 0 };
                 if (memcmp(&full_value[1], &row[pos+1], variable->storage_width - 1) == 0 &&
-                        (row[pos] == '_' || row[pos] == '.' || (row[pos] >= 'A' && row[pos] <= 'Z'))) {
+                        (row[pos] == '.' || sas_validate_tag(row[pos]) == READSTAT_OK)) {
                     if (row[pos] == '.') {
                         value.is_system_missing = 1;
                     } else {
@@ -562,9 +562,11 @@ static readstat_error_t xport_process_row(xport_ctx_t *ctx, const char *row, siz
         }
         pos += variable->storage_width;
 
-        if (ctx->handle.value(ctx->parsed_row_count, variable, value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
-            retval = READSTAT_ERROR_USER_ABORT;
-            goto cleanup;
+        if (ctx->handle.value && !ctx->variables[i]->skip) {
+            if (ctx->handle.value(ctx->parsed_row_count, variable, value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
+                retval = READSTAT_ERROR_USER_ABORT;
+                goto cleanup;
+            }
         }
     }
 

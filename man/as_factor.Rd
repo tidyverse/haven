@@ -4,12 +4,16 @@
 \alias{as_factor}
 \alias{as_factor.data.frame}
 \alias{as_factor.haven_labelled}
+\alias{as_factor.labelled}
 \title{Convert input to a factor.}
 \usage{
 \method{as_factor}{data.frame}(x, ..., only_labelled = TRUE)
 
 \method{as_factor}{haven_labelled}(x, levels = c("default", "labels",
   "values", "both"), ordered = FALSE, ...)
+
+\method{as_factor}{labelled}(x, levels = c("default", "labels", "values",
+  "both"), ordered = FALSE, ...)
 }
 \arguments{
 \item{x}{Object to coerce to a factor.}
@@ -34,7 +38,11 @@ Labels are sorted by value.
 The base function \code{as.factor()} is not a generic, but this variant
 is. Methods are provided for factors, character vectors, labelled
 vectors, and data frames. By default, when applied to a data frame,
-it only affects \code{labelled} columns.
+it only affects \link{labelled} columns.
+}
+\details{
+Includes methods for both class \code{haven_labelled} and \code{labelled}
+for backward compatibility.
 }
 \examples{
 x <- labelled(sample(5, 10, replace = TRUE), c(Bad = 1, Good = 5))

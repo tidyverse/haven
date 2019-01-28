@@ -25,7 +25,7 @@ int readstat_value_is_missing(readstat_value_t value, readstat_variable_t *varia
         return 1;
 
     if (variable)
-        readstat_value_is_defined_missing(value, variable);
+        return readstat_value_is_defined_missing(value, variable);
 
     return 0;
 }
