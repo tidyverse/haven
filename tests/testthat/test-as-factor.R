@@ -85,3 +85,12 @@ test_that("variable label is kept when converting labelled to factor (#178)", {
   attr(s1, "label") <- "labelled"
   expect_identical(attr(as_factor(s1), "label"), "labelled")
 })
+
+# data frames -------------------------------------------------------------
+
+test_that("... passed along", {
+  df <- data.frame(x = labelled(2:1, c("A" = 1)))
+  out <- as_factor(df, "both")
+
+  expect_equal(levels(out$x), c("[1] A", "2"))
+})
