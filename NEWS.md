@@ -26,6 +26,10 @@
   * `read_por()` can now read files from SPSS 25 (#412)
   * `write_sav()` no longer crashes when writing long label names (#395)
 
+* The `labelled` class now gets pretty printing that shows the labels and NA values
+  when inside of a `tbl_df`. Includes the ability to turn off this behavior using 
+  `option(haven.show_pillar_labels = FALSE)` (#340, @gergness)
+
 # haven 2.0.0
 
 ## BREAKING CHANGES

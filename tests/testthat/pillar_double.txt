@@ -1,0 +1,14 @@
+# A tibble: 11 x 1
+                 x
+         <dbl+lbl>
+ 1    1.22 [One]  
+ 2    1.22 [One]  
+ 3    1.22 [One]  
+ 4 1000 [Threeeee]
+ 5 1000 [Threeeee]
+ 6 1000 [Threeeee]
+ 7 -345           
+ 8 -345           
+ 9 -345           
+10   35 [Two]     
+11   35 [Two]     

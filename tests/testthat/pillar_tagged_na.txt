@@ -1,0 +1,14 @@
+# A tibble: 11 x 1
+                 x
+         <dbl+lbl>
+ 1     1 [Good]   
+ 2     2          
+ 3     3          
+ 4     4          
+ 5     5          
+ 6     6          
+ 7     7          
+ 8     8 [Bad]    
+ 9 NA(a)          
+10 NA(b) [Refused]
+11    NA          

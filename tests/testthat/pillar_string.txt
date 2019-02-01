@@ -1,0 +1,14 @@
+# A tibble: 11 x 1
+   x               
+   <chr+lbl>       
+ 1 A [Apple]       
+ 2 A [Apple]       
+ 3 A [Apple]       
+ 4 B [Banana]      
+ 5 B [Banana]      
+ 6 B [Banana]      
+ 7 XXXXXX [Mystery]
+ 8 XXXXXX [Mystery]
+ 9 XXXXXX [Mystery]
+10 XXXXXX [Mystery]
+11 <NA>            
