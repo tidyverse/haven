@@ -347,12 +347,16 @@ trim_ws_lhs <- function(x) {
   sub("^[ \t\r\n]+", "", x)
 }
 
+pad_space <- function(n) {
+  vapply(n, function(x) paste(rep(" ", x), collapse = ""), "")
+}
+
 paste_with_align <- function(x, y, lhs_ws, rhs_ws) {
   y_wid <- pillar::get_extent(y)
   added_chars <- max(y_wid - rhs_ws)
   rhs_ws <- added_chars - (y_wid - rhs_ws)
 
-  paste0(strrep(" ", lhs_ws), x, y, strrep(" ", rhs_ws))
+  paste0(pad_space(lhs_ws), x, y, pad_space(rhs_ws))
 }
 
 pillar_print_pkgs_available <- function() {
