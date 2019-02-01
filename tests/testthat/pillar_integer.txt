@@ -1,5 +1,5 @@
 # A tibble: 11 x 1
-   x        
+           x
    <int+lbl>
  1  1 [Good]
  2  2       
