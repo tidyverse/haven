@@ -1,8 +1,8 @@
 # nocov start
-update_readstat <- function() {
+update_readstat <- function(branch = "master") {
   tmp <- tempfile()
   utils::download.file(
-    "https://github.com/WizardMac/ReadStat/archive/master.zip", tmp,
+    paste0("https://github.com/WizardMac/ReadStat/archive/", branch, ".zip"), tmp,
     quiet = TRUE
   )
   base <- fs::path_common(utils::unzip(tmp, exdir = tempdir()))
