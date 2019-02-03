@@ -355,8 +355,6 @@ cleanup:
 
 static readstat_error_t read_missing_value_record(por_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
-    double value;
-    char string[256];
     spss_varinfo_t *varinfo = NULL;
 
     if (ctx->var_offset < 0 || ctx->var_offset >= ctx->var_count) {
@@ -366,27 +364,27 @@ static readstat_error_t read_missing_value_record(por_ctx_t *ctx) {
     varinfo = &ctx->varinfo[ctx->var_offset];
 
     if (varinfo->type == READSTAT_TYPE_DOUBLE) {
-        if ((retval = read_double(ctx, &value)) != READSTAT_OK) {
+        if ((retval = read_double(ctx, &varinfo->missing_double_values[varinfo->n_missing_values])) != READSTAT_OK) {
             goto cleanup;
         }
-        if (varinfo->n_missing_values > 2) {
-            retval = READSTAT_ERROR_PARSE;
-            goto cleanup;
-        }
-        varinfo->missing_values[varinfo->n_missing_values++] = value;
     } else {
-        if ((retval = read_string(ctx, string, sizeof(string))) != READSTAT_OK) {
+        if ((retval = read_string(ctx, varinfo->missing_string_values[varinfo->n_missing_values],
+                        sizeof(varinfo->missing_string_values[varinfo->n_missing_values]))) != READSTAT_OK) {
             goto cleanup;
         }
     }
+    if (varinfo->n_missing_values > 2) {
+        retval = READSTAT_ERROR_PARSE;
+        goto cleanup;
+    }
+    varinfo->n_missing_values++;
+
 cleanup:
     return retval;
 }
 
 static readstat_error_t read_missing_value_range_record(por_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
-    double value;
-    char string[256];
     spss_varinfo_t *varinfo = NULL;
 
     if (ctx->var_offset < 0 || ctx->var_offset == ctx->var_count) {
@@ -395,22 +393,22 @@ static readstat_error_t read_missing_value_range_record(por_ctx_t *ctx) {
     }
     varinfo = &ctx->varinfo[ctx->var_offset];
 
+    varinfo->missing_range = 1;
+    varinfo->n_missing_values = 2;
     if (varinfo->type == READSTAT_TYPE_DOUBLE) {
-        varinfo->missing_range = 1;
-        if ((retval = read_double(ctx, &value)) != READSTAT_OK) {
+        if ((retval = read_double(ctx, &varinfo->missing_double_values[0])) != READSTAT_OK) {
             goto cleanup;
         }
-        varinfo->missing_values[0] = value;
-        if ((retval = read_double(ctx, &value)) != READSTAT_OK) {
+        if ((retval = read_double(ctx, &varinfo->missing_double_values[1])) != READSTAT_OK) {
             goto cleanup;
         }
-        varinfo->missing_values[1] = value;
-        varinfo->n_missing_values = 2;
     } else {
-        if ((retval = read_string(ctx, string, sizeof(string))) != READSTAT_OK) {
+        if ((retval = read_string(ctx, varinfo->missing_string_values[0],
+                        sizeof(varinfo->missing_string_values[0]))) != READSTAT_OK) {
             goto cleanup;
         }
-        if ((retval = read_string(ctx, string, sizeof(string))) != READSTAT_OK) {
+        if ((retval = read_string(ctx, varinfo->missing_string_values[1],
+                        sizeof(varinfo->missing_string_values[1]))) != READSTAT_OK) {
             goto cleanup;
         }
     }
@@ -420,8 +418,6 @@ cleanup:
 
 static readstat_error_t read_missing_value_lo_range_record(por_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
-    double value;
-    char string[256];
     spss_varinfo_t *varinfo = NULL;
 
     if (ctx->var_offset < 0 || ctx->var_offset == ctx->var_count) {
@@ -430,16 +426,17 @@ static readstat_error_t read_missing_value_lo_range_record(por_ctx_t *ctx) {
     }
     varinfo = &ctx->varinfo[ctx->var_offset];
 
+    varinfo->missing_range = 1;
+    varinfo->n_missing_values = 2;
     if (varinfo->type == READSTAT_TYPE_DOUBLE) {
-        varinfo->missing_range = 1;
-        if ((retval = read_double(ctx, &value)) != READSTAT_OK) {
+        varinfo->missing_double_values[0] = -HUGE_VAL;
+        if ((retval = read_double(ctx, &varinfo->missing_double_values[1])) != READSTAT_OK) {
             goto cleanup;
         }
-        varinfo->missing_values[0] = -HUGE_VAL;
-        varinfo->missing_values[1] = value;
-        varinfo->n_missing_values = 2;
     } else {
-        if ((retval = read_string(ctx, string, sizeof(string))) != READSTAT_OK) {
+        varinfo->missing_string_values[0][0] = '\0';
+        if ((retval = read_string(ctx, varinfo->missing_string_values[1],
+                        sizeof(varinfo->missing_string_values[1]))) != READSTAT_OK) {
             goto cleanup;
         }
     }
@@ -449,8 +446,6 @@ cleanup:
 
 static readstat_error_t read_missing_value_hi_range_record(por_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
-    double value;
-    char string[256];
     spss_varinfo_t *varinfo = NULL;
 
     if (ctx->var_offset < 0 || ctx->var_offset == ctx->var_count) {
@@ -459,18 +454,19 @@ static readstat_error_t read_missing_value_hi_range_record(por_ctx_t *ctx) {
     }
     varinfo = &ctx->varinfo[ctx->var_offset];
 
+    varinfo->missing_range = 1;
+    varinfo->n_missing_values = 2;
     if (varinfo->type == READSTAT_TYPE_DOUBLE) {
-        varinfo->missing_range = 1;
-        if ((retval = read_double(ctx, &value)) != READSTAT_OK) {
+        if ((retval = read_double(ctx, &varinfo->missing_double_values[0])) != READSTAT_OK) {
             goto cleanup;
         }
-        varinfo->missing_values[0] = value;
-        varinfo->missing_values[1] = HUGE_VAL;
-        varinfo->n_missing_values = 2;
+        varinfo->missing_double_values[1] = HUGE_VAL;
     } else {
-        if ((retval = read_string(ctx, string, sizeof(string))) != READSTAT_OK) {
+        if ((retval = read_string(ctx, varinfo->missing_string_values[0],
+                        sizeof(varinfo->missing_string_values[0]))) != READSTAT_OK) {
             goto cleanup;
         }
+        varinfo->missing_string_values[1][0] = '\0';
     }
 cleanup:
     return retval;

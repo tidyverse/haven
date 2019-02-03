@@ -247,6 +247,21 @@ readstat_error_t readstat_write_spaces(readstat_writer_t *writer, size_t len) {
     return readstat_write_repeated_byte(writer, ' ', len);
 }
 
+readstat_error_t readstat_write_space_padded_string(readstat_writer_t *writer, const char *string, size_t max_len) {
+    readstat_error_t retval = READSTAT_OK;
+    if (string == NULL || string[0] == '\0')
+        return readstat_write_spaces(writer, max_len);
+
+    size_t len = strlen(string);
+    if (len > max_len)
+        len = max_len;
+
+    if ((retval = readstat_write_bytes(writer, string, len)) != READSTAT_OK)
+        return retval;
+
+    return readstat_write_spaces(writer, max_len - len);
+}
+
 readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat_type_t type, const char *name) {
     if (writer->label_sets_count == writer->label_sets_capacity) {
         writer->label_sets_capacity *= 2;

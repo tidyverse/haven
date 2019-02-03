@@ -379,7 +379,56 @@ cleanup:
     return retval;
 }
 
-static readstat_error_t por_emit_missing_values_records(readstat_writer_t *writer,
+static readstat_error_t por_emit_missing_string_values_records(readstat_writer_t *writer,
+        por_write_ctx_t *ctx, readstat_variable_t *r_variable) {
+    readstat_error_t retval = READSTAT_OK;
+    int n_missing_values = 0;
+    int n_missing_ranges = readstat_variable_get_missing_ranges_count(r_variable);
+    /* ranges */
+    int j;
+
+    for (j=0; j<n_missing_ranges; j++) {
+        readstat_value_t lo_value = readstat_variable_get_missing_range_lo(r_variable, j);
+        readstat_value_t hi_value = readstat_variable_get_missing_range_hi(r_variable, j);
+        const char *lo = readstat_string_value(lo_value);
+        const char *hi = readstat_string_value(hi_value);
+        if (lo && hi && strcmp(lo, hi) != 0) {
+            if ((retval = por_write_tag(writer, ctx, 'B')) != READSTAT_OK)
+                goto cleanup;
+
+            if ((retval = por_write_string_field(writer, ctx, lo)) != READSTAT_OK)
+                goto cleanup;
+
+            if ((retval = por_write_string_field(writer, ctx, hi)) != READSTAT_OK)
+                goto cleanup;
+
+            n_missing_values += 2;
+        }
+    }
+    /* values */
+    for (j=0; j<n_missing_ranges; j++) {
+        readstat_value_t lo_value = readstat_variable_get_missing_range_lo(r_variable, j);
+        readstat_value_t hi_value = readstat_variable_get_missing_range_hi(r_variable, j);
+        const char *lo = readstat_string_value(lo_value);
+        const char *hi = readstat_string_value(hi_value);
+        if (lo && hi && strcmp(lo, hi) == 0) {
+            if ((retval = por_write_tag(writer, ctx, '8')) != READSTAT_OK)
+                goto cleanup;
+
+            if ((retval = por_write_string_field(writer, ctx, lo)) != READSTAT_OK)
+                goto cleanup;
+
+            n_missing_values++;
+        }
+    }
+    if (n_missing_values > 3)
+        retval = READSTAT_ERROR_TOO_MANY_MISSING_VALUE_DEFINITIONS;
+
+cleanup:
+    return retval;
+}
+
+static readstat_error_t por_emit_missing_double_values_records(readstat_writer_t *writer,
         por_write_ctx_t *ctx, readstat_variable_t *r_variable) {
     readstat_error_t retval = READSTAT_OK;
     int n_missing_values = 0;
@@ -442,6 +491,14 @@ static readstat_error_t por_emit_missing_values_records(readstat_writer_t *write
 
 cleanup:
     return retval;
+}
+
+static readstat_error_t por_emit_missing_values_records(readstat_writer_t *writer,
+        por_write_ctx_t *ctx, readstat_variable_t *r_variable) {
+    if (r_variable->type == READSTAT_TYPE_DOUBLE) {
+        return por_emit_missing_double_values_records(writer, ctx, r_variable);
+    }
+    return por_emit_missing_string_values_records(writer, ctx, r_variable);
 }
 
 static readstat_error_t por_emit_variable_records(readstat_writer_t *writer,

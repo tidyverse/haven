@@ -81,15 +81,6 @@ void spss_varinfo_free(spss_varinfo_t *info) {
     }
 }
 
-static readstat_value_t spss_boxed_value(double fp_value) {
-    readstat_value_t value = {
-        .type = READSTAT_TYPE_DOUBLE,
-        .v = { .double_value = fp_value },
-        .is_system_missing = isnan(fp_value)
-    };
-    return value;
-}
-
 uint64_t spss_64bit_value(readstat_value_t value) {
     double dval = readstat_double_value(value);
     uint64_t special_val;
@@ -107,24 +98,48 @@ uint64_t spss_64bit_value(readstat_value_t value) {
     return special_val;
 }
 
+static readstat_value_t spss_boxed_double_value(double fp_value) {
+    readstat_value_t value = {
+        .type = READSTAT_TYPE_DOUBLE,
+        .v = { .double_value = fp_value },
+        .is_system_missing = isnan(fp_value)
+    };
+    return value;
+}
+
+static readstat_value_t spss_boxed_string_value(const char *string) {
+    readstat_value_t value = {
+        .type = READSTAT_TYPE_STRING,
+        .v = { .string_value = string }
+    };
+    return value;
+}
+
+static readstat_value_t spss_boxed_missing_value(spss_varinfo_t *info, int i) {
+    if (info->type == READSTAT_TYPE_DOUBLE) {
+        return spss_boxed_double_value(info->missing_double_values[i]);
+    }
+    return spss_boxed_string_value(info->missing_string_values[i]);
+}
+
 readstat_missingness_t spss_missingness_for_info(spss_varinfo_t *info) {
     readstat_missingness_t missingness;
-    memset(&missingness, 0, sizeof(readstat_missingness_t));
+    memset(&missingness, '\0', sizeof(readstat_missingness_t));
 
     if (info->missing_range) {
         missingness.missing_ranges_count++;
-        missingness.missing_ranges[0] = spss_boxed_value(info->missing_values[0]);
-        missingness.missing_ranges[1] = spss_boxed_value(info->missing_values[1]);
+        missingness.missing_ranges[0] = spss_boxed_missing_value(info, 0);
+        missingness.missing_ranges[1] = spss_boxed_missing_value(info, 1);
 
         if (info->n_missing_values == 3) {
             missingness.missing_ranges_count++;
-            missingness.missing_ranges[2] = missingness.missing_ranges[3] = spss_boxed_value(info->missing_values[2]);
+            missingness.missing_ranges[2] = missingness.missing_ranges[3] = spss_boxed_missing_value(info, 2);
         }
     } else if (info->n_missing_values > 0) {
         missingness.missing_ranges_count = info->n_missing_values;
         int i=0;
         for (i=0; i<info->n_missing_values; i++) {
-            missingness.missing_ranges[2*i] = missingness.missing_ranges[2*i+1] = spss_boxed_value(info->missing_values[i]);
+            missingness.missing_ranges[2*i] = missingness.missing_ranges[2*i+1] = spss_boxed_missing_value(info, i);
         }
     }
     return missingness;

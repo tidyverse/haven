@@ -18,6 +18,7 @@
 
 * Update to latest readstat.
 
+  * `read_spss()` reads long variable labels (#422)
   * Fixes error when reading SAS file with zero columns (#420)
   * `read_por()` used base-10 instead of base-30 for the exponent (#413)
   * `write_sav()` creates incorrect column names when >10k columns (#410)
@@ -25,6 +26,7 @@
   * `read_sav()` has greater memory limit allowing it to read more labels (#418)
   * `read_por()` can now read files from SPSS 25 (#412)
   * `write_sav()` no longer crashes when writing long label names (#395)
+  
 
 * The `labelled` class now gets pretty printing that shows the labels and NA values
   when inside of a `tbl_df`. Includes the ability to turn off this behavior using 

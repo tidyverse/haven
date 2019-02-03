@@ -513,8 +513,10 @@ void readstat_variable_set_label_set(readstat_variable_t *variable, readstat_lab
 void readstat_variable_set_measure(readstat_variable_t *variable, readstat_measure_t measure);
 void readstat_variable_set_alignment(readstat_variable_t *variable, readstat_alignment_t alignment);
 void readstat_variable_set_display_width(readstat_variable_t *variable, int display_width);
-void readstat_variable_add_missing_double_value(readstat_variable_t *variable, double value);
-void readstat_variable_add_missing_double_range(readstat_variable_t *variable, double lo, double hi);
+readstat_error_t readstat_variable_add_missing_double_value(readstat_variable_t *variable, double value);
+readstat_error_t readstat_variable_add_missing_double_range(readstat_variable_t *variable, double lo, double hi);
+readstat_error_t readstat_variable_add_missing_string_value(readstat_variable_t *variable, const char *value);
+readstat_error_t readstat_variable_add_missing_string_range(readstat_variable_t *variable, const char *lo, const char *hi);
 readstat_variable_t *readstat_get_variable(readstat_writer_t *writer, int index);
 
 // "Notes" appear in the file metadata. In SPSS these are stored as
