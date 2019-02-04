@@ -6,9 +6,9 @@ NULL
 
 #' Read and write SAS files.
 #'
-#' Reading supports both sas7bdat files and the accompanying sas7bcat files
-#' that SAS uses to record value labels. Writing value labels is not currently
-#' supported.
+#' `read_sas()` supports both sas7bdat files and the accompanying sas7bcat files
+#' that SAS uses to record value labels. `write_sas()` is currently
+#' experimental and only works for limited datasets.
 #'
 #' @param data_file,catalog_file Path to data and catalog files. The files are
 #'   processed with [readr::datasource()].

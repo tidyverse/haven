@@ -27,8 +27,7 @@ knitr::opts_chunk$set(
 Haven enables R to read and write various data formats used by other statistical packages by wrapping the fantastic [ReadStat](https://github.com/WizardMac/ReadStat) C library written by [Evan Miller](http://www.evanmiller.org). Haven is part of the [tidyverse](http://tidyverse.org). Currently it supports:
 
 * __SAS__: `read_sas()` reads `.sas7bdat` + `.sas7bcat` files and `read_xpt()` 
-  reads SAS transport files (version 5 and version 8). `write_sas()` writes 
-  `.sas7bdat` files.
+  reads SAS transport files (version 5 and version 8).
   
 * __SPSS__: `read_sav()` reads `.sav` files and `read_por()` reads the 
   older `.por` files. `write_sav()` writes `.sav` files.

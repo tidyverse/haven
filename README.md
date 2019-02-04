@@ -25,7 +25,6 @@ statistical packages by wrapping the fantastic
 
   - **SAS**: `read_sas()` reads `.sas7bdat` + `.sas7bcat` files and
     `read_xpt()` reads SAS transport files (version 5 and version 8).
-    `write_sas()` writes `.sas7bdat` files.
 
   - **SPSS**: `read_sav()` reads `.sav` files and `read_por()` reads the
     older `.por` files. `write_sav()` writes `.sav` files.
