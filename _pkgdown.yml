@@ -10,7 +10,6 @@ authors:
   Evan Miller:
     href: http://www.evanmiller.org
 
-
 reference:
 - title: Reading and writing
   desc: ~
@@ -32,7 +31,7 @@ reference:
   - print_labels
   - as_factor
 
-- title: tagged_na
+- title: Tagged missing values
   desc: >
     Both SAS and Stata supported tagged missing values, where a missing value
     can have multiple "types", given by an letter from A through Z.
@@ -49,7 +48,7 @@ reference:
      equivalent in R. Haven preserves them so you can choose what do with
      them. To simply eliminate them, use one of the zap functions.
   contents:
-  - starts_with("zip")
+  - starts_with("zap")
 
 navbar:
   type: default
