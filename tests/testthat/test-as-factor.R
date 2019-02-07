@@ -79,6 +79,13 @@ test_that("order of labels doesn't matter", {
   expect_equal(as_factor(var, "labels"), factor("male", levels = c("female", "male")))
 })
 
+test_that("as_factor labels works with non-unique labels", {
+  s1 <- labelled(1:2, c("label" = 1, "label" = 2))
+  exp <- factor(c("label", "label"), levels = "label")
+  expect_equal(as_factor(s1, "labels"), exp)
+})
+
+
 # Variable label
 test_that("variable label is kept when converting labelled to factor (#178)", {
   s1 <- labelled(1:3, c("A" = 2))

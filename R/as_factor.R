@@ -80,7 +80,7 @@ as_factor.haven_labelled <- function(x, levels = c("default", "labels", "values"
       values = levs
     )
     x <- replace_with(x, levs, labs)
-    x <- factor(x, labs, ordered = ordered)
+    x <- factor(x, unique(labs), ordered = ordered)
   }
 
   structure(x, label = label)

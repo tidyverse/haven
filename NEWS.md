@@ -15,6 +15,7 @@
     * Is faster when input doesn't contain any missing values (@hughparsonage).
     * Added `labelled` method for backward compatbility (#414).
     * `data.frame` method now correctly passes `...` along (#407, @zkamvar).
+    * Allows non-unique labels when `levels = "label"` (#424, @gergness)
 
 *   `write_dta()` now checks that the labelled values are integers, not the 
     values themselves (#401).
