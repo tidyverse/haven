@@ -30,7 +30,7 @@
     * `write_sav()` no longer creates incorrect column names when >10k columns (#410)
     * `write_sav()` no longer crashes when writing long label names (#395)
   
-# haven 2.0.0R
+# haven 2.0.0
 
 ## BREAKING CHANGES
 
