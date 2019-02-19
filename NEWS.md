@@ -22,15 +22,15 @@
 *   Updated to latest ReadStat from @evanmiller:
 
     * `read_por()` can now read files from SPSS 25 (#412)
-    * `read_por()` used base-10 instead of base-30 for the exponent (#413)
+    * `read_por()` now uses base-30 instead of base-10 for the exponent (#413)
     * `read_sas()` can read zero column file (#420)
     * `read_sav()` reads long strings (#381)
     * `read_sav()` has greater memory limit allowing it to read more labels (#418)
     * `read_spss()` reads long variable labels (#422)
-    * `write_sav()` creates incorrect column names when >10k columns (#410)
+    * `write_sav()` no longer creates incorrect column names when >10k columns (#410)
     * `write_sav()` no longer crashes when writing long label names (#395)
   
-# haven 2.0.0R
+# haven 2.0.0
 
 ## BREAKING CHANGES
 
