@@ -81,7 +81,7 @@ soon after importing." />
         <a class="navbar-brand" href="../index.html">haven</a>
         <div class="info">
           <span class="partof">part of the <a href="https://tidyverse.org">tidyverse</a></span>
-          <span class="version version-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0.9000</span>
+          <span class="version version-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
         </div>
       </div>
     </div>
@@ -187,7 +187,7 @@ of the values might be labelled.</p></td>
 <span class='co'># Unfortunately it's not possible to make as.factor work for labelled objects</span>
 <span class='co'># so instead use as_factor. This works for all types of labelled vectors.</span>
 <span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s1</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
-#&gt; Levels: Female Male</div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s1</span>, <span class='kw'>labels</span> <span class='kw'>=</span> <span class='st'>"values"</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
+#&gt; Levels: Female Male</div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s1</span>, <span class='kw'>labels</span> <span class='kw'>=</span> <span class='st'>"values"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Some components of ... were not used: labels</span></div><div class='output co'>#&gt; [1] Male   Male   Female
 #&gt; Levels: Female Male</div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s2</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
 #&gt; Levels: Male Female</div><div class='input'>
 <span class='co'># Other statistical software supports multiple types of missing values</span>

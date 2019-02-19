@@ -74,7 +74,7 @@
         <a class="navbar-brand" href="../index.html">haven</a>
         <div class="info">
           <span class="partof">part of the <a href="https://tidyverse.org">tidyverse</a></span>
-          <span class="version version-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0.9000</span>
+          <span class="version version-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.1.0</span>
         </div>
       </div>
     </div>
@@ -134,9 +134,58 @@
       <small>Source: <a href='https://github.com/tidyverse/haven/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="haven-2-0-0r" class="section level1">
+    <div id="haven-2-1-0" class="section level1">
 <h1 class="page-header">
-<a href="#haven-2-0-0r" class="anchor"></a>haven 2.0.0R<small> 2018-11-21 </small>
+<a href="#haven-2-1-0" class="anchor"></a>haven 2.1.0<small> 2019-02-19 </small>
+</h1>
+<div id="improved-labelling" class="section level2">
+<h2 class="hasAnchor">
+<a href="#improved-labelling" class="anchor"></a>Improved labelling</h2>
+<p><code>labelled</code> objects get pretty printing that shows the labels and NA values when inside of a <code>tbl_df</code>. Turn this behaviour off with behavior using <code><a href="https://www.rdocumentation.org/packages/base/topics/options">option(haven.show_pillar_labels = FALSE)</a></code> (<a href='https://github.com/tidyverse/haven/issues/340'>#340</a>, <a href='https://github.com/gergness'>@gergness</a>).</p>
+<p><code><a href="../reference/labelled.html">labelled()</a></code> and <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> now allow <code>NULL</code> labels. This makes both classes more flexible, allowing you to use them for their other attributes (<a href='https://github.com/tidyverse/haven/issues/219'>#219</a>).</p>
+<p><code><a href="../reference/labelled.html">labelled()</a></code> tests that value labels are unique (<a href='https://github.com/larmarange'>@larmarange</a>, <a href='https://github.com/tidyverse/haven/issues/364'>#364</a>)</p>
+</div>
+<div id="minor-improvements-and-bug-fixes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#minor-improvements-and-bug-fixes" class="anchor"></a>Minor improvements and bug fixes</h2>
+<ul>
+<li>
+<p><code><a href="../reference/as_factor.html">as_factor()</a></code>:</p>
+<ul>
+<li>Is faster when input doesn’t contain any missing values (<a href='https://github.com/hughparsonage'>@hughparsonage</a>).</li>
+<li>Added <code>labelled</code> method for backward compatbility (<a href='https://github.com/tidyverse/haven/issues/414'>#414</a>).</li>
+<li>
+<code>data.frame</code> method now correctly passes <code>...</code> along (<a href='https://github.com/tidyverse/haven/issues/407'>#407</a>, <a href='https://github.com/zkamvar'>@zkamvar</a>).</li>
+</ul>
+</li>
+<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> now checks that the labelled values are integers, not the values themselves (<a href='https://github.com/tidyverse/haven/issues/401'>#401</a>).</p></li>
+<li>
+<p>Updated to latest ReadStat from <a href='https://github.com/evanmiller'>@evanmiller</a>:</p>
+<ul>
+<li>
+<code><a href="../reference/read_spss.html">read_por()</a></code> can now read files from SPSS 25 (<a href='https://github.com/tidyverse/haven/issues/412'>#412</a>)</li>
+<li>
+<code><a href="../reference/read_spss.html">read_por()</a></code> now uses base-30 instead of base-10 for the exponent (<a href='https://github.com/tidyverse/haven/issues/413'>#413</a>)</li>
+<li>
+<code><a href="../reference/read_sas.html">read_sas()</a></code> can read zero column file (<a href='https://github.com/tidyverse/haven/issues/420'>#420</a>)</li>
+<li>
+<code><a href="../reference/read_spss.html">read_sav()</a></code> reads long strings (<a href='https://github.com/tidyverse/haven/issues/381'>#381</a>)</li>
+<li>
+<code><a href="../reference/read_spss.html">read_sav()</a></code> has greater memory limit allowing it to read more labels (<a href='https://github.com/tidyverse/haven/issues/418'>#418</a>)</li>
+<li>
+<code><a href="../reference/read_spss.html">read_spss()</a></code> reads long variable labels (<a href='https://github.com/tidyverse/haven/issues/422'>#422</a>)</li>
+<li>
+<code><a href="../reference/read_spss.html">write_sav()</a></code> no longer creates incorrect column names when &gt;10k columns (<a href='https://github.com/tidyverse/haven/issues/410'>#410</a>)</li>
+<li>
+<code><a href="../reference/read_spss.html">write_sav()</a></code> no longer crashes when writing long label names (<a href='https://github.com/tidyverse/haven/issues/395'>#395</a>)</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+    <div id="haven-2-0-0" class="section level1">
+<h1 class="page-header">
+<a href="#haven-2-0-0" class="anchor"></a>haven 2.0.0<small> 2018-11-21 </small>
 </h1>
 <div id="breaking-changes" class="section level2">
 <h2 class="hasAnchor">
@@ -308,7 +357,8 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#haven-2-0-0r">2.0.0</a></li>
+        <li><a href="#haven-2-1-0">2.1.0</a></li>
+        <li><a href="#haven-2-0-0">2.0.0</a></li>
         <li><a href="#haven-1-1-2">1.1.2</a></li>
         <li><a href="#haven-1-1-1">1.1.1</a></li>
         <li><a href="#haven-1-1-0">1.1.0</a></li>
