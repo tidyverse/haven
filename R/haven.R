@@ -38,6 +38,7 @@ read_sas <- function(data_file, catalog_file = NULL,
   if (is.null(encoding)) {
     encoding <- ""
   }
+
   if (is.null(cols_only)) {
     cols_only <- character()
   } else if (!is.character(cols_only)) {
