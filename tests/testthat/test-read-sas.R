@@ -42,3 +42,13 @@ test_that("can limit the number of rows read", {
   out <- read_sas(test_path("hadley.sas7bdat"), n_max = 1)
   expect_equal(nrow(out), 1L)
 })
+
+test_that("only selected columns are read", {
+  out <- read_sas(test_path("hadley.sas7bdat"), cols_only = c("id", "workshop"))
+  expect_equal(names(out), c("id", "workshop"))
+})
+
+test_that("can select columns by position", {
+  out <- read_sas(test_path("hadley.sas7bdat"), cols_only = 2:3)
+  expect_equal(names(out), c("workshop", "gender"))
+})

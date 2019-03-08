@@ -40,6 +40,9 @@ read_sas <- function(data_file, catalog_file = NULL,
   }
   if (is.null(cols_only)) {
     cols_only <- character()
+  } else if (!is.character(cols_only)) {
+    cols <- names(read_sas(data_file, encoding = encoding, n_max = 1L))
+    cols_only <- tidyselect::vars_select(cols, !!!cols_only)
   }
 
   spec_data <- readr::datasource(data_file)
