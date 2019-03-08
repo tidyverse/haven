@@ -37,3 +37,8 @@ test_that("tagged missings are read correctly", {
   labels <- attr(x, "labels")
   expect_equal(na_tag(labels), c("a", "z"))
 })
+
+test_that("can limit the number of rows read", {
+  out <- read_sas(test_path("hadley.sas7bdat"), n_max = 1)
+  expect_equal(nrow(out), 1L)
+})

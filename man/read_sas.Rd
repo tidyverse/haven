@@ -6,7 +6,7 @@
 \title{Read and write SAS files.}
 \usage{
 read_sas(data_file, catalog_file = NULL, encoding = NULL,
-  catalog_encoding = encoding, cols_only = NULL)
+  catalog_encoding = encoding, cols_only = NULL, n_max = -1L)
 
 write_sas(data, path)
 }
@@ -15,12 +15,15 @@ write_sas(data, path)
 processed with \code{\link[readr:datasource]{readr::datasource()}}.}
 
 \item{encoding, catalog_encoding}{The character encoding used for the
-\code{data_file} and \code{catalog_encoding} respectively. A value of \code{NULL}
-uses the encoding specified in the file; use this argument to override it
-if it is incorrect.}
+\code{data_file} and \code{catalog_encoding} respectively. A value of \code{NULL} uses the
+encoding specified in the file; use this argument to override it if it is
+incorrect.}
 
 \item{cols_only}{A character vector giving an experimental way to read in
 only specified columns.}
+
+\item{n_max}{Number of lines to read. If \code{n_max} is -1, all lines in file
+will be read.}
 
 \item{data}{Data frame to write.}
 
@@ -29,15 +32,15 @@ only specified columns.}
 \value{
 A tibble, data frame variant with nice defaults.
 
-Variable labels are stored in the "label" attribute of each variable.
-It is not printed on the console, but the RStudio viewer will show it.
+Variable labels are stored in the "label" attribute of each variable. It is
+not printed on the console, but the RStudio viewer will show it.
 
 \code{write_sas()} returns the input \code{data} invisibly.
 }
 \description{
 \code{read_sas()} supports both sas7bdat files and the accompanying sas7bcat files
-that SAS uses to record value labels. \code{write_sas()} is currently
-experimental and only works for limited datasets.
+that SAS uses to record value labels. \code{write_sas()} is currently experimental
+and only works for limited datasets.
 }
 \examples{
 path <- system.file("examples", "iris.sas7bdat", package = "haven")

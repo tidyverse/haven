@@ -7,23 +7,25 @@ NULL
 #' Read and write SAS files.
 #'
 #' `read_sas()` supports both sas7bdat files and the accompanying sas7bcat files
-#' that SAS uses to record value labels. `write_sas()` is currently
-#' experimental and only works for limited datasets.
+#' that SAS uses to record value labels. `write_sas()` is currently experimental
+#' and only works for limited datasets.
 #'
 #' @param data_file,catalog_file Path to data and catalog files. The files are
 #'   processed with [readr::datasource()].
 #' @param data Data frame to write.
 #' @param path Path to file where the data will be written.
 #' @param encoding,catalog_encoding The character encoding used for the
-#'   `data_file` and `catalog_encoding` respectively. A value of `NULL`
-#'   uses the encoding specified in the file; use this argument to override it
-#'   if it is incorrect.
+#'   `data_file` and `catalog_encoding` respectively. A value of `NULL` uses the
+#'   encoding specified in the file; use this argument to override it if it is
+#'   incorrect.
 #' @param cols_only A character vector giving an experimental way to read in
 #'   only specified columns.
+#' @param n_max Number of lines to read. If `n_max` is -1, all lines in file
+#'   will be read.
 #' @return A tibble, data frame variant with nice defaults.
 #'
-#'   Variable labels are stored in the "label" attribute of each variable.
-#'   It is not printed on the console, but the RStudio viewer will show it.
+#'   Variable labels are stored in the "label" attribute of each variable. It is
+#'   not printed on the console, but the RStudio viewer will show it.
 #'
 #'   `write_sas()` returns the input `data` invisibly.
 #' @export
@@ -32,7 +34,7 @@ NULL
 #' read_sas(path)
 read_sas <- function(data_file, catalog_file = NULL,
                      encoding = NULL, catalog_encoding = encoding,
-                     cols_only = NULL) {
+                     cols_only = NULL, n_max = -1L) {
   if (is.null(encoding)) {
     encoding <- ""
   }
@@ -48,8 +50,8 @@ read_sas <- function(data_file, catalog_file = NULL,
   }
 
   switch(class(spec_data)[1],
-    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_only = cols_only),
-    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_only = cols_only),
+    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_only = cols_only, n_max = n_max),
+    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_only = cols_only, n_max = n_max),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
