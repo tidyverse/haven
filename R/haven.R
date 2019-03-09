@@ -40,10 +40,11 @@ read_sas <- function(data_file, catalog_file = NULL,
   }
 
   if (is.null(cols_only)) {
-    cols_only <- character()
-  } else if (!is.character(cols_only)) {
+    cols_skip <- character()
+  } else {
     cols <- names(read_sas(data_file, encoding = encoding, n_max = 1L))
     cols_only <- tidyselect::vars_select(cols, !!!cols_only)
+    cols_skip <- setdiff(cols, cols_only)
   }
 
   spec_data <- readr::datasource(data_file)
@@ -54,8 +55,8 @@ read_sas <- function(data_file, catalog_file = NULL,
   }
 
   switch(class(spec_data)[1],
-    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_only = cols_only, n_max = n_max),
-    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_only = cols_only, n_max = n_max),
+    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max),
+    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }

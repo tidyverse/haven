@@ -127,15 +127,15 @@ class DfReader {
   std::vector<VarType> var_types_;
   std::vector<std::string> notes_;
 
-  // If empty, assume all will be read in
-  std::set<std::string> colsOnly_;
+  std::set<std::string> colsSkip_;
 
 public:
   DfReader(FileType type, bool user_na = false): type_(type), nrows_(0), ncols_(0), user_na_(user_na) {
   }
 
-  void restrictCols(const std::set<std::string>& cols) {
-    colsOnly_ = cols;
+  void skipCols(const std::vector<std::string>& cols) {
+    std::set<std::string> cols_set(cols.begin(), cols.end());
+    colsSkip_ = cols_set;
   }
 
   void setInfo(int obs_count, int var_count) {
@@ -147,7 +147,7 @@ public:
       nrowsAlloc_ = nrows_ = obs_count;
     }
 
-    ncols_ = colsOnly_.empty() ? var_count : colsOnly_.size();
+    ncols_ = var_count - colsSkip_.size();
 
     output_ = List(ncols_);
     names_ = CharacterVector(ncols_);
@@ -171,7 +171,7 @@ public:
 
     const char* name = readstat_variable_get_name(variable);
 
-    if (!colsOnly_.empty() && colsOnly_.count(name) == 0) {
+    if (colsSkip_.count(name) > 0) {
       return READSTAT_HANDLER_SKIP_VARIABLE;
     }
 
@@ -637,13 +637,9 @@ List df_parse_xpt(Rcpp::List spec, std::string encoding = "") {
 template<typename InputClass>
 List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                   std::string encoding, std::string catalog_encoding,
-                  std::vector<std::string> cols_only, long n_max) {
+                  std::vector<std::string> cols_skip, long n_max) {
   DfReader builder(HAVEN_SAS);
-
-  if (!cols_only.empty()) {
-    std::set<std::string> cols_set(cols_only.begin(), cols_only.end());
-    builder.restrictCols(cols_set);
-  }
+  builder.skipCols(cols_skip);
 
   InputClass builder_input_dat(spec_b7dat);
 
@@ -688,14 +684,14 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 // [[Rcpp::export]]
 List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                        std::string encoding, std::string catalog_encoding,
-                       std::vector<std::string> cols_only, long n_max) {
-  return df_parse_sas<DfReaderInputFile>(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_only, n_max);
+                       std::vector<std::string> cols_skip, long n_max) {
+  return df_parse_sas<DfReaderInputFile>(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_skip, n_max);
 }
 // [[Rcpp::export]]
 List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                       std::string encoding, std::string catalog_encoding,
-                      std::vector<std::string> cols_only, long n_max) {
-  return df_parse_sas<DfReaderInputRaw>(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_only, n_max);
+                      std::vector<std::string> cols_skip, long n_max) {
+  return df_parse_sas<DfReaderInputRaw>(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_skip, n_max);
 }
 
 // [[Rcpp::export]]
