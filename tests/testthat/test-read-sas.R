@@ -58,3 +58,11 @@ test_that("empty selection returns no columns", {
   expect_equal(ncol(out), 0L)
 })
 
+test_that("can select columns with a catalog file", {
+  out <- read_sas(
+    test_path("hadley.sas7bdat"),
+    test_path("formats.sas7bcat"),
+    cols_only = "workshop"
+  )
+  expect_equal(names(out), "workshop")
+})

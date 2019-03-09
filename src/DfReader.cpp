@@ -147,6 +147,10 @@ public:
       nrowsAlloc_ = nrows_ = obs_count;
     }
 
+    if (var_count < 1) {
+      return; // sas7bcat has var_count = 0
+    }
+
     ncols_ = var_count - colsSkip_.size();
 
     output_ = List(ncols_);
