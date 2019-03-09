@@ -371,6 +371,12 @@ public:
     }
   }
 
+  void limitRows(long n) {
+    if (n >= 0 && nrows_ > n) {
+      nrows_ = n;
+    }
+  }
+
   List output() {
     if (nrows_ != nrowsAlloc_)
       resizeCols(nrows_);
@@ -567,6 +573,11 @@ std::string haven_error_message(Rcpp::List spec) {
     return as<std::string>(spec[0]);
 }
 
+void haven_set_row_limit(readstat_parser_t* parser, long n) {
+  // readstat uses 0 to specify "all rows" but what we want is "minimal rows"
+  readstat_set_row_limit(parser, n == 0 ? 1 : n);
+}
+
 template<typename InputClass>
 List df_parse_spss(Rcpp::List spec, std::string encoding = "", bool user_na = false, bool por = false) {
   DfReader builder(HAVEN_SPSS, user_na);
@@ -645,7 +656,7 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 
   readstat_parser_t* parser = haven_init_parser();
   haven_init_io(parser, builder_input_dat);
-  readstat_set_row_limit(parser, n_max);
+  haven_set_row_limit(parser, n_max);
 
   if (spec_b7cat.size() != 0) {
     InputClass builder_input_cat(spec_b7cat);
@@ -676,6 +687,7 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
          readstat_error_message(result));
   }
 
+  builder.limitRows(n_max);
   return builder.output();
 }
 
