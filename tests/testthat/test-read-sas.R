@@ -39,8 +39,8 @@ test_that("tagged missings are read correctly", {
 })
 
 test_that("can limit the number of rows read", {
-  out <- read_sas(test_path("hadley.sas7bdat"), n_max = 1)
-  expect_equal(nrow(out), 1L)
+  expect_equal(nrow(read_sas(test_path("hadley.sas7bdat"), n_max = 1)), 1L)
+  expect_equal(nrow(read_sas(test_path("hadley.sas7bdat"), n_max = 0)), 0L)
 })
 
 test_that("only selected columns are read", {
