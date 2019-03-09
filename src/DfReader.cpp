@@ -409,7 +409,7 @@ public:
     output_.attr("names") = names_;
 
     static Function as_tibble("as_tibble", Environment::namespace_env("tibble"));
-    return as_tibble(output_);
+    return as_tibble(output_, Named(".rows", nrows_));
   }
 
 };
