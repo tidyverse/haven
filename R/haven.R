@@ -44,7 +44,7 @@ read_sas <- function(data_file, catalog_file = NULL,
   if (is.null(cols_only)) {
     cols_skip <- character()
   } else {
-    cols <- names(read_sas(data_file, encoding = encoding, n_max = 1L))
+    cols <- names(read_sas(data_file, encoding = encoding, n_max = 0L))
     cols_only <- tidyselect::vars_select(cols, !!!cols_only)
     cols_skip <- setdiff(cols, cols_only)
   }
