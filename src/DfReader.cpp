@@ -687,7 +687,8 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
          readstat_error_message(result));
   }
 
-  builder.limitRows(n_max);
+  // must enforce n_max = 0
+  builder.limitRows(n_max);  
   return builder.output();
 }
 
