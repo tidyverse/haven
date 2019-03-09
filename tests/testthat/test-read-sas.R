@@ -52,3 +52,9 @@ test_that("can select columns by position", {
   out <- read_sas(test_path("hadley.sas7bdat"), cols_only = 2:3)
   expect_equal(names(out), c("workshop", "gender"))
 })
+
+test_that("empty selection returns no columns", {
+  out <- read_sas(test_path("hadley.sas7bdat"), cols_only = character())
+  expect_equal(ncol(out), 0L)
+})
+
