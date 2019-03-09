@@ -18,8 +18,10 @@ NULL
 #'   `data_file` and `catalog_encoding` respectively. A value of `NULL` uses the
 #'   encoding specified in the file; use this argument to override it if it is
 #'   incorrect.
-#' @param cols_only A character vector giving an experimental way to read in
-#'   only specified columns.
+#' @param cols_only A list of quoted column names, a character vector of column
+#'   names, a numeric vector of column positions, or NULL. Quoted column names
+#'   can also make use of  [tidyselect::select_helpers]. Only the specified
+#'   columns will be read from `data_file`.
 #' @param n_max Number of lines to read. If `n_max` is -1, all lines in file
 #'   will be read.
 #' @return A tibble, data frame variant with nice defaults.
