@@ -115,7 +115,9 @@ public:
 // DfReader ------------------------------------------------------------------
 
 class DfReader {
-  FileType type_;
+  FileExt ext_;
+  FileVendor vendor_;
+
   int nrows_, nrowsAlloc_;
   int ncols_;
   List output_;
@@ -130,7 +132,7 @@ class DfReader {
   std::set<std::string> colsSkip_;
 
 public:
-  DfReader(FileType type, bool user_na = false): type_(type), nrows_(0), ncols_(0), user_na_(user_na) {
+  DfReader(FileExt ext, bool user_na = false): ext_(ext), vendor_(extVendor(ext)), nrows_(0), ncols_(0), user_na_(user_na) {
   }
 
   void skipCols(const std::vector<std::string>& cols) {
@@ -209,7 +211,7 @@ public:
 
     const char* var_format = readstat_variable_get_format(variable);
 
-    VarType var_type = numType(type_, var_format);
+    VarType var_type = numType(vendor_, var_format);
     // Rcout << name << ": " << var_format << " [" << var_type << "]\n";
     var_types_[var_index] = var_type;
     switch(var_type) {
@@ -289,12 +291,12 @@ public:
 
     // Store original format as attribute
     if (var_format != NULL && strcmp(var_format, "") != 0) {
-      col.attr(formatAttribute(type_)) = Rf_ScalarString(Rf_mkCharCE(var_format, CE_UTF8));
+      col.attr(formatAttribute(vendor_)) = Rf_ScalarString(Rf_mkCharCE(var_format, CE_UTF8));
     }
 
     // Store original display width as attribute if it differs from the default
     int display_width = readstat_variable_get_display_width(variable);
-    if (type_ == HAVEN_SPSS && display_width != 8) {
+    if (vendor_ == HAVEN_SPSS && display_width != 8) {
       col.attr("display_width") = Rf_ScalarInteger(display_width);
     }
 
@@ -329,7 +331,7 @@ public:
     {
       NumericVector col = output_[var_index];
       double val = haven_double_value_udm(value, variable, user_na_);
-      col[obs_index] = adjustDatetimeToR(type_, var_type, val);
+      col[obs_index] = adjustDatetimeToR(vendor_, var_type, val);
       break;
     }
     }
@@ -583,20 +585,15 @@ void haven_set_row_limit(readstat_parser_t* parser, long n) {
 }
 
 template<typename InputClass>
-List df_parse_spss(Rcpp::List spec, std::string encoding = "", bool user_na = false, bool por = false) {
-  DfReader builder(HAVEN_SPSS, user_na);
+List df_parse_sav(Rcpp::List spec, std::string encoding = "", bool user_na = false) {
+  DfReader builder(HAVEN_SAV, user_na);
   InputClass builder_input(spec);
 
   readstat_parser_t* parser = haven_init_parser(encoding);
   haven_init_io(parser, builder_input);
 
   readstat_error_t result;
-  if (por) {
-    result = readstat_parse_por(parser, "", &builder);
-  } else {
-    result = readstat_parse_sav(parser, "", &builder);
-  }
-
+  result = readstat_parse_sav(parser, "", &builder);
   readstat_parser_free(parser);
 
   if (result != 0) {
@@ -608,8 +605,29 @@ List df_parse_spss(Rcpp::List spec, std::string encoding = "", bool user_na = fa
 }
 
 template<typename InputClass>
+List df_parse_por(Rcpp::List spec, std::string encoding = "", bool user_na = false) {
+  DfReader builder(HAVEN_POR, user_na);
+  InputClass builder_input(spec);
+
+  readstat_parser_t* parser = haven_init_parser(encoding);
+  haven_init_io(parser, builder_input);
+
+  readstat_error_t result;
+  result = readstat_parse_sav(parser, "", &builder);
+  readstat_parser_free(parser);
+
+  if (result != 0) {
+    stop("Failed to parse %s: %s.", haven_error_message(spec),
+         readstat_error_message(result));
+  }
+
+  return builder.output();
+}
+
+
+template<typename InputClass>
 List df_parse_dta(Rcpp::List spec, std::string encoding = "") {
-  DfReader builder(HAVEN_STATA);
+  DfReader builder(HAVEN_DTA);
   InputClass builder_input(spec);
 
   readstat_parser_t* parser = haven_init_parser(encoding);
@@ -653,7 +671,7 @@ template<typename InputClass>
 List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                   std::string encoding, std::string catalog_encoding,
                   std::vector<std::string> cols_skip, long n_max) {
-  DfReader builder(HAVEN_SAS);
+  DfReader builder(HAVEN_SAS7BDAT);
   builder.skipCols(cols_skip);
 
   readstat_parser_t* parser = haven_init_parser();
@@ -731,20 +749,20 @@ List df_parse_dta_raw(Rcpp::List spec, std::string encoding) {
 
 // [[Rcpp::export]]
 List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_spss<DfReaderInputFile>(spec, encoding, user_na, false);
+  return df_parse_sav<DfReaderInputFile>(spec, encoding, user_na);
 }
 // [[Rcpp::export]]
 List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_spss<DfReaderInputRaw>(spec, encoding, user_na, false);
+  return df_parse_sav<DfReaderInputRaw>(spec, encoding, user_na);
 }
 
 // [[Rcpp::export]]
 List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_spss<DfReaderInputFile>(spec, encoding, user_na, true);
+  return df_parse_por<DfReaderInputFile>(spec, encoding, user_na);
 }
 // [[Rcpp::export]]
 List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_spss<DfReaderInputRaw>(spec, encoding, user_na, true);
+  return df_parse_por<DfReaderInputRaw>(spec, encoding, user_na);
 }
 
 // # nocov end
