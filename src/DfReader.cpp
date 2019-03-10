@@ -656,14 +656,15 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
   DfReader builder(HAVEN_SAS);
   builder.skipCols(cols_skip);
 
-  InputClass builder_input_dat(spec_b7dat);
-
   readstat_parser_t* parser = haven_init_parser();
-  haven_init_io(parser, builder_input_dat);
   haven_set_row_limit(parser, n_max);
+
+  InputClass builder_input_dat(spec_b7dat);
+  haven_init_io(parser, builder_input_dat);
 
   if (spec_b7cat.size() != 0) {
     InputClass builder_input_cat(spec_b7cat);
+
     readstat_set_io_ctx(parser, (void*) &builder_input_cat);
     if (catalog_encoding != "") {
       readstat_set_file_character_encoding(parser, catalog_encoding.c_str());
@@ -671,7 +672,7 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 
     readstat_error_t result = readstat_parse_sas7bcat(parser, "", &builder);
 
-    if (result != 0) {
+    if (result != READSTAT_OK) {
       readstat_parser_free(parser);
       stop("Failed to parse %s: %s.", haven_error_message(spec_b7cat),
            readstat_error_message(result));
@@ -686,13 +687,12 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
   readstat_error_t result = readstat_parse_sas7bdat(parser, "", &builder);
   readstat_parser_free(parser);
 
-  if (result != 0) {
+  if (result != READSTAT_OK) {
     stop("Failed to parse %s: %s.", haven_error_message(spec_b7dat),
          readstat_error_message(result));
   }
 
-  // must enforce n_max = 0
-  builder.limitRows(n_max);  
+  builder.limitRows(n_max); // must enforce n_max = 0
   return builder.output();
 }
 
