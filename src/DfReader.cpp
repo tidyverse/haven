@@ -584,80 +584,34 @@ void haven_set_row_limit(readstat_parser_t* parser, long n) {
   readstat_set_row_limit(parser, n == 0 ? 1 : n);
 }
 
-template<typename InputClass>
-List df_parse_sav(Rcpp::List spec, std::string encoding = "", bool user_na = false) {
-  DfReader builder(HAVEN_SAV, user_na);
-  InputClass builder_input(spec);
-
-  readstat_parser_t* parser = haven_init_parser(encoding);
-  haven_init_io(parser, builder_input);
-
-  readstat_error_t result;
-  result = readstat_parse_sav(parser, "", &builder);
-  readstat_parser_free(parser);
-
-  if (result != 0) {
-    stop("Failed to parse %s: %s.", haven_error_message(spec),
-         readstat_error_message(result));
+template<FileExt ext>
+readstat_error_t haven_parse(readstat_parser_t* parser, DfReader* builder) {
+  switch(ext) {
+  // the path for readstat_parse_* is baked into the io context (DfReaderInput)
+  case HAVEN_SAS7BDAT: return readstat_parse_sas7bdat(parser, "", builder);
+  case HAVEN_SAS7BCAT: return readstat_parse_sas7bcat(parser, "", builder);
+  case HAVEN_XPT:      return readstat_parse_xport(parser, "", builder);
+  case HAVEN_DTA:      return readstat_parse_dta(parser, "", builder);
+  case HAVEN_SAV:      return readstat_parse_sav(parser, "", builder);
+  case HAVEN_POR:      return readstat_parse_por(parser, "", builder);
+  default:             return READSTAT_ERROR_PARSE;
   }
-
-  return builder.output();
-}
-
-template<typename InputClass>
-List df_parse_por(Rcpp::List spec, std::string encoding = "", bool user_na = false) {
-  DfReader builder(HAVEN_POR, user_na);
-  InputClass builder_input(spec);
-
-  readstat_parser_t* parser = haven_init_parser(encoding);
-  haven_init_io(parser, builder_input);
-
-  readstat_error_t result;
-  result = readstat_parse_sav(parser, "", &builder);
-  readstat_parser_free(parser);
-
-  if (result != 0) {
-    stop("Failed to parse %s: %s.", haven_error_message(spec),
-         readstat_error_message(result));
-  }
-
-  return builder.output();
 }
 
 
-template<typename InputClass>
-List df_parse_dta(Rcpp::List spec, std::string encoding = "") {
-  DfReader builder(HAVEN_DTA);
-  InputClass builder_input(spec);
+template<FileExt ext, typename InputClass>
+List df_parse(Rcpp::List spec, std::string encoding = "", bool user_na = false) {
+  DfReader builder(ext, user_na);
 
   readstat_parser_t* parser = haven_init_parser(encoding);
-  haven_init_io(parser, builder_input);
 
-  readstat_error_t result = readstat_parse_dta(parser, "", &builder);
-  readstat_parser_free(parser);
-
-  if (result != 0) {
-    stop("Failed to parse %s: %s.",
-         haven_error_message(spec),
-         readstat_error_message(result));
-  }
-
-  return builder.output();
-}
-
-
-template<typename InputClass>
-List df_parse_xpt(Rcpp::List spec, std::string encoding = "") {
-  DfReader builder(HAVEN_XPT);
   InputClass builder_input(spec);
-
-  readstat_parser_t* parser = haven_init_parser(encoding);
   haven_init_io(parser, builder_input);
 
-  readstat_error_t result = readstat_parse_xport(parser, "", &builder);
+  readstat_error_t result = haven_parse<ext>(parser, &builder);
   readstat_parser_free(parser);
 
-  if (result != 0) {
+  if (result != READSTAT_OK) {
     stop("Failed to parse %s: %s.",
          haven_error_message(spec),
          readstat_error_message(result));
@@ -688,7 +642,7 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
       readstat_set_file_character_encoding(parser, catalog_encoding.c_str());
     }
 
-    readstat_error_t result = readstat_parse_sas7bcat(parser, "", &builder);
+    readstat_error_t result = haven_parse<HAVEN_SAS7BCAT>(parser, &builder);
 
     if (result != READSTAT_OK) {
       readstat_parser_free(parser);
@@ -702,7 +656,7 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
     readstat_set_file_character_encoding(parser, encoding.c_str());
   }
 
-  readstat_error_t result = readstat_parse_sas7bdat(parser, "", &builder);
+  readstat_error_t result = haven_parse<HAVEN_SAS7BDAT>(parser, &builder);
   readstat_parser_free(parser);
 
   if (result != READSTAT_OK) {
@@ -731,38 +685,38 @@ List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 
 // [[Rcpp::export]]
 List df_parse_xpt_file(Rcpp::List spec) {
-  return df_parse_xpt<DfReaderInputFile>(spec);
+  return df_parse<HAVEN_XPT, DfReaderInputFile>(spec);
 }
 // [[Rcpp::export]]
 List df_parse_xpt_raw(Rcpp::List spec) {
-  return df_parse_xpt<DfReaderInputRaw>(spec);
+  return df_parse<HAVEN_XPT, DfReaderInputRaw>(spec);
 }
 
 // [[Rcpp::export]]
 List df_parse_dta_file(Rcpp::List spec, std::string encoding) {
-  return df_parse_dta<DfReaderInputFile>(spec, encoding);
+  return df_parse<HAVEN_DTA, DfReaderInputFile>(spec, encoding);
 }
 // [[Rcpp::export]]
 List df_parse_dta_raw(Rcpp::List spec, std::string encoding) {
-  return df_parse_dta<DfReaderInputRaw>(spec, encoding);
+  return df_parse<HAVEN_DTA, DfReaderInputRaw>(spec, encoding);
 }
 
 // [[Rcpp::export]]
 List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_sav<DfReaderInputFile>(spec, encoding, user_na);
+  return df_parse<HAVEN_SAV, DfReaderInputFile>(spec, encoding, user_na);
 }
 // [[Rcpp::export]]
 List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_sav<DfReaderInputRaw>(spec, encoding, user_na);
+  return df_parse<HAVEN_SAV, DfReaderInputRaw>(spec, encoding, user_na);
 }
 
 // [[Rcpp::export]]
 List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_por<DfReaderInputFile>(spec, encoding, user_na);
+  return df_parse<HAVEN_POR, DfReaderInputFile>(spec, encoding, user_na);
 }
 // [[Rcpp::export]]
 List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_por<DfReaderInputRaw>(spec, encoding, user_na);
+  return df_parse<HAVEN_POR, DfReaderInputRaw>(spec, encoding, user_na);
 }
 
 // # nocov end
