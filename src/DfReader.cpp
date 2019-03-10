@@ -459,11 +459,12 @@ void print_error(const char* error_message, void* ctx) {
 class DfReaderInput {
 public:
   virtual ~DfReaderInput() {};
-
+  
   virtual int open(void* io_ctx) = 0;
   virtual int close(void* io_ctx) = 0;
   virtual readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence, void *io_ctx) = 0;
   virtual ssize_t read(void *buf, size_t nbyte, void *io_ctx) = 0;
+  virtual std::string source() const = 0; // human readable description of input source
 };
 
 template <typename Stream>
@@ -500,6 +501,10 @@ public:
     filename_ = std::string(Rf_translateChar(path[0]));
   }
 
+  std::string source() const {
+    return filename_;
+  }
+
   int open(void* io_ctx) {
     file_.open(filename_.c_str(), std::ifstream::binary);
     return file_.is_open() ? 0 : -1;
@@ -517,6 +522,10 @@ public:
     Rcpp::RawVector raw_data(spec[0]);
     std::string string_data((char*) RAW(raw_data), Rf_length(raw_data));
     file_.str(string_data);
+  }
+  
+  std::string source() const {
+    return "file";
   }
 
   int open(void* io_ctx) {
@@ -571,30 +580,30 @@ void haven_init_io(readstat_parser_t* parser, InputClass &builder_input) {
   readstat_set_io_ctx(parser, (void*) &builder_input);
 }
 
-std::string haven_error_message(Rcpp::List spec) {
-  std::string source_class(as<CharacterVector>(spec.attr("class"))[0]);
-  if (source_class == "source_raw")
-    return "file";
-  else
-    return as<std::string>(spec[0]);
-}
-
 void haven_set_row_limit(readstat_parser_t* parser, long n) {
   // readstat uses 0 to specify "all rows" but what we want is "minimal rows"
   readstat_set_row_limit(parser, n == 0 ? 1 : n);
 }
 
 template<FileExt ext>
-readstat_error_t haven_parse(readstat_parser_t* parser, DfReader* builder) {
-  switch(ext) {
-  // the path for readstat_parse_* is baked into the io context (DfReaderInput)
-  case HAVEN_SAS7BDAT: return readstat_parse_sas7bdat(parser, "", builder);
-  case HAVEN_SAS7BCAT: return readstat_parse_sas7bcat(parser, "", builder);
-  case HAVEN_XPT:      return readstat_parse_xport(parser, "", builder);
-  case HAVEN_DTA:      return readstat_parse_dta(parser, "", builder);
-  case HAVEN_SAV:      return readstat_parse_sav(parser, "", builder);
-  case HAVEN_POR:      return readstat_parse_por(parser, "", builder);
-  default:             return READSTAT_ERROR_PARSE;
+void haven_parse(readstat_parser_t* parser, DfReader* builder) {
+  readstat_error_t result = [&] {
+    switch(ext) {
+    // the path for readstat_parse_* is baked into the io context (DfReaderInput)
+    case HAVEN_SAS7BDAT: return readstat_parse_sas7bdat(parser, "", builder);
+    case HAVEN_SAS7BCAT: return readstat_parse_sas7bcat(parser, "", builder);
+    case HAVEN_XPT:      return readstat_parse_xport(parser, "", builder);
+    case HAVEN_DTA:      return readstat_parse_dta(parser, "", builder);
+    case HAVEN_SAV:      return readstat_parse_sav(parser, "", builder);
+    case HAVEN_POR:      return readstat_parse_por(parser, "", builder);
+    default:             return READSTAT_ERROR_PARSE;
+    }
+  }();
+
+  if (result != READSTAT_OK) {
+    std::string source = ((DfReaderInput*) parser->io->io_ctx)->source();
+    readstat_parser_free(parser);
+    stop("Failed to parse %s: %s.", source, readstat_error_message(result));
   }
 }
 
@@ -608,14 +617,8 @@ List df_parse(Rcpp::List spec, std::string encoding = "", bool user_na = false) 
   InputClass builder_input(spec);
   haven_init_io(parser, builder_input);
 
-  readstat_error_t result = haven_parse<ext>(parser, &builder);
+  haven_parse<ext>(parser, &builder);
   readstat_parser_free(parser);
-
-  if (result != READSTAT_OK) {
-    stop("Failed to parse %s: %s.",
-         haven_error_message(spec),
-         readstat_error_message(result));
-  }
 
   return builder.output();
 }
@@ -642,13 +645,7 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
       readstat_set_file_character_encoding(parser, catalog_encoding.c_str());
     }
 
-    readstat_error_t result = haven_parse<HAVEN_SAS7BCAT>(parser, &builder);
-
-    if (result != READSTAT_OK) {
-      readstat_parser_free(parser);
-      stop("Failed to parse %s: %s.", haven_error_message(spec_b7cat),
-           readstat_error_message(result));
-    }
+    haven_parse<HAVEN_SAS7BCAT>(parser, &builder);
   }
 
   readstat_set_io_ctx(parser, (void*) &builder_input_dat);
@@ -656,13 +653,8 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
     readstat_set_file_character_encoding(parser, encoding.c_str());
   }
 
-  readstat_error_t result = haven_parse<HAVEN_SAS7BDAT>(parser, &builder);
+  haven_parse<HAVEN_SAS7BDAT>(parser, &builder);
   readstat_parser_free(parser);
-
-  if (result != READSTAT_OK) {
-    stop("Failed to parse %s: %s.", haven_error_message(spec_b7dat),
-         readstat_error_message(result));
-  }
 
   builder.limitRows(n_max); // must enforce n_max = 0
   return builder.output();
