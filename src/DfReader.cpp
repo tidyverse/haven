@@ -610,39 +610,23 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
   }
 }
 
-
 template<FileExt ext, typename InputClass>
-List df_parse(Rcpp::List spec, std::string encoding = "", bool user_na = false) {
+List df_parse(const List& spec, const std::string& encoding = "", const bool& user_na = false,
+              const CharacterVector& cols_skip = CharacterVector(), const long& n_max = -1,
+              const List& catalog_spec = List(), const std::string& catalog_encoding = "") {
   DfReader builder(ext, user_na);
-
-  readstat_parser_t* parser = haven_init_parser();
-
-  InputClass builder_input(spec, encoding);
-  haven_parse<ext>(parser, builder_input, &builder);
-  readstat_parser_free(parser);
-
-  return builder.output();
-}
-
-
-template<typename InputClass>
-List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
-                  std::string encoding, std::string catalog_encoding,
-                  std::vector<std::string> cols_skip, long n_max) {
-  DfReader builder(HAVEN_SAS7BDAT);
-  builder.skipCols(cols_skip);
+  builder.skipCols(as< std::vector<std::string> >(cols_skip));
 
   readstat_parser_t* parser = haven_init_parser();
   haven_set_row_limit(parser, n_max);
 
-  if (spec_b7cat.size() != 0) {
-    InputClass cat_builder_input(spec_b7cat, catalog_encoding);
+  if (ext == HAVEN_SAS7BDAT && catalog_spec.size() != 0) {
+    InputClass cat_builder_input(catalog_spec, catalog_encoding);
     haven_parse<HAVEN_SAS7BCAT>(parser, cat_builder_input, &builder);
   }
 
-  InputClass dat_builder_input(spec_b7dat, encoding);
-  haven_parse<HAVEN_SAS7BDAT>(parser, dat_builder_input, &builder);
-
+  InputClass builder_input(spec, encoding);
+  haven_parse<ext>(parser, builder_input, &builder);
   readstat_parser_free(parser);
 
   builder.limitRows(n_max); // must enforce n_max = 0
@@ -654,14 +638,14 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 // [[Rcpp::export]]
 List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                        std::string encoding, std::string catalog_encoding,
-                       std::vector<std::string> cols_skip, long n_max) {
-  return df_parse_sas<DfReaderInputFile>(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_skip, n_max);
+                       CharacterVector cols_skip, long n_max) {
+  return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, encoding, false, cols_skip, n_max, spec_b7cat, catalog_encoding);
 }
 // [[Rcpp::export]]
 List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                       std::string encoding, std::string catalog_encoding,
-                      std::vector<std::string> cols_skip, long n_max) {
-  return df_parse_sas<DfReaderInputRaw>(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_skip, n_max);
+                      CharacterVector cols_skip, long n_max) {
+  return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, encoding, false, cols_skip, n_max, spec_b7cat, catalog_encoding);
 }
 
 // [[Rcpp::export]]
