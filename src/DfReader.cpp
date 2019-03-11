@@ -465,6 +465,7 @@ public:
   virtual readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence, void *io_ctx) = 0;
   virtual ssize_t read(void *buf, size_t nbyte, void *io_ctx) = 0;
   virtual std::string source() const = 0; // human readable description of input source
+  std::string encoding;
 };
 
 template <typename Stream>
@@ -496,9 +497,10 @@ class DfReaderInputFile : public DfReaderInputStream<std::ifstream> {
   std::string filename_;
 
 public:
-  DfReaderInputFile(Rcpp::List spec) {
+  DfReaderInputFile(Rcpp::List spec, std::string encoding = "") {
     CharacterVector path(spec[0]);
     filename_ = std::string(Rf_translateChar(path[0]));
+    this->encoding = encoding;
   }
 
   std::string source() const {
@@ -518,10 +520,11 @@ public:
 
 class DfReaderInputRaw : public DfReaderInputStream<std::istringstream> {
 public:
-  DfReaderInputRaw(Rcpp::List spec) {
+  DfReaderInputRaw(Rcpp::List spec, std::string encoding = "") {
     Rcpp::RawVector raw_data(spec[0]);
     std::string string_data((char*) RAW(raw_data), Rf_length(raw_data));
     file_.str(string_data);
+    this->encoding = encoding;
   }
   
   std::string source() const {
@@ -556,7 +559,7 @@ readstat_error_t dfreader_update(long file_size, readstat_progress_handler progr
 
 // Parser wrappers -------------------------------------------------------------
 
-readstat_parser_t* haven_init_parser(std::string encoding = "") {
+readstat_parser_t* haven_init_parser() {
   readstat_parser_t* parser = readstat_parser_init();
   readstat_set_metadata_handler(parser, dfreader_metadata);
   readstat_set_note_handler(parser, dfreader_note);
@@ -564,20 +567,19 @@ readstat_parser_t* haven_init_parser(std::string encoding = "") {
   readstat_set_value_handler(parser, dfreader_value);
   readstat_set_value_label_handler(parser, dfreader_value_label);
   readstat_set_error_handler(parser, print_error);
-  if (encoding != "") {
-    readstat_set_file_character_encoding(parser, encoding.c_str());
-  }
   return parser;
 }
 
-template<typename InputClass>
-void haven_init_io(readstat_parser_t* parser, InputClass &builder_input) {
+void haven_init_io(readstat_parser_t* parser, DfReaderInput &builder_input) {
   readstat_set_open_handler(parser, dfreader_open);
   readstat_set_close_handler(parser, dfreader_close);
   readstat_set_seek_handler(parser, dfreader_seek);
   readstat_set_read_handler(parser, dfreader_read);
   readstat_set_update_handler(parser, dfreader_update);
   readstat_set_io_ctx(parser, (void*) &builder_input);
+  if (builder_input.encoding != "") {
+    readstat_set_file_character_encoding(parser, builder_input.encoding.c_str());
+  }
 }
 
 void haven_set_row_limit(readstat_parser_t* parser, long n) {
@@ -586,7 +588,8 @@ void haven_set_row_limit(readstat_parser_t* parser, long n) {
 }
 
 template<FileExt ext>
-void haven_parse(readstat_parser_t* parser, DfReader* builder) {
+void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfReader* builder) {
+  haven_init_io(parser, builder_input);
   readstat_error_t result = [&] {
     switch(ext) {
     // the path for readstat_parse_* is baked into the io context (DfReaderInput)
@@ -612,12 +615,10 @@ template<FileExt ext, typename InputClass>
 List df_parse(Rcpp::List spec, std::string encoding = "", bool user_na = false) {
   DfReader builder(ext, user_na);
 
-  readstat_parser_t* parser = haven_init_parser(encoding);
+  readstat_parser_t* parser = haven_init_parser();
 
-  InputClass builder_input(spec);
-  haven_init_io(parser, builder_input);
-
-  haven_parse<ext>(parser, &builder);
+  InputClass builder_input(spec, encoding);
+  haven_parse<ext>(parser, builder_input, &builder);
   readstat_parser_free(parser);
 
   return builder.output();
@@ -634,26 +635,14 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
   readstat_parser_t* parser = haven_init_parser();
   haven_set_row_limit(parser, n_max);
 
-  InputClass builder_input_dat(spec_b7dat);
-  haven_init_io(parser, builder_input_dat);
-
   if (spec_b7cat.size() != 0) {
-    InputClass builder_input_cat(spec_b7cat);
-
-    readstat_set_io_ctx(parser, (void*) &builder_input_cat);
-    if (catalog_encoding != "") {
-      readstat_set_file_character_encoding(parser, catalog_encoding.c_str());
-    }
-
-    haven_parse<HAVEN_SAS7BCAT>(parser, &builder);
+    InputClass cat_builder_input(spec_b7cat, catalog_encoding);
+    haven_parse<HAVEN_SAS7BCAT>(parser, cat_builder_input, &builder);
   }
 
-  readstat_set_io_ctx(parser, (void*) &builder_input_dat);
-  if (encoding != "") {
-    readstat_set_file_character_encoding(parser, encoding.c_str());
-  }
+  InputClass dat_builder_input(spec_b7dat, encoding);
+  haven_parse<HAVEN_SAS7BDAT>(parser, dat_builder_input, &builder);
 
-  haven_parse<HAVEN_SAS7BDAT>(parser, &builder);
   readstat_parser_free(parser);
 
   builder.limitRows(n_max); // must enforce n_max = 0
