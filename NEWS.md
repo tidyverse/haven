@@ -1,5 +1,7 @@
 # haven (development version)
 
+* `read_sas()` now supports (IS|E|B)8601(DT|DA|TM) date/time formats (@mikmart).
+
 # haven 2.1.0
 
 ## Improved labelling
