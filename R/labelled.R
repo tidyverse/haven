@@ -100,6 +100,23 @@ print.haven_labelled <- function(x, ..., digits = getOption("digits")) {
   invisible()
 }
 
+# -- value labels --------------------------------------------------------------
+
+#' @importFrom tibble tibble
+enframe_labels <- function(x) {
+  if (!is.labelled(x)) {
+    stop("x must be a labelled vector", call. = FALSE)
+  }
+  labels <- attr(x, "labels", exact = TRUE)
+  if (length(labels) == 0) {
+    return(invisible(x))
+  }
+  value <- if (is.double(labels))
+    format_tagged_na(labels)
+  else unname(labels)
+  tibble::tibble(value = value, label = names(labels))
+}
+
 #' Print the labels of a labelled vector
 #'
 #' This is a convenience function, useful to explore the variables of
@@ -115,23 +132,82 @@ print.haven_labelled <- function(x, ..., digits = getOption("digits")) {
 #' for (var in names(labelled_df)) {
 #'   print_labels(labelled_df[[var]], var)
 #' }
-print_labels <- function(x, name = NULL) {
-  if (!is.labelled(x)) {
-    stop("x must be a labelled vector", call. = FALSE)
-  }
-  labels <- attr(x, "labels")
-  if (length(labels) == 0) {
-    return(invisible(x))
-  }
-
-  cat("\nLabels:", name, "\n", sep = "")
-
-  value <- if (is.double(labels)) format_tagged_na(labels) else unname(labels)
-
-  lab_df <- data.frame(value = value, label = names(labels))
-  print(lab_df, row.names = FALSE)
-
+print_labels <- function (x, name = NULL) {
+  cat("\nLabels: ", name, "\n", sep = "")
+  lab_df <- enframe_labels(x)
+  print(lab_df)
+  x <- lab_df$label
+  names(x) <- lab_df$value
   invisible(x)
+}
+
+#' Search the labels of a variable
+#'
+#' This is a convenience function, useful to explore the variables of
+#' a newly imported dataset.
+#' @param x A labelled vector
+#' @param pattern The pattern to match in the labels
+#' @param ignore.case Whether to ignore case (defaults to \code{TRUE})
+#' @param ... Other options passed to \code{\link{grepl}}
+#' @return A tibble of values with matching labels
+#' @examples
+#' x <- labelled(c(0, 1, 2), c(None = 0, Undergraduate = 1, Postgraduate = 2))
+#' find_labels(x, "grad")
+#' @export
+find_labels <- function (x, pattern, ignore.case = TRUE, ...) {
+  lab_df <- enframe_labels(x)
+  lab_df[ grepl(pattern, lab_df$label, ignore.case = ignore.case, ...), ]
+}
+
+# -- variable labels -----------------------------------------------------------
+
+#' @importFrom tibble tibble
+enframe_variable_labels <- function(x) {
+  if (!is.data.frame(x)) {
+    stop("x must be a data frame", call. = FALSE)
+  }
+  var_label <- function(x) {
+    label <- attr(x, "label", exact = TRUE)
+    if (is.null(label)) NA_character_ else label
+  }
+  labels <- vapply(x, var_label, character(1))
+  tibble::tibble(variable = names(x), label = labels)
+}
+
+#' Print the variable labels of a data frame
+#'
+#' This is a convenience function, useful to explore the variables of
+#' a newly imported dataset.
+#' @param x A data frame
+#' @param name The name of the data frame (optional)
+#' df <- read_dta(system.file("examples", "iris.dta", package = "haven"))
+#' print_variable_labels(df)
+#' @export
+print_variable_labels <- function (x, name = NULL) {
+  cat("\nVariable labels: ", name, "\n", sep = "")
+  lab_df <- enframe_variable_labels(x)
+  print(lab_df)
+  x <- lab_df$label
+  names(x) <- lab_df$variable
+  invisible(x)
+}
+
+#' Search the variable labels of a data frame
+#'
+#' This is a convenience function, useful to explore the variables of
+#' a newly imported dataset.
+#' @param x A data frame
+#' @param pattern The pattern to match in the variable labels
+#' @param ignore.case Whether to ignore case (defaults to \code{TRUE})
+#' @param ... Other options passed to \code{\link{grepl}}
+#' @return A tibble of variables with matching labels
+#' @examples
+#' df <- read_dta(system.file("examples", "iris.dta", package = "haven"))
+#' find_variable_labels(df, "width")
+#' @export
+find_variable_labels <- function (x, pattern, ignore.case = TRUE, ...) {
+  lab_df <- enframe_variable_labels(x)
+  lab_df[ grepl(pattern, lab_df$label, ignore.case = ignore.case, ...), ]
 }
 
 #' @export
