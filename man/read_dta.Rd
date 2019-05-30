@@ -10,7 +10,7 @@ read_dta(file, encoding = NULL)
 
 read_stata(file, encoding = NULL)
 
-write_dta(data, path, version = 14)
+write_dta(data, path, version = 14, label = attr(data, "label"))
 }
 \arguments{
 \item{file}{Either a path to a file, a connection, or literal data
@@ -23,7 +23,10 @@ downloaded. Remote gz files can also be automatically downloaded and
 decompressed.
 
 Literal data is most useful for examples and tests. It must contain at
-least one new line to be recognised as data (instead of a path).}
+least one new line to be recognised as data (instead of a path) or be a
+vector of greater than length 1.
+
+Using a value of \code{\link[=clipboard]{clipboard()}} will read from the system clipboard.}
 
 \item{encoding}{The character encoding used for the file. Generally,
 only needed for Stata 13 files and earlier. See Encoding section
@@ -34,12 +37,18 @@ for details.}
 \item{path}{Path to a file where the data will be written.}
 
 \item{version}{File version to use. Supports versions 8-15.}
+
+\item{label}{Dataset label to use, or \code{NULL}. Defaults to the value stored in
+the "label" attribute of \code{data}. Must be <= 80 characters.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
 
 Variable labels are stored in the "label" attribute of each variable.
 It is not printed on the console, but the RStudio viewer will show it.
+
+Where a Stata dataset label is defined, this is stored in the "label"
+attribute of the tibble.
 
 \code{write_dta()} returns the input \code{data} invisibly.
 }

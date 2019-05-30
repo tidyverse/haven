@@ -99,3 +99,25 @@ test_that("supports stata version 15", {
   df2$y <- zap_formats(df2$y)
   expect_equal(df2, df)
 })
+
+test_that("can roundtrip file labels", {
+  df <- tibble(x = 1)
+  expect_null(attr(roundtrip_dta(df), "label"))
+  expect_equal(attr(roundtrip_dta(df, label = "abcd"), "label"), "abcd")
+
+  attr(df, "label") <- "abc"
+  expect_equal(attr(roundtrip_dta(df), "label"), "abc")
+  expect_equal(attr(roundtrip_dta(df, label = "abcd"), "label"), "abcd")
+  expect_null(attr(roundtrip_dta(df, label = NULL), "label"))
+})
+
+test_that("throws error for invalid file labels", {
+  df <- tibble(x = 1)
+  attr(df, "label") <- paste(rep("a", 100), collapse = "")
+
+  expect_error(write_dta(df, tempfile()),
+               "data labels must be 80 characters or fewer")
+
+  expect_error(write_dta(df, tempfile(), label = paste(rep("a", 100), collapse = "")),
+               "data labels must be 80 characters or fewer")
+})

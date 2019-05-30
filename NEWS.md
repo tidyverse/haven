@@ -1,5 +1,7 @@
 # haven (development version)
 
+* `write_dta()` supports writing Stata dataset labels using the `label` argument. This defaults to the `label` attribute of the input data frame, consistent with the previously undocumented behaviour of `read_dta()` (#449).
+
 # haven 2.1.0
 
 ## Improved labelling
