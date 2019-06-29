@@ -205,14 +205,14 @@ for backward compatibility.</p>
     <pre class="examples"><div class='input'><span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sample'>sample</a></span>(<span class='fl'>5</span>, <span class='fl'>10</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='kw'>Bad</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>Good</span> <span class='kw'>=</span> <span class='fl'>5</span>))
 
 <span class='co'># Default method uses values where available</span>
-<span class='fu'>as_factor</span>(<span class='no'>x</span>)</div><div class='output co'>#&gt;  [1] Bad  Good 4    Bad  Bad  3    3    2    4    4   
+<span class='fu'>as_factor</span>(<span class='no'>x</span>)</div><div class='output co'>#&gt;  [1] Good 4    Good 4    Bad  Good Good Good 2    3   
 #&gt; Levels: Bad 2 3 4 Good</div><div class='input'><span class='co'># You can also extract just the labels</span>
-<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='st'>"labels"</span>)</div><div class='output co'>#&gt;  [1] Bad  Good &lt;NA&gt; Bad  Bad  &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;
+<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='st'>"labels"</span>)</div><div class='output co'>#&gt;  [1] Good &lt;NA&gt; Good &lt;NA&gt; Bad  Good Good Good &lt;NA&gt; &lt;NA&gt;
 #&gt; Levels: Bad Good</div><div class='input'><span class='co'># Or just the values</span>
-<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='st'>"values"</span>)</div><div class='output co'>#&gt;  [1] 1    5    &lt;NA&gt; 1    1    &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;
+<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='st'>"values"</span>)</div><div class='output co'>#&gt;  [1] 5    &lt;NA&gt; 5    &lt;NA&gt; 1    5    5    5    &lt;NA&gt; &lt;NA&gt;
 #&gt; Levels: 1 5</div><div class='input'><span class='co'># Or combine value and label</span>
-<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='st'>"both"</span>)</div><div class='output co'>#&gt;  [1] [1] Bad  [5] Good 4        [1] Bad  [1] Bad  3        3        2       
-#&gt;  [9] 4        4       
+<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='st'>"both"</span>)</div><div class='output co'>#&gt;  [1] [5] Good 4        [5] Good 4        [1] Bad  [5] Good [5] Good [5] Good
+#&gt;  [9] 2        3       
 #&gt; Levels: [1] Bad 2 3 4 [5] Good</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

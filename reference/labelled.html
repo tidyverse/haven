@@ -190,8 +190,8 @@ of the values might be labelled.</p></td>
 <span class='co'># Unfortunately it's not possible to make as.factor work for labelled objects</span>
 <span class='co'># so instead use as_factor. This works for all types of labelled vectors.</span>
 <span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s1</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
-#&gt; Levels: Female Male</div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s1</span>, <span class='kw'>labels</span> <span class='kw'>=</span> <span class='st'>"values"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Some components of ... were not used: labels</span></div><div class='output co'>#&gt; [1] Male   Male   Female
-#&gt; Levels: Female Male</div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s2</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
+#&gt; Levels: Female Male</div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s1</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='st'>"values"</span>)</div><div class='output co'>#&gt; [1] M M F
+#&gt; Levels: M F</div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span>(<span class='no'>s2</span>)</div><div class='output co'>#&gt; [1] Male   Male   Female
 #&gt; Levels: Male Female</div><div class='input'>
 <span class='co'># Other statistical software supports multiple types of missing values</span>
 <span class='no'>s3</span> <span class='kw'>&lt;-</span> <span class='fu'>labelled</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span>, <span class='st'>"X"</span>, <span class='st'>"N/A"</span>),
