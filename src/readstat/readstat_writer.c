@@ -78,15 +78,15 @@ static void readstat_label_set_free(readstat_label_set_t *label_set) {
 static void readstat_copy_label(readstat_value_label_t *value_label, const char *label) {
     if (label && strlen(label)) {
         value_label->label_len = strlen(label);
-        value_label->label = malloc(value_label->label_len);
-        strncpy(value_label->label, label, value_label->label_len);
+        value_label->label = calloc(1, value_label->label_len);
+        memcpy(value_label->label, label, value_label->label_len);
     }
 }
 
 static readstat_value_label_t *readstat_add_value_label(readstat_label_set_t *label_set, const char *label) {
     if (label_set->value_labels_count == label_set->value_labels_capacity) {
         label_set->value_labels_capacity *= 2;
-        label_set->value_labels = realloc(label_set->value_labels, 
+        label_set->value_labels = realloc(label_set->value_labels,
                 label_set->value_labels_capacity * sizeof(readstat_value_label_t));
     }
     readstat_value_label_t *new_value_label = &label_set->value_labels[label_set->value_labels_count++];
@@ -265,15 +265,15 @@ readstat_error_t readstat_write_space_padded_string(readstat_writer_t *writer, c
 readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat_type_t type, const char *name) {
     if (writer->label_sets_count == writer->label_sets_capacity) {
         writer->label_sets_capacity *= 2;
-        writer->label_sets = realloc(writer->label_sets, 
+        writer->label_sets = realloc(writer->label_sets,
                 writer->label_sets_capacity * sizeof(readstat_label_set_t *));
     }
     readstat_label_set_t *new_label_set = calloc(1, sizeof(readstat_label_set_t));
-    
+
     writer->label_sets[writer->label_sets_count++] = new_label_set;
 
     new_label_set->type = type;
-    strncpy(new_label_set->name, name, sizeof(new_label_set->name));
+    memcpy(new_label_set->name, name, sizeof(new_label_set->name));
 
     new_label_set->value_labels = calloc(VALUE_LABELS_INITIAL_CAPACITY, sizeof(readstat_value_label_t));
     new_label_set->value_labels_capacity = VALUE_LABELS_INITIAL_CAPACITY;
@@ -327,8 +327,8 @@ void readstat_label_string_value(readstat_label_set_t *label_set, const char *va
     readstat_value_label_t *new_value_label = readstat_add_value_label(label_set, label);
     if (value && strlen(value)) {
         new_value_label->string_key_len = strlen(value);
-        new_value_label->string_key = malloc(new_value_label->string_key_len);
-        strncpy(new_value_label->string_key, value, new_value_label->string_key_len);
+        new_value_label->string_key = calloc(1, new_value_label->string_key_len);
+        memcpy(new_value_label->string_key, value, new_value_label->string_key_len);
     }
 }
 
@@ -346,7 +346,7 @@ readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char
     readstat_variable_t *new_variable = calloc(1, sizeof(readstat_variable_t));
 
     new_variable->index = writer->variables_count++;
-    
+
     writer->variables[new_variable->index] = new_variable;
 
     new_variable->user_width = width;
@@ -479,13 +479,13 @@ readstat_error_t readstat_writer_set_file_format_is_64bit(readstat_writer_t *wri
     return READSTAT_OK;
 }
 
-readstat_error_t readstat_writer_set_compression(readstat_writer_t *writer, 
+readstat_error_t readstat_writer_set_compression(readstat_writer_t *writer,
         readstat_compress_t compression) {
     writer->compression = compression;
     return READSTAT_OK;
 }
 
-readstat_error_t readstat_writer_set_error_handler(readstat_writer_t *writer, 
+readstat_error_t readstat_writer_set_error_handler(readstat_writer_t *writer,
         readstat_error_handler error_handler) {
     writer->error_handler = error_handler;
     return READSTAT_OK;
@@ -636,7 +636,7 @@ readstat_error_t readstat_end_writing(readstat_writer_t *writer) {
     int i;
     for (i=1; i<writer->string_refs_count; i++) {
         if (readstat_compare_string_refs(&writer->string_refs[i-1], &writer->string_refs[i]) > 0) {
-            qsort(writer->string_refs, writer->string_refs_count, 
+            qsort(writer->string_refs, writer->string_refs_count,
                     sizeof(readstat_string_ref_t *), &readstat_compare_string_refs);
             break;
         }

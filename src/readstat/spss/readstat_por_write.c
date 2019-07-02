@@ -52,7 +52,7 @@ static readstat_error_t por_write_bytes(readstat_writer_t *writer, const void *b
     return readstat_write_bytes_as_lines(writer, bytes, len, 80, "\r\n");
 }
 
-static readstat_error_t por_write_string_n(readstat_writer_t *writer, por_write_ctx_t *ctx, 
+static readstat_error_t por_write_string_n(readstat_writer_t *writer, por_write_ctx_t *ctx,
         const char *string, size_t input_len) {
     char error_buf[1024];
     readstat_error_t retval = READSTAT_OK;
@@ -61,7 +61,7 @@ static readstat_error_t por_write_string_n(readstat_writer_t *writer, por_write_
             ctx->unicode2byte, ctx->unicode2byte_len);
     if (output_len == -1) {
         if (writer->error_handler) {
-            snprintf(error_buf, sizeof(error_buf), "Error converting string (length=%" PRId64 "): %.*s", 
+            snprintf(error_buf, sizeof(error_buf), "Error converting string (length=%" PRId64 "): %.*s",
                     (int64_t)input_len, (int)input_len, string);
             writer->error_handler(error_buf, writer->user_ctx);
         }
@@ -154,7 +154,7 @@ static readstat_error_t por_write_double(readstat_writer_t *writer, por_write_ct
     return por_write_string_n(writer, ctx, string, bytes_written);
 }
 
-static readstat_error_t por_write_string_field_n(readstat_writer_t *writer, por_write_ctx_t *ctx, 
+static readstat_error_t por_write_string_field_n(readstat_writer_t *writer, por_write_ctx_t *ctx,
         const char *string, size_t len) {
     readstat_error_t error = por_write_double(writer, ctx, len);
     if (error != READSTAT_OK)
@@ -202,8 +202,8 @@ static readstat_error_t por_emit_header(readstat_writer_t *writer, por_write_ctx
     char vanity[5][40];
     memset(vanity, '0', sizeof(vanity));
 
-    strncpy(vanity[1], "ASCII SPSS PORT FILE", 20);
-    strncpy(vanity[1] + 20, writer->file_label, 20);
+    memcpy(vanity[1], "ASCII SPSS PORT FILE", 20);
+    memcpy(vanity[1] + 20, writer->file_label, 20);
     if (file_label_len < 20)
         memset(vanity[1] + 20 + file_label_len, ' ', 20 - file_label_len);
 
@@ -313,7 +313,7 @@ static readstat_error_t por_emit_case_weight_variable_record(readstat_writer_t *
     if ((retval = por_write_tag(writer, ctx, '6')) != READSTAT_OK)
         goto cleanup;
 
-    if ((retval = por_write_string_field(writer, ctx, 
+    if ((retval = por_write_string_field(writer, ctx,
                     readstat_variable_get_name(writer->fweight_variable))) != READSTAT_OK)
         goto cleanup;
 
@@ -513,7 +513,7 @@ static readstat_error_t por_emit_variable_records(readstat_writer_t *writer,
         if ((retval = por_write_tag(writer, ctx, '7')) != READSTAT_OK)
             break;
 
-        retval = por_write_double(writer, ctx, 
+        retval = por_write_double(writer, ctx,
                 (r_variable->type == READSTAT_TYPE_STRING) ?
                 r_variable->user_width : 0);
         if (retval != READSTAT_OK)
@@ -560,7 +560,7 @@ static readstat_error_t por_emit_value_label_records(readstat_writer_t *writer,
         for (j=0; j<r_label_set->variables_count; j++) {
             readstat_variable_t *r_variable = readstat_get_label_set_variable(r_label_set, j);
 
-            if ((retval = por_write_string_field(writer, ctx, 
+            if ((retval = por_write_string_field(writer, ctx,
                             readstat_variable_get_name(r_variable))) != READSTAT_OK)
                 goto cleanup;
         }
@@ -572,7 +572,7 @@ static readstat_error_t por_emit_value_label_records(readstat_writer_t *writer,
             readstat_value_label_t *r_value_label = readstat_get_value_label(r_label_set, j);
 
             if (user_type == READSTAT_TYPE_STRING) {
-                retval = por_write_string_field_n(writer, ctx, 
+                retval = por_write_string_field_n(writer, ctx,
                         r_value_label->string_key, r_value_label->string_key_len);
             } else if (user_type == READSTAT_TYPE_DOUBLE) {
                 retval = por_write_double(writer, ctx, r_value_label->double_key);
@@ -583,7 +583,7 @@ static readstat_error_t por_emit_value_label_records(readstat_writer_t *writer,
             if (retval != READSTAT_OK)
                 goto cleanup;
 
-            if ((retval = por_write_string_field_n(writer, ctx, 
+            if ((retval = por_write_string_field_n(writer, ctx,
                             r_value_label->label, r_value_label->label_len)) != READSTAT_OK)
                 goto cleanup;
         }

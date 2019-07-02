@@ -38,10 +38,10 @@ unsigned char sas7bcat_magic_number[32] = {
  *
  * Discrepancies form the official documentation are noted with a comment. It
  * appears that in some instances that SAS software uses a newer encoding than
- * what's listed in the docs. In these cases the encoding used by ReadStat 
+ * what's listed in the docs. In these cases the encoding used by ReadStat
  * represents the author's best guess.
  */
-static readstat_charset_entry_t _charset_table[] = { 
+static readstat_charset_entry_t _charset_table[] = {
     { .code = 0,     .name = SAS_DEFAULT_STRING_ENCODING },
     { .code = 20,    .name = "UTF-8" },
     { .code = 28,    .name = "US-ASCII" },
@@ -103,7 +103,7 @@ size_t sas_subheader_remainder(size_t len, size_t signature_len) {
     return len - (4+2*signature_len);
 }
 
-readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo, 
+readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
         readstat_error_handler error_handler, void *user_ctx) {
     sas_header_start_t  header_start;
     sas_header_end_t    header_end;
@@ -233,7 +233,7 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
     }
-    
+
     if (io->seek(8, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (error_handler) {
@@ -261,7 +261,7 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
     if (io->seek(hinfo->header_size, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         if (error_handler) {
-            snprintf(error_buf, sizeof(error_buf), 
+            snprintf(error_buf, sizeof(error_buf),
                     "ReadStat: Failed to seek to position %" PRId64, hinfo->header_size);
             error_handler(error_buf, user_ctx);
         }
@@ -281,7 +281,8 @@ readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *
         .host = "W32_VSPRO"
     };
 
-    strncpy(header_start.file_label, writer->file_label, sizeof(header_start.file_label));
+    memset(header_start.file_label, ' ', sizeof(header_start.file_label));
+    memcpy(header_start.file_label, writer->file_label, sizeof(header_start.file_label));
 
     retval = readstat_write_bytes(writer, &header_start, sizeof(sas_header_start_t));
     if (retval != READSTAT_OK)
@@ -334,7 +335,8 @@ readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *
 
     char release[32];
     snprintf(release, sizeof(release), "%1ld.%04dM0", writer->version, 101);
-    strncpy(header_end.release, release, sizeof(header_end.release));
+    memset(header_end.release, ' ', sizeof(header_end.release));
+    memcpy(header_end.release, release, sizeof(header_end.release));
 
     retval = readstat_write_bytes(writer, &header_end, sizeof(sas_header_end_t));
     if (retval != READSTAT_OK)
