@@ -281,7 +281,7 @@ readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *
         .host = "W32_VSPRO"
     };
 
-    memset(header_start.file_label, ' ', sizeof(header_start.file_label));
+    // header_start.file_label is 100 bytes; header_start.file_label is 40 bytes
     memcpy(header_start.file_label, writer->file_label, sizeof(header_start.file_label));
 
     retval = readstat_write_bytes(writer, &header_start, sizeof(sas_header_start_t));
@@ -335,7 +335,7 @@ readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *
 
     char release[32];
     snprintf(release, sizeof(release), "%1ld.%04dM0", writer->version, 101);
-    memset(header_end.release, ' ', sizeof(header_end.release));
+    // header_end.release is 8 bytes
     memcpy(header_end.release, release, sizeof(header_end.release));
 
     retval = readstat_write_bytes(writer, &header_end, sizeof(sas_header_end_t));

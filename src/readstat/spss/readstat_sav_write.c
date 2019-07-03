@@ -153,7 +153,6 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
             (unsigned int)time_s->tm_mday % 100,
             months[time_s->tm_mon],
             (unsigned int)time_s->tm_year % 100);
-    memset(header.creation_date, ' ', sizeof(header.creation_date));
     memcpy(header.creation_date, creation_date, sizeof(header.creation_date));
 
     char creation_time[sizeof(header.creation_time)+1];
@@ -162,7 +161,6 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
             (unsigned int)time_s->tm_hour % 100,
             (unsigned int)time_s->tm_min % 100,
             (unsigned int)time_s->tm_sec % 100);
-    memset(header.creation_time, ' ', sizeof(header.creation_time));
     memcpy(header.creation_time, creation_time, sizeof(header.creation_time));
 
     memset(header.file_label, ' ', sizeof(header.file_label));
