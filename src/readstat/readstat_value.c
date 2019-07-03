@@ -38,12 +38,7 @@ int readstat_value_is_tagged_missing(readstat_value_t value) {
     return (value.is_tagged_missing);
 }
 
-int readstat_value_is_defined_missing(readstat_value_t value, readstat_variable_t *variable) {
-    if (readstat_value_type_class(value) != READSTAT_TYPE_CLASS_NUMERIC ||
-            readstat_variable_get_type_class(variable) != READSTAT_TYPE_CLASS_NUMERIC)
-        return 0;
-
-    double fp_value = readstat_double_value(value);
+static int readstat_double_is_defined_missing(double fp_value, readstat_variable_t *variable) {
     int count = readstat_variable_get_missing_ranges_count(variable);
     int i;
     for (i=0; i<count; i++) {
@@ -53,6 +48,35 @@ int readstat_value_is_defined_missing(readstat_value_t value, readstat_variable_
             return 1;
         }
     }
+    return 0;
+}
+
+static int readstat_string_is_defined_missing(const char *string, readstat_variable_t *variable) {
+    if (string == NULL)
+        return 0;
+
+    int count = readstat_variable_get_missing_ranges_count(variable);
+    int i;
+    for (i=0; i<count; i++) {
+        const char *lo = readstat_string_value(readstat_variable_get_missing_range_lo(variable, i));
+        const char *hi = readstat_string_value(readstat_variable_get_missing_range_hi(variable, i));
+        if (lo && hi && strcmp(string, lo) >= 0 && strcmp(string, hi) <= 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int readstat_value_is_defined_missing(readstat_value_t value, readstat_variable_t *variable) {
+    if (readstat_value_type_class(value) != readstat_variable_get_type_class(variable))
+        return 0;
+
+    if (readstat_value_type_class(value) == READSTAT_TYPE_CLASS_STRING)
+        return readstat_string_is_defined_missing(readstat_string_value(value), variable);
+
+    if (readstat_value_type_class(value) == READSTAT_TYPE_CLASS_NUMERIC)
+        return readstat_double_is_defined_missing(readstat_double_value(value), variable);
+
     return 0;
 }
 

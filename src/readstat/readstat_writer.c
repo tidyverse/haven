@@ -95,11 +95,36 @@ static readstat_value_label_t *readstat_add_value_label(readstat_label_set_t *la
     return new_value_label;
 }
 
+readstat_error_t readstat_validate_variable(readstat_writer_t *writer, const readstat_variable_t *variable) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
+    if (writer->callbacks.variable_ok)
+        return writer->callbacks.variable_ok(variable);
+
+    return READSTAT_OK;
+}
+
+readstat_error_t readstat_validate_metadata(readstat_writer_t *writer) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
+    if (writer->callbacks.metadata_ok)
+        return writer->callbacks.metadata_ok(writer);
+
+    return READSTAT_OK;
+}
+
 static readstat_error_t readstat_begin_writing_data(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
 
     size_t row_len = 0;
     int i;
+
+    retval = readstat_validate_metadata(writer);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
     for (i=0; i<writer->variables_count; i++) {
         readstat_variable_t *variable = readstat_get_variable(writer, i);
         variable->storage_width = writer->callbacks.variable_width(variable->type, variable->user_width);
@@ -108,8 +133,7 @@ static readstat_error_t readstat_begin_writing_data(readstat_writer_t *writer) {
     }
     if (writer->callbacks.variable_ok) {
         for (i=0; i<writer->variables_count; i++) {
-            readstat_variable_t *variable = readstat_get_variable(writer, i);
-            retval = writer->callbacks.variable_ok(variable);
+            retval = readstat_validate_variable(writer, readstat_get_variable(writer, i));
             if (retval != READSTAT_OK)
                 goto cleanup;
         }
@@ -497,7 +521,7 @@ readstat_error_t readstat_begin_writing_file(readstat_writer_t *writer, void *us
 
     writer->initialized = 1;
 
-    return READSTAT_OK;
+    return readstat_validate_metadata(writer);
 }
 
 readstat_error_t readstat_begin_row(readstat_writer_t *writer) {

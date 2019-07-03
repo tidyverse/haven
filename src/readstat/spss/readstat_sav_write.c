@@ -239,7 +239,7 @@ static readstat_error_t sav_n_missing_values(int *out_n_missing_values, readstat
     int n_missing_values = 0;
     if (r_variable->type == READSTAT_TYPE_DOUBLE) {
         n_missing_values = sav_n_missing_double_values(r_variable);
-    } else {
+    } else if (readstat_variable_get_storage_width(r_variable) <= 8) {
         n_missing_values = sav_n_missing_string_values(r_variable);
     }
     if (abs(n_missing_values) > 3) {
@@ -340,8 +340,10 @@ cleanup:
 static readstat_error_t sav_emit_variable_missing_values(readstat_writer_t *writer, readstat_variable_t *r_variable) {
     if (r_variable->type == READSTAT_TYPE_DOUBLE) {
         return sav_emit_variable_missing_double_values(writer, r_variable);
+    } else if (readstat_variable_get_storage_width(r_variable) <= 8) {
+        return sav_emit_variable_missing_string_values(writer, r_variable);
     }
-    return sav_emit_variable_missing_string_values(writer, r_variable);
+    return READSTAT_OK;
 }
 
 static readstat_error_t sav_emit_blank_variable_records(readstat_writer_t *writer, int extra_fields) {
@@ -882,14 +884,14 @@ cleanup:
     return retval;
 }
 
-static readstat_error_t sav_emit_long_value_labels_record(readstat_writer_t *writer) {
+static readstat_error_t sav_emit_long_string_value_labels_record(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
     int i, j, k;
     char *space_buffer = NULL;
 
     sav_info_record_t info_header = {
         .rec_type = SAV_RECORD_TYPE_HAS_DATA,
-        .subtype = SAV_RECORD_SUBTYPE_LONG_VALUE_LABELS,
+        .subtype = SAV_RECORD_SUBTYPE_LONG_STRING_VALUE_LABELS,
         .size = 1,
         .count = 0
     };
@@ -1007,6 +1009,111 @@ cleanup:
     return retval;
 }
 
+static readstat_error_t sav_emit_long_string_missing_values_record(readstat_writer_t *writer) {
+    readstat_error_t retval = READSTAT_OK;
+    int j, k;
+
+    sav_info_record_t info_header = {
+        .rec_type = SAV_RECORD_TYPE_HAS_DATA,
+        .subtype = SAV_RECORD_SUBTYPE_LONG_STRING_MISSING_VALUES,
+        .size = 1,
+        .count = 0
+    };
+
+    int32_t var_count = writer->variables_count;
+
+    for (k=0; k<var_count; k++) {
+        readstat_variable_t *r_variable = readstat_get_variable(writer, k);
+        int32_t name_len = strlen(r_variable->name);
+        int32_t storage_width = readstat_variable_get_storage_width(r_variable);
+        if (storage_width <= 8)
+            continue;
+        
+        int n_missing_values = 0;
+
+        for (j=0; j<readstat_variable_get_missing_ranges_count(r_variable); j++) {
+            readstat_value_t lo = readstat_variable_get_missing_range_lo(r_variable, j);
+            readstat_value_t hi = readstat_variable_get_missing_range_hi(r_variable, j);
+            const char *lo_string = readstat_string_value(lo);
+            const char *hi_string = readstat_string_value(hi);
+
+            if (lo_string && hi_string && strcmp(lo_string, hi_string) == 0) {
+                n_missing_values++;
+            }
+        }
+
+        if (n_missing_values) {
+            info_header.count += sizeof(int32_t); // name length
+            info_header.count += name_len;
+            info_header.count += sizeof(int8_t); // # missing values
+
+            info_header.count += sizeof(int32_t) + 8 * n_missing_values; // value length
+        }
+    }
+
+    if (info_header.count == 0)
+        goto cleanup;
+
+    retval = readstat_write_bytes(writer, &info_header, sizeof(info_header));
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    for (k=0; k<var_count; k++) {
+        readstat_variable_t *r_variable = readstat_get_variable(writer, k);
+        int32_t name_len = strlen(r_variable->name);
+        int8_t n_missing_values = 0;
+        int32_t storage_width = readstat_variable_get_storage_width(r_variable);
+        if (storage_width <= 8)
+            continue;
+
+        for (j=0; j<readstat_variable_get_missing_ranges_count(r_variable); j++) {
+            readstat_value_t lo = readstat_variable_get_missing_range_lo(r_variable, j);
+            readstat_value_t hi = readstat_variable_get_missing_range_hi(r_variable, j);
+            const char *lo_string = readstat_string_value(lo);
+            const char *hi_string = readstat_string_value(hi);
+            if (lo_string && hi_string && strcmp(lo_string, hi_string) == 0) {
+                n_missing_values++;
+            }
+        }
+
+        if (n_missing_values == 0)
+            continue;
+
+        retval = readstat_write_bytes(writer, &name_len, sizeof(int32_t));
+        if (retval != READSTAT_OK)
+            goto cleanup;
+
+        retval = readstat_write_bytes(writer, r_variable->name, name_len);
+        if (retval != READSTAT_OK)
+            goto cleanup;
+
+        retval = readstat_write_bytes(writer, &n_missing_values, sizeof(int8_t));
+        if (retval != READSTAT_OK)
+            goto cleanup;
+
+        uint32_t value_len = 8;
+        retval = readstat_write_bytes(writer, &value_len, sizeof(int32_t));
+        if (retval != READSTAT_OK)
+            goto cleanup;
+
+        for (j=0; j<readstat_variable_get_missing_ranges_count(r_variable); j++) {
+            readstat_value_t lo = readstat_variable_get_missing_range_lo(r_variable, j);
+            readstat_value_t hi = readstat_variable_get_missing_range_hi(r_variable, j);
+            const char *lo_string = readstat_string_value(lo);
+            const char *hi_string = readstat_string_value(hi);
+
+            if (lo_string && hi_string && strcmp(lo_string, hi_string) == 0) {
+                retval = readstat_write_space_padded_string(writer, lo_string, value_len);
+                if (retval != READSTAT_OK)
+                    goto cleanup;
+            }
+        }
+    }
+
+cleanup:
+    return retval;
+}
+
 static readstat_error_t sav_emit_number_of_cases_record(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
     sav_info_record_t info_header = {
@@ -1116,6 +1223,66 @@ static size_t sav_variable_width(readstat_type_t type, size_t user_width) {
     return 8;
 }
 
+static readstat_error_t sav_validate_name_chars(const char *name, int unicode) {
+    /* TODO check Unicode class */
+    int j;
+    for (j=0; name[j]; j++) {
+        if (name[j] == ' ')
+            return READSTAT_ERROR_NAME_CONTAINS_ILLEGAL_CHARACTER;
+
+        if ((name[j] > 0 || !unicode) && name[j] != '@' &&
+                name[j] != '.' && name[j] != '_' &&
+                name[j] != '$' && name[j] != '#' &&
+                !(name[j] >= 'a' && name[j] <= 'z') &&
+                !(name[j] >= 'A' && name[j] <= 'Z') &&
+                !(name[j] >= '0' && name[j] <= '9')) {
+            return READSTAT_ERROR_NAME_CONTAINS_ILLEGAL_CHARACTER;
+        }
+    }
+    char first_char = name[0];
+    if ((first_char > 0 || !unicode) && first_char != '@' &&
+            !(first_char >= 'a' && first_char <= 'z') &&
+            !(first_char >= 'A' && first_char <= 'Z')) {
+        return READSTAT_ERROR_NAME_BEGINS_WITH_ILLEGAL_CHARACTER;
+    }
+    return READSTAT_OK;
+}
+
+static readstat_error_t sav_validate_name_unreserved(const char *name) {
+    if (strcmp(name, "ALL") == 0 || strcmp(name, "AND") == 0 ||
+            strcmp(name, "BY") == 0 || strcmp(name, "EQ") == 0 ||
+            strcmp(name, "GE") == 0 || strcmp(name, "GT") == 0 ||
+            strcmp(name, "GT") == 0 || strcmp(name, "LE") == 0 ||
+            strcmp(name, "LT") == 0 || strcmp(name, "NE") == 0 ||
+            strcmp(name, "NOT") == 0 || strcmp(name, "OR") == 0 ||
+            strcmp(name, "TO") == 0 || strcmp(name, "WITH") == 0)
+        return READSTAT_ERROR_NAME_IS_RESERVED_WORD;
+
+    return READSTAT_OK;
+}
+
+static readstat_error_t sav_validate_name_length(size_t name_len) {
+    if (name_len > 64)
+        return READSTAT_ERROR_NAME_IS_TOO_LONG;
+    if (name_len == 0)
+        return READSTAT_ERROR_NAME_IS_ZERO_LENGTH;
+    return READSTAT_OK;
+}
+
+static readstat_error_t sav_variable_ok(const readstat_variable_t *variable) {
+    readstat_error_t error = READSTAT_OK;
+
+    error = sav_validate_name_length(strlen(variable->name));
+    if (error != READSTAT_OK)
+        return error;
+
+    error = sav_validate_name_unreserved(variable->name);
+    if (error != READSTAT_OK)
+        return error;
+
+    return sav_validate_name_chars(variable->name, 1);
+}
+
 static sav_varnames_t *sav_varnames_init(readstat_writer_t *writer) {
     sav_varnames_t *varnames = calloc(writer->variables_count, sizeof(sav_varnames_t));
 
@@ -1123,13 +1290,11 @@ static sav_varnames_t *sav_varnames_init(readstat_writer_t *writer) {
     int i, k;
     for (i=0; i<writer->variables_count; i++) {
         readstat_variable_t *r_variable = readstat_get_variable(writer, i);
-        const char *name = readstat_variable_get_name(r_variable);
+        const char *name = r_variable->name;
         char *shortname = varnames[i].shortname;
         char *stem = varnames[i].stem;
         strncpy(shortname, name, 8);
-        for (k=0; k<8; k++) { // upcase
-            if (!shortname[k])
-                break;
+        for (k=0; k<8 && shortname[k]; k++) { // upcase
             shortname[k] = toupper(shortname[k]);
         }
         if (ck_str_hash_lookup(shortname, table)) {
@@ -1190,7 +1355,11 @@ static readstat_error_t sav_begin_data(void *writer_ctx) {
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    retval = sav_emit_long_value_labels_record(writer);
+    retval = sav_emit_long_string_value_labels_record(writer);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    retval = sav_emit_long_string_missing_values_record(writer);
     if (retval != READSTAT_OK)
         goto cleanup;
 
@@ -1224,9 +1393,23 @@ static readstat_error_t sav_write_compressed_row(void *writer_ctx, void *row, si
     return readstat_write_bytes(writer, output, output_offset);
 }
 
+static readstat_error_t sav_metadata_ok(void *writer_ctx) {
+    readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
+
+    if (writer->version == 2 && writer->compression == READSTAT_COMPRESS_BINARY)
+        return READSTAT_ERROR_UNSUPPORTED_COMPRESSION;
+
+    if (writer->version != 2 && writer->version != 3)
+        return READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION;
+
+    return READSTAT_OK;
+}
+
 readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *user_ctx, long row_count) {
 
+    writer->callbacks.metadata_ok = &sav_metadata_ok;
     writer->callbacks.variable_width = &sav_variable_width;
+    writer->callbacks.variable_ok = &sav_variable_ok;
     writer->callbacks.write_int8 = &sav_write_int8;
     writer->callbacks.write_int16 = &sav_write_int16;
     writer->callbacks.write_int32 = &sav_write_int32;
@@ -1237,14 +1420,10 @@ readstat_error_t readstat_begin_writing_sav(readstat_writer_t *writer, void *use
     writer->callbacks.write_missing_number = &sav_write_missing_number;
     writer->callbacks.begin_data = &sav_begin_data;
 
-    if (writer->version == 2) {
-        if (writer->compression == READSTAT_COMPRESS_BINARY) {
-            return READSTAT_ERROR_UNSUPPORTED_COMPRESSION;
-        }
-    } else if (writer->version == 3) {
+    if (writer->version == 3) {
         writer->compression = READSTAT_COMPRESS_BINARY;
-    } else if (writer->version != 0) {
-        return READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION;
+    } else if (writer->version == 0) {
+        writer->version = (writer->compression == READSTAT_COMPRESS_BINARY) ? 3 : 2;
     }
 
     if (writer->compression == READSTAT_COMPRESS_ROWS) {

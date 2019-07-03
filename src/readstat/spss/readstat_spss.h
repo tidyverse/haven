@@ -71,7 +71,7 @@ typedef struct spss_varinfo_s {
     int              n_missing_values;
     int              missing_range;
     double           missing_double_values[3];
-    char             missing_string_values[3][4*8+1];
+    char             missing_string_values[3][8*4+1];
     char             name[8*4+1];
     char             longname[64*4+1];
     char            *label;

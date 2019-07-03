@@ -388,6 +388,10 @@ readstat_error_t sas_validate_name(const char *name, size_t max_len) {
         }
     }
     char first_char = name[0];
+
+    if (!first_char)
+        return READSTAT_ERROR_NAME_IS_ZERO_LENGTH;
+
     if (first_char != '_' &&
             !(first_char >= 'a' && first_char <= 'z') &&
             !(first_char >= 'A' && first_char <= 'Z')) {
@@ -405,7 +409,7 @@ readstat_error_t sas_validate_name(const char *name, size_t max_len) {
     return READSTAT_OK;
 }
 
-readstat_error_t sas_validate_variable(readstat_variable_t *variable) {
+readstat_error_t sas_validate_variable(const readstat_variable_t *variable) {
     return sas_validate_name(readstat_variable_get_name(variable), 32);
 }
 

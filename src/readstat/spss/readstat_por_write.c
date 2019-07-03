@@ -689,7 +689,7 @@ static size_t por_variable_width(readstat_type_t type, size_t user_width) {
     return POR_BASE30_PRECISION + 4; // minus sign + period + plus/minus + slash
 }
 
-static readstat_error_t por_variable_ok(readstat_variable_t *variable) {
+static readstat_error_t por_variable_ok(const readstat_variable_t *variable) {
     return validate_variable_name(readstat_variable_get_name(variable));
 }
 
@@ -759,11 +759,18 @@ static readstat_error_t por_write_row(void *writer_ctx, void *row, size_t row_le
     return por_write_string_n(writer, writer->module_ctx, row_chars, output);
 }
 
-readstat_error_t readstat_begin_writing_por(readstat_writer_t *writer, void *user_ctx, long row_count) {
+static readstat_error_t por_metadata_ok(void *writer_ctx) {
+    readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
 
     if (writer->compression != READSTAT_COMPRESS_NONE)
         return READSTAT_ERROR_UNSUPPORTED_COMPRESSION;
 
+    return READSTAT_OK;
+}
+
+readstat_error_t readstat_begin_writing_por(readstat_writer_t *writer, void *user_ctx, long row_count) {
+
+    writer->callbacks.metadata_ok = &por_metadata_ok;
     writer->callbacks.variable_width = &por_variable_width;
     writer->callbacks.variable_ok = &por_variable_ok;
     writer->callbacks.write_int8 = &por_write_int8_value;
