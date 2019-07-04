@@ -1,7 +1,5 @@
 # haven 2.1.1
 
-# haven (development version)
-
 * Fixes for R CMD check
 
 # haven 2.1.0
