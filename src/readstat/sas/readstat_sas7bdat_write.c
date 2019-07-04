@@ -145,18 +145,6 @@ static readstat_error_t sas7bdat_emit_header(readstat_writer_t *writer, sas_head
 
     memcpy(&header_start.magic, sas7bdat_magic_number, sizeof(header_start.magic));
 
-    memset(header_start.file_label, ' ', sizeof(header_start.file_label));
-
-    size_t file_label_len = strlen(writer->file_label);
-    if (file_label_len > sizeof(header_start.file_label))
-        file_label_len = sizeof(header_start.file_label);
-
-    if (file_label_len) {
-        memcpy(header_start.file_label, writer->file_label, file_label_len);
-    } else {
-        memcpy(header_start.file_label, "DATASET", sizeof("DATASET")-1);
-    }
-
     return sas_write_header(writer, hinfo, header_start);
 }
 

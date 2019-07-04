@@ -202,7 +202,7 @@ static readstat_error_t por_emit_header(readstat_writer_t *writer, por_write_ctx
     char vanity[5][40];
     memset(vanity, '0', sizeof(vanity));
 
-    strncpy(vanity[1], "ASCII SPSS PORT FILE", 20);
+    memcpy(vanity[1], "ASCII SPSS PORT FILE", 20);
     strncpy(vanity[1] + 20, writer->file_label, 20);
     if (file_label_len < 20)
         memset(vanity[1] + 20 + file_label_len, ' ', 20 - file_label_len);

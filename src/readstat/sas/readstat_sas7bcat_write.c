@@ -105,7 +105,6 @@ static readstat_error_t sas7bcat_emit_header(readstat_writer_t *writer, sas_head
     };
 
     memcpy(&header_start.magic, sas7bcat_magic_number, sizeof(header_start.magic));
-    strncpy(header_start.file_label, writer->file_label, sizeof(header_start.file_label));
 
     return sas_write_header(writer, hinfo, header_start);
 }

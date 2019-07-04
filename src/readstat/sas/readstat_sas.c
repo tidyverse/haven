@@ -277,11 +277,17 @@ readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *
     struct tm epoch_tm = { .tm_year = 60, .tm_mday = 1 };
     time_t epoch = mktime(&epoch_tm);
 
-    sas_header_end_t header_end = {
-        .host = "W32_VSPRO"
-    };
+    memset(header_start.file_label, ' ', sizeof(header_start.file_label));
 
-    strncpy(header_start.file_label, writer->file_label, sizeof(header_start.file_label));
+    size_t file_label_len = strlen(writer->file_label);
+    if (file_label_len > sizeof(header_start.file_label))
+        file_label_len = sizeof(header_start.file_label);
+
+    if (file_label_len) {
+        memcpy(header_start.file_label, writer->file_label, file_label_len);
+    } else {
+        memcpy(header_start.file_label, "DATASET", sizeof("DATASET")-1);
+    }
 
     retval = readstat_write_bytes(writer, &header_start, sizeof(sas_header_start_t));
     if (retval != READSTAT_OK)
@@ -332,9 +338,13 @@ readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    char release[32];
-    snprintf(release, sizeof(release), "%1ld.%04dM0", writer->version, 101);
-    strncpy(header_end.release, release, sizeof(header_end.release));
+    sas_header_end_t header_end = {
+        .host = "W32_VSPRO"
+    };
+
+    char release[sizeof(header_end.release)+1] = { 0 };
+    snprintf(release, sizeof(release), "%1d.%04dM0", (unsigned int)writer->version % 10, 101);
+    memcpy(header_end.release, release, sizeof(header_end.release));
 
     retval = readstat_write_bytes(writer, &header_end, sizeof(sas_header_end_t));
     if (retval != READSTAT_OK)

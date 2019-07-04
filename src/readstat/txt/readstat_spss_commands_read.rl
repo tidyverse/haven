@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <strings.h>
+#include <inttypes.h>
 
 #include "../readstat.h"
 #include "readstat_schema.h"
@@ -40,9 +41,9 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
     int cs;
     
     int i;
-    int first_integer = 0;
-    int integer = 0;
     int line_no = 0;
+    uint64_t first_integer = 0, integer = 0;
+    double double_value = NAN;
     unsigned char *line_start = p;
 
     char varname[32];
@@ -151,7 +152,7 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
             char labelset_name[256];
             snprintf(labelset_name, sizeof(labelset_name), "labels%d", labelset_count);
             error = submit_value_label(parser, labelset_name, label_type,
-                first_integer, integer, string_value, buf, user_ctx);
+                first_integer, integer, double_value, string_value, buf, user_ctx);
             if (error != READSTAT_OK)
                 goto cleanup;
         }
@@ -246,10 +247,10 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
 
         missing_value_label = "." %{ label_type = -1; } whitespace+ quoted_string %handle_value_label;
         
-        value_label = ( "-" integer %{ label_type = 0; integer *= -1; } |
-                       integer %{ label_type = 0; } |
-                       integer whitespace+ "-" whitespace+ %{ first_integer = integer; } integer %{ label_type = 2; } |
-                       quoted_string %{ label_type = 1; } %copy_quoted_string )
+        value_label = ( "-" integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = -integer; } |
+                       integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = integer; } |
+                       integer whitespace+ "-" whitespace+ %{ first_integer = integer; } integer %{ label_type = LABEL_TYPE_RANGE; } |
+                       quoted_string %{ label_type = LABEL_TYPE_STRING; } %copy_quoted_string )
             whitespace+ quoted_string %handle_value_label;
 
         variable_value_labels = variable_list whitespace+ ( value_label | missing_value_label )

@@ -147,21 +147,21 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
         "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-    char creation_date[sizeof(header.creation_date)+1];
+    char creation_date[sizeof(header.creation_date)+1] = { 0 };
     snprintf(creation_date, sizeof(creation_date),
             "%02d %3.3s %02d", 
             (unsigned int)time_s->tm_mday % 100,
             months[time_s->tm_mon],
             (unsigned int)time_s->tm_year % 100);
-    strncpy(header.creation_date, creation_date, sizeof(header.creation_date));
+    memcpy(header.creation_date, creation_date, sizeof(header.creation_date));
 
-    char creation_time[sizeof(header.creation_time)+1];
+    char creation_time[sizeof(header.creation_time)+1] = { 0 };
     snprintf(creation_time, sizeof(creation_time),
             "%02d:%02d:%02d",
             (unsigned int)time_s->tm_hour % 100,
             (unsigned int)time_s->tm_min % 100,
             (unsigned int)time_s->tm_sec % 100);
-    strncpy(header.creation_time, creation_time, sizeof(header.creation_time));
+    memcpy(header.creation_time, creation_time, sizeof(header.creation_time));
     
     memset(header.file_label, ' ', sizeof(header.file_label));
 
@@ -1293,19 +1293,19 @@ static sav_varnames_t *sav_varnames_init(readstat_writer_t *writer) {
         const char *name = r_variable->name;
         char *shortname = varnames[i].shortname;
         char *stem = varnames[i].stem;
-        strncpy(shortname, name, 8);
-        for (k=0; k<8 && shortname[k]; k++) { // upcase
+        snprintf(shortname, sizeof(varnames[0].shortname), "%.8s", name);
+        for (k=0; shortname[k]; k++) { // upcase
             shortname[k] = toupper(shortname[k]);
         }
         if (ck_str_hash_lookup(shortname, table)) {
-            snprintf(shortname, 8, "V%d_A", i+1);
+            snprintf(shortname, sizeof(varnames[0].shortname), "V%d_A", i+1);
         }
         ck_str_hash_insert(shortname, r_variable, table);
 
         if (r_variable->user_width <= MAX_STRING_SIZE)
             continue;
 
-        strncpy(stem, shortname, 5); // conflict resolution?
+        snprintf(stem, sizeof(varnames[0].stem), "%.5s", shortname); // conflict resolution?
     }
     ck_hash_table_free(table);
     return varnames;

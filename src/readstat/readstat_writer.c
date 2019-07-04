@@ -79,7 +79,7 @@ static void readstat_copy_label(readstat_value_label_t *value_label, const char 
     if (label && strlen(label)) {
         value_label->label_len = strlen(label);
         value_label->label = malloc(value_label->label_len);
-        strncpy(value_label->label, label, value_label->label_len);
+        memcpy(value_label->label, label, value_label->label_len);
     }
 }
 
@@ -297,7 +297,7 @@ readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat
     writer->label_sets[writer->label_sets_count++] = new_label_set;
 
     new_label_set->type = type;
-    strncpy(new_label_set->name, name, sizeof(new_label_set->name));
+    snprintf(new_label_set->name, sizeof(new_label_set->name), "%s", name);
 
     new_label_set->value_labels = calloc(VALUE_LABELS_INITIAL_CAPACITY, sizeof(readstat_value_label_t));
     new_label_set->value_labels_capacity = VALUE_LABELS_INITIAL_CAPACITY;
@@ -352,7 +352,7 @@ void readstat_label_string_value(readstat_label_set_t *label_set, const char *va
     if (value && strlen(value)) {
         new_value_label->string_key_len = strlen(value);
         new_value_label->string_key = malloc(new_value_label->string_key_len);
-        strncpy(new_value_label->string_key, value, new_value_label->string_key_len);
+        memcpy(new_value_label->string_key, value, new_value_label->string_key_len);
     }
 }
 
