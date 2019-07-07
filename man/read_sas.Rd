@@ -6,7 +6,8 @@
 \title{Read and write SAS files.}
 \usage{
 read_sas(data_file, catalog_file = NULL, encoding = NULL,
-  catalog_encoding = encoding, cols_only = NULL, n_max = -1L)
+  catalog_encoding = encoding, col_select = NULL, n_max = -1L,
+  cols_only = "DEPRECATED")
 
 write_sas(data, path)
 }
@@ -19,13 +20,15 @@ processed with \code{\link[readr:datasource]{readr::datasource()}}.}
 encoding specified in the file; use this argument to override it if it is
 incorrect.}
 
-\item{cols_only}{A list of quoted column names, a character vector of column
-names, a numeric vector of column positions, or NULL. Quoted column names
-can also make use of  \link[tidyselect:select_helpers]{tidyselect::select_helpers}. Only the specified
-columns will be read from \code{data_file}.}
+\item{col_select}{One or more selection expressions, like in
+\code{dplyr::select()}. Use \code{c()} or \code{list()} to use more than one expression.
+See \code{?dplyr::select} for details on available selection options. Only the
+specified columns will be read from \code{data_file}.}
 
 \item{n_max}{Number of lines to read. If \code{n_max} is -1, all lines in file
 will be read.}
+
+\item{cols_only}{\strong{Deprecated}: Use \code{col_select} instead.}
 
 \item{data}{Data frame to write.}
 
