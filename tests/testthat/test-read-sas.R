@@ -48,6 +48,16 @@ test_that("only selected columns are read", {
   expect_equal(names(out), c("id", "workshop"))
 })
 
+test_that("using cols_only warns but works", {
+  file <- test_path("hadley.sas7bdat")
+  expect_warning(out <- read_sas(file, cols_only = "id"), "deprecated")
+  expect_equal(names(out), "id")
+})
+
+test_that("using cols_only doesn't allow tidyselect", {
+  expect_error(read_sas(test_path("hadley.sas7bdat"), cols_only = id), "not found")
+})
+
 test_that("can select columns by position", {
   out <- read_sas(test_path("hadley.sas7bdat"), col_select = 2:3)
   expect_equal(names(out), c("workshop", "gender"))
