@@ -28,7 +28,8 @@ Imports:
     Rcpp (>= 0.11.4),
     readr (>= 0.1.0),
     tibble,
-    tidyselect
+    tidyselect,
+    rlang
 Suggests: 
     covr,
     fs,
