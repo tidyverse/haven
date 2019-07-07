@@ -44,17 +44,17 @@ test_that("can limit the number of rows read", {
 })
 
 test_that("only selected columns are read", {
-  out <- read_sas(test_path("hadley.sas7bdat"), cols_only = c("id", "workshop"))
+  out <- read_sas(test_path("hadley.sas7bdat"), col_select = c("id", "workshop"))
   expect_equal(names(out), c("id", "workshop"))
 })
 
 test_that("can select columns by position", {
-  out <- read_sas(test_path("hadley.sas7bdat"), cols_only = 2:3)
+  out <- read_sas(test_path("hadley.sas7bdat"), col_select = 2:3)
   expect_equal(names(out), c("workshop", "gender"))
 })
 
 test_that("selecting no columns works", {
-  out <- read_sas(test_path("hadley.sas7bdat"), cols_only = character())
+  out <- read_sas(test_path("hadley.sas7bdat"), col_select = character())
   expect_equal(ncol(out), 0L)
   expect_equal(nrow(out), 8L)
 })
@@ -63,7 +63,7 @@ test_that("can select columns with a catalog file", {
   out <- read_sas(
     test_path("hadley.sas7bdat"),
     test_path("formats.sas7bcat"),
-    cols_only = "workshop"
+    col_select = "workshop"
   )
   expect_equal(names(out), "workshop")
 })
