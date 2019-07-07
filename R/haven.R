@@ -40,7 +40,7 @@ read_sas <- function(data_file, catalog_file = NULL,
                      col_select = NULL, n_max = -1L, cols_only = "DEPRECATED") {
   if (!missing(cols_only)) {
     warning("`cols_only` is deprecated. Please use `col_select` instead.", call. = FALSE)
-    col_select <- cols_only
+    col_select <- cols_only # never allowed tidy selection so no need to enquo
   } else {
     col_select <- tidyselect::enquo(col_select)
   }
