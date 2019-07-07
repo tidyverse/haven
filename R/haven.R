@@ -24,6 +24,7 @@ NULL
 #'   specified columns will be read from `data_file`.
 #' @param n_max Number of lines to read. If `n_max` is -1, all lines in file
 #'   will be read.
+#' @param cols_only **Deprecated**: Use `col_select` instead.
 #' @return A tibble, data frame variant with nice defaults.
 #'
 #'   Variable labels are stored in the "label" attribute of each variable. It is
@@ -36,7 +37,12 @@ NULL
 #' read_sas(path)
 read_sas <- function(data_file, catalog_file = NULL,
                      encoding = NULL, catalog_encoding = encoding,
-                     col_select = NULL, n_max = -1L) {
+                     col_select = NULL, n_max = -1L, cols_only = "DEPRECATED") {
+  if (!missing(cols_only)) {
+    warning("`cols_only` is deprecated. Please use `col_select` instead.", call. = FALSE)
+    col_select <- cols_only
+  }
+
   if (is.null(encoding)) {
     encoding <- ""
   }
