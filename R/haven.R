@@ -41,18 +41,20 @@ read_sas <- function(data_file, catalog_file = NULL,
   if (!missing(cols_only)) {
     warning("`cols_only` is deprecated. Please use `col_select` instead.", call. = FALSE)
     col_select <- cols_only
+  } else {
+    col_select <- rlang::enquo(col_select)
   }
 
   if (is.null(encoding)) {
     encoding <- ""
   }
 
-  if (is.null(col_select)) {
+  if (rlang::quo_is_null(col_select)) {
     cols_skip <- character()
   } else {
     cols <- names(read_sas(data_file, encoding = encoding, n_max = 0L))
-    col_select <- tidyselect::vars_select(cols, !!!col_select)
-    cols_skip <- setdiff(cols, col_select)
+    sels <- tidyselect::vars_select(cols, !!col_select)
+    cols_skip <- setdiff(cols, sels)
   }
 
   spec_data <- readr::datasource(data_file)

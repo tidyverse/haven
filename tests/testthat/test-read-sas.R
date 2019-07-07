@@ -53,6 +53,17 @@ test_that("can select columns by position", {
   expect_equal(names(out), c("workshop", "gender"))
 })
 
+test_that("can select columns with select helpers", {
+  out <- read_sas(test_path("hadley.sas7bdat"), col_select = c(id, workshop))
+  expect_equal(names(out), c("id", "workshop"))
+
+  out <- read_sas(
+    test_path("hadley.sas7bdat"),
+    col_select = tidyselect::starts_with("q")
+  )
+  expect_equal(names(out), paste0("q", 1:4))
+})
+
 test_that("selecting no columns works", {
   out <- read_sas(test_path("hadley.sas7bdat"), col_select = character())
   expect_equal(ncol(out), 0L)
