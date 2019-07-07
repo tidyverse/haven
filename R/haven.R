@@ -42,7 +42,7 @@ read_sas <- function(data_file, catalog_file = NULL,
     warning("`cols_only` is deprecated. Please use `col_select` instead.", call. = FALSE)
     col_select <- cols_only # never allowed tidy selection so no need to enquo
   } else {
-    col_select <- tidyselect::enquo(col_select)
+    col_select <- rlang::enquo(col_select)
   }
 
   if (is.null(encoding)) {
