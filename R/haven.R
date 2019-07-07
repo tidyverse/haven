@@ -18,7 +18,7 @@ NULL
 #'   `data_file` and `catalog_encoding` respectively. A value of `NULL` uses the
 #'   encoding specified in the file; use this argument to override it if it is
 #'   incorrect.
-#' @param cols_only A list of quoted column names, a character vector of column
+#' @param col_select A list of quoted column names, a character vector of column
 #'   names, a numeric vector of column positions, or NULL. Quoted column names
 #'   can also make use of  [tidyselect::select_helpers]. Only the specified
 #'   columns will be read from `data_file`.
@@ -36,17 +36,17 @@ NULL
 #' read_sas(path)
 read_sas <- function(data_file, catalog_file = NULL,
                      encoding = NULL, catalog_encoding = encoding,
-                     cols_only = NULL, n_max = -1L) {
+                     col_select = NULL, n_max = -1L) {
   if (is.null(encoding)) {
     encoding <- ""
   }
 
-  if (is.null(cols_only)) {
+  if (is.null(col_select)) {
     cols_skip <- character()
   } else {
     cols <- names(read_sas(data_file, encoding = encoding, n_max = 0L))
-    cols_only <- tidyselect::vars_select(cols, !!!cols_only)
-    cols_skip <- setdiff(cols, cols_only)
+    col_select <- tidyselect::vars_select(cols, !!!col_select)
+    cols_skip <- setdiff(cols, col_select)
   }
 
   spec_data <- readr::datasource(data_file)
