@@ -39,9 +39,11 @@ read_sas <- function(data_file, catalog_file = NULL,
                      encoding = NULL, catalog_encoding = encoding,
                      col_select = NULL, n_max = -1L, cols_only = "DEPRECATED") {
   if (!missing(cols_only)) {
-    # cols_only never used tidyselect, so should error on bare names
-    col_select <- rlang::quo(!!cols_only)
     warning("`cols_only` is deprecated. Please use `col_select` instead.", call. = FALSE)
+    stopifnot(is.character(cols_only)) # used to only work with a char vector
+
+    # guarantee a quosure to keep NULL and tidyselect logic clean downstream
+    col_select <- rlang::quo(c(!!!cols_only))
   } else {
     col_select <- rlang::enquo(col_select)
   }
