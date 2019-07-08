@@ -9,36 +9,36 @@ df_parse_sas_raw <- function(spec_b7dat, spec_b7cat, encoding, catalog_encoding,
     .Call(`_haven_df_parse_sas_raw`, spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_skip, n_max)
 }
 
-df_parse_xpt_file <- function(spec) {
-    .Call(`_haven_df_parse_xpt_file`, spec)
+df_parse_xpt_file <- function(spec, cols_skip, n_max) {
+    .Call(`_haven_df_parse_xpt_file`, spec, cols_skip, n_max)
 }
 
-df_parse_xpt_raw <- function(spec) {
-    .Call(`_haven_df_parse_xpt_raw`, spec)
+df_parse_xpt_raw <- function(spec, cols_skip, n_max) {
+    .Call(`_haven_df_parse_xpt_raw`, spec, cols_skip, n_max)
 }
 
-df_parse_dta_file <- function(spec, encoding) {
-    .Call(`_haven_df_parse_dta_file`, spec, encoding)
+df_parse_dta_file <- function(spec, encoding, cols_skip, n_max) {
+    .Call(`_haven_df_parse_dta_file`, spec, encoding, cols_skip, n_max)
 }
 
-df_parse_dta_raw <- function(spec, encoding) {
-    .Call(`_haven_df_parse_dta_raw`, spec, encoding)
+df_parse_dta_raw <- function(spec, encoding, cols_skip, n_max) {
+    .Call(`_haven_df_parse_dta_raw`, spec, encoding, cols_skip, n_max)
 }
 
-df_parse_sav_file <- function(spec, encoding, user_na) {
-    .Call(`_haven_df_parse_sav_file`, spec, encoding, user_na)
+df_parse_sav_file <- function(spec, encoding, user_na, cols_skip, n_max) {
+    .Call(`_haven_df_parse_sav_file`, spec, encoding, user_na, cols_skip, n_max)
 }
 
-df_parse_sav_raw <- function(spec, encoding, user_na) {
-    .Call(`_haven_df_parse_sav_raw`, spec, encoding, user_na)
+df_parse_sav_raw <- function(spec, encoding, user_na, cols_skip, n_max) {
+    .Call(`_haven_df_parse_sav_raw`, spec, encoding, user_na, cols_skip, n_max)
 }
 
-df_parse_por_file <- function(spec, encoding, user_na) {
-    .Call(`_haven_df_parse_por_file`, spec, encoding, user_na)
+df_parse_por_file <- function(spec, encoding, user_na, cols_skip, n_max) {
+    .Call(`_haven_df_parse_por_file`, spec, encoding, user_na, cols_skip, n_max)
 }
 
-df_parse_por_raw <- function(spec, encoding, user_na) {
-    .Call(`_haven_df_parse_por_raw`, spec, encoding, user_na)
+df_parse_por_raw <- function(spec, encoding, user_na, cols_skip, n_max) {
+    .Call(`_haven_df_parse_por_raw`, spec, encoding, user_na, cols_skip, n_max)
 }
 
 write_sav_ <- function(data, path, compress) {
