@@ -93,7 +93,7 @@ write_sas <- function(data, path) {
 #' tmp <- tempfile(fileext = ".xpt")
 #' write_xpt(mtcars, tmp)
 #' read_xpt(tmp)
-read_xpt <- function(file) {
+read_xpt <- function(file, col_select = NULL, n_max = -1L) {
   spec <- readr::datasource(file)
   switch(class(spec)[1],
     source_file = df_parse_xpt_file(spec),
@@ -174,7 +174,7 @@ NULL
 
 #' @export
 #' @rdname read_spss
-read_sav <- function(file, encoding = NULL, user_na = FALSE) {
+read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, n_max = -1L) {
   spec <- readr::datasource(file)
   if (is.null(encoding)) {
     encoding <- ""
@@ -188,7 +188,7 @@ read_sav <- function(file, encoding = NULL, user_na = FALSE) {
 
 #' @export
 #' @rdname read_spss
-read_por <- function(file, user_na = FALSE) {
+read_por <- function(file, user_na = FALSE, col_select = NULL, n_max = -1L) {
   spec <- readr::datasource(file)
 
   switch(class(spec)[1],
@@ -214,7 +214,7 @@ write_sav <- function(data, path, compress = FALSE) {
 #' @param user_na If `TRUE` variables with user defined missing will
 #'   be read into [labelled_spss()] objects. If `FALSE`, the
 #'   default, user-defined missings will be converted to `NA`.
-read_spss <- function(file, user_na = FALSE) {
+read_spss <- function(file, user_na = FALSE, col_select = NULL, n_max = -1L) {
   ext <- tolower(tools::file_ext(file))
 
   switch(ext,
@@ -263,7 +263,7 @@ read_spss <- function(file, user_na = FALSE) {
 #' write_dta(mtcars, tmp)
 #' read_dta(tmp)
 #' read_stata(tmp)
-read_dta <- function(file, encoding = NULL) {
+read_dta <- function(file, encoding = NULL, col_select = NULL, n_max = -1L) {
   if (is.null(encoding)) {
     encoding <- ""
   }
@@ -278,7 +278,7 @@ read_dta <- function(file, encoding = NULL) {
 
 #' @export
 #' @rdname read_dta
-read_stata <- function(file, encoding = NULL) {
+read_stata <- function(file, encoding = NULL, col_select = NULL, n_max = -1L) {
   read_dta(file, encoding)
 }
 
