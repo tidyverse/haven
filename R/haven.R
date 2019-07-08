@@ -97,8 +97,8 @@ read_xpt <- function(file, col_select = NULL, n_max = -1L) {
   cols_skip <- skip_cols(read_xpt, {{ col_select }}, file)
   spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_xpt_file(spec),
-    source_raw = df_parse_xpt_raw(spec),
+    source_file = df_parse_xpt_file(spec, cols_skip, n_max),
+    source_raw = df_parse_xpt_raw(spec, cols_skip, n_max),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
@@ -184,8 +184,8 @@ read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, 
 
   spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_sav_file(spec, encoding, user_na),
-    source_raw = df_parse_sav_raw(spec, encoding, user_na),
+    source_file = df_parse_sav_file(spec, encoding, user_na, cols_skip, n_max),
+    source_raw = df_parse_sav_raw(spec, encoding, user_na, cols_skip, n_max),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
@@ -196,8 +196,8 @@ read_por <- function(file, user_na = FALSE, col_select = NULL, n_max = -1L) {
   cols_skip <- skip_cols(read_por, {{ col_select }}, file)
   spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_por_file(spec, encoding = "", user_na = user_na),
-    source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na),
+    source_file = df_parse_por_file(spec, encoding = "", user_na = user_na, cols_skip, n_max),
+    source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na, cols_skip, n_max),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
@@ -276,8 +276,8 @@ read_dta <- function(file, encoding = NULL, col_select = NULL, n_max = -1L) {
 
   spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_dta_file(spec, encoding),
-    source_raw = df_parse_dta_raw(spec, encoding),
+    source_file = df_parse_dta_file(spec, encoding, cols_skip, n_max),
+    source_raw = df_parse_dta_raw(spec, encoding, cols_skip, n_max),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
