@@ -52,13 +52,7 @@ read_sas <- function(data_file, catalog_file = NULL,
     encoding <- ""
   }
 
-  if (rlang::quo_is_null(col_select)) {
-    cols_skip <- character()
-  } else {
-    cols <- names(read_sas(data_file, encoding = encoding, n_max = 0L))
-    sels <- tidyselect::vars_select(cols, !!col_select)
-    cols_skip <- setdiff(cols, sels)
-  }
+  cols_skip <- skip_cols(read_sas, !!col_select, data_file, encoding = encoding)
 
   spec_data <- readr::datasource(data_file)
   if (is.null(catalog_file)) {
@@ -381,4 +375,15 @@ validate_sas <- function(data) {
 var_names <- function(data, i) {
   x <- names(data)[i]
   paste(encodeString(x, quote = "`"), collapse = ", ")
+}
+
+skip_cols <- function(reader, col_select = NULL, ...) {
+  col_select <- rlang::enquo(col_select)
+  if (rlang::quo_is_null(col_select)) {
+    return(character())
+  }
+
+  cols <- names(reader(..., n_max = 0L))
+  sels <- tidyselect::vars_select(cols, !!col_select)
+  setdiff(cols, sels)
 }
