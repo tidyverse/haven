@@ -151,6 +151,7 @@ validate_xpt_name <- function(name, version) {
 #' and factors. See [labelled_spss()] for how labelled variables in
 #' SPSS are handled in R.
 #'
+#' @inheritParams read_sas
 #' @inheritParams readr::datasource
 #' @param path Path to a file where the data will be written.
 #' @param data Data frame to write.
