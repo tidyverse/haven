@@ -94,6 +94,7 @@ write_sas <- function(data, path) {
 #' write_xpt(mtcars, tmp)
 #' read_xpt(tmp)
 read_xpt <- function(file, col_select = NULL, n_max = -1L) {
+  cols_skip <- skip_cols(read_xpt, {{ col_select }}, file)
   spec <- readr::datasource(file)
   switch(class(spec)[1],
     source_file = df_parse_xpt_file(spec),
@@ -175,10 +176,13 @@ NULL
 #' @export
 #' @rdname read_spss
 read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, n_max = -1L) {
-  spec <- readr::datasource(file)
   if (is.null(encoding)) {
     encoding <- ""
   }
+
+  cols_skip <- skip_cols(read_sav, {{ col_select }}, file, encoding)
+
+  spec <- readr::datasource(file)
   switch(class(spec)[1],
     source_file = df_parse_sav_file(spec, encoding, user_na),
     source_raw = df_parse_sav_raw(spec, encoding, user_na),
@@ -189,8 +193,8 @@ read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, 
 #' @export
 #' @rdname read_spss
 read_por <- function(file, user_na = FALSE, col_select = NULL, n_max = -1L) {
+  cols_skip <- skip_cols(read_por, {{ col_select }}, file)
   spec <- readr::datasource(file)
-
   switch(class(spec)[1],
     source_file = df_parse_por_file(spec, encoding = "", user_na = user_na),
     source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na),
@@ -267,6 +271,8 @@ read_dta <- function(file, encoding = NULL, col_select = NULL, n_max = -1L) {
   if (is.null(encoding)) {
     encoding <- ""
   }
+
+  cols_skip <- skip_cols(read_dta, {{ col_select }}, file, encoding)
 
   spec <- readr::datasource(file)
   switch(class(spec)[1],
