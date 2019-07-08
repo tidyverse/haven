@@ -222,9 +222,9 @@ read_spss <- function(file, user_na = FALSE, col_select = NULL, n_max = -1L) {
   ext <- tolower(tools::file_ext(file))
 
   switch(ext,
-    sav = read_sav(file, user_na = user_na, col_select = col_select, n_max = n_max),
-    zsav = read_sav(file, user_na = user_na, col_select = col_select, n_max = n_max),
-    por = read_por(file, user_na = user_na, col_select = col_select, n_max = n_max),
+    sav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max),
+    zsav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max),
+    por = read_por(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max),
     stop("Unknown extension '.", ext, "'", call. = FALSE)
   )
 }
@@ -285,7 +285,7 @@ read_dta <- function(file, encoding = NULL, col_select = NULL, n_max = -1L) {
 #' @export
 #' @rdname read_dta
 read_stata <- function(file, encoding = NULL, col_select = NULL, n_max = -1L) {
-  read_dta(file, encoding, col_select, n_max)
+  read_dta(file, encoding, {{ col_select }}, n_max)
 }
 
 #' @export
