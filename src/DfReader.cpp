@@ -712,38 +712,44 @@ List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 }
 
 // [[Rcpp::export]]
-List df_parse_xpt_file(Rcpp::List spec) {
+List df_parse_xpt_file(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max) {
   return df_parse_xpt<DfReaderInputFile>(spec);
 }
 // [[Rcpp::export]]
-List df_parse_xpt_raw(Rcpp::List spec) {
+List df_parse_xpt_raw(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max) {
   return df_parse_xpt<DfReaderInputRaw>(spec);
 }
 
 // [[Rcpp::export]]
-List df_parse_dta_file(Rcpp::List spec, std::string encoding) {
+List df_parse_dta_file(Rcpp::List spec, std::string encoding,
+                       std::vector<std::string> cols_skip, long n_max) {
   return df_parse_dta<DfReaderInputFile>(spec, encoding);
 }
 // [[Rcpp::export]]
-List df_parse_dta_raw(Rcpp::List spec, std::string encoding) {
+List df_parse_dta_raw(Rcpp::List spec, std::string encoding,
+                       std::vector<std::string> cols_skip, long n_max) {
   return df_parse_dta<DfReaderInputRaw>(spec, encoding);
 }
 
 // [[Rcpp::export]]
-List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na) {
+List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na,
+                       std::vector<std::string> cols_skip, long n_max) {
   return df_parse_spss<DfReaderInputFile>(spec, encoding, user_na, false);
 }
 // [[Rcpp::export]]
-List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na) {
+List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na,
+                       std::vector<std::string> cols_skip, long n_max) {
   return df_parse_spss<DfReaderInputRaw>(spec, encoding, user_na, false);
 }
 
 // [[Rcpp::export]]
-List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na) {
+List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na,
+                       std::vector<std::string> cols_skip, long n_max) {
   return df_parse_spss<DfReaderInputFile>(spec, encoding, user_na, true);
 }
 // [[Rcpp::export]]
-List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na) {
+List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na,
+                       std::vector<std::string> cols_skip, long n_max) {
   return df_parse_spss<DfReaderInputRaw>(spec, encoding, user_na, true);
 }
 
