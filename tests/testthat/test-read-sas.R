@@ -48,6 +48,12 @@ test_that("only selected columns are read", {
   expect_equal(names(out), c("id", "workshop"))
 })
 
+test_that("throws error on empty column selection", {
+  file <- test_path("hadley.sas7bdat")
+  expect_error(read_sas(file, col_select = character()), "Can't find")
+  expect_error(read_sas(file, col_select = tidyselect::starts_with("x")), "Can't find")
+})
+
 test_that("using cols_only warns but works", {
   file <- test_path("hadley.sas7bdat")
   out <- expect_warning(read_sas(file, cols_only = "id"), "deprecated")
@@ -68,12 +74,6 @@ test_that("can select columns with select helpers", {
     col_select = tidyselect::starts_with("q")
   )
   expect_equal(names(out), paste0("q", 1:4))
-})
-
-test_that("selecting no columns works", {
-  out <- read_sas(test_path("hadley.sas7bdat"), col_select = character())
-  expect_equal(ncol(out), 0L)
-  expect_equal(nrow(out), 8L)
 })
 
 test_that("can select columns with a catalog file", {

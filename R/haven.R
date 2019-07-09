@@ -392,5 +392,10 @@ skip_cols <- function(reader, col_select = NULL, ...) {
 
   cols <- names(reader(..., n_max = 0L))
   sels <- tidyselect::vars_select(cols, !!col_select)
+
+  if (length(sels) == 0) {
+    stop("Can't find any columns matching `col_select` in data.", call. = FALSE)
+  }
+
   setdiff(cols, sels)
 }
