@@ -645,7 +645,7 @@ List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                       std::string encoding, std::string catalog_encoding,
                       std::vector<std::string> cols_skip, long n_max) {
-  return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, cols_skip, n_max, encoding, false, spec_b7cat, catalog_encoding);
+  return df_parse<HAVEN_SAS7BDAT, DfReaderInputRaw>(spec_b7dat, cols_skip, n_max, encoding, false, spec_b7cat, catalog_encoding);
 }
 
 // [[Rcpp::export]]
