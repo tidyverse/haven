@@ -590,18 +590,18 @@ void haven_set_row_limit(readstat_parser_t* parser, long n) {
 template<FileExt ext>
 void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfReader* builder) {
   haven_init_io(parser, builder_input);
-  readstat_error_t result = [&] {
-    switch(ext) {
-    // the path for readstat_parse_* is baked into the io context (DfReaderInput)
-    case HAVEN_SAS7BDAT: return readstat_parse_sas7bdat(parser, "", builder);
-    case HAVEN_SAS7BCAT: return readstat_parse_sas7bcat(parser, "", builder);
-    case HAVEN_XPT:      return readstat_parse_xport(parser, "", builder);
-    case HAVEN_DTA:      return readstat_parse_dta(parser, "", builder);
-    case HAVEN_SAV:      return readstat_parse_sav(parser, "", builder);
-    case HAVEN_POR:      return readstat_parse_por(parser, "", builder);
-    default:             return READSTAT_ERROR_PARSE;
-    }
-  }();
+
+  readstat_error_t result;
+  switch(ext) {
+  // the path for readstat_parse_* is baked into the io context (DfReaderInput)
+  case HAVEN_SAS7BDAT: result = readstat_parse_sas7bdat(parser, "", builder); break;
+  case HAVEN_SAS7BCAT: result = readstat_parse_sas7bcat(parser, "", builder); break;
+  case HAVEN_XPT:      result = readstat_parse_xport(parser, "", builder); break;
+  case HAVEN_DTA:      result = readstat_parse_dta(parser, "", builder); break;
+  case HAVEN_SAV:      result = readstat_parse_sav(parser, "", builder); break;
+  case HAVEN_POR:      result = readstat_parse_por(parser, "", builder); break;
+  default:             result = READSTAT_ERROR_PARSE; break;
+  }
 
   if (result != READSTAT_OK) {
     std::string source = ((DfReaderInput*) parser->io->io_ctx)->source();
