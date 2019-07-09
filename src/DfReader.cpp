@@ -570,7 +570,7 @@ readstat_parser_t* haven_init_parser() {
   return parser;
 }
 
-void haven_init_io(readstat_parser_t* parser, DfReaderInput &builder_input) {
+void haven_init_io(readstat_parser_t* parser, DfReaderInput& builder_input) {
   readstat_set_open_handler(parser, dfreader_open);
   readstat_set_close_handler(parser, dfreader_close);
   readstat_set_seek_handler(parser, dfreader_seek);
@@ -604,7 +604,7 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
   }
 
   if (result != READSTAT_OK) {
-    std::string source = ((DfReaderInput*) parser->io->io_ctx)->source();
+    std::string source = builder_input.source();
     readstat_parser_free(parser);
     stop("Failed to parse %s: %s.", source, readstat_error_message(result));
   }
