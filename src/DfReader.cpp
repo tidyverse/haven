@@ -611,11 +611,11 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
 }
 
 template<FileExt ext, typename InputClass>
-List df_parse(const List& spec, const std::string& encoding = "", const bool& user_na = false,
-              const CharacterVector& cols_skip = CharacterVector(), const long& n_max = -1,
+List df_parse(const List& spec, const std::vector<std::string>& cols_skip, const long& n_max = -1,
+              const std::string& encoding = "", const bool& user_na = false,
               const List& catalog_spec = List(), const std::string& catalog_encoding = "") {
   DfReader builder(ext, user_na);
-  builder.skipCols(as< std::vector<std::string> >(cols_skip));
+  builder.skipCols(cols_skip);
 
   readstat_parser_t* parser = haven_init_parser();
   haven_set_row_limit(parser, n_max);
@@ -638,50 +638,50 @@ List df_parse(const List& spec, const std::string& encoding = "", const bool& us
 // [[Rcpp::export]]
 List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                        std::string encoding, std::string catalog_encoding,
-                       CharacterVector cols_skip, long n_max) {
-  return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, encoding, false, cols_skip, n_max, spec_b7cat, catalog_encoding);
+                       std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, cols_skip, n_max, encoding, false, spec_b7cat, catalog_encoding);
 }
 // [[Rcpp::export]]
 List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                       std::string encoding, std::string catalog_encoding,
-                      CharacterVector cols_skip, long n_max) {
-  return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, encoding, false, cols_skip, n_max, spec_b7cat, catalog_encoding);
+                      std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, cols_skip, n_max, encoding, false, spec_b7cat, catalog_encoding);
 }
 
 // [[Rcpp::export]]
-List df_parse_xpt_file(Rcpp::List spec, CharacterVector cols_skip, long n_max) {
-  return df_parse<HAVEN_XPT, DfReaderInputFile>(spec, "", false, cols_skip, n_max);
+List df_parse_xpt_file(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_XPT, DfReaderInputFile>(spec, cols_skip, n_max);
 }
 // [[Rcpp::export]]
-List df_parse_xpt_raw(Rcpp::List spec, CharacterVector cols_skip, long n_max) {
-  return df_parse<HAVEN_XPT, DfReaderInputRaw>(spec, "", false, cols_skip, n_max);
-}
-
-// [[Rcpp::export]]
-List df_parse_dta_file(Rcpp::List spec, std::string encoding, CharacterVector cols_skip, long n_max) {
-  return df_parse<HAVEN_DTA, DfReaderInputFile>(spec, encoding, false, cols_skip, n_max);
-}
-// [[Rcpp::export]]
-List df_parse_dta_raw(Rcpp::List spec, std::string encoding, CharacterVector cols_skip, long n_max) {
-  return df_parse<HAVEN_DTA, DfReaderInputRaw>(spec, encoding, false, cols_skip, n_max);
+List df_parse_xpt_raw(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_XPT, DfReaderInputRaw>(spec, cols_skip, n_max);
 }
 
 // [[Rcpp::export]]
-List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na, CharacterVector cols_skip, long n_max) {
-  return df_parse<HAVEN_SAV, DfReaderInputFile>(spec, encoding, user_na, cols_skip, n_max);
+List df_parse_dta_file(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_DTA, DfReaderInputFile>(spec, cols_skip, n_max, encoding);
 }
 // [[Rcpp::export]]
-List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na, CharacterVector cols_skip, long n_max) {
-  return df_parse<HAVEN_SAV, DfReaderInputRaw>(spec, encoding, user_na, cols_skip, n_max);
+List df_parse_dta_raw(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_DTA, DfReaderInputRaw>(spec, cols_skip, n_max, encoding);
 }
 
 // [[Rcpp::export]]
-List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na, CharacterVector cols_skip, long n_max) {
-  return df_parse<HAVEN_POR, DfReaderInputFile>(spec, encoding, user_na, cols_skip, n_max);
+List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_SAV, DfReaderInputFile>(spec, cols_skip, n_max, encoding, user_na);
 }
 // [[Rcpp::export]]
-List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na, CharacterVector cols_skip, long n_max) {
-  return df_parse<HAVEN_POR, DfReaderInputRaw>(spec, encoding, user_na, cols_skip, n_max);
+List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_SAV, DfReaderInputRaw>(spec, cols_skip, n_max, encoding, user_na);
+}
+
+// [[Rcpp::export]]
+List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_POR, DfReaderInputFile>(spec, cols_skip, n_max, encoding, user_na);
+}
+// [[Rcpp::export]]
+List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_POR, DfReaderInputRaw>(spec, cols_skip, n_max, encoding, user_na);
 }
 
 // # nocov end
