@@ -48,12 +48,6 @@ test_that("only selected columns are read", {
   expect_equal(names(out), c("id", "workshop"))
 })
 
-test_that("throws error on empty column selection", {
-  file <- test_path("hadley.sas7bdat")
-  expect_error(read_sas(file, col_select = character()), "Can't find")
-  expect_error(read_sas(file, col_select = tidyselect::starts_with("x")), "Can't find")
-})
-
 test_that("using cols_only warns but works", {
   file <- test_path("hadley.sas7bdat")
   out <- expect_warning(read_sas(file, cols_only = "id"), "deprecated")
@@ -66,14 +60,19 @@ test_that("can select columns by position", {
 })
 
 test_that("can select columns with select helpers", {
-  out <- read_sas(test_path("hadley.sas7bdat"), col_select = c(id, workshop))
+  file <- test_path("hadley.sas7bdat")
+
+  out <- read_sas(file, col_select = c(id, workshop))
   expect_equal(names(out), c("id", "workshop"))
 
-  out <- read_sas(
-    test_path("hadley.sas7bdat"),
-    col_select = tidyselect::starts_with("q")
-  )
+  out <- read_sas(file, col_select = tidyselect::starts_with("q"))
   expect_equal(names(out), paste0("q", 1:4))
+})
+
+test_that("throws error on empty column selection", {
+  file <- test_path("hadley.sas7bdat")
+  expect_error(read_sas(file, col_select = character()), "Can't find")
+  expect_error(read_sas(file, col_select = tidyselect::starts_with("x")), "Can't find")
 })
 
 test_that("can select columns with a catalog file", {
