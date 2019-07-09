@@ -378,7 +378,7 @@ public:
   }
 
   void limitRows(long n) {
-    if (n >= 0 && nrows_ > n) {
+    if (nrows_ > n) {
       nrows_ = n;
     }
   }
@@ -629,7 +629,10 @@ List df_parse(const List& spec, const std::vector<std::string>& cols_skip, const
   haven_parse<ext>(parser, builder_input, &builder);
   readstat_parser_free(parser);
 
-  builder.limitRows(n_max); // must enforce n_max = 0
+  if (n_max >= 0) {
+    builder.limitRows(n_max); // must enforce n_max = 0
+  }
+  
   return builder.output();
 }
 
