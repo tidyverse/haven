@@ -19,11 +19,10 @@ NULL
 #'   encoding specified in the file; use this argument to override it if it is
 #'   incorrect.
 #' @param col_select One or more selection expressions, like in
-#'   `dplyr::select()`. Use `c()` or `list()` to use more than one expression.
+#'   [dplyr::select()]. Use `c()` or `list()` to use more than one expression.
 #'   See `?dplyr::select` for details on available selection options. Only the
 #'   specified columns will be read from `data_file`.
-#' @param n_max Number of lines to read. If `n_max` is -1, all lines in file
-#'   will be read.
+#' @param n_max Maximum number of lines to read.
 #' @param cols_only **Deprecated**: Use `col_select` instead.
 #' @return A tibble, data frame variant with nice defaults.
 #'
@@ -37,7 +36,7 @@ NULL
 #' read_sas(path)
 read_sas <- function(data_file, catalog_file = NULL,
                      encoding = NULL, catalog_encoding = encoding,
-                     col_select = NULL, n_max = -1L, cols_only = "DEPRECATED") {
+                     col_select = NULL, n_max = Inf, cols_only = "DEPRECATED") {
   if (!missing(cols_only)) {
     warning("`cols_only` is deprecated. Please use `col_select` instead.", call. = FALSE)
     stopifnot(is.character(cols_only)) # used to only work with a char vector
@@ -53,6 +52,7 @@ read_sas <- function(data_file, catalog_file = NULL,
   }
 
   cols_skip <- skip_cols(read_sas, !!col_select, data_file, encoding = encoding)
+  n_max <- validate_n_max(n_max)
 
   spec_data <- readr::datasource(data_file)
   if (is.null(catalog_file)) {
@@ -93,8 +93,10 @@ write_sas <- function(data, path) {
 #' tmp <- tempfile(fileext = ".xpt")
 #' write_xpt(mtcars, tmp)
 #' read_xpt(tmp)
-read_xpt <- function(file, col_select = NULL, n_max = -1L) {
+read_xpt <- function(file, col_select = NULL, n_max = Inf) {
   cols_skip <- skip_cols(read_xpt, {{ col_select }}, file)
+  n_max <- validate_n_max(n_max)
+
   spec <- readr::datasource(file)
   switch(class(spec)[1],
     source_file = df_parse_xpt_file(spec, cols_skip, n_max),
@@ -176,12 +178,13 @@ NULL
 
 #' @export
 #' @rdname read_spss
-read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, n_max = -1L) {
+read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, n_max = Inf) {
   if (is.null(encoding)) {
     encoding <- ""
   }
 
   cols_skip <- skip_cols(read_sav, {{ col_select }}, file, encoding)
+  n_max <- validate_n_max(n_max)
 
   spec <- readr::datasource(file)
   switch(class(spec)[1],
@@ -193,8 +196,10 @@ read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, 
 
 #' @export
 #' @rdname read_spss
-read_por <- function(file, user_na = FALSE, col_select = NULL, n_max = -1L) {
+read_por <- function(file, user_na = FALSE, col_select = NULL, n_max = Inf) {
   cols_skip <- skip_cols(read_por, {{ col_select }}, file)
+  n_max <- validate_n_max(n_max)
+
   spec <- readr::datasource(file)
   switch(class(spec)[1],
     source_file = df_parse_por_file(spec, encoding = "", user_na = user_na, cols_skip, n_max),
@@ -219,7 +224,7 @@ write_sav <- function(data, path, compress = FALSE) {
 #' @param user_na If `TRUE` variables with user defined missing will
 #'   be read into [labelled_spss()] objects. If `FALSE`, the
 #'   default, user-defined missings will be converted to `NA`.
-read_spss <- function(file, user_na = FALSE, col_select = NULL, n_max = -1L) {
+read_spss <- function(file, user_na = FALSE, col_select = NULL, n_max = Inf) {
   ext <- tolower(tools::file_ext(file))
 
   switch(ext,
@@ -268,12 +273,13 @@ read_spss <- function(file, user_na = FALSE, col_select = NULL, n_max = -1L) {
 #' write_dta(mtcars, tmp)
 #' read_dta(tmp)
 #' read_stata(tmp)
-read_dta <- function(file, encoding = NULL, col_select = NULL, n_max = -1L) {
+read_dta <- function(file, encoding = NULL, col_select = NULL, n_max = Inf) {
   if (is.null(encoding)) {
     encoding <- ""
   }
 
   cols_skip <- skip_cols(read_dta, {{ col_select }}, file, encoding)
+  n_max <- validate_n_max(n_max)
 
   spec <- readr::datasource(file)
   switch(class(spec)[1],
@@ -285,7 +291,7 @@ read_dta <- function(file, encoding = NULL, col_select = NULL, n_max = -1L) {
 
 #' @export
 #' @rdname read_dta
-read_stata <- function(file, encoding = NULL, col_select = NULL, n_max = -1L) {
+read_stata <- function(file, encoding = NULL, col_select = NULL, n_max = Inf) {
   read_dta(file, encoding, {{ col_select }}, n_max)
 }
 
@@ -398,4 +404,20 @@ skip_cols <- function(reader, col_select = NULL, ...) {
   }
 
   setdiff(cols, sels)
+}
+
+validate_n_max <- function(n) {
+  if (!is.numeric(n) && !is.na(n)) {
+    stop("`n_max` must be numeric, not ", class(n)[1], ".", call. = FALSE)
+  }
+
+  if (length(n) != 1) {
+    stop("`n_max` must have length 1, not ", length(n), ".", call. = FALSE)
+  }
+
+  if (is.na(n) || is.infinite(n) || n < 0) {
+    return(-1L)
+  }
+
+  as.integer(n)
 }

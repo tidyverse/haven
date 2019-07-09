@@ -6,9 +6,9 @@
 \alias{write_dta}
 \title{Read and write Stata DTA files.}
 \usage{
-read_dta(file, encoding = NULL, col_select = NULL, n_max = -1L)
+read_dta(file, encoding = NULL, col_select = NULL, n_max = Inf)
 
-read_stata(file, encoding = NULL, col_select = NULL, n_max = -1L)
+read_stata(file, encoding = NULL, col_select = NULL, n_max = Inf)
 
 write_dta(data, path, version = 14)
 }
@@ -33,12 +33,11 @@ only needed for Stata 13 files and earlier. See Encoding section
 for details.}
 
 \item{col_select}{One or more selection expressions, like in
-\code{dplyr::select()}. Use \code{c()} or \code{list()} to use more than one expression.
+\code{\link[dplyr:select]{dplyr::select()}}. Use \code{c()} or \code{list()} to use more than one expression.
 See \code{?dplyr::select} for details on available selection options. Only the
 specified columns will be read from \code{data_file}.}
 
-\item{n_max}{Number of lines to read. If \code{n_max} is -1, all lines in file
-will be read.}
+\item{n_max}{Maximum number of lines to read.}
 
 \item{data}{Data frame to write.}
 

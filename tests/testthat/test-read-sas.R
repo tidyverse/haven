@@ -43,6 +43,18 @@ test_that("can limit the number of rows read", {
   expect_equal(nrow(read_sas(test_path("hadley.sas7bdat"), n_max = 0)), 0L)
 })
 
+test_that("n_max validation works", {
+  expect_equal(validate_n_max(1), 1L)
+  expect_equal(validate_n_max(0), 0L)
+
+  expect_equal(validate_n_max(-2),  -1L)
+  expect_equal(validate_n_max(Inf), -1L)
+  expect_equal(validate_n_max(NA),  -1L)
+
+  expect_error(validate_n_max(1:5), "must have length 1")
+  expect_error(validate_n_max("foo"), "must be numeric")
+})
+
 test_that("only selected columns are read", {
   out <- read_sas(test_path("hadley.sas7bdat"), col_select = c("id", "workshop"))
   expect_named(out, c("id", "workshop"))
