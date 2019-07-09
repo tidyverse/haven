@@ -60,5 +60,5 @@ test_that("can limit the number of rows read", {
 
 test_that("only selected columns are read", {
   out <- read_dta(test_path("notes.dta"), col_select = "id")
-  expect_equal(names(out), "id")
+  expect_named(out, "id")
 })

@@ -91,7 +91,7 @@ test_that("can limit the number of rows read", {
 
 test_that("only selected columns are read", {
   out <- read_spss(test_path("datetime.sav"), col_select = "date")
-  expect_equal(names(out), "date")
+  expect_named(out, "date")
 })
 
 # User-defined missings ---------------------------------------------------
