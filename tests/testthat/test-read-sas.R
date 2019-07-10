@@ -38,60 +38,78 @@ test_that("tagged missings are read correctly", {
   expect_equal(na_tag(labels), c("a", "z"))
 })
 
-test_that("can limit the number of rows read", {
-  expect_equal(nrow(read_sas(test_path("hadley.sas7bdat"), n_max = 1)), 1L)
-  expect_equal(nrow(read_sas(test_path("hadley.sas7bdat"), n_max = 0)), 0L)
+
+# Row limiting ------------------------------------------------------------
+
+test_that("can limit the number of rows to read", {
+  rows_with_limit <- function(n) {
+    nrow(read_sas(test_path("hadley.sas7bdat"), n_max = n))
+  }
+
+  n <- rows_with_limit(Inf)
+  expect_equal(rows_with_limit(0), 0)
+  expect_equal(rows_with_limit(1), 1)
+  expect_equal(rows_with_limit(n), n)
+  expect_equal(rows_with_limit(n + 1), n)
+
+  # alternatives for unlimited rows
+  expect_equal(rows_with_limit(NA), n)
+  expect_equal(rows_with_limit(-1), n)
 })
 
-test_that("n_max validation works", {
-  expect_equal(validate_n_max(1), 1L)
-  expect_equal(validate_n_max(0), 0L)
+test_that("throws informative error on bad row limit", {
+  rows_with_limit <- function(n) {
+    nrow(read_sas(test_path("hadley.sas7bdat"), n_max = n))
+  }
 
-  expect_equal(validate_n_max(-2),  -1L)
-  expect_equal(validate_n_max(Inf), -1L)
-  expect_equal(validate_n_max(NA),  -1L)
-
-  expect_error(validate_n_max(1:5), "must have length 1")
-  expect_error(validate_n_max("foo"), "must be numeric")
+  expect_error(rows_with_limit(1:5), "must have length 1")
+  expect_error(rows_with_limit("foo"), "must be numeric")
 })
 
-test_that("only selected columns are read", {
-  out <- read_sas(test_path("hadley.sas7bdat"), col_select = c("id", "workshop"))
-  expect_named(out, c("id", "workshop"))
-})
 
-test_that("using cols_only warns but works", {
-  file <- test_path("hadley.sas7bdat")
-  out <- expect_warning(read_sas(file, cols_only = "id"), "deprecated")
-  expect_named(out, "id")
-})
+# Column selection --------------------------------------------------------
 
-test_that("can select columns by position", {
-  out <- read_sas(test_path("hadley.sas7bdat"), col_select = 2:3)
-  expect_named(out, c("workshop", "gender"))
-})
+test_that("can select columns to read, with tidyselect semantics", {
+  with_col_select <- function(x) {
+    read_sas(test_path("hadley.sas7bdat"), col_select = {{ x }})
+  }
 
-test_that("can select columns with select helpers", {
-  file <- test_path("hadley.sas7bdat")
+  full_data <- with_col_select(NULL)
+  n_col <- ncol(full_data)
 
-  out <- read_sas(file, col_select = c(id, workshop))
-  expect_named(out, c("id", "workshop"))
-
-  out <- read_sas(file, col_select = tidyselect::starts_with("q"))
-  expect_named(out, paste0("q", 1:4))
+  expect_equivalent(with_col_select("id"), full_data[, "id"])
+  expect_equivalent(with_col_select(id), full_data[, "id"])
+  expect_equivalent(with_col_select(2:3), full_data[, 2:3])
+  expect_equivalent(with_col_select(tidyselect::last_col()), full_data[, n_col])
 })
 
 test_that("throws error on empty column selection", {
-  file <- test_path("hadley.sas7bdat")
-  expect_error(read_sas(file, col_select = character()), "Can't find")
-  expect_error(read_sas(file, col_select = tidyselect::starts_with("x")), "Can't find")
+  with_col_select <- function(x) {
+    read_sas(test_path("hadley.sas7bdat"), col_select = {{ x }})
+  }
+
+  expect_error(with_col_select(character()), "Can't find")
+  expect_error(with_col_select(tidyselect::starts_with("x")), "Can't find")
 })
 
-test_that("can select columns with a catalog file", {
-  out <- read_sas(
-    test_path("hadley.sas7bdat"),
-    test_path("formats.sas7bcat"),
-    col_select = "workshop"
+
+# Column selection (SAS specific) -----------------------------------------
+
+test_that("can select columns when a catalog file is present", {
+  expect_named(
+    read_sas(
+      test_path("hadley.sas7bdat"),
+      test_path("formats.sas7bcat"),
+      col_select = "workshop"
+    ),
+    "workshop"
   )
-  expect_named(out, "workshop")
+})
+
+test_that("using cols_only warns about deprecation, but works", {
+  out <- expect_warning(
+    read_sas(test_path("hadley.sas7bdat"), cols_only = "id"),
+    "is deprecated"
+  )
+  expect_named(out, "id")
 })
