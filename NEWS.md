@@ -1,5 +1,7 @@
 # haven (development version)
 
+* `read_sas()` now supports (IS|E|B)8601(DT|DA|TM) date/time formats (@mikmart).
+
 * `read_*()` functions gain two new arguments (@mikmart):
 
   * `col_select`: selects columns to read with a tidyselect interface (#248).

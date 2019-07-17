@@ -51,6 +51,12 @@ VarType numType(FileVendor vendor, const char* var_format) {
   case HAVEN_SAS:
     // http://support.sas.com/documentation/cdl/en/lrdict/64316/HTML/default/viewer.htm#a000589916.htm
     if      (hasPrefix(format,"DATETIME")) return HAVEN_DATETIME;
+    else if (hasPrefix(format,"IS8601DT")) return HAVEN_DATETIME;
+    else if (hasPrefix(format,"E8601DT"))  return HAVEN_DATETIME;
+    else if (hasPrefix(format,"B8601DT"))  return HAVEN_DATETIME;
+    else if (hasPrefix(format,"IS8601DA")) return HAVEN_DATE;
+    else if (hasPrefix(format,"E8601DA"))  return HAVEN_DATE;
+    else if (hasPrefix(format,"B8601DA"))  return HAVEN_DATE;
     else if (hasPrefix(format,"WEEKDATE")) return HAVEN_DATE;
     else if (hasPrefix(format,"MMDDYY"))   return HAVEN_DATE;
     else if (hasPrefix(format,"DDMMYY"))   return HAVEN_DATE;
@@ -58,7 +64,10 @@ VarType numType(FileVendor vendor, const char* var_format) {
     else if (hasPrefix(format,"DATE"))     return HAVEN_DATE;
     else if (hasPrefix(format,"TIME"))     return HAVEN_TIME;
     else if (hasPrefix(format,"HHMM"))     return HAVEN_TIME;
-    else                           return HAVEN_DEFAULT;
+    else if (hasPrefix(format,"IS8601TM")) return HAVEN_TIME;
+    else if (hasPrefix(format,"E8601TM"))  return HAVEN_TIME;
+    else if (hasPrefix(format,"B8601TM"))  return HAVEN_TIME;
+    else                                   return HAVEN_DEFAULT;
   case HAVEN_SPSS:
     // http://www-01.ibm.com/support/knowledgecenter/?lang=en#!/SSLVMB_20.0.0/com.ibm.spss.statistics.help/syn_date_and_time_date_time_formats.htm
     if      (hasPrefix(format, "DATETIME")) return HAVEN_DATETIME;
