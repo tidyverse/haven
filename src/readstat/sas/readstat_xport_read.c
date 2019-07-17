@@ -17,8 +17,11 @@
 
 typedef struct xport_ctx_s {
     readstat_callbacks_t handle;
-    size_t               file_size;
-    void                *user_ctx;
+    size_t         file_size;
+    void          *user_ctx;
+    const char    *input_encoding;
+    const char    *output_encoding;
+    iconv_t        converter;
 
     readstat_io_t *io;
     time_t         timestamp;
@@ -54,6 +57,9 @@ static void xport_ctx_free(xport_ctx_t *ctx) {
                 free(ctx->variables[i]);
         }
         free(ctx->variables);
+    }
+    if (ctx->converter) {
+        iconv_close(ctx->converter);
     }
 
     free(ctx);
@@ -148,7 +154,7 @@ static readstat_error_t xport_read_table_name_record(xport_ctx_t *ctx) {
         goto cleanup;
 
     retval = readstat_convert(ctx->table_name, sizeof(ctx->table_name), &line[8],
-            ctx->version == 5 ? 8 : 32, NULL);
+            ctx->version == 5 ? 8 : 32, ctx->converter);
     if (retval != READSTAT_OK)
         goto cleanup;
 
@@ -164,7 +170,8 @@ static readstat_error_t xport_read_file_label_record(xport_ctx_t *ctx) {
     if (retval != READSTAT_OK)
         goto cleanup;
 
-    retval = readstat_convert(ctx->file_label, sizeof(ctx->file_label), &line[32], 40, NULL);
+    retval = readstat_convert(ctx->file_label, sizeof(ctx->file_label), &line[32],
+            40, ctx->converter);
     if (retval != READSTAT_OK)
         goto cleanup;
 
@@ -325,12 +332,12 @@ static readstat_error_t xport_read_labels_v8(xport_ctx_t *ctx, int label_count) 
         }
 
         retval = readstat_convert(variable->name, sizeof(variable->name),
-                name, name_len,  NULL);
+                name, name_len, ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
 
         retval = readstat_convert(variable->label, sizeof(variable->label),
-                label, label_len,  NULL);
+                label, label_len, ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
     }
@@ -393,12 +400,12 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
         }
 
         retval = readstat_convert(variable->name, sizeof(variable->name),
-                name, name_len,  NULL);
+                name, name_len, ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
 
         retval = readstat_convert(variable->label, sizeof(variable->label),
-                label, label_len,  NULL);
+                label, label_len, ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
 
@@ -442,12 +449,12 @@ static readstat_error_t xport_read_variables(xport_ctx_t *ctx) {
         variable->alignment = namestr.nfj ? READSTAT_ALIGNMENT_RIGHT : READSTAT_ALIGNMENT_LEFT;
 
         readstat_convert(variable->name, sizeof(variable->name),
-                namestr.nname, sizeof(namestr.nname), NULL);
+                namestr.nname, sizeof(namestr.nname), ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
 
         readstat_convert(variable->label, sizeof(variable->label),
-                namestr.nlabel, sizeof(namestr.nlabel), NULL);
+                namestr.nlabel, sizeof(namestr.nlabel), ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
 
@@ -530,7 +537,7 @@ static readstat_error_t xport_process_row(xport_ctx_t *ctx, const char *row, siz
                 goto cleanup;
             }
             retval = readstat_convert(string, 4*variable->storage_width+1,
-                    &row[pos], variable->storage_width, NULL);
+                    &row[pos], variable->storage_width, ctx->converter);
             if (retval != READSTAT_OK)
                 goto cleanup;
 
@@ -655,6 +662,8 @@ readstat_error_t readstat_parse_xport(readstat_parser_t *parser, const char *pat
 
     xport_ctx_t *ctx = xport_ctx_init();
     ctx->handle = parser->handlers;
+    ctx->input_encoding = parser->input_encoding;
+    ctx->output_encoding = parser->output_encoding;
     ctx->user_ctx = user_ctx;
     ctx->io = io;
     ctx->row_limit = parser->row_limit;
@@ -672,6 +681,15 @@ readstat_error_t readstat_parse_xport(readstat_parser_t *parser, const char *pat
     if (io->seek(0, READSTAT_SEEK_SET, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
+    }
+
+    if (ctx->input_encoding && ctx->output_encoding && strcmp(ctx->input_encoding, ctx->output_encoding) != 0) {
+        iconv_t converter = iconv_open(ctx->output_encoding, ctx->input_encoding);
+        if (converter == (iconv_t)-1) {
+            retval = READSTAT_ERROR_UNSUPPORTED_CHARSET;
+            goto cleanup;
+        }
+        ctx->converter = converter;
     }
 
     retval = xport_read_library_record(ctx);

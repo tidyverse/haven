@@ -52,3 +52,13 @@ test_that("file label and notes stored as attributes", {
   expect_equal(attr(df, "label"), "This is a test dataset.")
   expect_length(attr(df, "notes"), 2)
 })
+
+test_that("can limit the number of rows read", {
+  expect_equal(nrow(read_dta(test_path("notes.dta"), n_max = 1)), 1L)
+  expect_equal(nrow(read_dta(test_path("notes.dta"), n_max = 0)), 0L)
+})
+
+test_that("only selected columns are read", {
+  out <- read_dta(test_path("notes.dta"), col_select = "id")
+  expect_named(out, "id")
+})

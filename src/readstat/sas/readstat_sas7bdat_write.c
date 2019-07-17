@@ -145,18 +145,6 @@ static readstat_error_t sas7bdat_emit_header(readstat_writer_t *writer, sas_head
 
     memcpy(&header_start.magic, sas7bdat_magic_number, sizeof(header_start.magic));
 
-    memset(header_start.file_label, ' ', sizeof(header_start.file_label));
-
-    size_t file_label_len = strlen(writer->file_label);
-    if (file_label_len > sizeof(header_start.file_label))
-        file_label_len = sizeof(header_start.file_label);
-
-    if (file_label_len) {
-        memcpy(header_start.file_label, writer->file_label, file_label_len);
-    } else {
-        memcpy(header_start.file_label, "DATASET", sizeof("DATASET")-1);
-    }
-
     return sas_write_header(writer, hinfo, header_start);
 }
 
@@ -775,15 +763,22 @@ static readstat_error_t sas7bdat_write_row(void *writer_ctx, void *bytes, size_t
     return retval;
 }
 
-readstat_error_t readstat_begin_writing_sas7bdat(readstat_writer_t *writer, void *user_ctx, long row_count) {
+static readstat_error_t sas7bdat_metadata_ok(void *writer_ctx) {
+    readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
 
     if (writer->compression != READSTAT_COMPRESS_NONE &&
             writer->compression != READSTAT_COMPRESS_ROWS)
         return READSTAT_ERROR_UNSUPPORTED_COMPRESSION;
 
+    return READSTAT_OK;
+}
+
+readstat_error_t readstat_begin_writing_sas7bdat(readstat_writer_t *writer, void *user_ctx, long row_count) {
+
     if (writer->version == 0)
         writer->version = SAS_DEFAULT_FILE_VERSION;
 
+    writer->callbacks.metadata_ok = &sas7bdat_metadata_ok;
     writer->callbacks.write_int8 = &sas7bdat_write_int8;
     writer->callbacks.write_int16 = &sas7bdat_write_int16;
     writer->callbacks.write_int32 = &sas7bdat_write_int32;

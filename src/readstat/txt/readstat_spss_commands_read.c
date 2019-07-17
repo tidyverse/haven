@@ -2,6 +2,7 @@
 #line 1 "src/txt/readstat_spss_commands_read.rl"
 #include <stdlib.h>
 #include <strings.h>
+#include <inttypes.h>
 
 #include "../readstat.h"
 #include "readstat_schema.h"
@@ -10,7 +11,7 @@
 #include "commands_util.h"
 
 
-#line 14 "src/txt/readstat_spss_commands_read.c"
+#line 15 "src/txt/readstat_spss_commands_read.c"
 static const char _spss_commands_actions[] = {
 	0, 1, 1, 1, 2, 1, 4, 1, 
 	8, 1, 12, 1, 15, 1, 16, 1, 
@@ -1617,7 +1618,7 @@ static const int spss_commands_start = 611;
 static const int spss_commands_en_main = 611;
 
 
-#line 13 "src/txt/readstat_spss_commands_read.rl"
+#line 14 "src/txt/readstat_spss_commands_read.rl"
 
 
 readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
@@ -1648,9 +1649,9 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
     int cs;
     
     int i;
-    int first_integer = 0;
-    int integer = 0;
     int line_no = 0;
+    uint64_t first_integer = 0, integer = 0;
+    double double_value = NAN;
     unsigned char *line_start = p;
 
     char varname[32];
@@ -1677,12 +1678,12 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
     schema->rows_per_observation = 1;
     
     
-#line 1681 "src/txt/readstat_spss_commands_read.c"
+#line 1682 "src/txt/readstat_spss_commands_read.c"
 	{
 	cs = spss_commands_start;
 	}
 
-#line 1686 "src/txt/readstat_spss_commands_read.c"
+#line 1687 "src/txt/readstat_spss_commands_read.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -1756,56 +1757,56 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 72 "src/txt/readstat_spss_commands_read.rl"
+#line 73 "src/txt/readstat_spss_commands_read.rl"
 	{
             integer = 0;
         }
 	break;
 	case 1:
-#line 76 "src/txt/readstat_spss_commands_read.rl"
+#line 77 "src/txt/readstat_spss_commands_read.rl"
 	{
             integer = 10 * integer + ((*p) - '0');
         }
 	break;
 	case 2:
-#line 80 "src/txt/readstat_spss_commands_read.rl"
+#line 81 "src/txt/readstat_spss_commands_read.rl"
 	{
             var_col = integer - 1;
             var_len = 1;
         }
 	break;
 	case 3:
-#line 85 "src/txt/readstat_spss_commands_read.rl"
+#line 86 "src/txt/readstat_spss_commands_read.rl"
 	{
             var_len = integer - var_col;
         }
 	break;
 	case 4:
-#line 89 "src/txt/readstat_spss_commands_read.rl"
+#line 90 "src/txt/readstat_spss_commands_read.rl"
 	{
             readstat_copy_quoted(buf, sizeof(buf), (char *)str_start, str_len);
         }
 	break;
 	case 5:
-#line 93 "src/txt/readstat_spss_commands_read.rl"
+#line 94 "src/txt/readstat_spss_commands_read.rl"
 	{
             readstat_copy_quoted(string_value, sizeof(string_value), (char *)str_start, str_len);
         }
 	break;
 	case 6:
-#line 101 "src/txt/readstat_spss_commands_read.rl"
+#line 102 "src/txt/readstat_spss_commands_read.rl"
 	{
             readstat_copy(varname, sizeof(varname), (char *)str_start, str_len);
         }
 	break;
 	case 7:
-#line 105 "src/txt/readstat_spss_commands_read.rl"
+#line 106 "src/txt/readstat_spss_commands_read.rl"
 	{
             readstat_copy(argname, sizeof(argname), (char *)str_start, str_len);
         }
 	break;
 	case 8:
-#line 109 "src/txt/readstat_spss_commands_read.rl"
+#line 110 "src/txt/readstat_spss_commands_read.rl"
 	{
             readstat_schema_entry_t *entry = readstat_schema_find_or_create_entry(schema, varname);
             entry->variable.type = var_type;
@@ -1815,20 +1816,20 @@ _match:
         }
 	break;
 	case 9:
-#line 117 "src/txt/readstat_spss_commands_read.rl"
+#line 118 "src/txt/readstat_spss_commands_read.rl"
 	{
             readstat_schema_entry_t *entry = readstat_schema_find_or_create_entry(schema, varname);
             readstat_copy(entry->variable.label, sizeof(entry->variable.label), buf, sizeof(buf));
         }
 	break;
 	case 10:
-#line 122 "src/txt/readstat_spss_commands_read.rl"
+#line 123 "src/txt/readstat_spss_commands_read.rl"
 	{
             var_count = 0;
         }
 	break;
 	case 11:
-#line 126 "src/txt/readstat_spss_commands_read.rl"
+#line 127 "src/txt/readstat_spss_commands_read.rl"
 	{
             if (var_count < sizeof(var_list)/sizeof(var_list[0])) {
                 memcpy(var_list[var_count++], varname, sizeof(varname));
@@ -1836,7 +1837,7 @@ _match:
         }
 	break;
 	case 12:
-#line 132 "src/txt/readstat_spss_commands_read.rl"
+#line 133 "src/txt/readstat_spss_commands_read.rl"
 	{
             if (strcasecmp(argname, "FIRSTCASE") == 0) {
                 schema->first_line = integer;
@@ -1847,7 +1848,7 @@ _match:
         }
 	break;
 	case 13:
-#line 141 "src/txt/readstat_spss_commands_read.rl"
+#line 142 "src/txt/readstat_spss_commands_read.rl"
 	{
             char labelset_name[256];
             snprintf(labelset_name, sizeof(labelset_name), "labels%d", labelset_count++);
@@ -1858,101 +1859,101 @@ _match:
         }
 	break;
 	case 14:
-#line 150 "src/txt/readstat_spss_commands_read.rl"
+#line 151 "src/txt/readstat_spss_commands_read.rl"
 	{
             char labelset_name[256];
             snprintf(labelset_name, sizeof(labelset_name), "labels%d", labelset_count);
             error = submit_value_label(parser, labelset_name, label_type,
-                first_integer, integer, string_value, buf, user_ctx);
+                first_integer, integer, double_value, string_value, buf, user_ctx);
             if (error != READSTAT_OK)
                 goto cleanup;
         }
 	break;
 	case 15:
-#line 159 "src/txt/readstat_spss_commands_read.rl"
+#line 160 "src/txt/readstat_spss_commands_read.rl"
 	{ str_start = p; }
 	break;
 	case 16:
-#line 159 "src/txt/readstat_spss_commands_read.rl"
+#line 160 "src/txt/readstat_spss_commands_read.rl"
 	{ str_len = p - str_start; }
 	break;
 	case 17:
-#line 161 "src/txt/readstat_spss_commands_read.rl"
+#line 162 "src/txt/readstat_spss_commands_read.rl"
 	{ str_start = p; }
 	break;
 	case 18:
-#line 161 "src/txt/readstat_spss_commands_read.rl"
+#line 162 "src/txt/readstat_spss_commands_read.rl"
 	{ str_len = p - str_start; }
 	break;
 	case 19:
-#line 165 "src/txt/readstat_spss_commands_read.rl"
+#line 166 "src/txt/readstat_spss_commands_read.rl"
 	{ line_no++; line_start = p; }
 	break;
 	case 20:
-#line 167 "src/txt/readstat_spss_commands_read.rl"
+#line 168 "src/txt/readstat_spss_commands_read.rl"
 	{ str_start = p; }
 	break;
 	case 21:
-#line 167 "src/txt/readstat_spss_commands_read.rl"
+#line 168 "src/txt/readstat_spss_commands_read.rl"
 	{ str_len = p - str_start; }
 	break;
 	case 22:
-#line 185 "src/txt/readstat_spss_commands_read.rl"
+#line 186 "src/txt/readstat_spss_commands_read.rl"
 	{ var_type = READSTAT_TYPE_STRING; }
 	break;
 	case 23:
-#line 188 "src/txt/readstat_spss_commands_read.rl"
+#line 189 "src/txt/readstat_spss_commands_read.rl"
 	{ var_type = READSTAT_TYPE_STRING; }
 	break;
 	case 24:
-#line 189 "src/txt/readstat_spss_commands_read.rl"
-	{ var_type = READSTAT_TYPE_DOUBLE; }
-	break;
-	case 25:
 #line 190 "src/txt/readstat_spss_commands_read.rl"
 	{ var_type = READSTAT_TYPE_DOUBLE; }
 	break;
-	case 26:
+	case 25:
 #line 191 "src/txt/readstat_spss_commands_read.rl"
+	{ var_type = READSTAT_TYPE_DOUBLE; }
+	break;
+	case 26:
+#line 192 "src/txt/readstat_spss_commands_read.rl"
 	{ var_type = READSTAT_TYPE_STRING; }
 	break;
 	case 27:
-#line 212 "src/txt/readstat_spss_commands_read.rl"
+#line 213 "src/txt/readstat_spss_commands_read.rl"
 	{ var_row = integer - 1; }
 	break;
 	case 28:
-#line 213 "src/txt/readstat_spss_commands_read.rl"
-	{ var_type = READSTAT_TYPE_DOUBLE; }
-	break;
-	case 29:
 #line 214 "src/txt/readstat_spss_commands_read.rl"
 	{ var_type = READSTAT_TYPE_DOUBLE; }
 	break;
+	case 29:
+#line 215 "src/txt/readstat_spss_commands_read.rl"
+	{ var_type = READSTAT_TYPE_DOUBLE; }
+	break;
 	case 30:
-#line 247 "src/txt/readstat_spss_commands_read.rl"
+#line 248 "src/txt/readstat_spss_commands_read.rl"
 	{ label_type = -1; }
 	break;
 	case 31:
-#line 249 "src/txt/readstat_spss_commands_read.rl"
-	{ label_type = 0; integer *= -1; }
+#line 250 "src/txt/readstat_spss_commands_read.rl"
+	{ label_type = LABEL_TYPE_DOUBLE; double_value = -integer; }
 	break;
 	case 32:
-#line 250 "src/txt/readstat_spss_commands_read.rl"
-	{ label_type = 0; }
+#line 251 "src/txt/readstat_spss_commands_read.rl"
+	{ label_type = LABEL_TYPE_DOUBLE; double_value = integer; }
 	break;
 	case 33:
-#line 251 "src/txt/readstat_spss_commands_read.rl"
+#line 252 "src/txt/readstat_spss_commands_read.rl"
 	{ first_integer = integer; }
 	break;
 	case 34:
-#line 251 "src/txt/readstat_spss_commands_read.rl"
-	{ label_type = 2; }
+#line 252 "src/txt/readstat_spss_commands_read.rl"
+	{ label_type = LABEL_TYPE_RANGE; }
 	break;
 	case 35:
-#line 252 "src/txt/readstat_spss_commands_read.rl"
-	{ label_type = 1; }
+#line 253 "src/txt/readstat_spss_commands_read.rl"
+	{ label_type = LABEL_TYPE_STRING; }
 	break;
-#line 1956 "src/txt/readstat_spss_commands_read.c"
+#line 1957 "src/txt/readstat_spss_commands_read.c"
 		}
 	}
 
@@ -1969,7 +1970,7 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 8:
-#line 109 "src/txt/readstat_spss_commands_read.rl"
+#line 110 "src/txt/readstat_spss_commands_read.rl"
 	{
             readstat_schema_entry_t *entry = readstat_schema_find_or_create_entry(schema, varname);
             entry->variable.type = var_type;
@@ -1979,10 +1980,10 @@ _again:
         }
 	break;
 	case 19:
-#line 165 "src/txt/readstat_spss_commands_read.rl"
+#line 166 "src/txt/readstat_spss_commands_read.rl"
 	{ line_no++; line_start = p; }
 	break;
-#line 1986 "src/txt/readstat_spss_commands_read.c"
+#line 1987 "src/txt/readstat_spss_commands_read.c"
 		}
 	}
 	}
@@ -1990,7 +1991,7 @@ _again:
 	_out: {}
 	}
 
-#line 299 "src/txt/readstat_spss_commands_read.rl"
+#line 300 "src/txt/readstat_spss_commands_read.rl"
 
                                        
    /* suppress warnings */
