@@ -7,13 +7,14 @@
 \alias{write_sav}
 \title{Read SPSS (\code{.sav}, \code{.zsav}, \code{.por}) files. Write \code{.sav} and \code{.zsav} files.}
 \usage{
-read_sav(file, encoding = NULL, user_na = FALSE)
+read_sav(file, encoding = NULL, user_na = FALSE, col_select = NULL,
+  n_max = Inf)
 
-read_por(file, user_na = FALSE)
+read_por(file, user_na = FALSE, col_select = NULL, n_max = Inf)
 
 write_sav(data, path, compress = FALSE)
 
-read_spss(file, user_na = FALSE)
+read_spss(file, user_na = FALSE, col_select = NULL, n_max = Inf)
 }
 \arguments{
 \item{file}{Either a path to a file, a connection, or literal data
@@ -38,6 +39,13 @@ value is incorrect and it is useful to be able to override it.}
 \item{user_na}{If \code{TRUE} variables with user defined missing will
 be read into \code{\link[=labelled_spss]{labelled_spss()}} objects. If \code{FALSE}, the
 default, user-defined missings will be converted to \code{NA}.}
+
+\item{col_select}{One or more selection expressions, like in
+\code{\link[dplyr:select]{dplyr::select()}}. Use \code{c()} or \code{list()} to use more than one expression.
+See \code{?dplyr::select} for details on available selection options. Only the
+specified columns will be read from \code{data_file}.}
+
+\item{n_max}{Maximum number of lines to read.}
 
 \item{data}{Data frame to write.}
 

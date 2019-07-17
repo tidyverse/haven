@@ -115,7 +115,9 @@ public:
 // DfReader ------------------------------------------------------------------
 
 class DfReader {
-  FileType type_;
+  FileExt ext_;
+  FileVendor vendor_;
+
   int nrows_, nrowsAlloc_;
   int ncols_;
   List output_;
@@ -127,15 +129,15 @@ class DfReader {
   std::vector<VarType> var_types_;
   std::vector<std::string> notes_;
 
-  // If empty, assume all will be read in
-  std::set<std::string> colsOnly_;
+  std::set<std::string> colsSkip_;
 
 public:
-  DfReader(FileType type, bool user_na = false): type_(type), nrows_(0), ncols_(0), user_na_(user_na) {
+  DfReader(FileExt ext, bool user_na = false): ext_(ext), vendor_(extVendor(ext)), nrows_(0), ncols_(0), user_na_(user_na) {
   }
 
-  void restrictCols(const std::set<std::string>& cols) {
-    colsOnly_ = cols;
+  void skipCols(const std::vector<std::string>& cols) {
+    std::set<std::string> cols_set(cols.begin(), cols.end());
+    colsSkip_ = cols_set;
   }
 
   void setInfo(int obs_count, int var_count) {
@@ -147,7 +149,11 @@ public:
       nrowsAlloc_ = nrows_ = obs_count;
     }
 
-    ncols_ = colsOnly_.empty() ? var_count : colsOnly_.size();
+    if (var_count < 1) {
+      return; // sas7bcat has var_count = 0
+    }
+
+    ncols_ = var_count - colsSkip_.size();
 
     output_ = List(ncols_);
     names_ = CharacterVector(ncols_);
@@ -171,7 +177,7 @@ public:
 
     const char* name = readstat_variable_get_name(variable);
 
-    if (!colsOnly_.empty() && colsOnly_.count(name) == 0) {
+    if (colsSkip_.count(name) > 0) {
       return READSTAT_HANDLER_SKIP_VARIABLE;
     }
 
@@ -205,7 +211,7 @@ public:
 
     const char* var_format = readstat_variable_get_format(variable);
 
-    VarType var_type = numType(type_, var_format);
+    VarType var_type = numType(vendor_, var_format);
     // Rcout << name << ": " << var_format << " [" << var_type << "]\n";
     var_types_[var_index] = var_type;
     switch(var_type) {
@@ -285,12 +291,12 @@ public:
 
     // Store original format as attribute
     if (var_format != NULL && strcmp(var_format, "") != 0) {
-      col.attr(formatAttribute(type_)) = Rf_ScalarString(Rf_mkCharCE(var_format, CE_UTF8));
+      col.attr(formatAttribute(vendor_)) = Rf_ScalarString(Rf_mkCharCE(var_format, CE_UTF8));
     }
 
     // Store original display width as attribute if it differs from the default
     int display_width = readstat_variable_get_display_width(variable);
-    if (type_ == HAVEN_SPSS && display_width != 8) {
+    if (vendor_ == HAVEN_SPSS && display_width != 8) {
       col.attr("display_width") = Rf_ScalarInteger(display_width);
     }
 
@@ -325,7 +331,7 @@ public:
     {
       NumericVector col = output_[var_index];
       double val = haven_double_value_udm(value, variable, user_na_);
-      col[obs_index] = adjustDatetimeToR(type_, var_type, val);
+      col[obs_index] = adjustDatetimeToR(vendor_, var_type, val);
       break;
     }
     }
@@ -371,6 +377,12 @@ public:
     }
   }
 
+  void limitRows(long n) {
+    if (nrows_ > n) {
+      nrows_ = n;
+    }
+  }
+
   List output() {
     if (nrows_ != nrowsAlloc_)
       resizeCols(nrows_);
@@ -399,7 +411,7 @@ public:
     output_.attr("names") = names_;
 
     static Function as_tibble("as_tibble", Environment::namespace_env("tibble"));
-    return as_tibble(output_);
+    return as_tibble(output_, Named(".rows", nrows_));
   }
 
 };
@@ -447,11 +459,13 @@ void print_error(const char* error_message, void* ctx) {
 class DfReaderInput {
 public:
   virtual ~DfReaderInput() {};
-
+  
   virtual int open(void* io_ctx) = 0;
   virtual int close(void* io_ctx) = 0;
   virtual readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence, void *io_ctx) = 0;
   virtual ssize_t read(void *buf, size_t nbyte, void *io_ctx) = 0;
+  virtual std::string source() const = 0; // human readable description of input source
+  std::string encoding;
 };
 
 template <typename Stream>
@@ -483,9 +497,14 @@ class DfReaderInputFile : public DfReaderInputStream<std::ifstream> {
   std::string filename_;
 
 public:
-  DfReaderInputFile(Rcpp::List spec) {
+  DfReaderInputFile(Rcpp::List spec, std::string encoding = "") {
     CharacterVector path(spec[0]);
     filename_ = std::string(Rf_translateChar(path[0]));
+    this->encoding = encoding;
+  }
+
+  std::string source() const {
+    return filename_;
   }
 
   int open(void* io_ctx) {
@@ -501,10 +520,15 @@ public:
 
 class DfReaderInputRaw : public DfReaderInputStream<std::istringstream> {
 public:
-  DfReaderInputRaw(Rcpp::List spec) {
+  DfReaderInputRaw(Rcpp::List spec, std::string encoding = "") {
     Rcpp::RawVector raw_data(spec[0]);
     std::string string_data((char*) RAW(raw_data), Rf_length(raw_data));
     file_.str(string_data);
+    this->encoding = encoding;
+  }
+  
+  std::string source() const {
+    return "file";
   }
 
   int open(void* io_ctx) {
@@ -535,7 +559,7 @@ readstat_error_t dfreader_update(long file_size, readstat_progress_handler progr
 
 // Parser wrappers -------------------------------------------------------------
 
-readstat_parser_t* haven_init_parser(std::string encoding = "") {
+readstat_parser_t* haven_init_parser() {
   readstat_parser_t* parser = readstat_parser_init();
   readstat_set_metadata_handler(parser, dfreader_metadata);
   readstat_set_note_handler(parser, dfreader_note);
@@ -543,142 +567,72 @@ readstat_parser_t* haven_init_parser(std::string encoding = "") {
   readstat_set_value_handler(parser, dfreader_value);
   readstat_set_value_label_handler(parser, dfreader_value_label);
   readstat_set_error_handler(parser, print_error);
-  if (encoding != "") {
-    readstat_set_file_character_encoding(parser, encoding.c_str());
-  }
   return parser;
 }
 
-template<typename InputClass>
-void haven_init_io(readstat_parser_t* parser, InputClass &builder_input) {
+void haven_init_io(readstat_parser_t* parser, DfReaderInput& builder_input) {
   readstat_set_open_handler(parser, dfreader_open);
   readstat_set_close_handler(parser, dfreader_close);
   readstat_set_seek_handler(parser, dfreader_seek);
   readstat_set_read_handler(parser, dfreader_read);
   readstat_set_update_handler(parser, dfreader_update);
   readstat_set_io_ctx(parser, (void*) &builder_input);
+  if (builder_input.encoding != "") {
+    readstat_set_file_character_encoding(parser, builder_input.encoding.c_str());
+  }
 }
 
-std::string haven_error_message(Rcpp::List spec) {
-  std::string source_class(as<CharacterVector>(spec.attr("class"))[0]);
-  if (source_class == "source_raw")
-    return "file";
-  else
-    return as<std::string>(spec[0]);
+void haven_set_row_limit(readstat_parser_t* parser, long n) {
+  // readstat uses 0 to specify "all rows" but what we want is "minimal rows"
+  readstat_set_row_limit(parser, n == 0 ? 1 : n);
 }
 
-template<typename InputClass>
-List df_parse_spss(Rcpp::List spec, std::string encoding = "", bool user_na = false, bool por = false) {
-  DfReader builder(HAVEN_SPSS, user_na);
-  InputClass builder_input(spec);
-
-  readstat_parser_t* parser = haven_init_parser(encoding);
+template<FileExt ext>
+void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfReader* builder) {
   haven_init_io(parser, builder_input);
 
   readstat_error_t result;
-  if (por) {
-    result = readstat_parse_por(parser, "", &builder);
-  } else {
-    result = readstat_parse_sav(parser, "", &builder);
+  switch(ext) {
+  // the path for readstat_parse_* is baked into the io context (DfReaderInput)
+  case HAVEN_SAS7BDAT: result = readstat_parse_sas7bdat(parser, "", builder); break;
+  case HAVEN_SAS7BCAT: result = readstat_parse_sas7bcat(parser, "", builder); break;
+  case HAVEN_XPT:      result = readstat_parse_xport(parser, "", builder); break;
+  case HAVEN_DTA:      result = readstat_parse_dta(parser, "", builder); break;
+  case HAVEN_SAV:      result = readstat_parse_sav(parser, "", builder); break;
+  case HAVEN_POR:      result = readstat_parse_por(parser, "", builder); break;
+  default:             result = READSTAT_ERROR_PARSE; break;
   }
 
-  readstat_parser_free(parser);
-
-  if (result != 0) {
-    stop("Failed to parse %s: %s.", haven_error_message(spec),
-         readstat_error_message(result));
+  if (result != READSTAT_OK) {
+    std::string source = builder_input.source();
+    readstat_parser_free(parser);
+    stop("Failed to parse %s: %s.", source, readstat_error_message(result));
   }
-
-  return builder.output();
 }
 
-template<typename InputClass>
-List df_parse_dta(Rcpp::List spec, std::string encoding = "") {
-  DfReader builder(HAVEN_STATA);
-  InputClass builder_input(spec);
-
-  readstat_parser_t* parser = haven_init_parser(encoding);
-  haven_init_io(parser, builder_input);
-
-  readstat_error_t result = readstat_parse_dta(parser, "", &builder);
-  readstat_parser_free(parser);
-
-  if (result != 0) {
-    stop("Failed to parse %s: %s.",
-         haven_error_message(spec),
-         readstat_error_message(result));
-  }
-
-  return builder.output();
-}
-
-
-template<typename InputClass>
-List df_parse_xpt(Rcpp::List spec, std::string encoding = "") {
-  DfReader builder(HAVEN_XPT);
-  InputClass builder_input(spec);
-
-  readstat_parser_t* parser = haven_init_parser(encoding);
-  haven_init_io(parser, builder_input);
-
-  readstat_error_t result = readstat_parse_xport(parser, "", &builder);
-  readstat_parser_free(parser);
-
-  if (result != 0) {
-    stop("Failed to parse %s: %s.",
-         haven_error_message(spec),
-         readstat_error_message(result));
-  }
-
-  return builder.output();
-}
-
-
-template<typename InputClass>
-List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
-                  std::string encoding, std::string catalog_encoding,
-                  std::vector<std::string> cols_only) {
-  DfReader builder(HAVEN_SAS);
-
-  if (!cols_only.empty()) {
-    std::set<std::string> cols_set(cols_only.begin(), cols_only.end());
-    builder.restrictCols(cols_set);
-  }
-
-  InputClass builder_input_dat(spec_b7dat);
+template<FileExt ext, typename InputClass>
+List df_parse(const List& spec, const std::vector<std::string>& cols_skip, const long& n_max = -1,
+              const std::string& encoding = "", const bool& user_na = false,
+              const List& catalog_spec = List(), const std::string& catalog_encoding = "") {
+  DfReader builder(ext, user_na);
+  builder.skipCols(cols_skip);
 
   readstat_parser_t* parser = haven_init_parser();
-  haven_init_io(parser, builder_input_dat);
+  haven_set_row_limit(parser, n_max);
 
-  if (spec_b7cat.size() != 0) {
-    InputClass builder_input_cat(spec_b7cat);
-    readstat_set_io_ctx(parser, (void*) &builder_input_cat);
-    if (catalog_encoding != "") {
-      readstat_set_file_character_encoding(parser, catalog_encoding.c_str());
-    }
-
-    readstat_error_t result = readstat_parse_sas7bcat(parser, "", &builder);
-
-    if (result != 0) {
-      readstat_parser_free(parser);
-      stop("Failed to parse %s: %s.", haven_error_message(spec_b7cat),
-           readstat_error_message(result));
-    }
+  if (ext == HAVEN_SAS7BDAT && catalog_spec.size() != 0) {
+    InputClass cat_builder_input(catalog_spec, catalog_encoding);
+    haven_parse<HAVEN_SAS7BCAT>(parser, cat_builder_input, &builder);
   }
 
-  readstat_set_io_ctx(parser, (void*) &builder_input_dat);
-  if (encoding != "") {
-    readstat_set_file_character_encoding(parser, encoding.c_str());
-  }
-
-  readstat_error_t result = readstat_parse_sas7bdat(parser, "", &builder);
+  InputClass builder_input(spec, encoding);
+  haven_parse<ext>(parser, builder_input, &builder);
   readstat_parser_free(parser);
 
-  if (result != 0) {
-    stop("Failed to parse %s: %s.", haven_error_message(spec_b7dat),
-         readstat_error_message(result));
+  if (n_max >= 0) {
+    builder.limitRows(n_max); // must enforce n_max = 0
   }
-
+  
   return builder.output();
 }
 
@@ -687,50 +641,50 @@ List df_parse_sas(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 // [[Rcpp::export]]
 List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                        std::string encoding, std::string catalog_encoding,
-                       std::vector<std::string> cols_only) {
-  return df_parse_sas<DfReaderInputFile>(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_only);
+                       std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, cols_skip, n_max, encoding, false, spec_b7cat, catalog_encoding);
 }
 // [[Rcpp::export]]
 List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
                       std::string encoding, std::string catalog_encoding,
-                      std::vector<std::string> cols_only) {
-  return df_parse_sas<DfReaderInputRaw>(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_only);
+                      std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_SAS7BDAT, DfReaderInputRaw>(spec_b7dat, cols_skip, n_max, encoding, false, spec_b7cat, catalog_encoding);
 }
 
 // [[Rcpp::export]]
-List df_parse_xpt_file(Rcpp::List spec) {
-  return df_parse_xpt<DfReaderInputFile>(spec);
+List df_parse_xpt_file(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_XPT, DfReaderInputFile>(spec, cols_skip, n_max);
 }
 // [[Rcpp::export]]
-List df_parse_xpt_raw(Rcpp::List spec) {
-  return df_parse_xpt<DfReaderInputRaw>(spec);
-}
-
-// [[Rcpp::export]]
-List df_parse_dta_file(Rcpp::List spec, std::string encoding) {
-  return df_parse_dta<DfReaderInputFile>(spec, encoding);
-}
-// [[Rcpp::export]]
-List df_parse_dta_raw(Rcpp::List spec, std::string encoding) {
-  return df_parse_dta<DfReaderInputRaw>(spec, encoding);
+List df_parse_xpt_raw(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_XPT, DfReaderInputRaw>(spec, cols_skip, n_max);
 }
 
 // [[Rcpp::export]]
-List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_spss<DfReaderInputFile>(spec, encoding, user_na, false);
+List df_parse_dta_file(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_DTA, DfReaderInputFile>(spec, cols_skip, n_max, encoding);
 }
 // [[Rcpp::export]]
-List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_spss<DfReaderInputRaw>(spec, encoding, user_na, false);
+List df_parse_dta_raw(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_DTA, DfReaderInputRaw>(spec, cols_skip, n_max, encoding);
 }
 
 // [[Rcpp::export]]
-List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_spss<DfReaderInputFile>(spec, encoding, user_na, true);
+List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_SAV, DfReaderInputFile>(spec, cols_skip, n_max, encoding, user_na);
 }
 // [[Rcpp::export]]
-List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na) {
-  return df_parse_spss<DfReaderInputRaw>(spec, encoding, user_na, true);
+List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_SAV, DfReaderInputRaw>(spec, cols_skip, n_max, encoding, user_na);
+}
+
+// [[Rcpp::export]]
+List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_POR, DfReaderInputFile>(spec, cols_skip, n_max, encoding, user_na);
+}
+// [[Rcpp::export]]
+List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max) {
+  return df_parse<HAVEN_POR, DfReaderInputRaw>(spec, cols_skip, n_max, encoding, user_na);
 }
 
 // # nocov end

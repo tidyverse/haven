@@ -5,7 +5,7 @@
 \alias{write_xpt}
 \title{Read and write SAS transport files}
 \usage{
-read_xpt(file)
+read_xpt(file, col_select = NULL, n_max = Inf)
 
 write_xpt(data, path, version = 8, name = NULL)
 }
@@ -24,6 +24,13 @@ least one new line to be recognised as data (instead of a path) or be a
 vector of greater than length 1.
 
 Using a value of \code{\link[=clipboard]{clipboard()}} will read from the system clipboard.}
+
+\item{col_select}{One or more selection expressions, like in
+\code{\link[dplyr:select]{dplyr::select()}}. Use \code{c()} or \code{list()} to use more than one expression.
+See \code{?dplyr::select} for details on available selection options. Only the
+specified columns will be read from \code{data_file}.}
+
+\item{n_max}{Maximum number of lines to read.}
 
 \item{data}{Data frame to write.}
 

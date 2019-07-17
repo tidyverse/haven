@@ -84,6 +84,16 @@ test_that("widths roundtrip", {
   expect_equal(df$d, df$d)
 })
 
+test_that("can limit the number of rows read", {
+  expect_equal(nrow(read_spss(test_path("datetime.sav"), n_max = 1)), 1L)
+  expect_equal(nrow(read_spss(test_path("datetime.sav"), n_max = 0)), 0L)
+})
+
+test_that("only selected columns are read", {
+  out <- read_spss(test_path("datetime.sav"), col_select = "date")
+  expect_named(out, "date")
+})
+
 # User-defined missings ---------------------------------------------------
 
 test_that("user-defined missing values read as missing by default", {

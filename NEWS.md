@@ -1,5 +1,12 @@
 # haven (development version)
 
+* `read_*()` functions gain two new arguments (@mikmart):
+
+  * `col_select`: selects columns to read with a tidyselect interface (#248).
+  * `n_max`: limits the number of rows to read.
+
+* `read_sas()` argument `cols_only` is deprecated. Use the new `col_select` instead.
+
 # haven 2.1.1
 
 * Fixes for R CMD check

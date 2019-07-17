@@ -27,7 +27,9 @@ Imports:
     hms,
     Rcpp (>= 0.11.4),
     readr (>= 0.1.0),
-    tibble
+    rlang (>= 0.4.0),
+    tibble,
+    tidyselect
 Suggests: 
     covr,
     fs,

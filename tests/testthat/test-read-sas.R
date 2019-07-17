@@ -37,3 +37,79 @@ test_that("tagged missings are read correctly", {
   labels <- attr(x, "labels")
   expect_equal(na_tag(labels), c("a", "z"))
 })
+
+
+# Row limiting ------------------------------------------------------------
+
+test_that("can limit the number of rows to read", {
+  rows_with_limit <- function(n) {
+    nrow(read_sas(test_path("hadley.sas7bdat"), n_max = n))
+  }
+
+  n <- rows_with_limit(Inf)
+  expect_equal(rows_with_limit(0), 0)
+  expect_equal(rows_with_limit(1), 1)
+  expect_equal(rows_with_limit(n), n)
+  expect_equal(rows_with_limit(n + 1), n)
+
+  # alternatives for unlimited rows
+  expect_equal(rows_with_limit(NA), n)
+  expect_equal(rows_with_limit(-1), n)
+})
+
+test_that("throws informative error on bad row limit", {
+  rows_with_limit <- function(n) {
+    nrow(read_sas(test_path("hadley.sas7bdat"), n_max = n))
+  }
+
+  expect_error(rows_with_limit(1:5), "must have length 1")
+  expect_error(rows_with_limit("foo"), "must be numeric")
+})
+
+
+# Column selection --------------------------------------------------------
+
+test_that("can select columns to read, with tidyselect semantics", {
+  with_col_select <- function(x) {
+    read_sas(test_path("hadley.sas7bdat"), col_select = {{ x }})
+  }
+
+  full_data <- with_col_select(NULL)
+  n_col <- ncol(full_data)
+
+  expect_equivalent(with_col_select("id"), full_data[, "id"])
+  expect_equivalent(with_col_select(id), full_data[, "id"])
+  expect_equivalent(with_col_select(2:3), full_data[, 2:3])
+  expect_equivalent(with_col_select(tidyselect::last_col()), full_data[, n_col])
+})
+
+test_that("throws error on empty column selection", {
+  with_col_select <- function(x) {
+    read_sas(test_path("hadley.sas7bdat"), col_select = {{ x }})
+  }
+
+  expect_error(with_col_select(character()), "Can't find")
+  expect_error(with_col_select(tidyselect::starts_with("x")), "Can't find")
+})
+
+
+# Column selection (SAS specific) -----------------------------------------
+
+test_that("can select columns when a catalog file is present", {
+  expect_named(
+    read_sas(
+      test_path("hadley.sas7bdat"),
+      test_path("formats.sas7bcat"),
+      col_select = "workshop"
+    ),
+    "workshop"
+  )
+})
+
+test_that("using cols_only warns about deprecation, but works", {
+  out <- expect_warning(
+    read_sas(test_path("hadley.sas7bdat"), cols_only = "id"),
+    "is deprecated"
+  )
+  expect_named(out, "id")
+})
