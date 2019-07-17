@@ -150,9 +150,9 @@ Stata are handled in R.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>read_dta</span>(<span class='no'>file</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+    <pre class="usage"><span class='fu'>read_dta</span>(<span class='no'>file</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>)
 
-<span class='fu'>read_stata</span>(<span class='no'>file</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+<span class='fu'>read_stata</span>(<span class='no'>file</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>)
 
 <span class='fu'>write_dta</span>(<span class='no'>data</span>, <span class='no'>path</span>, <span class='kw'>version</span> <span class='kw'>=</span> <span class='fl'>14</span>)</pre>
     
@@ -178,6 +178,17 @@ vector of greater than length 1.</p>
       <td><p>The character encoding used for the file. Generally,
 only needed for Stata 13 files and earlier. See Encoding section
 for details.</p></td>
+    </tr>
+    <tr>
+      <th>col_select</th>
+      <td><p>One or more selection expressions, like in
+<code>dplyr::select()</code>. Use <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c()</a></code> or <code><a href='https://www.rdocumentation.org/packages/base/topics/list'>list()</a></code> to use more than one expression.
+See <code>?dplyr::select</code> for details on available selection options. Only the
+specified columns will be read from <code>data_file</code>.</p></td>
+    </tr>
+    <tr>
+      <th>n_max</th>
+      <td><p>Maximum number of lines to read.</p></td>
     </tr>
     <tr>
       <th>data</th>

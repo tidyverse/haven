@@ -34,8 +34,8 @@
 <meta property="og:title" content="Read and write SAS files. — read_sas" />
 
 <meta property="og:description" content="read_sas() supports both sas7bdat files and the accompanying sas7bcat files
-that SAS uses to record value labels. write_sas() is currently
-experimental and only works for limited datasets." />
+that SAS uses to record value labels. write_sas() is currently experimental
+and only works for limited datasets." />
 
 <meta property="og:image" content="https://haven.tidyverse.org/logo.png" />
 <meta name="twitter:card" content="summary" />
@@ -145,13 +145,14 @@ experimental and only works for limited datasets." />
     <div class="ref-description">
     
     <p><code>read_sas()</code> supports both sas7bdat files and the accompanying sas7bcat files
-that SAS uses to record value labels. <code>write_sas()</code> is currently
-experimental and only works for limited datasets.</p>
+that SAS uses to record value labels. <code>write_sas()</code> is currently experimental
+and only works for limited datasets.</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>read_sas</span>(<span class='no'>data_file</span>, <span class='kw'>catalog_file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>catalog_encoding</span> <span class='kw'>=</span> <span class='no'>encoding</span>, <span class='kw'>cols_only</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+  <span class='kw'>catalog_encoding</span> <span class='kw'>=</span> <span class='no'>encoding</span>, <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
+  <span class='kw'>cols_only</span> <span class='kw'>=</span> <span class='st'>"DEPRECATED"</span>)
 
 <span class='fu'>write_sas</span>(<span class='no'>data</span>, <span class='no'>path</span>)</pre>
     
@@ -166,14 +167,24 @@ processed with <code><a href='https://readr.tidyverse.org/reference/datasource.h
     <tr>
       <th>encoding, catalog_encoding</th>
       <td><p>The character encoding used for the
-<code>data_file</code> and <code>catalog_encoding</code> respectively. A value of <code>NULL</code>
-uses the encoding specified in the file; use this argument to override it
-if it is incorrect.</p></td>
+<code>data_file</code> and <code>catalog_encoding</code> respectively. A value of <code>NULL</code> uses the
+encoding specified in the file; use this argument to override it if it is
+incorrect.</p></td>
+    </tr>
+    <tr>
+      <th>col_select</th>
+      <td><p>One or more selection expressions, like in
+<code>dplyr::select()</code>. Use <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c()</a></code> or <code><a href='https://www.rdocumentation.org/packages/base/topics/list'>list()</a></code> to use more than one expression.
+See <code>?dplyr::select</code> for details on available selection options. Only the
+specified columns will be read from <code>data_file</code>.</p></td>
+    </tr>
+    <tr>
+      <th>n_max</th>
+      <td><p>Maximum number of lines to read.</p></td>
     </tr>
     <tr>
       <th>cols_only</th>
-      <td><p>A character vector giving an experimental way to read in
-only specified columns.</p></td>
+      <td><p><strong>Deprecated</strong>: Use <code>col_select</code> instead.</p></td>
     </tr>
     <tr>
       <th>data</th>
@@ -188,8 +199,8 @@ only specified columns.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>A tibble, data frame variant with nice defaults.</p>
-<p>Variable labels are stored in the "label" attribute of each variable.
-It is not printed on the console, but the RStudio viewer will show it.</p>
+<p>Variable labels are stored in the "label" attribute of each variable. It is
+not printed on the console, but the RStudio viewer will show it.</p>
 <p><code>write_sas()</code> returns the input <code>data</code> invisibly.</p>
     
 

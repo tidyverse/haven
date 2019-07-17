@@ -152,13 +152,14 @@ file extension.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>read_sav</span>(<span class='no'>file</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>read_sav</span>(<span class='no'>file</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>)
 
-<span class='fu'>read_por</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+<span class='fu'>read_por</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>)
 
 <span class='fu'>write_sav</span>(<span class='no'>data</span>, <span class='no'>path</span>, <span class='kw'>compress</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
-<span class='fu'>read_spss</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+<span class='fu'>read_spss</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -188,6 +189,17 @@ value is incorrect and it is useful to be able to override it.</p></td>
       <td><p>If <code>TRUE</code> variables with user defined missing will
 be read into <code><a href='labelled_spss.html'>labelled_spss()</a></code> objects. If <code>FALSE</code>, the
 default, user-defined missings will be converted to <code>NA</code>.</p></td>
+    </tr>
+    <tr>
+      <th>col_select</th>
+      <td><p>One or more selection expressions, like in
+<code>dplyr::select()</code>. Use <code><a href='https://www.rdocumentation.org/packages/base/topics/c'>c()</a></code> or <code><a href='https://www.rdocumentation.org/packages/base/topics/list'>list()</a></code> to use more than one expression.
+See <code>?dplyr::select</code> for details on available selection options. Only the
+specified columns will be read from <code>data_file</code>.</p></td>
+    </tr>
+    <tr>
+      <th>n_max</th>
+      <td><p>Maximum number of lines to read.</p></td>
     </tr>
     <tr>
       <th>data</th>
