@@ -357,8 +357,11 @@ static readstat_error_t xport_write_obs_header_record(readstat_writer_t *writer)
     return xport_write_header_record(writer, &xrecord);
 }
 
-static void xport_format_timestamp(char *output, size_t output_len, time_t timestamp) {
+static readstat_error_t xport_format_timestamp(char *output, size_t output_len, time_t timestamp) {
     struct tm *ts = localtime(&timestamp);
+
+    if (!ts)
+        return READSTAT_ERROR_BAD_TIMESTAMP_VALUE;
 
     snprintf(output, output_len, 
             "%02d%3.3s%02d:%02d:%02d:%02d",
@@ -369,13 +372,18 @@ static void xport_format_timestamp(char *output, size_t output_len, time_t times
             (unsigned int)ts->tm_min % 100,
             (unsigned int)ts->tm_sec % 100
             );
+
+    return READSTAT_OK;
 }
 
 static readstat_error_t xport_begin_data(void *writer_ctx) {
     readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
     readstat_error_t retval = READSTAT_OK;
     char timestamp[17];
-    xport_format_timestamp(timestamp, sizeof(timestamp), writer->timestamp);
+
+    retval = xport_format_timestamp(timestamp, sizeof(timestamp), writer->timestamp);
+    if (retval != READSTAT_OK)
+        goto cleanup;
 
     retval = xport_write_first_header_record(writer);
     if (retval != READSTAT_OK)

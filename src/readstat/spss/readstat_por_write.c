@@ -232,6 +232,11 @@ static readstat_error_t por_emit_version_and_timestamp(readstat_writer_t *writer
     readstat_error_t retval = READSTAT_OK;
     struct tm *timestamp = localtime(&writer->timestamp);
 
+    if (!timestamp) {
+        retval = READSTAT_ERROR_BAD_TIMESTAMP_VALUE;
+        goto cleanup;
+    }
+
     if ((retval = por_write_tag(writer, ctx, 'A')) != READSTAT_OK)
         goto cleanup;
 

@@ -74,9 +74,9 @@ static time_t sas_convert_time(double time, time_t epoch) {
     time += epoch;
     if (isnan(time))
         return 0;
-    if (time > 1.0 * LONG_MAX)
+    if (time > (double)LONG_MAX)
         return LONG_MAX;
-    if (time < 1.0 * LONG_MIN)
+    if (time < (double)LONG_MIN)
         return LONG_MIN;
     return time;
 }

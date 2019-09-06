@@ -112,11 +112,23 @@ static int sav_variable_segments(readstat_type_t type, size_t user_width) {
 }
 
 static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
+    sav_file_header_record_t header = { { 0 } };
     readstat_error_t retval = READSTAT_OK;
     time_t now = writer->timestamp;
     struct tm *time_s = localtime(&now);
 
-    sav_file_header_record_t header = { { 0 } };
+    /* There are portability issues with strftime so hack something up */
+    char months[][4] = { 
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
+    char creation_date[sizeof(header.creation_date)+1] = { 0 };
+    char creation_time[sizeof(header.creation_time)+1] = { 0 };
+
+    if (!time_s) {
+        retval = READSTAT_ERROR_BAD_TIMESTAMP_VALUE;
+        goto cleanup;
+    }
 
     memcpy(header.rec_type, "$FL2", sizeof("$FL2")-1);
     if (writer->compression == READSTAT_COMPRESS_BINARY) {
@@ -142,12 +154,6 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
     header.ncases = writer->row_count;
     header.bias = 100.0;
     
-    /* There are portability issues with strftime so hack something up */
-    char months[][4] = { 
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-
-    char creation_date[sizeof(header.creation_date)+1] = { 0 };
     snprintf(creation_date, sizeof(creation_date),
             "%02d %3.3s %02d", 
             (unsigned int)time_s->tm_mday % 100,
@@ -155,7 +161,6 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
             (unsigned int)time_s->tm_year % 100);
     memcpy(header.creation_date, creation_date, sizeof(header.creation_date));
 
-    char creation_time[sizeof(header.creation_time)+1] = { 0 };
     snprintf(creation_time, sizeof(creation_time),
             "%02d:%02d:%02d",
             (unsigned int)time_s->tm_hour % 100,
@@ -173,6 +178,8 @@ static readstat_error_t sav_emit_header(readstat_writer_t *writer) {
         memcpy(header.file_label, writer->file_label, file_label_len);
     
     retval = readstat_write_bytes(writer, &header, sizeof(header));
+
+cleanup:
     return retval;
 }
 

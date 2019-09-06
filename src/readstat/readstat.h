@@ -94,7 +94,7 @@ typedef enum readstat_error_e {
     READSTAT_ERROR_NAME_CONTAINS_ILLEGAL_CHARACTER,
     READSTAT_ERROR_NAME_IS_RESERVED_WORD,
     READSTAT_ERROR_NAME_IS_TOO_LONG,
-    READSTAT_ERROR_BAD_TIMESTAMP,
+    READSTAT_ERROR_BAD_TIMESTAMP_STRING,
     READSTAT_ERROR_BAD_FREQUENCY_WEIGHT,
     READSTAT_ERROR_TOO_MANY_MISSING_VALUE_DEFINITIONS,
     READSTAT_ERROR_NOTE_IS_TOO_LONG,
@@ -103,7 +103,8 @@ typedef enum readstat_error_e {
     READSTAT_ERROR_ROW_IS_TOO_WIDE_FOR_PAGE,
     READSTAT_ERROR_TOO_FEW_COLUMNS,
     READSTAT_ERROR_TOO_MANY_COLUMNS,
-    READSTAT_ERROR_NAME_IS_ZERO_LENGTH
+    READSTAT_ERROR_NAME_IS_ZERO_LENGTH,
+    READSTAT_ERROR_BAD_TIMESTAMP_VALUE
 } readstat_error_t;
 
 const char *readstat_error_message(readstat_error_t error_code);
@@ -341,6 +342,7 @@ typedef struct readstat_parser_s {
     const char             *input_encoding;
     const char             *output_encoding;
     long                    row_limit;
+    long                    row_offset;
 } readstat_parser_t;
 
 readstat_parser_t *readstat_parser_init(void);
@@ -372,6 +374,7 @@ readstat_error_t readstat_set_file_character_encoding(readstat_parser_t *parser,
 readstat_error_t readstat_set_handler_character_encoding(readstat_parser_t *parser, const char *encoding);
 
 readstat_error_t readstat_set_row_limit(readstat_parser_t *parser, long row_limit);
+readstat_error_t readstat_set_row_offset(readstat_parser_t *parser, long row_offset);
 
 /* Parse binary / portable files */
 readstat_error_t readstat_parse_dta(readstat_parser_t *parser, const char *path, void *user_ctx);

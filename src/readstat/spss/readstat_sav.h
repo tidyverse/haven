@@ -85,6 +85,7 @@ typedef struct sav_ctx_s {
     int            var_count;
     int            record_count;
     int            row_limit;
+    int            row_offset;
     int            current_row;
     int            value_labels_count;
     int            fweight_index;
