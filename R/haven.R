@@ -293,7 +293,7 @@ read_dta <- function(file, encoding = NULL, col_select = NULL, skip = 0, n_max =
 #' @export
 #' @rdname read_dta
 read_stata <- function(file, encoding = NULL, col_select = NULL, skip = 0, n_max = Inf) {
-  read_dta(file, encoding, {{ col_select }}, n_max, skip)
+  read_dta(file, encoding, {{ col_select }}, skip, n_max)
 }
 
 #' @export
