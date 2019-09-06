@@ -22,6 +22,7 @@ NULL
 #'   [dplyr::select()]. Use `c()` or `list()` to use more than one expression.
 #'   See `?dplyr::select` for details on available selection options. Only the
 #'   specified columns will be read from `data_file`.
+#' @param skip Number of lines to skip before reading data.
 #' @param n_max Maximum number of lines to read.
 #' @param cols_only **Deprecated**: Use `col_select` instead.
 #' @return A tibble, data frame variant with nice defaults.
