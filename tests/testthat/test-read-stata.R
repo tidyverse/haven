@@ -53,12 +53,41 @@ test_that("file label and notes stored as attributes", {
   expect_length(attr(df, "notes"), 2)
 })
 
-test_that("can limit the number of rows read", {
-  expect_equal(nrow(read_dta(test_path("notes.dta"), n_max = 1)), 1L)
-  expect_equal(nrow(read_dta(test_path("notes.dta"), n_max = 0)), 0L)
-})
-
 test_that("only selected columns are read", {
   out <- read_dta(test_path("notes.dta"), col_select = "id")
   expect_named(out, "id")
+})
+
+# Row skipping ------------------------------------------------------------
+
+test_that("using skip returns correct number of rows", {
+  rows_after_skipping <- function(n) {
+    nrow(read_dta(test_path("notes.dta"), skip = n))
+  }
+
+  n <- rows_after_skipping(0)
+
+  expect_equal(rows_after_skipping(1), n - 1)
+  expect_equal(rows_after_skipping(n - 1), 1)
+  expect_equal(rows_after_skipping(n + 0), 0)
+  expect_equal(rows_after_skipping(n + 1), 0)
+})
+
+
+# Row limiting ------------------------------------------------------------
+
+test_that("can limit the number of rows to read", {
+  rows_with_limit <- function(n) {
+    nrow(read_dta(test_path("notes.dta"), n_max = n))
+  }
+
+  n <- rows_with_limit(Inf)
+  expect_equal(rows_with_limit(0), 0)
+  expect_equal(rows_with_limit(1), 1)
+  expect_equal(rows_with_limit(n), n)
+  expect_equal(rows_with_limit(n + 1), n)
+
+  # alternatives for unlimited rows
+  expect_equal(rows_with_limit(NA), n)
+  expect_equal(rows_with_limit(-1), n)
 })
