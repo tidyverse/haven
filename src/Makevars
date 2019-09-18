@@ -8,4 +8,4 @@ OBJECTS = $(CFILES:.c=.o) $(CPPFILES:.cpp=.o)
 
 PKG_CFLAGS = -Ireadstat -DHAVE_ZLIB
 PKG_CXXFLAGS = -Ireadstat -DHAVE_ZLIB
-PKG_LIBS = -lz
+PKG_LIBS = -lz -liconv
