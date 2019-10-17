@@ -1,5 +1,7 @@
 # haven (development version)
 
+* `as_factor()` now supports duplicated levels (#475).
+
 * `read_sas()` now supports (IS|E|B)8601(DT|DA|TM) date/time formats (@mikmart).
 
 * `read_*()` functions gain two new arguments (@mikmart):
