@@ -18,6 +18,12 @@ test_that("variable label is kept when converting characters to factors (#178)",
 
 # Labelled values ---------------------------------------------------------
 
+test_that("duplicated labels do not prevent coercion when levels is 'labels' (#475)", {
+  s1 <- labelled(1:3, c("A" = 1, "B" = 2, "A" = 3))
+  exp <- factor(c("A", "B", "A"), levels = c("A", "B"))
+  expect_equal(as_factor(s1, levels = "labels"), exp)
+})
+
 test_that("all labels (implicit missing values) are preserved when levels is 'default' or 'both' (#172)", {
   s1 <- labelled(rep(1, 3), c("A" = 1, "B" = 2, "C" = 3))
   exp <- factor(rep("A", 3), levels = c("A", "B", "C"))
