@@ -38,6 +38,16 @@ test_that("tagged missings are read correctly", {
   expect_equal(na_tag(labels), c("a", "z"))
 })
 
+test_that("default name repair can be overridden", {
+  df <- data.frame(1:3, 1:3)
+  colnames(df) <- c("id", "id")
+
+  path <- tempfile()
+  write_sas(df, path)
+
+  expect_message(read_sas(path), "id...1")
+  expect_message(read_sas(path, .name_repair = "minimal"), NA)
+})
 
 # Row skipping ------------------------------------------------------------
 

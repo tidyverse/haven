@@ -18,6 +18,7 @@ NULL
 #'   `data_file` and `catalog_encoding` respectively. A value of `NULL` uses the
 #'   encoding specified in the file; use this argument to override it if it is
 #'   incorrect.
+#' @inheritParams tibble::as_tibble
 #' @param col_select One or more selection expressions, like in
 #'   [dplyr::select()]. Use `c()` or `list()` to use more than one expression.
 #'   See `?dplyr::select` for details on available selection options. Only the
@@ -37,7 +38,9 @@ NULL
 #' read_sas(path)
 read_sas <- function(data_file, catalog_file = NULL,
                      encoding = NULL, catalog_encoding = encoding,
-                     col_select = NULL, skip = 0L, n_max = Inf, cols_only = "DEPRECATED") {
+                     col_select = NULL, skip = 0L, n_max = Inf, cols_only = "DEPRECATED",
+                     .name_repair = "unique"
+  ) {
   if (!missing(cols_only)) {
     warning("`cols_only` is deprecated. Please use `col_select` instead.", call. = FALSE)
     stopifnot(is.character(cols_only)) # used to only work with a char vector
@@ -63,8 +66,8 @@ read_sas <- function(data_file, catalog_file = NULL,
   }
 
   switch(class(spec_data)[1],
-    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max, skip),
-    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max, skip),
+    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max, rows_skip = skip, name_repair = .name_repair),
+    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max, rows_skip = skip, name_repair = .name_repair),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
@@ -94,14 +97,15 @@ write_sas <- function(data, path) {
 #' tmp <- tempfile(fileext = ".xpt")
 #' write_xpt(mtcars, tmp)
 #' read_xpt(tmp)
-read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf) {
+read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique"
+) {
   cols_skip <- skip_cols(read_xpt, {{ col_select }}, file)
   n_max <- validate_n_max(n_max)
 
   spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_xpt_file(spec, cols_skip, n_max, skip),
-    source_raw = df_parse_xpt_raw(spec, cols_skip, n_max, skip),
+    source_file = df_parse_xpt_file(spec, cols_skip, n_max, skip, name_repair = .name_repair),
+    source_raw = df_parse_xpt_raw(spec, cols_skip, n_max, skip, name_repair = .name_repair),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
@@ -179,7 +183,7 @@ NULL
 
 #' @export
 #' @rdname read_spss
-read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, skip = 0, n_max = Inf) {
+read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
   if (is.null(encoding)) {
     encoding <- ""
   }
@@ -189,22 +193,22 @@ read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, 
 
   spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_sav_file(spec, encoding, user_na, cols_skip, n_max, skip),
-    source_raw = df_parse_sav_raw(spec, encoding, user_na, cols_skip, n_max, skip),
+    source_file = df_parse_sav_file(spec, encoding, user_na, cols_skip, n_max, skip, name_repair = .name_repair),
+    source_raw = df_parse_sav_raw(spec, encoding, user_na, cols_skip, n_max, skip, name_repair = .name_repair),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
 
 #' @export
 #' @rdname read_spss
-read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max = Inf) {
+read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
   cols_skip <- skip_cols(read_por, {{ col_select }}, file)
   n_max <- validate_n_max(n_max)
 
   spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_por_file(spec, encoding = "", user_na = user_na, cols_skip, n_max, skip),
-    source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na, cols_skip, n_max, skip),
+    source_file = df_parse_por_file(spec, encoding = "", user_na = user_na, cols_skip, n_max, skip, name_repair = .name_repair),
+    source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na, cols_skip, n_max, skip, name_repair = .name_repair),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
@@ -225,13 +229,13 @@ write_sav <- function(data, path, compress = FALSE) {
 #' @param user_na If `TRUE` variables with user defined missing will
 #'   be read into [labelled_spss()] objects. If `FALSE`, the
 #'   default, user-defined missings will be converted to `NA`.
-read_spss <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max = Inf) {
+read_spss <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
   ext <- tolower(tools::file_ext(file))
 
   switch(ext,
-    sav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip),
-    zsav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip),
-    por = read_por(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip),
+    sav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
+    zsav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
+    por = read_por(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
     stop("Unknown extension '.", ext, "'", call. = FALSE)
   )
 }
@@ -277,7 +281,7 @@ read_spss <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max 
 #' write_dta(mtcars, tmp)
 #' read_dta(tmp)
 #' read_stata(tmp)
-read_dta <- function(file, encoding = NULL, col_select = NULL, skip = 0, n_max = Inf) {
+read_dta <- function(file, encoding = NULL, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
   if (is.null(encoding)) {
     encoding <- ""
   }
@@ -287,17 +291,15 @@ read_dta <- function(file, encoding = NULL, col_select = NULL, skip = 0, n_max =
 
   spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_dta_file(spec, encoding, cols_skip, n_max, skip),
-    source_raw = df_parse_dta_raw(spec, encoding, cols_skip, n_max, skip),
+    source_file = df_parse_dta_file(spec, encoding, cols_skip, n_max, skip, name_repair = .name_repair),
+    source_raw = df_parse_dta_raw(spec, encoding, cols_skip, n_max, skip, name_repair = .name_repair),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
 
 #' @export
 #' @rdname read_dta
-read_stata <- function(file, encoding = NULL, col_select = NULL, skip = 0, n_max = Inf) {
-  read_dta(file, encoding, {{ col_select }}, skip, n_max)
-}
+read_stata <- read_dta
 
 #' @export
 #' @rdname read_dta

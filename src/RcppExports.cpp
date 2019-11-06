@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // df_parse_sas_file
-List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip);
-RcppExport SEXP _haven_df_parse_sas_file(SEXP spec_b7datSEXP, SEXP spec_b7catSEXP, SEXP encodingSEXP, SEXP catalog_encodingSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP) {
+List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+RcppExport SEXP _haven_df_parse_sas_file(SEXP spec_b7datSEXP, SEXP spec_b7catSEXP, SEXP encodingSEXP, SEXP catalog_encodingSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP, SEXP name_repairSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -19,13 +19,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::string> >::type cols_skip(cols_skipSEXP);
     Rcpp::traits::input_parameter< long >::type n_max(n_maxSEXP);
     Rcpp::traits::input_parameter< long >::type rows_skip(rows_skipSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_sas_file(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_skip, n_max, rows_skip));
+    Rcpp::traits::input_parameter< std::string >::type name_repair(name_repairSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_sas_file(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_skip, n_max, rows_skip, name_repair));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_sas_raw
-List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip);
-RcppExport SEXP _haven_df_parse_sas_raw(SEXP spec_b7datSEXP, SEXP spec_b7catSEXP, SEXP encodingSEXP, SEXP catalog_encodingSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP) {
+List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+RcppExport SEXP _haven_df_parse_sas_raw(SEXP spec_b7datSEXP, SEXP spec_b7catSEXP, SEXP encodingSEXP, SEXP catalog_encodingSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP, SEXP name_repairSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -36,13 +37,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::string> >::type cols_skip(cols_skipSEXP);
     Rcpp::traits::input_parameter< long >::type n_max(n_maxSEXP);
     Rcpp::traits::input_parameter< long >::type rows_skip(rows_skipSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_sas_raw(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_skip, n_max, rows_skip));
+    Rcpp::traits::input_parameter< std::string >::type name_repair(name_repairSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_sas_raw(spec_b7dat, spec_b7cat, encoding, catalog_encoding, cols_skip, n_max, rows_skip, name_repair));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_xpt_file
-List df_parse_xpt_file(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max, long rows_skip);
-RcppExport SEXP _haven_df_parse_xpt_file(SEXP specSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP) {
+List df_parse_xpt_file(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+RcppExport SEXP _haven_df_parse_xpt_file(SEXP specSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP, SEXP name_repairSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -50,13 +52,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::string> >::type cols_skip(cols_skipSEXP);
     Rcpp::traits::input_parameter< long >::type n_max(n_maxSEXP);
     Rcpp::traits::input_parameter< long >::type rows_skip(rows_skipSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_xpt_file(spec, cols_skip, n_max, rows_skip));
+    Rcpp::traits::input_parameter< std::string >::type name_repair(name_repairSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_xpt_file(spec, cols_skip, n_max, rows_skip, name_repair));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_xpt_raw
-List df_parse_xpt_raw(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max, long rows_skip);
-RcppExport SEXP _haven_df_parse_xpt_raw(SEXP specSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP) {
+List df_parse_xpt_raw(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+RcppExport SEXP _haven_df_parse_xpt_raw(SEXP specSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP, SEXP name_repairSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -64,13 +67,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::string> >::type cols_skip(cols_skipSEXP);
     Rcpp::traits::input_parameter< long >::type n_max(n_maxSEXP);
     Rcpp::traits::input_parameter< long >::type rows_skip(rows_skipSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_xpt_raw(spec, cols_skip, n_max, rows_skip));
+    Rcpp::traits::input_parameter< std::string >::type name_repair(name_repairSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_xpt_raw(spec, cols_skip, n_max, rows_skip, name_repair));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_dta_file
-List df_parse_dta_file(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip);
-RcppExport SEXP _haven_df_parse_dta_file(SEXP specSEXP, SEXP encodingSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP) {
+List df_parse_dta_file(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+RcppExport SEXP _haven_df_parse_dta_file(SEXP specSEXP, SEXP encodingSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP, SEXP name_repairSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -79,13 +83,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::string> >::type cols_skip(cols_skipSEXP);
     Rcpp::traits::input_parameter< long >::type n_max(n_maxSEXP);
     Rcpp::traits::input_parameter< long >::type rows_skip(rows_skipSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_dta_file(spec, encoding, cols_skip, n_max, rows_skip));
+    Rcpp::traits::input_parameter< std::string >::type name_repair(name_repairSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_dta_file(spec, encoding, cols_skip, n_max, rows_skip, name_repair));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_dta_raw
-List df_parse_dta_raw(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip);
-RcppExport SEXP _haven_df_parse_dta_raw(SEXP specSEXP, SEXP encodingSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP) {
+List df_parse_dta_raw(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+RcppExport SEXP _haven_df_parse_dta_raw(SEXP specSEXP, SEXP encodingSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP, SEXP name_repairSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -94,13 +99,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::string> >::type cols_skip(cols_skipSEXP);
     Rcpp::traits::input_parameter< long >::type n_max(n_maxSEXP);
     Rcpp::traits::input_parameter< long >::type rows_skip(rows_skipSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_dta_raw(spec, encoding, cols_skip, n_max, rows_skip));
+    Rcpp::traits::input_parameter< std::string >::type name_repair(name_repairSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_dta_raw(spec, encoding, cols_skip, n_max, rows_skip, name_repair));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_sav_file
-List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip);
-RcppExport SEXP _haven_df_parse_sav_file(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP) {
+List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+RcppExport SEXP _haven_df_parse_sav_file(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP, SEXP name_repairSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -110,13 +116,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::string> >::type cols_skip(cols_skipSEXP);
     Rcpp::traits::input_parameter< long >::type n_max(n_maxSEXP);
     Rcpp::traits::input_parameter< long >::type rows_skip(rows_skipSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_sav_file(spec, encoding, user_na, cols_skip, n_max, rows_skip));
+    Rcpp::traits::input_parameter< std::string >::type name_repair(name_repairSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_sav_file(spec, encoding, user_na, cols_skip, n_max, rows_skip, name_repair));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_sav_raw
-List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip);
-RcppExport SEXP _haven_df_parse_sav_raw(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP) {
+List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+RcppExport SEXP _haven_df_parse_sav_raw(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP, SEXP name_repairSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -126,13 +133,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::string> >::type cols_skip(cols_skipSEXP);
     Rcpp::traits::input_parameter< long >::type n_max(n_maxSEXP);
     Rcpp::traits::input_parameter< long >::type rows_skip(rows_skipSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_sav_raw(spec, encoding, user_na, cols_skip, n_max, rows_skip));
+    Rcpp::traits::input_parameter< std::string >::type name_repair(name_repairSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_sav_raw(spec, encoding, user_na, cols_skip, n_max, rows_skip, name_repair));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_por_file
-List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip);
-RcppExport SEXP _haven_df_parse_por_file(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP) {
+List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+RcppExport SEXP _haven_df_parse_por_file(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP, SEXP name_repairSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -142,13 +150,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::string> >::type cols_skip(cols_skipSEXP);
     Rcpp::traits::input_parameter< long >::type n_max(n_maxSEXP);
     Rcpp::traits::input_parameter< long >::type rows_skip(rows_skipSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_por_file(spec, encoding, user_na, cols_skip, n_max, rows_skip));
+    Rcpp::traits::input_parameter< std::string >::type name_repair(name_repairSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_por_file(spec, encoding, user_na, cols_skip, n_max, rows_skip, name_repair));
     return rcpp_result_gen;
 END_RCPP
 }
 // df_parse_por_raw
-List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip);
-RcppExport SEXP _haven_df_parse_por_raw(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP) {
+List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+RcppExport SEXP _haven_df_parse_por_raw(SEXP specSEXP, SEXP encodingSEXP, SEXP user_naSEXP, SEXP cols_skipSEXP, SEXP n_maxSEXP, SEXP rows_skipSEXP, SEXP name_repairSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -158,7 +167,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::vector<std::string> >::type cols_skip(cols_skipSEXP);
     Rcpp::traits::input_parameter< long >::type n_max(n_maxSEXP);
     Rcpp::traits::input_parameter< long >::type rows_skip(rows_skipSEXP);
-    rcpp_result_gen = Rcpp::wrap(df_parse_por_raw(spec, encoding, user_na, cols_skip, n_max, rows_skip));
+    Rcpp::traits::input_parameter< std::string >::type name_repair(name_repairSEXP);
+    rcpp_result_gen = Rcpp::wrap(df_parse_por_raw(spec, encoding, user_na, cols_skip, n_max, rows_skip, name_repair));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -217,16 +227,16 @@ RcppExport SEXP na_tag_(SEXP);
 RcppExport SEXP tagged_na_(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_haven_df_parse_sas_file", (DL_FUNC) &_haven_df_parse_sas_file, 7},
-    {"_haven_df_parse_sas_raw", (DL_FUNC) &_haven_df_parse_sas_raw, 7},
-    {"_haven_df_parse_xpt_file", (DL_FUNC) &_haven_df_parse_xpt_file, 4},
-    {"_haven_df_parse_xpt_raw", (DL_FUNC) &_haven_df_parse_xpt_raw, 4},
-    {"_haven_df_parse_dta_file", (DL_FUNC) &_haven_df_parse_dta_file, 5},
-    {"_haven_df_parse_dta_raw", (DL_FUNC) &_haven_df_parse_dta_raw, 5},
-    {"_haven_df_parse_sav_file", (DL_FUNC) &_haven_df_parse_sav_file, 6},
-    {"_haven_df_parse_sav_raw", (DL_FUNC) &_haven_df_parse_sav_raw, 6},
-    {"_haven_df_parse_por_file", (DL_FUNC) &_haven_df_parse_por_file, 6},
-    {"_haven_df_parse_por_raw", (DL_FUNC) &_haven_df_parse_por_raw, 6},
+    {"_haven_df_parse_sas_file", (DL_FUNC) &_haven_df_parse_sas_file, 8},
+    {"_haven_df_parse_sas_raw", (DL_FUNC) &_haven_df_parse_sas_raw, 8},
+    {"_haven_df_parse_xpt_file", (DL_FUNC) &_haven_df_parse_xpt_file, 5},
+    {"_haven_df_parse_xpt_raw", (DL_FUNC) &_haven_df_parse_xpt_raw, 5},
+    {"_haven_df_parse_dta_file", (DL_FUNC) &_haven_df_parse_dta_file, 6},
+    {"_haven_df_parse_dta_raw", (DL_FUNC) &_haven_df_parse_dta_raw, 6},
+    {"_haven_df_parse_sav_file", (DL_FUNC) &_haven_df_parse_sav_file, 7},
+    {"_haven_df_parse_sav_raw", (DL_FUNC) &_haven_df_parse_sav_raw, 7},
+    {"_haven_df_parse_por_file", (DL_FUNC) &_haven_df_parse_por_file, 7},
+    {"_haven_df_parse_por_raw", (DL_FUNC) &_haven_df_parse_por_raw, 7},
     {"_haven_write_sav_", (DL_FUNC) &_haven_write_sav_, 3},
     {"_haven_write_dta_", (DL_FUNC) &_haven_write_dta_, 4},
     {"_haven_write_sas_", (DL_FUNC) &_haven_write_sas_, 2},

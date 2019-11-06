@@ -5,7 +5,8 @@
 \alias{write_xpt}
 \title{Read and write SAS transport files}
 \usage{
-read_xpt(file, col_select = NULL, skip = 0, n_max = Inf)
+read_xpt(file, col_select = NULL, skip = 0, n_max = Inf,
+  .name_repair = "unique")
 
 write_xpt(data, path, version = 8, name = NULL)
 }
@@ -33,6 +34,21 @@ specified columns will be read from \code{data_file}.}
 \item{skip}{Number of lines to skip before reading data.}
 
 \item{n_max}{Maximum number of lines to read.}
+
+\item{.name_repair}{Treatment of problematic column names:
+\itemize{
+\item \code{"minimal"}: No name repair or checks, beyond basic existence,
+\item \code{"unique"}: Make sure names are unique and not empty,
+\item \code{"check_unique"}: (default value), no name repair, but check they are
+\code{unique},
+\item \code{"universal"}: Make the names \code{unique} and syntactic
+\item a function: apply custom name repair (e.g., \code{.name_repair = make.names}
+for names in the style of base R).
+\item A purrr-style anonymous function, see \code{\link[rlang:as_function]{rlang::as_function()}}
+}
+
+See \link{name-repair} for more details on these terms and the strategies used
+to enforce them.}
 
 \item{data}{Data frame to write.}
 

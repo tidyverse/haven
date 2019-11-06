@@ -1,5 +1,8 @@
 # haven (development version)
 
+* All `write_` functions gain a `.name_repair` argument that controls
+  what happens when the input dataset has repeated column names (#436).
+
 * Can now write labelled vectors with `NULL` labels (#442).
 
 * `write_dta()` can now write dataset labels with the `label` argument, 
