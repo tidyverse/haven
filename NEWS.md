@@ -1,6 +1,7 @@
 # haven (development version)
 
 * Updated to latest ReadStat from @evanmiller
+  * Fixes bug when generating files for Stata 15 (#461)
 
 * Allows non-unique labels when `levels = "label"` (#424, @gergness)
 
