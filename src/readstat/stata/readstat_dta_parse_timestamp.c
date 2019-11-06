@@ -319,7 +319,7 @@ _again:
             snprintf(error_buf, sizeof(error_buf), "Invalid timestamp string (length=%d): %.*s", (int)len, (int)len, data);
             error_handler(error_buf, user_ctx);
         }
-        retval = READSTAT_ERROR_BAD_TIMESTAMP;
+        retval = READSTAT_ERROR_BAD_TIMESTAMP_STRING;
     }
 
     (void)dta_timestamp_parse_en_main;

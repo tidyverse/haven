@@ -2,6 +2,25 @@
 
 * `write_dta()` supports writing Stata dataset labels using the `label` argument. This defaults to the `label` attribute of the input data frame, consistent with the previously undocumented behaviour of `read_dta()` (#449).
 
+* Updated to latest ReadStat from @evanmiller
+  * Fixes bug when generating files for Stata 15 (#461)
+
+* Allows non-unique labels when `levels = "label"` (#424, @gergness)
+
+* `read_sas()` now supports (IS|E|B)8601(DT|DA|TM) date/time formats (@mikmart).
+
+* `read_*()` functions gain three new arguments (@mikmart):
+
+  * `col_select`: selects columns to read with a tidyselect interface (#248).
+  * `skip`: skips rows before reading data (#370).
+  * `n_max`: limits the number of rows to read.
+
+* `read_sas()` argument `cols_only` is deprecated. Use the new `col_select` instead.
+
+# haven 2.1.1
+
+* Fixes for R CMD check
+
 # haven 2.1.0
 
 ## Improved labelling

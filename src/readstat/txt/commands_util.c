@@ -5,15 +5,15 @@
 #include "commands_util.h"
 
 readstat_error_t submit_value_label(readstat_parser_t *parser, const char *labelset,
-        label_type_t label_type, int first_integer, int integer, const char *string_value,
-        const char *buf, void *user_ctx) {
+        label_type_t label_type, int64_t first_integer, int64_t last_integer,
+        double double_value, const char *string_value, const char *buf, void *user_ctx) {
     if (!parser->handlers.value_label)
         return READSTAT_OK;
 
     int cb_retval = READSTAT_HANDLER_OK;
     if (label_type == LABEL_TYPE_RANGE) {
-        int i;
-        for (i=first_integer; i<=integer; i++) {
+        int64_t i;
+        for (i=first_integer; i<=last_integer; i++) {
             readstat_value_t value = { 
                 .type = READSTAT_TYPE_DOUBLE,
                 .v = { .double_value = i } };
@@ -25,7 +25,7 @@ readstat_error_t submit_value_label(readstat_parser_t *parser, const char *label
         readstat_value_t value = { { 0 } };
         if (label_type == LABEL_TYPE_DOUBLE) {
             value.type = READSTAT_TYPE_DOUBLE;
-            value.v.double_value = integer;
+            value.v.double_value = double_value;
         } else if (label_type == LABEL_TYPE_STRING) {
             value.type = READSTAT_TYPE_STRING;
             value.v.string_value = string_value;

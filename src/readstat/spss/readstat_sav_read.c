@@ -141,7 +141,8 @@ static readstat_error_t sav_parse_machine_floating_point_record(const void *data
 static readstat_error_t sav_store_variable_display_parameter_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx);
 static readstat_error_t sav_parse_variable_display_parameter_record(sav_ctx_t *ctx);
 static readstat_error_t sav_parse_machine_integer_info_record(const void *data, size_t data_len, sav_ctx_t *ctx);
-static readstat_error_t sav_parse_long_value_labels_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx);
+static readstat_error_t sav_parse_long_string_value_labels_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx);
+static readstat_error_t sav_parse_long_string_missing_values_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx);
 
 static void sav_tag_missing_double(readstat_value_t *value, sav_ctx_t *ctx) {
     double fp_value = value->v.double_value;
@@ -677,6 +678,11 @@ static readstat_error_t sav_read_dictionary_termination_record(sav_ctx_t *ctx) {
 }
 
 static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len, sav_ctx_t *ctx) {
+    if (ctx->row_offset) {
+        ctx->row_offset--;
+        return READSTAT_OK;
+    }
+
     readstat_error_t retval = READSTAT_OK;
     double fp_value;
     int offset = 0;
@@ -802,6 +808,14 @@ static readstat_error_t sav_read_uncompressed_data(sav_ctx_t *ctx,
 
     buffer = readstat_malloc(buffer_len);
 
+    if (ctx->row_offset) {
+        if (io->seek(buffer_len * ctx->row_offset, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
+            retval = READSTAT_ERROR_SEEK;
+            goto done;
+        }
+        ctx->row_offset = 0;
+    }
+
     while (ctx->row_limit == -1 || ctx->current_row < ctx->row_limit) {
         retval = sav_update_progress(ctx);
         if (retval != READSTAT_OK)
@@ -844,6 +858,10 @@ static readstat_error_t sav_read_compressed_data(sav_ctx_t *ctx,
     }
 
     while (1) {
+        retval = sav_update_progress(ctx);
+        if (retval != READSTAT_OK)
+            goto done;
+
         buffer_used = io->read(buffer, sizeof(buffer), io->io_ctx);
         if (buffer_used == -1 || buffer_used == 0 || (buffer_used % 8) != 0)
             goto done;
@@ -871,7 +889,9 @@ static readstat_error_t sav_read_compressed_data(sav_ctx_t *ctx,
                 uncompressed_offset = 0;
             }
 
-            if (state.status == SAV_ROW_STREAM_FINISHED_ALL || ctx->current_row == ctx->row_limit)
+            if (state.status == SAV_ROW_STREAM_FINISHED_ALL)
+                goto done;
+            if (ctx->row_limit > 0 && ctx->current_row == ctx->row_limit)
                 goto done;
         }
     }
@@ -985,14 +1005,48 @@ static readstat_error_t sav_parse_variable_display_parameter_record(sav_ctx_t *c
     return READSTAT_OK;
 }
 
-static readstat_error_t sav_parse_long_value_labels_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx) {
+static readstat_error_t sav_read_pascal_string(char *buf, size_t buf_len,
+        const char **inout_data_ptr, size_t data_ptr_len, sav_ctx_t *ctx) {
+    const char *data_ptr = *inout_data_ptr;
+    const char *data_end = data_ptr + data_ptr_len;
+    readstat_error_t retval = READSTAT_OK;
+    uint32_t var_name_len = 0;
+
+    if (data_ptr + sizeof(uint32_t) > data_end) {
+        retval = READSTAT_ERROR_PARSE;
+        goto cleanup;
+    }
+
+    memcpy(&var_name_len, data_ptr, sizeof(uint32_t));
+    if (ctx->bswap)
+        var_name_len = byteswap4(var_name_len);
+
+    data_ptr += sizeof(uint32_t);
+
+    if (data_ptr + var_name_len > data_end) {
+        retval = READSTAT_ERROR_PARSE;
+        goto cleanup;
+    }
+
+    retval = readstat_convert(buf, buf_len, data_ptr, var_name_len, ctx->converter);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
+    data_ptr += var_name_len;
+
+cleanup:
+    *inout_data_ptr = data_ptr;
+
+    return retval;
+}
+
+static readstat_error_t sav_parse_long_string_value_labels_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx) {
     if (!ctx->handle.value_label)
         return READSTAT_OK;
     if (size != 1)
         return READSTAT_ERROR_PARSE;
 
     readstat_error_t retval = READSTAT_OK;
-    uint32_t label_name_len = 0;
     uint32_t label_count = 0;
     uint32_t i = 0;
     const char *data_ptr = data;
@@ -1005,27 +1059,10 @@ static readstat_error_t sav_parse_long_value_labels_record(const void *data, siz
     while (data_ptr < data_end) {
         memset(label_name_buf, '\0', sizeof(label_name_buf));
 
-        if (data_ptr + sizeof(uint32_t) > data_end) {
-            retval = READSTAT_ERROR_PARSE;
-            goto cleanup;
-        }
-
-        memcpy(&label_name_len, data_ptr, sizeof(uint32_t));
-        if (ctx->bswap)
-            label_name_len = byteswap4(label_name_len);
-
-        data_ptr += sizeof(uint32_t);
-
-        if (data_ptr + label_name_len > data_end) {
-            retval = READSTAT_ERROR_PARSE;
-            goto cleanup;
-        }
-
-        retval = readstat_convert(var_name_buf, sizeof(var_name_buf), data_ptr, label_name_len, ctx->converter);
+        retval = sav_read_pascal_string(var_name_buf, sizeof(var_name_buf),
+                &data_ptr, data_end - data_ptr, ctx);
         if (retval != READSTAT_OK)
             goto cleanup;
-
-        data_ptr += label_name_len;
 
         for (i=0; i<ctx->var_index;) {
             spss_varinfo_t *info = ctx->varinfo[i];
@@ -1137,6 +1174,83 @@ cleanup:
         free(value_buffer);
     if (label_buffer)
         free(label_buffer);
+    return retval;
+}
+
+static readstat_error_t sav_parse_long_string_missing_values_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx) {
+    if (size != 1)
+        return READSTAT_ERROR_PARSE;
+
+    readstat_error_t retval = READSTAT_OK;
+    uint32_t i = 0, j = 0;
+    const char *data_ptr = data;
+    const char *data_end = data_ptr + count;
+    char var_name_buf[256*4+1];
+
+    while (data_ptr < data_end) {
+        retval = sav_read_pascal_string(var_name_buf, sizeof(var_name_buf),
+                &data_ptr, data_end - data_ptr, ctx);
+        if (retval != READSTAT_OK)
+            goto cleanup;
+
+        if (data_ptr == data_end) {
+            retval = READSTAT_ERROR_PARSE;
+            goto cleanup;
+        }
+
+        char n_missing_values = *data_ptr++;
+        if (n_missing_values < 1 || n_missing_values > 3) {
+            retval = READSTAT_ERROR_PARSE;
+            goto cleanup;
+        }
+
+        for (i=0; i<ctx->var_index;) {
+            spss_varinfo_t *info = ctx->varinfo[i];
+            if (strcmp(var_name_buf, info->longname) == 0) {
+                info->n_missing_values = n_missing_values;
+
+                uint32_t var_name_len = 0;
+
+                if (data_ptr + sizeof(uint32_t) > data_end) {
+                    retval = READSTAT_ERROR_PARSE;
+                    goto cleanup;
+                }
+
+                memcpy(&var_name_len, data_ptr, sizeof(uint32_t));
+                if (ctx->bswap)
+                    var_name_len = byteswap4(var_name_len);
+
+                data_ptr += sizeof(uint32_t);
+
+                for (j=0; j<n_missing_values; j++) {
+                    if (data_ptr + var_name_len > data_end) {
+                        retval = READSTAT_ERROR_PARSE;
+                        goto cleanup;
+                    }
+
+                    retval = readstat_convert(info->missing_string_values[j],
+                            sizeof(info->missing_string_values[0]),
+                            data_ptr, var_name_len, ctx->converter);
+                    if (retval != READSTAT_OK)
+                        goto cleanup;
+
+                    data_ptr += var_name_len;
+                }
+                break;
+            }
+            i += info->n_segments;
+        }
+        if (i == ctx->var_index) {
+            retval = READSTAT_ERROR_PARSE;
+            goto cleanup;
+        }
+    }
+
+    if (data_ptr != data_end) {
+        retval = READSTAT_ERROR_PARSE;
+    }
+
+cleanup:
     return retval;
 }
 
@@ -1314,10 +1428,16 @@ static readstat_error_t sav_parse_records_pass2(sav_ctx_t *ctx) {
                         if (retval != READSTAT_OK)
                             goto cleanup;
                         break;
-                    case SAV_RECORD_SUBTYPE_LONG_VALUE_LABELS:
-                        retval = sav_parse_long_value_labels_record(data_buf, size, count, ctx);
+                    case SAV_RECORD_SUBTYPE_LONG_STRING_VALUE_LABELS:
+                        retval = sav_parse_long_string_value_labels_record(data_buf, size, count, ctx);
                         if (retval != READSTAT_OK)
                             goto cleanup;
+                        break;
+                    case SAV_RECORD_SUBTYPE_LONG_STRING_MISSING_VALUES:
+                        retval = sav_parse_long_string_missing_values_record(data_buf, size, count, ctx);
+                        if (retval != READSTAT_OK)
+                            goto cleanup;
+                        break;
                     default: /* misc. info */
                         break;
                 }
@@ -1464,10 +1584,19 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
     ctx->output_encoding = parser->output_encoding;
     ctx->user_ctx = user_ctx;
     ctx->file_size = file_size;
-    if (parser->row_limit > 0 && (parser->row_limit < ctx->record_count || ctx->record_count == -1)) {
+    if (parser->row_offset > 0)
+        ctx->row_offset = parser->row_offset;
+    if (ctx->record_count != -1) {
+        int record_count_after_skipping = ctx->record_count - ctx->row_offset;
+        if (record_count_after_skipping < 0) {
+            record_count_after_skipping = 0;
+            ctx->row_offset = ctx->record_count;
+        }
+        ctx->row_limit = record_count_after_skipping;
+        if (parser->row_limit > 0 && parser->row_limit < record_count_after_skipping) 
+            ctx->row_limit = parser->row_limit;
+    } else if (parser->row_limit > 0) {
         ctx->row_limit = parser->row_limit;
-    } else {
-        ctx->row_limit = ctx->record_count;
     }
     
     if ((retval = sav_parse_timestamp(ctx, &header)) != READSTAT_OK)

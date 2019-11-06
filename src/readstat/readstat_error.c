@@ -78,18 +78,21 @@ const char *readstat_error_message(readstat_error_t error_code) {
         return "This version of the file format is not supported";
 
     if (error_code == READSTAT_ERROR_NAME_BEGINS_WITH_ILLEGAL_CHARACTER)
-        return "A provided column name begins with an illegal character (must be a letter or underscore)";
+        return "A provided name begins with an illegal character";
 
     if (error_code == READSTAT_ERROR_NAME_CONTAINS_ILLEGAL_CHARACTER)
-        return "A provided column name contains an illegal character (must be a letter, number, or underscore)";
+        return "A provided name contains an illegal character";
 
     if (error_code == READSTAT_ERROR_NAME_IS_RESERVED_WORD)
-        return "A provided column name is a reserved word";
+        return "A provided name is a reserved word";
 
     if (error_code == READSTAT_ERROR_NAME_IS_TOO_LONG)
-        return "A provided column name is too long for the file format";
+        return "A provided name is too long for the file format";
 
-    if (error_code == READSTAT_ERROR_BAD_TIMESTAMP)
+    if (error_code == READSTAT_ERROR_NAME_IS_ZERO_LENGTH)
+        return "A provided name is blank or empty";
+
+    if (error_code == READSTAT_ERROR_BAD_TIMESTAMP_STRING)
         return "The file's timestamp string is invalid";
 
     if (error_code == READSTAT_ERROR_BAD_FREQUENCY_WEIGHT)
@@ -115,6 +118,9 @@ const char *readstat_error_message(readstat_error_t error_code) {
 
     if (error_code == READSTAT_ERROR_TOO_MANY_COLUMNS)
         return "Too many columns for this file format version";
+
+    if (error_code == READSTAT_ERROR_BAD_TIMESTAMP_VALUE)
+        return "The provided file timestamp is invalid";
 
     return "Unknown error";
 }

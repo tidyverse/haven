@@ -18,11 +18,11 @@
 #' # Default method uses values where available
 #' as_factor(x)
 #' # You can also extract just the labels
-#' as_factor(x, "labels")
+#' as_factor(x, levels = "labels")
 #' # Or just the values
-#' as_factor(x, "values")
+#' as_factor(x, levels = "values")
 #' # Or combine value and label
-#' as_factor(x, "both")
+#' as_factor(x, levels = "both")
 #' @importFrom forcats as_factor
 #' @export
 #' @name as_factor
@@ -80,7 +80,7 @@ as_factor.haven_labelled <- function(x, levels = c("default", "labels", "values"
       values = levs
     )
     x <- replace_with(x, levs, labs)
-    x <- factor(x, labs, ordered = ordered)
+    x <- factor(x, unique(labs), ordered = ordered)
   }
 
   structure(x, label = label)

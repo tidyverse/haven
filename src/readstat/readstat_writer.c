@@ -79,7 +79,7 @@ static void readstat_copy_label(readstat_value_label_t *value_label, const char 
     if (label && strlen(label)) {
         value_label->label_len = strlen(label);
         value_label->label = malloc(value_label->label_len);
-        strncpy(value_label->label, label, value_label->label_len);
+        memcpy(value_label->label, label, value_label->label_len);
     }
 }
 
@@ -95,11 +95,36 @@ static readstat_value_label_t *readstat_add_value_label(readstat_label_set_t *la
     return new_value_label;
 }
 
+readstat_error_t readstat_validate_variable(readstat_writer_t *writer, const readstat_variable_t *variable) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
+    if (writer->callbacks.variable_ok)
+        return writer->callbacks.variable_ok(variable);
+
+    return READSTAT_OK;
+}
+
+readstat_error_t readstat_validate_metadata(readstat_writer_t *writer) {
+    if (!writer->initialized)
+        return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
+
+    if (writer->callbacks.metadata_ok)
+        return writer->callbacks.metadata_ok(writer);
+
+    return READSTAT_OK;
+}
+
 static readstat_error_t readstat_begin_writing_data(readstat_writer_t *writer) {
     readstat_error_t retval = READSTAT_OK;
 
     size_t row_len = 0;
     int i;
+
+    retval = readstat_validate_metadata(writer);
+    if (retval != READSTAT_OK)
+        goto cleanup;
+
     for (i=0; i<writer->variables_count; i++) {
         readstat_variable_t *variable = readstat_get_variable(writer, i);
         variable->storage_width = writer->callbacks.variable_width(variable->type, variable->user_width);
@@ -108,8 +133,7 @@ static readstat_error_t readstat_begin_writing_data(readstat_writer_t *writer) {
     }
     if (writer->callbacks.variable_ok) {
         for (i=0; i<writer->variables_count; i++) {
-            readstat_variable_t *variable = readstat_get_variable(writer, i);
-            retval = writer->callbacks.variable_ok(variable);
+            retval = readstat_validate_variable(writer, readstat_get_variable(writer, i));
             if (retval != READSTAT_OK)
                 goto cleanup;
         }
@@ -273,7 +297,7 @@ readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat
     writer->label_sets[writer->label_sets_count++] = new_label_set;
 
     new_label_set->type = type;
-    strncpy(new_label_set->name, name, sizeof(new_label_set->name));
+    snprintf(new_label_set->name, sizeof(new_label_set->name), "%s", name);
 
     new_label_set->value_labels = calloc(VALUE_LABELS_INITIAL_CAPACITY, sizeof(readstat_value_label_t));
     new_label_set->value_labels_capacity = VALUE_LABELS_INITIAL_CAPACITY;
@@ -328,7 +352,7 @@ void readstat_label_string_value(readstat_label_set_t *label_set, const char *va
     if (value && strlen(value)) {
         new_value_label->string_key_len = strlen(value);
         new_value_label->string_key = malloc(new_value_label->string_key_len);
-        strncpy(new_value_label->string_key, value, new_value_label->string_key_len);
+        memcpy(new_value_label->string_key, value, new_value_label->string_key_len);
     }
 }
 
@@ -497,7 +521,7 @@ readstat_error_t readstat_begin_writing_file(readstat_writer_t *writer, void *us
 
     writer->initialized = 1;
 
-    return READSTAT_OK;
+    return readstat_validate_metadata(writer);
 }
 
 readstat_error_t readstat_begin_row(readstat_writer_t *writer) {

@@ -85,6 +85,7 @@ typedef struct sav_ctx_s {
     int            var_count;
     int            record_count;
     int            row_limit;
+    int            row_offset;
     int            current_row;
     int            value_labels_count;
     int            fweight_index;
@@ -124,7 +125,8 @@ typedef struct sav_ctx_s {
 #define SAV_RECORD_SUBTYPE_DATA_FILE_ATTRS   17
 #define SAV_RECORD_SUBTYPE_VARIABLE_ATTRS    18
 #define SAV_RECORD_SUBTYPE_CHAR_ENCODING     20
-#define SAV_RECORD_SUBTYPE_LONG_VALUE_LABELS 21
+#define SAV_RECORD_SUBTYPE_LONG_STRING_VALUE_LABELS   21
+#define SAV_RECORD_SUBTYPE_LONG_STRING_MISSING_VALUES 22
 
 #define SAV_FLOATING_POINT_REP_IEEE      1
 #define SAV_FLOATING_POINT_REP_IBM       2
