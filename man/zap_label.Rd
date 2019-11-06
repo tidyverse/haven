@@ -12,6 +12,9 @@ zap_label(x)
 \description{
 Removes label, leaving unlabelled vectors as is. Use this if you want to
 simply drop all \code{label} attributes from a data frame.
+
+This function removes variable labels; use \code{\link[=zap_labels]{zap_labels()}} to remove value
+labels.
 }
 \examples{
 x1 <- labelled(1:5, c(good = 1, bad = 5))

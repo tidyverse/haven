@@ -14,11 +14,9 @@ Removes labels, leaving unlabelled vectors as is. Use this if you want to
 simply drop all \code{labels} from a data frame. Zapping labels from
 \code{\link[=labelled_spss]{labelled_spss()}} also removes user-defined missing values,
 replacing all with \code{NA}s.
-}
-\note{
-This function doesn't remove any \code{label} attribute(s),
-just the \code{labels} attribute(s). Use \code{\link{zap_label}}
-to remove \code{label} attribute(s).
+
+This function removes value labels; use \code{\link[=zap_label]{zap_label()}} to remove variable
+labels.
 }
 \examples{
 x1 <- labelled(1:5, c(good = 1, bad = 5))

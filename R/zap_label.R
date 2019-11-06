@@ -1,8 +1,11 @@
 #' Zap label
 #'
+#' @description
 #' Removes label, leaving unlabelled vectors as is. Use this if you want to
 #' simply drop all `label` attributes from a data frame.
 #'
+#' This function removes variable labels; use [zap_labels()] to remove value
+#' labels.
 #' @param x A vector or data frame
 #' @family zappers
 #' @export
@@ -25,11 +28,6 @@ zap_label <- function(x) {
 
 #' @export
 zap_label.default <- function(x) {
-  x
-}
-
-#' @export
-zap_label.haven_labelled <- function(x) {
   attr(x, "label") <- NULL
   x
 }

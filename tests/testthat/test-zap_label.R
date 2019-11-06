@@ -24,3 +24,8 @@ test_that("zap_label is correctly applied to every column in data frame", {
   expect_identical(df_zapped$y1, y1_nolabel)
   expect_identical(df_zapped$y2, y2_nolabel)
 })
+
+test_that("zap_label strips attribute from any vector", {
+  x <- structure(1:5, label = "a")
+  expect_equal(attr(zap_label(x), "label"), NULL)
+})
