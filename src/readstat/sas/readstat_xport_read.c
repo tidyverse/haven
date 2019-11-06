@@ -29,6 +29,7 @@ typedef struct xport_ctx_s {
     int            obs_count;
     int            var_count;
     int            row_limit;
+    int            row_offset;
     size_t         row_length;
     int            parsed_row_count;
     char           file_label[40*4+1];
@@ -569,12 +570,17 @@ static readstat_error_t xport_process_row(xport_ctx_t *ctx, const char *row, siz
         }
         pos += variable->storage_width;
 
-        if (ctx->handle.value && !ctx->variables[i]->skip) {
+        if (ctx->handle.value && !ctx->variables[i]->skip && !ctx->row_offset) {
             if (ctx->handle.value(ctx->parsed_row_count, variable, value, ctx->user_ctx) != READSTAT_HANDLER_OK) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
             }
         }
+    }
+    if (ctx->row_offset) {
+        ctx->row_offset--;
+    } else {
+        ctx->parsed_row_count++;
     }
 
 cleanup:
@@ -630,7 +636,7 @@ static readstat_error_t xport_read_data(xport_ctx_t *ctx) {
             if (retval != READSTAT_OK)
                 goto cleanup;
 
-            if (++(ctx->parsed_row_count) == ctx->row_limit)
+            if (ctx->row_limit > 0 && ctx->parsed_row_count == ctx->row_limit)
                 goto cleanup;
 
             num_blank_rows--;
@@ -644,7 +650,7 @@ static readstat_error_t xport_read_data(xport_ctx_t *ctx) {
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        if (++(ctx->parsed_row_count) == ctx->row_limit)
+        if (ctx->row_limit > 0 && ctx->parsed_row_count == ctx->row_limit)
             break;
     }
 
@@ -667,6 +673,8 @@ readstat_error_t readstat_parse_xport(readstat_parser_t *parser, const char *pat
     ctx->user_ctx = user_ctx;
     ctx->io = io;
     ctx->row_limit = parser->row_limit;
+    if (parser->row_offset > 0)
+        ctx->row_offset = parser->row_offset;
 
     if (io->open(path, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_OPEN;

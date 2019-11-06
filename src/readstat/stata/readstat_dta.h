@@ -87,6 +87,7 @@ typedef struct dta_ctx_s {
     int64_t        nobs;
     size_t         record_len;
     int64_t        row_limit;
+    int64_t        row_offset;
     int64_t        current_row;
 
     unsigned int   bswap:1;

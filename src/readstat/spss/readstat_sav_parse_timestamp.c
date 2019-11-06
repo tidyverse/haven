@@ -208,7 +208,7 @@ _again:
                 "Invalid time string (length=%d): %.*s", (int)len, (int)len, data);
             error_cb(error_buf, user_ctx);
         }
-        retval = READSTAT_ERROR_BAD_TIMESTAMP;
+        retval = READSTAT_ERROR_BAD_TIMESTAMP_STRING;
     }
 
     (void)sav_time_parse_en_main;
@@ -521,7 +521,7 @@ _again:
                 "Invalid date string (length=%d): %.*s", (int)len, (int)len, data);
             error_cb(error_buf, user_ctx);
         }
-        retval = READSTAT_ERROR_BAD_TIMESTAMP;
+        retval = READSTAT_ERROR_BAD_TIMESTAMP_STRING;
     }
 
     (void)sav_date_parse_en_main;

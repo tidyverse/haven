@@ -49,6 +49,7 @@ typedef struct sas7bdat_ctx_s {
     uint32_t        parsed_row_count;
     uint32_t        column_count;
     uint32_t        row_limit;
+    uint32_t        row_offset;
 
     uint64_t        header_size;
     uint64_t        page_count;
@@ -232,8 +233,15 @@ static readstat_error_t sas7bdat_parse_row_size_subheader(const char *subheader,
     }
 
     ctx->page_row_count = page_row_count;
-    if (ctx->row_limit == 0 || total_row_count < ctx->row_limit)
-        ctx->row_limit = total_row_count;
+    uint64_t total_row_count_after_skipping = total_row_count;
+    if (total_row_count > ctx->row_offset) {
+        total_row_count_after_skipping -= ctx->row_offset;
+    } else {
+        total_row_count_after_skipping = 0;
+        ctx->row_offset = total_row_count;
+    }
+    if (ctx->row_limit == 0 || total_row_count_after_skipping < ctx->row_limit)
+        ctx->row_limit = total_row_count_after_skipping;
 
 cleanup:
     return retval;
@@ -424,6 +432,10 @@ cleanup:
 static readstat_error_t sas7bdat_parse_single_row(const char *data, sas7bdat_ctx_t *ctx) {
     if (ctx->parsed_row_count == ctx->row_limit)
         return READSTAT_OK;
+    if (ctx->row_offset) {
+        ctx->row_offset--;
+        return READSTAT_OK;
+    }
 
     readstat_error_t retval = READSTAT_OK;
     int j;
@@ -1042,6 +1054,8 @@ readstat_error_t readstat_parse_sas7bdat(readstat_parser_t *parser, const char *
     ctx->user_ctx = user_ctx;
     ctx->io = parser->io;
     ctx->row_limit = parser->row_limit;
+    if (parser->row_offset > 0)
+        ctx->row_offset = parser->row_offset;
 
     if (io->open(path, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_OPEN;

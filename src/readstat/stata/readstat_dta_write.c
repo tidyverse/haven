@@ -109,6 +109,17 @@ static readstat_error_t dta_emit_header_time_stamp(readstat_writer_t *writer, dt
     char months[][4] = { 
         "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
+    if (!time_s) {
+        error = READSTAT_ERROR_BAD_TIMESTAMP_VALUE;
+        goto cleanup;
+    }
+
+    if (!timestamp) {
+        error = READSTAT_ERROR_MALLOC;
+        goto cleanup;
+    }
+
     uint8_t actual_timestamp_len = snprintf(timestamp, ctx->timestamp_len, "%02d %3s %04d %02d:%02d",
             time_s->tm_mday, months[time_s->tm_mon], time_s->tm_year + 1900,
             time_s->tm_hour, time_s->tm_min);

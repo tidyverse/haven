@@ -169,7 +169,9 @@ readstat_error_t zsav_read_compressed_data(sav_ctx_t *ctx,
                 uncompressed_offset = 0;
             }
 
-            if (state.status == SAV_ROW_STREAM_FINISHED_ALL || ctx->current_row == ctx->row_limit)
+            if (state.status == SAV_ROW_STREAM_FINISHED_ALL)
+                goto cleanup;
+            if (ctx->row_limit > 0 && ctx->current_row == ctx->row_limit)
                 goto cleanup;
         }
     }
