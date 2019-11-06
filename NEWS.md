@@ -1,5 +1,10 @@
 # haven (development version)
 
+* Updated to latest ReadStat from @evanmiller
+  * Fixes bug when generating files for Stata 15 (#461)
+
+* Allows non-unique labels when `levels = "label"` (#424, @gergness)
+
 * `read_sas()` now supports (IS|E|B)8601(DT|DA|TM) date/time formats (@mikmart).
 
 * `read_*()` functions gain three new arguments (@mikmart):
