@@ -1,6 +1,8 @@
 # haven (development version)
 
-* `write_dta()` supports writing Stata dataset labels using the `label` argument. This defaults to the `label` attribute of the input data frame, consistent with the previously undocumented behaviour of `read_dta()` (#449).
+* `write_dta()` can now write dataset labels with the `label` argument, 
+  which defaults to the `label` attribute of the input data frame, if present
+  (@gorcha, #449).
 
 * Updated to latest ReadStat from @evanmiller
   * Fixes bug when generating files for Stata 15 (#461)

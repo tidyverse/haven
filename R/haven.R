@@ -264,7 +264,7 @@ read_spss <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max 
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #'
-#'   Where a Stata dataset label is defined, this is stored in the "label"
+#'   If a dataset label is defined in Stata, it will stored in the "label"
 #'   attribute of the tibble.
 #'
 #'   `write_dta()` returns the input `data` invisibly.
