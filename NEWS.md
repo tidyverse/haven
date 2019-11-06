@@ -1,28 +1,33 @@
 # haven (development version)
 
+## Partial reading
+
+Thanks to the hard work of @mikmart, all `read_*()` functions gain three new arguments that allow you to read in only part of a large file:
+
+* `col_select`: selects columns to read with a tidyselect interface (#248).
+* `skip`: skips rows before reading data (#370).
+* `n_max`: limits the number of rows to read.
+
+This also brings with it a deprecation: `cols_only` in `read_sas()` has been deprecated in favour of the new `col_select` argument.
+
+## Minor improvements and bug fixes
+
+* `as_factor()` allows non-unique labels when `levels = "label"`. This fixes 
+  a particularly annoying printing bug (#424, @gergness)
+
+* `read_sas()` now supports (IS|E|B)8601(DT|DA|TM) date/time formats (@mikmart).
+
 * All `write_` functions gain a `.name_repair` argument that controls
   what happens when the input dataset has repeated column names (#436).
 
-* Can now write labelled vectors with `NULL` labels (#442).
+* All `write_` functions can now write labelled vectors with `NULL` labels 
+  (#442).
 
 * `write_dta()` can now write dataset labels with the `label` argument, 
   which defaults to the `label` attribute of the input data frame, if present
   (@gorcha, #449).
 
-* Updated to latest ReadStat from @evanmiller
-  * Fixes bug when generating files for Stata 15 (#461)
-
-* Allows non-unique labels when `levels = "label"` (#424, @gergness)
-
-* `read_sas()` now supports (IS|E|B)8601(DT|DA|TM) date/time formats (@mikmart).
-
-* `read_*()` functions gain three new arguments (@mikmart):
-
-  * `col_select`: selects columns to read with a tidyselect interface (#248).
-  * `skip`: skips rows before reading data (#370).
-  * `n_max`: limits the number of rows to read.
-
-* `read_sas()` argument `cols_only` is deprecated. Use the new `col_select` instead.
+* `write_dta()` works better with Stata 15, thanks to updated ReadStat (#461)
 
 # haven 2.1.1
 
