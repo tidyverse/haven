@@ -264,6 +264,9 @@ read_spss <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max 
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #'
+#'   If a dataset label is defined in Stata, it will stored in the "label"
+#'   attribute of the tibble.
+#'
 #'   `write_dta()` returns the input `data` invisibly.
 #' @export
 #' @examples
@@ -299,11 +302,15 @@ read_stata <- function(file, encoding = NULL, col_select = NULL, skip = 0, n_max
 #' @export
 #' @rdname read_dta
 #' @param version File version to use. Supports versions 8-15.
-write_dta <- function(data, path, version = 14) {
+#' @param label Dataset label to use, or `NULL`. Defaults to the value stored in
+#'   the "label" attribute of `data`. Must be <= 80 characters.
+write_dta <- function(data, path, version = 14, label = attr(data, "label")) {
   validate_dta(data, version = version)
+  validate_dta_label(label)
   write_dta_(data,
     normalizePath(path, mustWork = FALSE),
-    version = stata_file_format(version)
+    version = stata_file_format(version),
+    label = label
   )
   invisible(data)
 }
@@ -350,6 +357,16 @@ validate_dta <- function(data, version) {
       var_names(data, bad_labels),
       call. = FALSE
     )
+  }
+}
+
+validate_dta_label <- function(label) {
+  if (!is.null(label)) {
+    stopifnot(is.character(label), length(label) == 1)
+
+    if (nchar(label) > 80) {
+      stop("Stata data labels must be 80 characters or fewer", call. = FALSE)
+    }
   }
 }
 

@@ -175,14 +175,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // write_dta_
-void write_dta_(List data, CharacterVector path, int version);
-RcppExport SEXP _haven_write_dta_(SEXP dataSEXP, SEXP pathSEXP, SEXP versionSEXP) {
+void write_dta_(List data, CharacterVector path, int version, RObject label);
+RcppExport SEXP _haven_write_dta_(SEXP dataSEXP, SEXP pathSEXP, SEXP versionSEXP, SEXP labelSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type data(dataSEXP);
     Rcpp::traits::input_parameter< CharacterVector >::type path(pathSEXP);
     Rcpp::traits::input_parameter< int >::type version(versionSEXP);
-    write_dta_(data, path, version);
+    Rcpp::traits::input_parameter< RObject >::type label(labelSEXP);
+    write_dta_(data, path, version, label);
     return R_NilValue;
 END_RCPP
 }
@@ -227,7 +228,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_haven_df_parse_por_file", (DL_FUNC) &_haven_df_parse_por_file, 6},
     {"_haven_df_parse_por_raw", (DL_FUNC) &_haven_df_parse_por_raw, 6},
     {"_haven_write_sav_", (DL_FUNC) &_haven_write_sav_, 3},
-    {"_haven_write_dta_", (DL_FUNC) &_haven_write_dta_, 3},
+    {"_haven_write_dta_", (DL_FUNC) &_haven_write_dta_, 4},
     {"_haven_write_sas_", (DL_FUNC) &_haven_write_sas_, 2},
     {"_haven_write_xpt_", (DL_FUNC) &_haven_write_xpt_, 4},
     {"is_tagged_na_", (DL_FUNC) &is_tagged_na_, 2},

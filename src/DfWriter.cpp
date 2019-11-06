@@ -84,6 +84,13 @@ public:
     readstat_writer_set_table_name(writer_, name.c_str());
   }
 
+  void setFileLabel(RObject label) {
+    if (label == R_NilValue)
+      return;
+
+    readstat_writer_set_file_label(writer_, string_utf8(label, 0));
+  }
+
   void write() {
     int p = x_.size();
     if (p == 0)
@@ -352,9 +359,10 @@ void write_sav_(List data, CharacterVector path, bool compress) {
 }
 
 // [[Rcpp::export]]
-void write_dta_(List data, CharacterVector path, int version) {
+void write_dta_(List data, CharacterVector path, int version, RObject label) {
   Writer writer(HAVEN_DTA, data, path);
   writer.setVersion(version);
+  writer.setFileLabel(label);
   writer.write();
 }
 

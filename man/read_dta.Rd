@@ -12,7 +12,7 @@ read_dta(file, encoding = NULL, col_select = NULL, skip = 0,
 read_stata(file, encoding = NULL, col_select = NULL, skip = 0,
   n_max = Inf)
 
-write_dta(data, path, version = 14)
+write_dta(data, path, version = 14, label = attr(data, "label"))
 }
 \arguments{
 \item{file}{Either a path to a file, a connection, or literal data
@@ -48,12 +48,18 @@ specified columns will be read from \code{data_file}.}
 \item{path}{Path to a file where the data will be written.}
 
 \item{version}{File version to use. Supports versions 8-15.}
+
+\item{label}{Dataset label to use, or \code{NULL}. Defaults to the value stored in
+the "label" attribute of \code{data}. Must be <= 80 characters.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
 
 Variable labels are stored in the "label" attribute of each variable.
 It is not printed on the console, but the RStudio viewer will show it.
+
+If a dataset label is defined in Stata, it will stored in the "label"
+attribute of the tibble.
 
 \code{write_dta()} returns the input \code{data} invisibly.
 }
