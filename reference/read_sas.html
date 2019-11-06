@@ -162,7 +162,7 @@ and only works for limited datasets.</p>
 
     <pre class="usage"><span class='fu'>read_sas</span>(<span class='no'>data_file</span>, <span class='kw'>catalog_file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>catalog_encoding</span> <span class='kw'>=</span> <span class='no'>encoding</span>, <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>skip</span> <span class='kw'>=</span> <span class='fl'>0L</span>,
-  <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>cols_only</span> <span class='kw'>=</span> <span class='st'>"DEPRECATED"</span>)
+  <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>cols_only</span> <span class='kw'>=</span> <span class='st'>"DEPRECATED"</span>, <span class='kw'>.name_repair</span> <span class='kw'>=</span> <span class='st'>"unique"</span>)
 
 <span class='fu'>write_sas</span>(<span class='no'>data</span>, <span class='no'>path</span>)</pre>
 
@@ -199,6 +199,22 @@ specified columns will be read from <code>data_file</code>.</p></td>
     <tr>
       <th>cols_only</th>
       <td><p><strong>Deprecated</strong>: Use <code>col_select</code> instead.</p></td>
+    </tr>
+    <tr>
+      <th>.name_repair</th>
+      <td><p>Treatment of problematic column names:</p><ul>
+<li><p><code>"minimal"</code>: No name repair or checks, beyond basic existence,</p></li>
+<li><p><code>"unique"</code>: Make sure names are unique and not empty,</p></li>
+<li><p><code>"check_unique"</code>: (default value), no name repair, but check they are
+<code>unique</code>,</p></li>
+<li><p><code>"universal"</code>: Make the names <code>unique</code> and syntactic</p></li>
+<li><p>a function: apply custom name repair (e.g., <code>.name_repair = make.names</code>
+for names in the style of base R).</p></li>
+<li><p>A purrr-style anonymous function, see <code><a href='https://rlang.r-lib.org/reference/as_function.html'>rlang::as_function()</a></code></p></li>
+</ul>
+
+<p>See name-repair for more details on these terms and the strategies used
+to enforce them.</p></td>
     </tr>
     <tr>
       <th>data</th>

@@ -155,6 +155,7 @@
 <a href="#haven-development-version" class="anchor"></a>haven (development version)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p>All <code>write_</code> functions gain a <code>.name_repair</code> argument that controls what happens when the input dataset has repeated column names (<a href='https://github.com/tidyverse/haven/issues/436'>#436</a>).</p></li>
 <li><p>Can now write labelled vectors with <code>NULL</code> labels (<a href='https://github.com/tidyverse/haven/issues/442'>#442</a>).</p></li>
 <li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> can now write dataset labels with the <code>label</code> argument, which defaults to the <code>label</code> attribute of the input data frame, if present (<a href='https://github.com/gorcha'>@gorcha</a>, <a href='https://github.com/tidyverse/haven/issues/449'>#449</a>).</p></li>
 <li>Updated to latest ReadStat from <a href='https://github.com/evanmiller'>@evanmiller</a>
