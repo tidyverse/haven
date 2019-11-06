@@ -6,8 +6,8 @@
 \title{Read and write SAS files.}
 \usage{
 read_sas(data_file, catalog_file = NULL, encoding = NULL,
-  catalog_encoding = encoding, col_select = NULL, n_max = Inf,
-  cols_only = "DEPRECATED")
+  catalog_encoding = encoding, col_select = NULL, skip = 0L,
+  n_max = Inf, cols_only = "DEPRECATED")
 
 write_sas(data, path)
 }
@@ -24,6 +24,8 @@ incorrect.}
 \code{\link[dplyr:select]{dplyr::select()}}. Use \code{c()} or \code{list()} to use more than one expression.
 See \code{?dplyr::select} for details on available selection options. Only the
 specified columns will be read from \code{data_file}.}
+
+\item{skip}{Number of lines to skip before reading data.}
 
 \item{n_max}{Maximum number of lines to read.}
 

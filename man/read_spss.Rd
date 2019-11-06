@@ -8,13 +8,15 @@
 \title{Read SPSS (\code{.sav}, \code{.zsav}, \code{.por}) files. Write \code{.sav} and \code{.zsav} files.}
 \usage{
 read_sav(file, encoding = NULL, user_na = FALSE, col_select = NULL,
-  n_max = Inf)
+  skip = 0, n_max = Inf)
 
-read_por(file, user_na = FALSE, col_select = NULL, n_max = Inf)
+read_por(file, user_na = FALSE, col_select = NULL, skip = 0,
+  n_max = Inf)
 
 write_sav(data, path, compress = FALSE)
 
-read_spss(file, user_na = FALSE, col_select = NULL, n_max = Inf)
+read_spss(file, user_na = FALSE, col_select = NULL, skip = 0,
+  n_max = Inf)
 }
 \arguments{
 \item{file}{Either a path to a file, a connection, or literal data
@@ -44,6 +46,8 @@ default, user-defined missings will be converted to \code{NA}.}
 \code{\link[dplyr:select]{dplyr::select()}}. Use \code{c()} or \code{list()} to use more than one expression.
 See \code{?dplyr::select} for details on available selection options. Only the
 specified columns will be read from \code{data_file}.}
+
+\item{skip}{Number of lines to skip before reading data.}
 
 \item{n_max}{Maximum number of lines to read.}
 

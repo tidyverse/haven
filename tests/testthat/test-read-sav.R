@@ -84,15 +84,45 @@ test_that("widths roundtrip", {
   expect_equal(df$d, df$d)
 })
 
-test_that("can limit the number of rows read", {
-  expect_equal(nrow(read_spss(test_path("datetime.sav"), n_max = 1)), 1L)
-  expect_equal(nrow(read_spss(test_path("datetime.sav"), n_max = 0)), 0L)
-})
-
 test_that("only selected columns are read", {
   out <- read_spss(test_path("datetime.sav"), col_select = "date")
   expect_named(out, "date")
 })
+
+# Row skipping ------------------------------------------------------------
+
+test_that("using skip returns correct number of rows", {
+  rows_after_skipping <- function(n) {
+    nrow(read_spss(test_path("datetime.sav"), skip = n))
+  }
+
+  n <- rows_after_skipping(0)
+
+  expect_equal(rows_after_skipping(1), n - 1)
+  expect_equal(rows_after_skipping(n - 1), 1)
+  expect_equal(rows_after_skipping(n + 0), 0)
+  expect_equal(rows_after_skipping(n + 1), 0)
+})
+
+
+# Row limiting ------------------------------------------------------------
+
+test_that("can limit the number of rows to read", {
+  rows_with_limit <- function(n) {
+    nrow(read_spss(test_path("datetime.sav"), n_max = n))
+  }
+
+  n <- rows_with_limit(Inf)
+  expect_equal(rows_with_limit(0), 0)
+  expect_equal(rows_with_limit(1), 1)
+  expect_equal(rows_with_limit(n), n)
+  expect_equal(rows_with_limit(n + 1), n)
+
+  # alternatives for unlimited rows
+  expect_equal(rows_with_limit(NA), n)
+  expect_equal(rows_with_limit(-1), n)
+})
+
 
 # User-defined missings ---------------------------------------------------
 
