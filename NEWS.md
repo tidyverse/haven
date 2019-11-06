@@ -2,6 +2,8 @@
 
 * Updated to latest ReadStat from @evanmiller
 
+* Allows non-unique labels when `levels = "label"` (#424, @gergness)
+
 * `read_sas()` now supports (IS|E|B)8601(DT|DA|TM) date/time formats (@mikmart).
 
 * `read_*()` functions gain two new arguments (@mikmart):
