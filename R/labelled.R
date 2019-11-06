@@ -175,7 +175,7 @@ pillar_shaft.haven_labelled <- function(
       list(val = val, lbl = lbl),
       min_width = max(val$disp_short$lhs_ws + val$disp_short$main_wid + lbl$wid_short),
       width = max(val$disp_full$lhs_ws + val$disp_full$main_wid + lbl$wid_full),
-      subclass = "pillar_shaft_haven_labelled_num"
+      class = "pillar_shaft_haven_labelled_num"
     )
   } else {
     val <- val_chr_pillar_info(x)
@@ -185,7 +185,7 @@ pillar_shaft.haven_labelled <- function(
       list(val = val, lbl = lbl),
       min_width = max(val$wid_short + lbl$wid_short),
       width =  max(val$wid_full + lbl$wid_full),
-      subclass = "pillar_shaft_haven_labelled_chr"
+      class = "pillar_shaft_haven_labelled_chr"
     )
   }
 }

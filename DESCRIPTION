@@ -36,7 +36,7 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
-    pillar (>= 1.1.1),
+    pillar (>= 1.4.0),
     cli,
     crayon
 LinkingTo: 
