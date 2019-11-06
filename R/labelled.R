@@ -128,7 +128,7 @@ print_labels <- function(x, name = NULL) {
 
   value <- if (is.double(labels)) format_tagged_na(labels) else unname(labels)
 
-  lab_df <- data.frame(value = value, label = names(labels))
+  lab_df <- data.frame(value = value, label = names(labels), row.names = NULL)
   print(lab_df, row.names = FALSE)
 
   invisible(x)
