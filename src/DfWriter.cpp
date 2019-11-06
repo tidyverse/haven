@@ -224,7 +224,7 @@ public:
       CharacterVector levels = as<CharacterVector>(x.attr("levels"));
       for (int i = 0; i < levels.size(); ++i)
         readstat_label_int32_value(labelSet, i + 1, string_utf8(levels, i));
-    } else if (Rf_inherits(x, "haven_labelled")) {
+    } else if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
 
       IntegerVector values = as<IntegerVector>(x.attr("labels"));
@@ -245,7 +245,7 @@ public:
 
   void defineVariable(NumericVector x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
-    if (Rf_inherits(x, "haven_labelled")) {
+    if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name);
 
       NumericVector values = as<NumericVector>(x.attr("labels"));
@@ -282,7 +282,7 @@ public:
 
   void defineVariable(CharacterVector x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
-    if (Rf_inherits(x, "haven_labelled")) {
+    if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name);
 
       CharacterVector values = as<CharacterVector>(x.attr("labels"));

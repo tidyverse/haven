@@ -54,6 +54,16 @@ test_that("labelleds are round tripped", {
   # expect_equal(roundtrip_var(chr, "dta"), chr)
 })
 
+test_that("can write labelled with NULL labels", {
+  int <- labelled(c(1L, 2L), NULL)
+  num <- labelled(c(1, 2), NULL)
+  chr <- labelled(c("a", "b"), NULL)
+
+  expect_equal(roundtrip_var(int, "dta"), c(1L, 2L))
+  expect_equal(roundtrip_var(chr, "dta"), c("a", "b"))
+})
+
+
 test_that("factors become labelleds", {
   f <- factor(c("a", "b"), levels = letters[1:3])
   rt <- roundtrip_var(f, "dta")

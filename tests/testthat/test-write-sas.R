@@ -15,6 +15,16 @@ test_that("can roundtrip missing values (as much as possible)", {
   expect_equal(roundtrip_var(NA_character_, "sas"), "")
 })
 
+test_that("can write labelled with NULL labels", {
+  int <- labelled(c(1L, 2L), NULL)
+  num <- labelled(c(1, 2), NULL)
+  chr <- labelled(c("a", "b"), NULL)
+
+  expect_equal(roundtrip_var(int, "sas"), c(1L, 2L))
+  expect_equal(roundtrip_var(num, "sas"), c(1, 2))
+  expect_equal(roundtrip_var(chr, "sas"), c("a", "b"))
+})
+
 test_that("can roundtrip date times", {
   x1 <- c(as.Date("2010-01-01"), NA)
   x2 <- as.POSIXct(x1)

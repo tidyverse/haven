@@ -1,5 +1,7 @@
 # haven (development version)
 
+* Can now write labelled vectors with `NULL` labels (#442).
+
 * `write_dta()` can now write dataset labels with the `label` argument, 
   which defaults to the `label` attribute of the input data frame, if present
   (@gorcha, #449).
