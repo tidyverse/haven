@@ -23,7 +23,7 @@
 #' # Unfortunately it's not possible to make as.factor work for labelled objects
 #' # so instead use as_factor. This works for all types of labelled vectors.
 #' as_factor(s1)
-#' as_factor(s1, labels = "values")
+#' as_factor(s1, levels = "values")
 #' as_factor(s2)
 #'
 #' # Other statistical software supports multiple types of missing values

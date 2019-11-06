@@ -297,16 +297,12 @@ static readstat_error_t xport_write_member_record_v8(readstat_writer_t *writer,
     if (writer->table_name[0])
         ds_name = writer->table_name;
 
-    if ((retval = sas_validate_name(ds_name, 32)) != READSTAT_OK)
-        goto cleanup;
-
     snprintf(member_header, sizeof(member_header),
             "%-8.8s" "%-32.32s"   "%-8.8s"   "%-8.8s" "%-8.8s" "%16.16s",
             "SAS",   ds_name, "SASDATA", "6.06",  "bsd4.2", timestamp);
 
     retval = xport_write_record(writer, member_header);
 
-cleanup:
     return retval;
 }
 
@@ -321,16 +317,12 @@ static readstat_error_t xport_write_member_record(readstat_writer_t *writer,
     if (writer->table_name[0])
         ds_name = writer->table_name;
 
-    if ((retval = sas_validate_name(ds_name, 8)) != READSTAT_OK)
-        goto cleanup;
-
     snprintf(member_header, sizeof(member_header),
             "%-8.8s" "%-8.8s" "%-8.8s"   "%-8.8s" "%-8.8s"  "%-24.24s" "%16.16s",
             "SAS",   ds_name, "SASDATA", "6.06",  "bsd4.2", "",        timestamp);
 
     retval = xport_write_record(writer, member_header);
 
-cleanup:
     return retval;
 }
 
@@ -502,14 +494,30 @@ static readstat_error_t xport_write_missing_tagged(void *row, const readstat_var
     return error;
 }
 
+static readstat_error_t xport_metadata_ok(void *writer_ctx) {
+    readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
+
+    if (writer->version != 5 && writer->version != 8)
+        return READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION;
+
+    if (writer->table_name[0]) {
+        if (writer->version == 8) {
+            return sas_validate_name(writer->table_name, 32);
+        }
+        if (writer->version == 5) {
+            return sas_validate_name(writer->table_name, 8);
+        }
+    }
+
+    return READSTAT_OK;
+}
+
 readstat_error_t readstat_begin_writing_xport(readstat_writer_t *writer, void *user_ctx, long row_count) {
 
     if (writer->version == 0)
         writer->version = XPORT_DEFAULT_VERISON;
 
-    if (writer->version != 5 && writer->version != 8)
-        return READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION;
-
+    writer->callbacks.metadata_ok = &xport_metadata_ok;
     writer->callbacks.write_int8 = &xport_write_int8;
     writer->callbacks.write_int16 = &xport_write_int16;
     writer->callbacks.write_int32 = &xport_write_int32;

@@ -21,7 +21,7 @@ void readstat_copy_lower(char *buf, size_t buf_len, const char *str_start, size_
 void readstat_copy_quoted(char *buf, size_t buf_len, const char *str_start, size_t str_len) {
     size_t this_len = str_len;
     if (this_len >= buf_len) {
-        this_len = buf_len;
+        this_len = buf_len - 1;
     }
     size_t i=0;
     size_t j=0;

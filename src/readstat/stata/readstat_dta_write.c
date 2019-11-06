@@ -307,24 +307,27 @@ static readstat_error_t dta_validate_name_unreserved(const char *name) {
 static readstat_error_t dta_validate_name(const char *name, int unicode, size_t max_len) {
     readstat_error_t error = READSTAT_OK;
 
-    if ((error = dta_validate_name_chars(name, unicode)) != READSTAT_OK)
-        return error;
-
     if (strlen(name) > max_len)
         return READSTAT_ERROR_NAME_IS_TOO_LONG;
+
+    if (strlen(name) == 0)
+        return READSTAT_ERROR_NAME_IS_ZERO_LENGTH;
+
+    if ((error = dta_validate_name_chars(name, unicode)) != READSTAT_OK)
+        return error;
 
     return dta_validate_name_unreserved(name);
 }
 
-static readstat_error_t dta_old_variable_ok(readstat_variable_t *variable) {
+static readstat_error_t dta_old_variable_ok(const readstat_variable_t *variable) {
     return dta_validate_name(readstat_variable_get_name(variable), 0, DTA_OLD_MAX_NAME_LEN);
 }
 
-static readstat_error_t dta_110_variable_ok(readstat_variable_t *variable) {
+static readstat_error_t dta_110_variable_ok(const readstat_variable_t *variable) {
     return dta_validate_name(readstat_variable_get_name(variable), 0, DTA_110_MAX_NAME_LEN);
 }
 
-static readstat_error_t dta_118_variable_ok(readstat_variable_t *variable) {
+static readstat_error_t dta_118_variable_ok(const readstat_variable_t *variable) {
     return dta_validate_name(readstat_variable_get_name(variable), 1, DTA_118_MAX_NAME_LEN);
 }
 
@@ -1368,18 +1371,25 @@ static void dta_module_ctx_free(void *module_ctx) {
     dta_ctx_free(module_ctx);
 }
 
-readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *user_ctx, long row_count) {
+readstat_error_t dta_metadata_ok(void *writer_ctx) {
+    readstat_writer_t *writer = (readstat_writer_t *)writer_ctx;
 
     if (writer->compression != READSTAT_COMPRESS_NONE)
         return READSTAT_ERROR_UNSUPPORTED_COMPRESSION;
 
+    if (writer->version > DTA_FILE_VERSION_MAX || writer->version < DTA_FILE_VERSION_MIN)
+        return READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION;
+
+    return READSTAT_OK;
+}
+
+readstat_error_t readstat_begin_writing_dta(readstat_writer_t *writer, void *user_ctx, long row_count) {
+
     if (writer->version == 0)
         writer->version = DTA_FILE_VERSION_DEFAULT;
 
-    if (writer->version > DTA_FILE_VERSION_MAX || writer->version < DTA_FILE_VERSION_MIN) {
-        return READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION;
-    }
-    
+    writer->callbacks.metadata_ok = &dta_metadata_ok;
+
     if (writer->version >= 117) {
         writer->callbacks.variable_width = &dta_117_variable_width;
     } else if (writer->version >= 111) {

@@ -7,23 +7,27 @@ NULL
 #' Read and write SAS files.
 #'
 #' `read_sas()` supports both sas7bdat files and the accompanying sas7bcat files
-#' that SAS uses to record value labels. `write_sas()` is currently
-#' experimental and only works for limited datasets.
+#' that SAS uses to record value labels. `write_sas()` is currently experimental
+#' and only works for limited datasets.
 #'
 #' @param data_file,catalog_file Path to data and catalog files. The files are
 #'   processed with [readr::datasource()].
 #' @param data Data frame to write.
 #' @param path Path to file where the data will be written.
 #' @param encoding,catalog_encoding The character encoding used for the
-#'   `data_file` and `catalog_encoding` respectively. A value of `NULL`
-#'   uses the encoding specified in the file; use this argument to override it
-#'   if it is incorrect.
-#' @param cols_only A character vector giving an experimental way to read in
-#'   only specified columns.
+#'   `data_file` and `catalog_encoding` respectively. A value of `NULL` uses the
+#'   encoding specified in the file; use this argument to override it if it is
+#'   incorrect.
+#' @param col_select One or more selection expressions, like in
+#'   [dplyr::select()]. Use `c()` or `list()` to use more than one expression.
+#'   See `?dplyr::select` for details on available selection options. Only the
+#'   specified columns will be read from `data_file`.
+#' @param n_max Maximum number of lines to read.
+#' @param cols_only **Deprecated**: Use `col_select` instead.
 #' @return A tibble, data frame variant with nice defaults.
 #'
-#'   Variable labels are stored in the "label" attribute of each variable.
-#'   It is not printed on the console, but the RStudio viewer will show it.
+#'   Variable labels are stored in the "label" attribute of each variable. It is
+#'   not printed on the console, but the RStudio viewer will show it.
 #'
 #'   `write_sas()` returns the input `data` invisibly.
 #' @export
@@ -32,13 +36,23 @@ NULL
 #' read_sas(path)
 read_sas <- function(data_file, catalog_file = NULL,
                      encoding = NULL, catalog_encoding = encoding,
-                     cols_only = NULL) {
+                     col_select = NULL, n_max = Inf, cols_only = "DEPRECATED") {
+  if (!missing(cols_only)) {
+    warning("`cols_only` is deprecated. Please use `col_select` instead.", call. = FALSE)
+    stopifnot(is.character(cols_only)) # used to only work with a char vector
+
+    # guarantee a quosure to keep NULL and tidyselect logic clean downstream
+    col_select <- rlang::quo(c(!!!cols_only))
+  } else {
+    col_select <- rlang::enquo(col_select)
+  }
+
   if (is.null(encoding)) {
     encoding <- ""
   }
-  if (is.null(cols_only)) {
-    cols_only <- character()
-  }
+
+  cols_skip <- skip_cols(read_sas, !!col_select, data_file, encoding = encoding)
+  n_max <- validate_n_max(n_max)
 
   spec_data <- readr::datasource(data_file)
   if (is.null(catalog_file)) {
@@ -48,8 +62,8 @@ read_sas <- function(data_file, catalog_file = NULL,
   }
 
   switch(class(spec_data)[1],
-    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_only = cols_only),
-    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_only = cols_only),
+    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max),
+    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
@@ -79,11 +93,14 @@ write_sas <- function(data, path) {
 #' tmp <- tempfile(fileext = ".xpt")
 #' write_xpt(mtcars, tmp)
 #' read_xpt(tmp)
-read_xpt <- function(file) {
+read_xpt <- function(file, col_select = NULL, n_max = Inf) {
+  cols_skip <- skip_cols(read_xpt, {{ col_select }}, file)
+  n_max <- validate_n_max(n_max)
+
   spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_xpt_file(spec),
-    source_raw = df_parse_xpt_raw(spec),
+    source_file = df_parse_xpt_file(spec, cols_skip, n_max),
+    source_raw = df_parse_xpt_raw(spec, cols_skip, n_max),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
@@ -136,6 +153,7 @@ validate_xpt_name <- function(name, version) {
 #' and factors. See [labelled_spss()] for how labelled variables in
 #' SPSS are handled in R.
 #'
+#' @inheritParams read_sas
 #' @inheritParams readr::datasource
 #' @param path Path to a file where the data will be written.
 #' @param data Data frame to write.
@@ -160,26 +178,32 @@ NULL
 
 #' @export
 #' @rdname read_spss
-read_sav <- function(file, encoding = NULL, user_na = FALSE) {
-  spec <- readr::datasource(file)
+read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, n_max = Inf) {
   if (is.null(encoding)) {
     encoding <- ""
   }
+
+  cols_skip <- skip_cols(read_sav, {{ col_select }}, file, encoding)
+  n_max <- validate_n_max(n_max)
+
+  spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_sav_file(spec, encoding, user_na),
-    source_raw = df_parse_sav_raw(spec, encoding, user_na),
+    source_file = df_parse_sav_file(spec, encoding, user_na, cols_skip, n_max),
+    source_raw = df_parse_sav_raw(spec, encoding, user_na, cols_skip, n_max),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
 
 #' @export
 #' @rdname read_spss
-read_por <- function(file, user_na = FALSE) {
-  spec <- readr::datasource(file)
+read_por <- function(file, user_na = FALSE, col_select = NULL, n_max = Inf) {
+  cols_skip <- skip_cols(read_por, {{ col_select }}, file)
+  n_max <- validate_n_max(n_max)
 
+  spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_por_file(spec, encoding = "", user_na = user_na),
-    source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na),
+    source_file = df_parse_por_file(spec, encoding = "", user_na = user_na, cols_skip, n_max),
+    source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na, cols_skip, n_max),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
@@ -200,13 +224,13 @@ write_sav <- function(data, path, compress = FALSE) {
 #' @param user_na If `TRUE` variables with user defined missing will
 #'   be read into [labelled_spss()] objects. If `FALSE`, the
 #'   default, user-defined missings will be converted to `NA`.
-read_spss <- function(file, user_na = FALSE) {
+read_spss <- function(file, user_na = FALSE, col_select = NULL, n_max = Inf) {
   ext <- tolower(tools::file_ext(file))
 
   switch(ext,
-    sav = read_sav(file, user_na = user_na),
-    zsav = read_sav(file, user_na = user_na),
-    por = read_por(file, user_na = user_na),
+    sav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max),
+    zsav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max),
+    por = read_por(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max),
     stop("Unknown extension '.", ext, "'", call. = FALSE)
   )
 }
@@ -249,23 +273,26 @@ read_spss <- function(file, user_na = FALSE) {
 #' write_dta(mtcars, tmp)
 #' read_dta(tmp)
 #' read_stata(tmp)
-read_dta <- function(file, encoding = NULL) {
+read_dta <- function(file, encoding = NULL, col_select = NULL, n_max = Inf) {
   if (is.null(encoding)) {
     encoding <- ""
   }
 
+  cols_skip <- skip_cols(read_dta, {{ col_select }}, file, encoding)
+  n_max <- validate_n_max(n_max)
+
   spec <- readr::datasource(file)
   switch(class(spec)[1],
-    source_file = df_parse_dta_file(spec, encoding),
-    source_raw = df_parse_dta_raw(spec, encoding),
+    source_file = df_parse_dta_file(spec, encoding, cols_skip, n_max),
+    source_raw = df_parse_dta_raw(spec, encoding, cols_skip, n_max),
     stop("This kind of input is not handled", call. = FALSE)
   )
 }
 
 #' @export
 #' @rdname read_dta
-read_stata <- function(file, encoding = NULL) {
-  read_dta(file, encoding)
+read_stata <- function(file, encoding = NULL, col_select = NULL, n_max = Inf) {
+  read_dta(file, encoding, {{ col_select }}, n_max)
 }
 
 #' @export
@@ -361,4 +388,36 @@ validate_sas <- function(data) {
 var_names <- function(data, i) {
   x <- names(data)[i]
   paste(encodeString(x, quote = "`"), collapse = ", ")
+}
+
+skip_cols <- function(reader, col_select = NULL, ...) {
+  col_select <- rlang::enquo(col_select)
+  if (rlang::quo_is_null(col_select)) {
+    return(character())
+  }
+
+  cols <- names(reader(..., n_max = 0L))
+  sels <- tidyselect::vars_select(cols, !!col_select)
+
+  if (length(sels) == 0) {
+    stop("Can't find any columns matching `col_select` in data.", call. = FALSE)
+  }
+
+  setdiff(cols, sels)
+}
+
+validate_n_max <- function(n) {
+  if (!is.numeric(n) && !is.na(n)) {
+    stop("`n_max` must be numeric, not ", class(n)[1], ".", call. = FALSE)
+  }
+
+  if (length(n) != 1) {
+    stop("`n_max` must have length 1, not ", length(n), ".", call. = FALSE)
+  }
+
+  if (is.na(n) || is.infinite(n) || n < 0) {
+    return(-1L)
+  }
+
+  as.integer(n)
 }

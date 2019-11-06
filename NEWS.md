@@ -1,5 +1,20 @@
 # haven (development version)
 
+* `read_sas()` now supports (IS|E|B)8601(DT|DA|TM) date/time formats (@mikmart).
+
+* `read_*()` functions gain two new arguments (@mikmart):
+
+  * `col_select`: selects columns to read with a tidyselect interface (#248).
+  * `n_max`: limits the number of rows to read.
+
+* `read_sas()` argument `cols_only` is deprecated. Use the new `col_select` instead.
+
+# haven 2.1.1
+
+* Fixes for R CMD check
+
+# haven 2.1.0
+
 ## Improved labelling
 
 `labelled` objects get pretty printing that shows the labels and NA values when inside of a `tbl_df`. Turn this behaviour off with behavior using `option(haven.show_pillar_labels = FALSE)` (#340, @gergness).
@@ -23,15 +38,15 @@
 *   Updated to latest ReadStat from @evanmiller:
 
     * `read_por()` can now read files from SPSS 25 (#412)
-    * `read_por()` used base-10 instead of base-30 for the exponent (#413)
+    * `read_por()` now uses base-30 instead of base-10 for the exponent (#413)
     * `read_sas()` can read zero column file (#420)
     * `read_sav()` reads long strings (#381)
     * `read_sav()` has greater memory limit allowing it to read more labels (#418)
     * `read_spss()` reads long variable labels (#422)
-    * `write_sav()` creates incorrect column names when >10k columns (#410)
+    * `write_sav()` no longer creates incorrect column names when >10k columns (#410)
     * `write_sav()` no longer crashes when writing long label names (#395)
   
-# haven 2.0.0R
+# haven 2.0.0
 
 ## BREAKING CHANGES
 

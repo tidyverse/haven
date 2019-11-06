@@ -39,8 +39,9 @@ readstat_schema_t *readstat_parse_sas_commands(readstat_parser_t *parser,
     
     int cs;
     
-    int first_integer = 0;
-    int integer = 0;
+    double double_value = NAN;
+    uint64_t first_integer = 0;
+    uint64_t integer = 0;
     int line_no = 0;
     unsigned char *line_start = p;
 
@@ -154,7 +155,7 @@ readstat_schema_t *readstat_parse_sas_commands(readstat_parser_t *parser,
 
         action handle_value_label {
             error = submit_value_label(parser, labelset, label_type,
-                first_integer, integer, string_value, buf, user_ctx); 
+                first_integer, integer, double_value, string_value, buf, user_ctx); 
             if (error != READSTAT_OK)
                 goto cleanup;
         }
@@ -212,9 +213,9 @@ readstat_schema_t *readstat_parse_sas_commands(readstat_parser_t *parser,
 
         empty_cmd = ";";
 
-        value_label = ( "-" integer %{ label_type = LABEL_TYPE_DOUBLE; integer *= -1; } |
-                integer %{ label_type = LABEL_TYPE_DOUBLE; } |
-                integer whitespace+ "-" whitespace+ %{ first_integer = integer; label_type = LABEL_TYPE_RANGE; } integer |
+        value_label = ( "-" integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = -integer; } |
+                integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = integer; } |
+                integer whitespace+ "-" whitespace+ %{ first_integer = integer; } integer %{ label_type = LABEL_TYPE_RANGE; } |
                 unquoted_string %{ label_type = LABEL_TYPE_STRING; } %copy_string |
                 quoted_string %{ label_type = LABEL_TYPE_STRING; } %copy_string
                 ) whitespace* "=" whitespace* quoted_string %handle_value_label;
