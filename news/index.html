@@ -154,19 +154,10 @@
 <h1 class="page-header">
 <a href="#haven-development-version" class="anchor"></a>haven (development version)<small> Unreleased </small>
 </h1>
-<ul>
-<li><p>All <code>write_</code> functions gain a <code>.name_repair</code> argument that controls what happens when the input dataset has repeated column names (<a href='https://github.com/tidyverse/haven/issues/436'>#436</a>).</p></li>
-<li><p>Can now write labelled vectors with <code>NULL</code> labels (<a href='https://github.com/tidyverse/haven/issues/442'>#442</a>).</p></li>
-<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> can now write dataset labels with the <code>label</code> argument, which defaults to the <code>label</code> attribute of the input data frame, if present (<a href='https://github.com/gorcha'>@gorcha</a>, <a href='https://github.com/tidyverse/haven/issues/449'>#449</a>).</p></li>
-<li>Updated to latest ReadStat from <a href='https://github.com/evanmiller'>@evanmiller</a>
-<ul>
-<li>Fixes bug when generating files for Stata 15 (<a href='https://github.com/tidyverse/haven/issues/461'>#461</a>)</li>
-</ul>
-</li>
-<li><p>Allows non-unique labels when <code>levels = "label"</code> (<a href='https://github.com/tidyverse/haven/issues/424'>#424</a>, <a href='https://github.com/gergness'>@gergness</a>)</p></li>
-<li><p><code><a href="../reference/read_sas.html">read_sas()</a></code> now supports (IS|E|B)8601(DT|DA|TM) date/time formats (<a href='https://github.com/mikmart'>@mikmart</a>).</p></li>
-<li>
-<p><code>read_*()</code> functions gain three new arguments (<a href='https://github.com/mikmart'>@mikmart</a>):</p>
+<div id="partial-reading" class="section level2">
+<h2 class="hasAnchor">
+<a href="#partial-reading" class="anchor"></a>Partial reading</h2>
+<p>Thanks to the hard work of <a href='https://github.com/mikmart'>@mikmart</a>, all <code>read_*()</code> functions gain three new arguments that allow you to read in only part of a large file:</p>
 <ul>
 <li>
 <code>col_select</code>: selects columns to read with a tidyselect interface (<a href='https://github.com/tidyverse/haven/issues/248'>#248</a>).</li>
@@ -175,9 +166,20 @@
 <li>
 <code>n_max</code>: limits the number of rows to read.</li>
 </ul>
-</li>
-<li><p><code><a href="../reference/read_sas.html">read_sas()</a></code> argument <code>cols_only</code> is deprecated. Use the new <code>col_select</code> instead.</p></li>
+<p>This also brings with it a deprecation: <code>cols_only</code> in <code><a href="../reference/read_sas.html">read_sas()</a></code> has been deprecated in favour of the new <code>col_select</code> argument.</p>
+</div>
+<div id="minor-improvements-and-bug-fixes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#minor-improvements-and-bug-fixes" class="anchor"></a>Minor improvements and bug fixes</h2>
+<ul>
+<li><p><code><a href="../reference/as_factor.html">as_factor()</a></code> allows non-unique labels when <code>levels = "label"</code>. This fixes a particularly annoying printing bug (<a href='https://github.com/tidyverse/haven/issues/424'>#424</a>, <a href='https://github.com/gergness'>@gergness</a>)</p></li>
+<li><p><code><a href="../reference/read_sas.html">read_sas()</a></code> now supports (IS|E|B)8601(DT|DA|TM) date/time formats (<a href='https://github.com/mikmart'>@mikmart</a>).</p></li>
+<li><p>All <code>write_</code> functions gain a <code>.name_repair</code> argument that controls what happens when the input dataset has repeated column names (<a href='https://github.com/tidyverse/haven/issues/436'>#436</a>).</p></li>
+<li><p>All <code>write_</code> functions can now write labelled vectors with <code>NULL</code> labels (<a href='https://github.com/tidyverse/haven/issues/442'>#442</a>).</p></li>
+<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> can now write dataset labels with the <code>label</code> argument, which defaults to the <code>label</code> attribute of the input data frame, if present (<a href='https://github.com/gorcha'>@gorcha</a>, <a href='https://github.com/tidyverse/haven/issues/449'>#449</a>).</p></li>
+<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> works better with Stata 15, thanks to updated ReadStat (<a href='https://github.com/tidyverse/haven/issues/461'>#461</a>)</p></li>
 </ul>
+</div>
 </div>
     <div id="haven-2-1-1" class="section level1">
 <h1 class="page-header">
@@ -198,9 +200,9 @@
 <p><code><a href="../reference/labelled.html">labelled()</a></code> and <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> now allow <code>NULL</code> labels. This makes both classes more flexible, allowing you to use them for their other attributes (<a href='https://github.com/tidyverse/haven/issues/219'>#219</a>).</p>
 <p><code><a href="../reference/labelled.html">labelled()</a></code> tests that value labels are unique (<a href='https://github.com/larmarange'>@larmarange</a>, <a href='https://github.com/tidyverse/haven/issues/364'>#364</a>)</p>
 </div>
-<div id="minor-improvements-and-bug-fixes" class="section level2">
+<div id="minor-improvements-and-bug-fixes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#minor-improvements-and-bug-fixes" class="anchor"></a>Minor improvements and bug fixes</h2>
+<a href="#minor-improvements-and-bug-fixes-1" class="anchor"></a>Minor improvements and bug fixes</h2>
 <ul>
 <li>
 <p><code><a href="../reference/as_factor.html">as_factor()</a></code>:</p>
