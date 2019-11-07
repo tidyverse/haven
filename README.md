@@ -87,3 +87,7 @@ write_dta(mtcars, "mtcars.dta")
 
   - [sas7bdat](https://cran.r-project.org/package=sas7bdat) reads from
     SAS7BDAT files.
+
+## Code of Conduct
+
+Please note that the haven project is released with a [Contributor Code of Conduct](https://haven.tidyverse.org/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
