@@ -1,4 +1,4 @@
-# haven (development version)
+# haven 2.2.0
 
 ## Partial reading
 

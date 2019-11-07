@@ -1,6 +1,6 @@
 Package: haven
 Title: Import and Export 'SPSS', 'Stata' and 'SAS' Files
-Version: 2.1.1.9000
+Version: 2.2.0
 Authors@R: 
     c(person(given = "Hadley",
              family = "Wickham",
