@@ -38,7 +38,16 @@
 #' # values
 #' x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 #' zap_labels(x)
-labelled <- function(x, labels, label = NULL) {
+labelled <- function(x = double(), labels = NULL, label = NULL) {
+  if (any(duplicated(stats::na.omit(labels)))) {
+    stop("`labels` must be unique", call. = FALSE)
+  }
+
+  new_labelled(x, labels = labels, label = label)
+}
+
+new_labelled <- function(x = double(), labels = NULL, label = NULL,
+                         ..., class = character()) {
   if (!is.numeric(x) && !is.character(x)) {
     stop("`x` must be a numeric or a character vector", call. = FALSE)
   }
@@ -48,17 +57,15 @@ labelled <- function(x, labels, label = NULL) {
   if (!is.null(labels) && is.null(names(labels))) {
     stop("`labels` must have names", call. = FALSE)
   }
-  if (any(duplicated(stats::na.omit(labels)))) {
-    stop("`labels` must be unique", call. = FALSE)
-  }
   if (!is.null(label) && (!is.character(label) || length(label) != 1)) {
     stop("`label` must be a character vector of length one", call. = FALSE)
   }
 
   structure(x,
-    label = label,
     labels = labels,
-    class = "haven_labelled"
+    label = label,
+    ...,
+    class = c(class, "haven_labelled")
   )
 }
 
