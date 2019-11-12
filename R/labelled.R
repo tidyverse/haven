@@ -39,11 +39,7 @@
 #' x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 #' zap_labels(x)
 labelled <- function(x = double(), labels = NULL, label = NULL) {
-  if (any(duplicated(stats::na.omit(labels)))) {
-    stop("`labels` must be unique", call. = FALSE)
-  }
-
-  new_labelled(x, labels = labels, label = label)
+  validate_labelled(new_labelled(x, labels = labels, label = label))
 }
 
 new_labelled <- function(x = double(), labels = NULL, label = NULL,
@@ -53,9 +49,6 @@ new_labelled <- function(x = double(), labels = NULL, label = NULL,
   }
   if (!is.null(labels) && !is_coercible(x, labels)) {
     stop("`x` and `labels` must be same type", call. = FALSE)
-  }
-  if (!is.null(labels) && is.null(names(labels))) {
-    stop("`labels` must have names", call. = FALSE)
   }
   if (!is.null(label) && (!is.character(label) || length(label) != 1)) {
     stop("`label` must be a character vector of length one", call. = FALSE)
@@ -67,6 +60,18 @@ new_labelled <- function(x = double(), labels = NULL, label = NULL,
     ...,
     class = c(class, "haven_labelled")
   )
+}
+
+validate_labelled <- function(x) {
+  labels <- attr(x, "labels")
+  if (!is.null(labels) && is.null(names(labels))) {
+    stop("`labels` must have names", call. = FALSE)
+  }
+  if (any(duplicated(stats::na.omit(labels)))) {
+    stop("`labels` must be unique", call. = FALSE)
+  }
+
+  x
 }
 
 is_coercible <- function(x, labels) {
