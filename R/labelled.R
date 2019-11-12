@@ -54,7 +54,7 @@ new_labelled <- function(x = double(), labels = NULL, label = NULL,
     stop("`label` must be a character vector of length one", call. = FALSE)
   }
 
-  structure(x,
+  new_vctr(x,
     labels = labels,
     label = label,
     ...,
@@ -86,9 +86,20 @@ is_coercible <- function(x, labels) {
   FALSE
 }
 
+#' @importFrom methods setOldClass
+methods::setOldClass(c("haven_labelled", "vctrs_vctr"))
+
 #' @export
 #' @rdname labelled
 is.labelled <- function(x) inherits(x, "haven_labelled")
+
+vec_ptype2.haven_labelled <- function(x, y, ...) UseMethod("vec_ptype2.haven_labelled", y)
+vec_ptype2.haven_labelled.default <- function(x, y, ..., x_arg = "x", y_arg = "y") {
+  vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
+}
+
+vec_cast.haven_labelled <- function(x, to, ...) UseMethod("vec_cast.haven_labelled")
+vec_cast.haven_labelled.default <- function(x, to, ...) vec_default_cast(x, to)
 
 #' @export
 `[.haven_labelled` <- function(x, ...) {
