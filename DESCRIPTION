@@ -29,7 +29,8 @@ Imports:
     readr (>= 0.1.0),
     rlang (>= 0.4.0),
     tibble,
-    tidyselect
+    tidyselect,
+    vctrs
 Suggests: 
     covr,
     fs,
