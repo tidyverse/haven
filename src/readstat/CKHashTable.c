@@ -150,6 +150,7 @@ ck_hash_table_t *ck_hash_table_init(size_t size)
 	ck_hash_table_t *table;
 	if ((table = malloc(sizeof(ck_hash_table_t))) == NULL)
 		return NULL;
+	size *= 2;
     if ((table->entries = malloc(size * sizeof(ck_hash_entry_t))) == NULL) {
         free(table);
         return NULL;
