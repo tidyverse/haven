@@ -127,7 +127,7 @@ int ck_str_n_hash_insert(const char *key, size_t keylen, const void *value, ck_h
 	
 	uint64_t hash_key = ck_hash_str(key);
 	hash_key %= table->capacity;
-	uint64_t end = (hash_key - 1) % table->capacity;
+	uint64_t end = hash_key ? ((hash_key - 1) % table->capacity) : (table->capacity -1);
 	while (hash_key != end) {
         if (table->entries[hash_key].key[0] == '\0') {
             table->count++;
