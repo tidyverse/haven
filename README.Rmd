@@ -17,8 +17,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/haven)](https://cran.r-project.org/package=haven)
-[![Travis build status](https://travis-ci.org/tidyverse/haven.svg?branch=master)](https://travis-ci.org/tidyverse/haven)
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/tidyverse/haven?branch=master&svg=true)](https://ci.appveyor.com/project/tidyverse/haven)
+[![R build status](https://github.com/tidyverse/haven/workflows/R-CMD-check/badge.svg)](https://github.com/tidyverse/haven)
 [![Codecov test coverage](https://codecov.io/gh/tidyverse/haven/branch/master/graph/badge.svg)](https://codecov.io/gh/tidyverse/haven?branch=master)
 <!-- badges: end -->
 
