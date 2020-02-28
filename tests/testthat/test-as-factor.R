@@ -2,15 +2,6 @@ context("as_factor")
 
 # Base types --------------------------------------------------------------
 
-test_that("leaves factors unchanged", {
-  f <- factor(letters, ordered = TRUE)
-  expect_equal(as_factor(f), f)
-})
-
-test_that("converts characters to factors", {
-  expect_equal(as_factor(letters), factor(letters))
-})
-
 test_that("variable label is kept when converting characters to factors (#178)", {
   s1 <- structure(letters, "label" = "letters")
   expect_identical(attr(as_factor(s1), "label"), "letters")
