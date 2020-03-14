@@ -64,13 +64,13 @@ as_factor.haven_labelled <- function(x, levels = c("default", "labels", "values"
     }
 
     # Replace each value with its label
-    vals <- unique(x)
+    vals <- unique(vec_data(x))
     levs <- replace_with(vals, unname(labels), names(labels))
     # Ensure all labels are preserved
     levs <- sort(c(stats::setNames(vals, levs), labels), na.last = TRUE)
     levs <- unique(names(levs))
 
-    x <- replace_with(x, unname(labels), names(labels))
+    x <- replace_with(vec_data(x), unname(labels), names(labels))
 
     x <- factor(x, levels = levs, ordered = ordered)
   } else {
@@ -79,7 +79,7 @@ as_factor.haven_labelled <- function(x, levels = c("default", "labels", "values"
       labels = names(labels),
       values = levs
     )
-    x <- replace_with(x, levs, labs)
+    x <- replace_with(vec_data(x), levs, labs)
     x <- factor(x, unique(labs), ordered = ordered)
   }
 
