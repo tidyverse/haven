@@ -46,6 +46,7 @@ labelled <- function(x = double(), labels = NULL, label = NULL) {
 
 # TODO: Remove once vec_cast() preserves names.
 # https://github.com/r-lib/vctrs/issues/623
+#' @importFrom stats setNames
 vec_cast_named <- function(x, to, ...) {
   setNames(vec_cast(x, to, ...), names(x))
 }
@@ -125,6 +126,7 @@ methods::setOldClass(c("haven_labelled", "vctrs_vctr"))
 #' @rdname labelled
 is.labelled <- function(x) inherits(x, "haven_labelled")
 
+#' @rdname haven-vctrs
 #' @method vec_ptype2 haven_labelled
 #' @export vec_ptype2.haven_labelled
 #' @export
@@ -165,6 +167,7 @@ vec_ptype2.integer.haven_labelled <- function(x, y, ...) vec_ptype2(x, vec_data(
 vec_ptype2.character.haven_labelled <- function(x, y, ...) vec_ptype2(x, vec_data(y))
 
 
+#' @rdname haven-vctrs
 #' @method vec_cast haven_labelled
 #' @export vec_cast.haven_labelled
 #' @export
