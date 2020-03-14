@@ -1,5 +1,9 @@
 context("Labelled")
 
+test_that("labelled() with no args returns a zero-length vector", {
+  expect_length(labelled(), 0)
+})
+
 test_that("x must be numeric or character", {
   expect_error(labelled(TRUE), "must be a numeric or a character vector")
 })
