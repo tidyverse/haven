@@ -39,7 +39,12 @@
 #' x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 #' zap_labels(x)
 labelled <- function(x = double(), labels = NULL, label = NULL) {
+  tryCatch(labels <- vec_cast_named(labels, x), error = identity)
   validate_labelled(new_labelled(x, labels = labels, label = label))
+}
+
+vec_cast_named <- function(x, to, ...) {
+  setNames(vec_cast(x, to, ...), names(x))
 }
 
 new_labelled <- function(x = double(), labels = NULL, label = NULL,
@@ -47,7 +52,7 @@ new_labelled <- function(x = double(), labels = NULL, label = NULL,
   if (!is.numeric(x) && !is.character(x)) {
     abort("`x` must be a numeric or a character vector.")
   }
-  if (!is.null(labels) && !is_coercible(x, labels)) {
+  if (!is.null(labels) && !vec_is(labels, vec_ptype(x))) {
     abort("`labels` must have the same type as `x`.")
   }
   if (!is.null(label) && (!is.character(label) || length(label) != 1)) {
@@ -74,17 +79,6 @@ validate_labelled <- function(x) {
   x
 }
 
-is_coercible <- function(x, labels) {
-  if (typeof(x) == typeof(labels)) {
-    return(TRUE)
-  }
-
-  if (is.numeric(x) && is.numeric(labels)) {
-    return(TRUE)
-  }
-
-  FALSE
-}
 
 #' @importFrom methods setOldClass
 methods::setOldClass(c("haven_labelled", "vctrs_vctr"))
