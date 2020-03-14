@@ -30,7 +30,7 @@ Imports:
     rlang (>= 0.4.0),
     tibble,
     tidyselect,
-    vctrs
+    vctrs (>= 0.2.4)
 Suggests: 
     covr,
     fs,
