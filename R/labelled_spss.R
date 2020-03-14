@@ -21,26 +21,39 @@
 #'
 #' # Print data and metadata
 #' x2
-labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL, label = NULL) {
-  if (!is.null(na_values)) {
-    if (!is_coercible(x, na_values)) {
-      stop("`x` and `na_values` must be same type", call. = FALSE)
-    }
+labelled_spss <- function(x = double(), labels = NULL, na_values = NULL,
+                          na_range = NULL, label = NULL) {
+  # try to cast -- but if it fails, handle better error message later
+  tryCatch(na_values <- vec_cast_named(na_values, x), error = identity)
+  labelled <- labelled(x, labels = labels, label = label)
+  new_labelled_spss(
+    vec_data(labelled),
+    labels = attr(labelled, "labels"),
+    na_values = na_values,
+    na_range = na_range,
+    label = attr(labelled, "label", exact = TRUE)
+  )
+}
+
+new_labelled_spss <- function(x, labels, na_values, na_range, label) {
+  if (!is.null(na_values) && !vec_is(x, na_values)) {
+    abort("`na_values` must be same type as `x`.")
   }
   if (!is.null(na_range)) {
     if (!is.numeric(x)) {
-      stop("`na_range` is only applicable for labelled numeric vectors", call. = FALSE)
+      abort("`na_range` is only applicable for labelled numeric vectors.")
     }
     if (!is.numeric(na_range) || length(na_range) != 2) {
-      stop("`na_range` must be a numeric vector of length two.", call. = FALSE)
+      abort("`na_range` must be a numeric vector of length two.")
     }
   }
 
-  structure(
-    labelled(x, labels, label = label),
+  new_labelled(x,
+    labels = labels,
+    label = label,
     na_values = na_values,
     na_range = na_range,
-    class = c("haven_labelled_spss", "haven_labelled")
+    class = "haven_labelled_spss"
   )
 }
 

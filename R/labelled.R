@@ -82,17 +82,6 @@ validate_labelled <- function(x) {
   x
 }
 
-is_coercible <- function(x, labels) {
-  if (typeof(x) == typeof(labels)) {
-    return(TRUE)
-  }
-
-  if (is.numeric(x) && is.numeric(labels)) {
-    return(TRUE)
-  }
-
-  FALSE
-}
 
 # Formatting --------------------------------------------------------------
 
