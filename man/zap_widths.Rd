@@ -15,8 +15,10 @@ and R, haven stores display widths in an attribute: \code{display_width}. If thi
 causes problems for your code, you can get rid of them with \code{zap_widths}.
 }
 \seealso{
-Other zappers: \code{\link{zap_empty}},
-  \code{\link{zap_formats}}, \code{\link{zap_labels}},
-  \code{\link{zap_label}}
+Other zappers: 
+\code{\link{zap_empty}()},
+\code{\link{zap_formats}()},
+\code{\link{zap_labels}()},
+\code{\link{zap_label}()}
 }
 \concept{zappers}

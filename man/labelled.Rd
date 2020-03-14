@@ -3,11 +3,14 @@
 \name{labelled}
 \alias{labelled}
 \alias{is.labelled}
+\alias{vec_ptype2.haven_labelled}
 \title{Create a labelled vector.}
 \usage{
-labelled(x, labels, label = NULL)
+labelled(x = double(), labels = NULL, label = NULL)
 
 is.labelled(x)
+
+\method{vec_ptype2}{haven_labelled}(x, y, ...)
 }
 \arguments{
 \item{x}{A vector to label. Must be either numeric (integer or double) or
@@ -18,6 +21,10 @@ as \code{x}. Unlike factors, labels don't need to be exhaustive: only a fraction
 of the values might be labelled.}
 
 \item{label}{A short, human-readable description of the vector.}
+
+\item{y}{Vector types.}
+
+\item{...}{These dots are for future extensions and must be empty.}
 }
 \description{
 A labelled vector is a common data structure in other statistical

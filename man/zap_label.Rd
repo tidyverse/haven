@@ -31,8 +31,10 @@ df
 zap_label(df)
 }
 \seealso{
-Other zappers: \code{\link{zap_empty}},
-  \code{\link{zap_formats}}, \code{\link{zap_labels}},
-  \code{\link{zap_widths}}
+Other zappers: 
+\code{\link{zap_empty}()},
+\code{\link{zap_formats}()},
+\code{\link{zap_labels}()},
+\code{\link{zap_widths}()}
 }
 \concept{zappers}
