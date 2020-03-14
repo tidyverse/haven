@@ -186,11 +186,6 @@ vec_cast.integer.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to
 vec_cast.character.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
 
 
-#' @export
-`[.haven_labelled` <- function(x, ...) {
-  labelled(NextMethod(), attr(x, "labels"), attr(x, "label", exact = TRUE))
-}
-
 
 #' Print the labels of a labelled vector
 #'
