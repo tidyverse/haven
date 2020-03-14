@@ -39,10 +39,13 @@
 #' x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 #' zap_labels(x)
 labelled <- function(x = double(), labels = NULL, label = NULL) {
+  # try to cast -- but if it fails, handle better error message later
   tryCatch(labels <- vec_cast_named(labels, x), error = identity)
   validate_labelled(new_labelled(x, labels = labels, label = label))
 }
 
+# TODO: Remove once vec_cast() preserves names.
+# https://github.com/r-lib/vctrs/issues/623
 vec_cast_named <- function(x, to, ...) {
   setNames(vec_cast(x, to, ...), names(x))
 }
