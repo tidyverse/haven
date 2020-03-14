@@ -85,27 +85,32 @@ validate_labelled <- function(x) {
 
 # Formatting --------------------------------------------------------------
 
+#' @export
 vec_ptype_full.haven_labelled <- function(x, ...) {
   paste0("labelled<", vec_ptype_full(vec_data(x)), ">")
 }
 
+#' @export
 vec_ptype_abbr.haven_labelled <- function(x, ...) {
   paste0(vec_ptype_abbr(vec_data(x)), "+lbl")
 }
 
+#' @export
 obj_print_header.haven_labelled <- function(x, ...) {
   cat_line("<", vec_ptype_full(x), "[", vec_size(x), "]>", get_labeltext(x))
   invisible(x)
 }
 
-format.haven_labelled <- function(x, ...) {
+#' @export
+format.haven_labelled <- function(x, ..., digits = getOption("digits")) {
   if (is.double(x)) {
-    format_tagged_na(x, ...)
+    format_tagged_na(x, digits = digits)
   } else {
     format(vec_data(x), ...)
   }
 }
 
+#' @export
 obj_print_footer.haven_labelled <- function(x, ...) {
   print_labels(x)
 }
@@ -121,6 +126,7 @@ methods::setOldClass(c("haven_labelled", "vctrs_vctr"))
 is.labelled <- function(x) inherits(x, "haven_labelled")
 
 #' @method vec_ptype2 haven_labelled
+#' @export vec_ptype2.haven_labelled
 #' @export
 vec_ptype2.haven_labelled <- function(x, y, ...) UseMethod("vec_ptype2.haven_labelled", y)
 
@@ -160,6 +166,7 @@ vec_ptype2.character.haven_labelled <- function(x, y, ...) vec_ptype2(x, vec_dat
 
 
 #' @method vec_cast haven_labelled
+#' @export vec_cast.haven_labelled
 #' @export
 vec_cast.haven_labelled <- function(x, to, ...) UseMethod("vec_cast.haven_labelled")
 

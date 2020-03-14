@@ -57,10 +57,12 @@ new_labelled_spss <- function(x, labels, na_values, na_range, label) {
   )
 }
 
+#' @export
 vec_ptype_full.haven_labelled_spss <- function(x, ...) {
   paste0("labelled_spss<", vec_ptype_full(vec_data(x)), ">")
 }
 
+#' @export
 obj_print_footer.haven_labelled_spss <- function(x, ...) {
   na_values <- attr(x, "na_values")
   if (!is.null(na_values)) {
