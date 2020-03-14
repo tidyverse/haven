@@ -80,6 +80,31 @@ validate_labelled <- function(x) {
 }
 
 
+# Formatting --------------------------------------------------------------
+
+vec_ptype_full.haven_labelled <- function(x, ...) {
+  paste0("labelled<", vec_ptype_full(vec_data(x)), ">")
+}
+
+vec_ptype_abbr.haven_labelled <- function(x, ...) {
+  paste0(vec_ptype_abbr(vec_data(x)), "+lbl")
+}
+
+format.haven_labelled <- function(x, ...) {
+  if (is.double(x)) {
+    format_tagged_na(x, ...)
+  } else {
+    format(vec_data(x), ...)
+  }
+}
+
+obj_print_footer.haven_labelled <- function(x, ...) {
+  print_labels(x, ...)
+}
+
+
+# Type system -------------------------------------------------------------
+
 #' @importFrom methods setOldClass
 methods::setOldClass(c("haven_labelled", "vctrs_vctr"))
 
@@ -100,22 +125,6 @@ vec_cast.haven_labelled.default <- function(x, to, ...) vec_default_cast(x, to)
   labelled(NextMethod(), attr(x, "labels"), attr(x, "label", exact = TRUE))
 }
 
-#' @export
-print.haven_labelled <- function(x, ..., digits = getOption("digits")) {
-  cat("<Labelled ", typeof(x), ">", get_labeltext(x), "\n", sep = "")
-
-  if (is.double(x)) {
-    print_tagged_na(x, digits = digits)
-  } else {
-    xx <- x
-    attributes(xx) <- NULL
-    print.default(xx, quote = FALSE)
-  }
-
-  print_labels(x)
-
-  invisible()
-}
 
 #' Print the labels of a labelled vector
 #'
@@ -168,11 +177,6 @@ label_length <- function(x) {
   }
 }
 
-#' @export
-#' @importFrom tibble type_sum
-type_sum.haven_labelled <- function(x) {
-  paste0(tibble::type_sum(unclass(x)), "+lbl")
-}
 
 # Dynamically exported, see zzz.R
 pillar_shaft.haven_labelled <- function(
