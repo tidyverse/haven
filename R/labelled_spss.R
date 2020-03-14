@@ -57,27 +57,22 @@ new_labelled_spss <- function(x, labels, na_values, na_range, label) {
   )
 }
 
+vec_ptype_full.haven_labelled_spss <- function(x, ...) {
+  paste0("labelled_spss<", vec_ptype_full(vec_data(x)), ">")
+}
 
-#' @export
-print.haven_labelled_spss <- function(x, ...) {
-  cat("<Labelled SPSS ", typeof(x), ">", get_labeltext(x), "\n", sep = "")
-
-  xx <- x
-  attributes(xx) <- NULL
-  print(xx, quote = FALSE)
-
+obj_print_footer.haven_labelled_spss <- function(x, ...) {
   na_values <- attr(x, "na_values")
   if (!is.null(na_values)) {
-    cat("Missing values: ", paste(na_values, collapse = ", "), "\n", sep = "")
+    cat_line("Missing values: ", paste(na_values, collapse = ", "))
   }
 
   na_range <- attr(x, "na_range")
   if (!is.null(na_range)) {
-    cat("Missing range:  [", paste(na_range, collapse = ", "), "]\n", sep = "")
+    cat_line("Missing range:  [", paste(na_range, collapse = ", "), "]")
   }
 
-  print_labels(x)
-  invisible()
+  NextMethod()
 }
 
 

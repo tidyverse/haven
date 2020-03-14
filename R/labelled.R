@@ -93,6 +93,11 @@ vec_ptype_abbr.haven_labelled <- function(x, ...) {
   paste0(vec_ptype_abbr(vec_data(x)), "+lbl")
 }
 
+obj_print_header.haven_labelled <- function(x, ...) {
+  cat_line("<", vec_ptype_full(x), "[", vec_size(x), "]>", get_labeltext(x))
+  invisible(x)
+}
+
 format.haven_labelled <- function(x, ...) {
   if (is.double(x)) {
     format_tagged_na(x, ...)
@@ -102,7 +107,7 @@ format.haven_labelled <- function(x, ...) {
 }
 
 obj_print_footer.haven_labelled <- function(x, ...) {
-  print_labels(x, ...)
+  print_labels(x)
 }
 
 
