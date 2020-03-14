@@ -45,13 +45,13 @@ labelled <- function(x = double(), labels = NULL, label = NULL) {
 new_labelled <- function(x = double(), labels = NULL, label = NULL,
                          ..., class = character()) {
   if (!is.numeric(x) && !is.character(x)) {
-    stop("`x` must be a numeric or a character vector", call. = FALSE)
+    abort("`x` must be a numeric or a character vector.")
   }
   if (!is.null(labels) && !is_coercible(x, labels)) {
-    stop("`x` and `labels` must be same type", call. = FALSE)
+    abort("`labels` must have the same type as `x`.")
   }
   if (!is.null(label) && (!is.character(label) || length(label) != 1)) {
-    stop("`label` must be a character vector of length one", call. = FALSE)
+    abort("`label` must be a character vector of length one.")
   }
 
   new_vctr(x,
