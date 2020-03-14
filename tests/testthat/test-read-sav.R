@@ -128,14 +128,14 @@ test_that("can limit the number of rows to read", {
 
 test_that("user-defined missing values read as missing by default", {
   num <- read_spss(test_path("labelled-num-na.sav"))[[1]]
-  expect_equal(num[[2]], NA_real_)
+  expect_equal(vec_data(num)[[2]], NA_real_)
 })
 
 test_that("user-defined missing values can be preserved", {
   num <- read_spss(test_path("labelled-num-na.sav"), user_na = TRUE)[[1]]
 
   expect_s3_class(num, "haven_labelled_spss")
-  expect_equal(num[[2]], 9)
+  expect_equal(vec_data(num)[[2]], 9)
 
   expect_equal(attr(num, "na_values"), 9)
   expect_equal(attr(num, "na_range"), NULL)
