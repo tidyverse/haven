@@ -227,6 +227,12 @@ vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "x", to_a
   out
 }
 
+#' @rdname labelled
+#' @export
+as_labelled <- function(x) {
+  vec_cast(x, new_labelled(vec_slice(vec_data(x), 0L)))
+}
+
 
 #' Print the labels of a labelled vector
 #'
