@@ -56,7 +56,7 @@ new_labelled <- function(x = double(), labels = NULL, label = NULL,
   if (!is.numeric(x) && !is.character(x)) {
     abort("`x` must be a numeric or a character vector.")
   }
-  if (!is.null(labels) && !vec_is(labels, vec_ptype(x))) {
+  if (!is.null(labels) && !vec_is(labels, x)) {
     abort("`labels` must be same type as `x`.")
   }
   if (!is.null(label) && (!is.character(label) || length(label) != 1)) {
@@ -72,7 +72,7 @@ new_labelled <- function(x = double(), labels = NULL, label = NULL,
 }
 
 validate_labelled <- function(x) {
-  labels <- attr(x, "labels")
+  labels <- labelset(x)
   if (!is.null(labels) && is.null(names(labels))) {
     abort("`labels` must have names.")
   }
@@ -162,8 +162,8 @@ vec_ptype2.character.haven_labelled <- vec_ptype2_default_haven_labelled
 vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ...) {
   data_type <- vec_ptype2(vec_data(x), vec_data(y))
 
-  x_labels <- vec_cast_named(attr(x, "labels"), data_type)
-  y_labels <- vec_cast_named(attr(y, "labels"), data_type)
+  x_labels <- vec_cast_named(labelset(x), data_type)
+  y_labels <- vec_cast_named(labelset(y), data_type)
   if (!identical(x_labels, y_labels)) {
     stop_incompatible_type(x, y, details = {
       "Can't safely combine labelled vectors with different label sets."
@@ -205,8 +205,8 @@ vec_cast.character.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), 
 #' @export
 vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "x", to_arg = "to") {
   out_data <- vec_cast(vec_data(x), vec_data(to))
-  labels <- labelset(to) %||% labelset(x)
-  out <- labelled(out_data, labels = labels, label = label(x))
+  out_labels <- labelset(to) %||% labelset(x)
+  out <- labelled(out_data, labels = out_labels, label = label(x))
 
   # do we lose tagged na values?
   if (is.double(x) && !is.double(out)) {
@@ -218,7 +218,7 @@ vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "x", to_a
 
   # do any values become unlabelled?
   if (!is.null(labelset(to))) {
-    lossy <- x %in% labelset(x)[!labelset(x) %in% labels]
+    lossy <- x %in% labelset(x)[!labelset(x) %in% out_labels]
     maybe_lossy_cast(out, x, to, lossy, details = paste0(
       "Values are labelled in `", x_arg, "` but not in `", to_arg, "`."
     ))
