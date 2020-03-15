@@ -45,16 +45,16 @@ test_that("combining is symmetrical w.r.t. data types", {
 
   expect_identical(
     vec_c(labelled(integer()), labelled()),
-    vec_c(labelled(), labelled(integer())),
+    vec_c(labelled(), labelled(integer()))
   )
 
   expect_identical(
     vec_c(labelled(), double()),
-    vec_c(double(), labelled()),
+    vec_c(double(), labelled())
   )
   expect_identical(
     vec_c(labelled(), integer()),
-    vec_c(integer(), labelled()),
+    vec_c(integer(), labelled())
   )
 })
 
@@ -95,7 +95,7 @@ test_that("combining with bare vectors results in a labelled()", {
 
   expect_equal(
     vec_c(labelled(labels = c(Good = 1, Bad = 5)), 1, 3, 5),
-    labelled(vec_c(1, 3, 5), labels = c(Good = 1, Bad = 5)),
+    labelled(vec_c(1, 3, 5), labels = c(Good = 1, Bad = 5))
   )
 })
 
