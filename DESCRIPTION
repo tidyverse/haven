@@ -40,7 +40,9 @@ Suggests:
     testthat,
     pillar (>= 1.4.0),
     cli,
-    crayon
+    crayon,
+    tidyr,
+    dplyr
 LinkingTo: 
     Rcpp
 VignetteBuilder: 
