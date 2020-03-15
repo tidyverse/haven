@@ -39,22 +39,112 @@ test_that("labels must be unique", {
 
 # types -------------------------------------------------------------------
 
-test_that("casting away tagged na values throws lossy cast", {
-  expect_lossy_cast(
-    labelled(tagged_na("a")),
-    labelled(integer())
+test_that("combining is symmetrical w.r.t. data types", {
+  expect_incompatible_type(vec_c(labelled(character()), labelled()))
+  expect_incompatible_type(vec_c(labelled(), labelled(character())))
+
+  expect_identical(
+    vec_c(labelled(integer()), labelled()),
+    vec_c(labelled(), labelled(integer())),
   )
-  expect_lossy_cast(
-    labelled(tagged_na("a")),
-    labelled(character())
+
+  expect_identical(
+    vec_c(labelled(), double()),
+    vec_c(double(), labelled()),
+  )
+  expect_identical(
+    vec_c(labelled(), integer()),
+    vec_c(integer(), labelled()),
   )
 })
 
+test_that("combining preserves label sets", {
+  expect_equal(
+    vec_c(
+      labelled(1, labels = c(Good = 1, Bad = 5)),
+      labelled(5, labels = c(Good = 1, Bad = 5)),
+    ),
+    labelled(c(1, 5), labels = c(Good = 1, Bad = 5))
+  )
+})
+
+test_that("won't combine if label sets differ", {
+  expect_incompatible_type(vec_c(
+    labelled(labels = c(Good = 1, Bad = 5)),
+    labelled(labels = c(Bad = 1, Good = 5)),
+  ))
+  expect_incompatible_type(vec_c(
+    labelled(labels = c(Bad = 1)),
+    labelled(labels = c(Good = 5)),
+  ))
+})
+
+test_that("combining picks label from the left", {
+  expect_equal(
+    label(vec_c(
+      labelled(label = "left"),
+      labelled(label = "right"),
+    )),
+    "left"
+  )
+})
+
+test_that("combining with bare vectors results in a labelled()", {
+  expect_identical(vec_c(labelled(), 1.1), labelled(1.1))
+  expect_identical(vec_c(labelled(integer()), 1.1), labelled(1.1))
+
+  expect_equal(
+    vec_c(labelled(labels = c(Good = 1, Bad = 5)), 1, 3, 5),
+    labelled(vec_c(1, 3, 5), labels = c(Good = 1, Bad = 5)),
+  )
+})
+
+test_that("casting to labelled throws lossy cast if not safe", {
+  expect_lossy_cast(vec_cast("a", labelled()))
+  expect_lossy_cast(vec_cast("a", labelled(integer())))
+  expect_lossy_cast(vec_cast(1.1, labelled(integer())))
+})
+
+test_that("casting to a superset of labels works", {
+  expect_equal(
+    vec_cast(
+      labelled(c(1, 5), c(Good = 1)),
+      labelled(labels = c(Good = 1, Bad = 5))
+    ),
+    labelled(c(1, 5), labels = c(Good = 1, Bad = 5))
+  )
+})
+
+test_that("casting to a subset of labels works iff labels were unused", {
+  expect_equal(
+    vec_cast(
+      labelled(1, c(Good = 1, Bad = 5)),
+      labelled(labels = c(Good = 1))
+    ),
+    labelled(1, labels = c(Good = 1))
+  )
+  expect_lossy_cast(vec_cast(
+    labelled(c(1, 5), c(Good = 1, Bad = 5)),
+    labelled(labels = c(Good = 1))
+  ))
+})
+
 test_that("casting away labels throws lossy cast", {
-  expect_lossy_cast(
+  expect_lossy_cast(vec_cast(
     labelled(1, c(Good = 1)),
     labelled(labels = c(Bad = 5))
-  )
+  ))
+})
+
+test_that("casting away tagged na values throws lossy cast", {
+  expect_lossy_cast(vec_cast(
+    labelled(tagged_na("a")),
+    labelled(integer())
+  ))
+  expect_lossy_cast(vec_cast(
+    labelled(tagged_na("a")),
+    labelled(character())
+  ))
 })
 
 test_that("works with tidyr::pivot_longer() (#477)", {

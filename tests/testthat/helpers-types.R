@@ -1,3 +1,7 @@
-expect_lossy_cast <- function(x, to, ...) {
-  expect_error(class = "vctrs_error_cast_lossy", vec_cast(x, to), ...)
+expect_lossy_cast <- function(...) {
+  expect_error(class = "vctrs_error_cast_lossy", ...)
+}
+
+expect_incompatible_type <- function(...) {
+  expect_error(class = "vctrs_error_incompatible_type", ...)
 }

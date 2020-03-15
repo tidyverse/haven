@@ -133,6 +133,29 @@ is.labelled <- function(x) inherits(x, "haven_labelled")
 vec_ptype2.haven_labelled <- function(x, y, ...) {
   UseMethod("vec_ptype2.haven_labelled", y)
 }
+vec_ptype2_default_haven_labelled <- function(x, y, ...) {
+  data_type <- vec_ptype2(x, vec_data(y))
+  vec_restore(data_type, vec_cast(y, labelled(data_type)))
+}
+#' @method vec_ptype2.haven_labelled default
+#' @export
+vec_ptype2.haven_labelled.default <- function(x, y, ..., x_arg = "x", y_arg = "y") {
+  if (inherits_any(y, c("numeric", "double", "integer", "character"))) {
+    vec_ptype2_default_haven_labelled(y, x)
+  } else {
+    vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
+  }
+}
+
+#' @method vec_ptype2.double haven_labelled
+#' @export
+vec_ptype2.double.haven_labelled <- vec_ptype2_default_haven_labelled
+#' @method vec_ptype2.integer haven_labelled
+#' @export
+vec_ptype2.integer.haven_labelled <- vec_ptype2_default_haven_labelled
+#' @method vec_ptype2.character haven_labelled
+#' @export
+vec_ptype2.character.haven_labelled <- vec_ptype2_default_haven_labelled
 
 #' @method vec_ptype2.haven_labelled haven_labelled
 #' @export
@@ -151,12 +174,6 @@ vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ...) {
 }
 
 
-#' @method vec_ptype2.haven_labelled default
-#' @export
-vec_ptype2.haven_labelled.default <- function(x, y, ..., x_arg = "x", y_arg = "y") {
-  vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
-}
-
 #' @rdname haven-vctrs
 #' @method vec_cast haven_labelled
 #' @export vec_cast.haven_labelled
@@ -164,6 +181,25 @@ vec_ptype2.haven_labelled.default <- function(x, y, ..., x_arg = "x", y_arg = "y
 vec_cast.haven_labelled <- function(x, to, ...) {
   UseMethod("vec_cast.haven_labelled")
 }
+#' @method vec_cast.haven_labelled default
+#' @export
+vec_cast.haven_labelled.default <- function(x, to, ...) {
+  if (inherits_any(x, c("numeric", "double", "integer", "character"))) {
+    vec_restore(vec_cast(x, vec_data(to)), to)
+  } else {
+    vec_default_cast(x, to, ...)
+  }
+}
+
+#' @method vec_cast.double haven_labelled
+#' @export
+vec_cast.double.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
+#' @method vec_cast.integer haven_labelled
+#' @export
+vec_cast.integer.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
+#' @method vec_cast.character haven_labelled
+#' @export
+vec_cast.character.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
 
 #' @method vec_cast.haven_labelled haven_labelled
 #' @export
@@ -181,28 +217,15 @@ vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "x", to_a
   }
 
   # do any values become unlabelled?
-  lossy <- x %in% labelset(x)[!labelset(x) %in% labels]
-  maybe_lossy_cast(out, x, to, lossy, details = paste0(
-    "Values are labelled in `", x_arg, "` but not in `", to_arg, "`."
-  ))
+  if (!is.null(labelset(to))) {
+    lossy <- x %in% labelset(x)[!labelset(x) %in% labels]
+    maybe_lossy_cast(out, x, to, lossy, details = paste0(
+      "Values are labelled in `", x_arg, "` but not in `", to_arg, "`."
+    ))
+  }
+
+  out
 }
-
-#' @method vec_cast.haven_labelled default
-#' @export
-vec_cast.haven_labelled.default <- function(x, to, ...) {
-  vec_restore(vec_cast(x, vec_data(to)), to)
-}
-
-#' @method vec_cast.double haven_labelled
-#' @export
-vec_cast.double.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
-#' @method vec_cast.integer haven_labelled
-#' @export
-vec_cast.integer.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
-#' @method vec_cast.character haven_labelled
-#' @export
-vec_cast.character.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
-
 
 
 #' Print the labels of a labelled vector
