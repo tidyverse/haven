@@ -49,3 +49,11 @@ test_that("values in na_values flagged as missing", {
   x <- labelled_spss(1:5, c("a" = 1), na_values = c(1, 3, 5))
   expect_equal(is.na(x), c(TRUE, FALSE, TRUE, FALSE, TRUE))
 })
+
+
+# Types -------------------------------------------------------------------
+
+test_that("combining preserves class", {
+  skip("todo")
+  expect_s3_class(vec_c(labelled_spss(), labelled_spss()), "haven_labelled_spss")
+})
