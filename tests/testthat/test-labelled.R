@@ -36,6 +36,28 @@ test_that("labels must be unique", {
   expect_error(labelled(1, c(female = 1, male = 1)), "must be unique")
 })
 
+
+# types -------------------------------------------------------------------
+
+test_that("casting away tagged na values throws lossy cast", {
+  expect_lossy_cast(
+    labelled(tagged_na("a")),
+    labelled(integer())
+  )
+  expect_lossy_cast(
+    labelled(tagged_na("a")),
+    labelled(character())
+  )
+})
+
+test_that("casting away labels throws lossy cast", {
+  expect_lossy_cast(
+    labelled(1, c(Good = 1)),
+    labelled(labels = c(Bad = 5))
+  )
+})
+
+
 # methods -----------------------------------------------------------------
 
 test_that("printed output is stable", {

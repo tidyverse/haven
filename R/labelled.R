@@ -130,58 +130,61 @@ is.labelled <- function(x) inherits(x, "haven_labelled")
 #' @method vec_ptype2 haven_labelled
 #' @export vec_ptype2.haven_labelled
 #' @export
-vec_ptype2.haven_labelled <- function(x, y, ...) UseMethod("vec_ptype2.haven_labelled", y)
+vec_ptype2.haven_labelled <- function(x, y, ...) {
+  UseMethod("vec_ptype2.haven_labelled", y)
+}
 
 #' @method vec_ptype2.haven_labelled haven_labelled
 #' @export
-vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "x", y_arg = "y") {
-  type <- vec_ptype2(vec_data(x), vec_data(y))
-  labels <- intersect_named(attr(x, "labels"), attr(y, "labels"))
-  new_labelled(type, labels = labels, label = attr(x, "label", exact = TRUE))
+vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ...) {
+  data_type <- vec_ptype2(vec_data(x), vec_data(y))
+
+  x_labels <- vec_cast_named(attr(x, "labels"), data_type)
+  y_labels <- vec_cast_named(attr(y, "labels"), data_type)
+  if (!identical(x_labels, y_labels)) {
+    stop_incompatible_type(x, y, details = {
+      "Can't safely combine labelled vectors with different label sets."
+    })
+  }
+
+  new_labelled(data_type, labels = x_labels, label = label(x))
 }
 
-intersect_named <- function(x, y) {
-  matching_values <- match(x, y, 0L)
-  matching_names <- match(names(x), names(y), 0L)
-  y[intersect(matching_values, matching_names)]
-}
 
 #' @method vec_ptype2.haven_labelled default
 #' @export
 vec_ptype2.haven_labelled.default <- function(x, y, ..., x_arg = "x", y_arg = "y") {
-  if (inherits_any(y, c("numeric", "double", "integer", "character"))) {
-    vec_ptype2(vec_data(x), y)
-  } else {
-    vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
-  }
+  vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
 }
-
-#' @method vec_ptype2.double haven_labelled
-#' @export
-vec_ptype2.double.haven_labelled <- function(x, y, ...) vec_ptype2(x, vec_data(y))
-#' @method vec_ptype2.integer haven_labelled
-#' @export
-vec_ptype2.integer.haven_labelled <- function(x, y, ...) vec_ptype2(x, vec_data(y))
-#' @method vec_ptype2.character haven_labelled
-#' @export
-vec_ptype2.character.haven_labelled <- function(x, y, ...) vec_ptype2(x, vec_data(y))
-
 
 #' @rdname haven-vctrs
 #' @method vec_cast haven_labelled
 #' @export vec_cast.haven_labelled
 #' @export
-vec_cast.haven_labelled <- function(x, to, ...) UseMethod("vec_cast.haven_labelled")
+vec_cast.haven_labelled <- function(x, to, ...) {
+  UseMethod("vec_cast.haven_labelled")
+}
 
 #' @method vec_cast.haven_labelled haven_labelled
 #' @export
-vec_cast.haven_labelled.haven_labelled <- function(x, to, ...) {
-  ptype <- vec_ptype2(x, to)
-  new_labelled(
-    vec_cast(vec_data(x), vec_data(ptype)),
-    labels = attr(ptype, "labels"),
-    label = attr(ptype, "label", exact = TRUE)
-  )
+vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "x", to_arg = "to") {
+  out_data <- vec_cast(vec_data(x), vec_data(to))
+  labels <- labelset(to) %||% labelset(x)
+  out <- labelled(out_data, labels = labels, label = label(x))
+
+  # do we lose tagged na values?
+  if (is.double(x) && !is.double(out)) {
+    lossy <- is_tagged_na(x)
+    maybe_lossy_cast(out, x, to, lossy, details = {
+      "Only doubles can hold tagged na values."
+    })
+  }
+
+  # do any values become unlabelled?
+  lossy <- x %in% labelset(x)[!labelset(x) %in% labels]
+  maybe_lossy_cast(out, x, to, lossy, details = paste0(
+    "Values are labelled in `", x_arg, "` but not in `", to_arg, "`."
+  ))
 }
 
 #' @method vec_cast.haven_labelled default
@@ -420,6 +423,9 @@ format.pillar_shaft_haven_labelled_chr <- function(x, width, ...) {
   pillar::new_ornament(out, width = width, align = "left")
 }
 
+
+# Helpers -----------------------------------------------------------------
+
 str_trunc <- function(x, widths, subtle = FALSE) {
   str_width <- pillar::get_extent(x)
   too_wide <- which(!is.na(x) & str_width > widths)
@@ -470,3 +476,7 @@ get_labeltext <- function(x, prefix=": ") {
     paste0(prefix, label)
   }
 }
+
+
+label <- function(x) attr(x, "label", exact = TRUE)
+labelset <- function(x) attr(x, "labels") # don't mask base::labels
