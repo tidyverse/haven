@@ -201,7 +201,13 @@ vec_cast.double.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
 vec_cast.integer.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
 #' @method vec_cast.character haven_labelled
 #' @export
-vec_cast.character.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
+vec_cast.character.haven_labelled <- function(x, to, ...) {
+  if (is.character(x)) {
+    vec_cast(vec_data(x), to)
+  } else {
+    stop_incompatible_cast(x, to, ...)
+  }
+}
 
 #' @method vec_cast.haven_labelled haven_labelled
 #' @export

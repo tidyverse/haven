@@ -147,6 +147,10 @@ test_that("casting away tagged na values throws lossy cast", {
   ))
 })
 
+test_that("won't cast labelled numeric to character", {
+  expect_incompatible_cast(vec_cast(labelled(), character()))
+  expect_incompatible_cast(vec_cast(labelled(integer()), character()))
+})
 
 # methods -----------------------------------------------------------------
 
