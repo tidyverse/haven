@@ -165,12 +165,14 @@ vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ...) {
   x_labels <- vec_cast_named(attr(x, "labels"), data_type)
   y_labels <- vec_cast_named(attr(y, "labels"), data_type)
   if (!identical(x_labels, y_labels)) {
-    stop_incompatible_type(x, y, details = {
-      "Can't safely combine labelled vectors with different label sets."
-    })
+    details <- "Can't safely combine labelled vectors with different label sets."
+    stop_incompatible_type(x, y, details = details)
   }
 
-  new_labelled(data_type, labels = x_labels, label = attr(x, "label", exact = TRUE))
+  new_labelled(data_type,
+    labels = x_labels,
+    label = attr(x, "label", exact = TRUE)
+  )
 }
 
 
@@ -205,10 +207,15 @@ vec_cast.character.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), 
 #' @export
 vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "x", to_arg = "to") {
   out_data <- vec_cast(vec_data(x), vec_data(to))
+
   x_labels <- attr(x, "labels")
   to_labels <- attr(to, "labels")
   out_labels <- to_labels %||% x_labels
-  out <- labelled(out_data, labels = out_labels, label = attr(x, "label", exact = TRUE))
+
+  out <- labelled(out_data,
+    labels = out_labels,
+    label = attr(x, "label", exact = TRUE)
+  )
 
   # do we lose tagged na values?
   if (is.double(x) && !is.double(out)) {
