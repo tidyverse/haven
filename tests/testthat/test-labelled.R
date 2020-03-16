@@ -81,10 +81,10 @@ test_that("won't combine if label sets differ", {
 
 test_that("combining picks label from the left", {
   expect_equal(
-    label(vec_c(
+    attr(vec_c(
       labelled(label = "left"),
       labelled(label = "right"),
-    )),
+    ), "label", exact = TRUE),
     "left"
   )
 })

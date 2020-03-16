@@ -72,7 +72,7 @@ new_labelled <- function(x = double(), labels = NULL, label = NULL,
 }
 
 validate_labelled <- function(x) {
-  labels <- labelset(x)
+  labels <- attr(x, "labels")
   if (!is.null(labels) && is.null(names(labels))) {
     abort("`labels` must have names.")
   }
@@ -162,15 +162,15 @@ vec_ptype2.character.haven_labelled <- vec_ptype2_default_haven_labelled
 vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ...) {
   data_type <- vec_ptype2(vec_data(x), vec_data(y))
 
-  x_labels <- vec_cast_named(labelset(x), data_type)
-  y_labels <- vec_cast_named(labelset(y), data_type)
+  x_labels <- vec_cast_named(attr(x, "labels"), data_type)
+  y_labels <- vec_cast_named(attr(y, "labels"), data_type)
   if (!identical(x_labels, y_labels)) {
     stop_incompatible_type(x, y, details = {
       "Can't safely combine labelled vectors with different label sets."
     })
   }
 
-  new_labelled(data_type, labels = x_labels, label = label(x))
+  new_labelled(data_type, labels = x_labels, label = attr(x, "label", exact = TRUE))
 }
 
 
@@ -205,8 +205,10 @@ vec_cast.character.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), 
 #' @export
 vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "x", to_arg = "to") {
   out_data <- vec_cast(vec_data(x), vec_data(to))
-  out_labels <- labelset(to) %||% labelset(x)
-  out <- labelled(out_data, labels = out_labels, label = label(x))
+  x_labels <- attr(x, "labels")
+  to_labels <- attr(to, "labels")
+  out_labels <- to_labels %||% x_labels
+  out <- labelled(out_data, labels = out_labels, label = attr(x, "label", exact = TRUE))
 
   # do we lose tagged na values?
   if (is.double(x) && !is.double(out)) {
@@ -217,8 +219,8 @@ vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "x", to_a
   }
 
   # do any values become unlabelled?
-  if (!is.null(labelset(to))) {
-    lossy <- x %in% labelset(x)[!labelset(x) %in% out_labels]
+  if (!is.null(to_labels)) {
+    lossy <- x %in% x_labels[!x_labels %in% out_labels]
     maybe_lossy_cast(out, x, to, lossy, details = paste0(
       "Values are labelled in `", x_arg, "` but not in `", to_arg, "`."
     ))
@@ -506,6 +508,3 @@ get_labeltext <- function(x, prefix=": ") {
   }
 }
 
-
-label <- function(x) attr(x, "label", exact = TRUE)
-labelset <- function(x) attr(x, "labels") # don't mask base::labels
