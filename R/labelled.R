@@ -133,29 +133,36 @@ is.labelled <- function(x) inherits(x, "haven_labelled")
 vec_ptype2.haven_labelled <- function(x, y, ...) {
   UseMethod("vec_ptype2.haven_labelled", y)
 }
-vec_ptype2_default_haven_labelled <- function(x, y, ...) {
-  data_type <- vec_ptype2(x, vec_data(y))
-  vec_restore(data_type, vec_cast(y, labelled(data_type)))
-}
 #' @method vec_ptype2.haven_labelled default
 #' @export
 vec_ptype2.haven_labelled.default <- function(x, y, ..., x_arg = "x", y_arg = "y") {
-  if (inherits_any(y, c("numeric", "double", "integer", "character"))) {
-    vec_ptype2_default_haven_labelled(y, x)
-  } else {
-    vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
-  }
+  vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
 }
 
 #' @method vec_ptype2.double haven_labelled
 #' @export
-vec_ptype2.double.haven_labelled <- vec_ptype2_default_haven_labelled
+vec_ptype2.double.haven_labelled <- function(x, y, ...) {
+  data_type <- vec_ptype2(x, vec_data(y))
+  new_labelled(data_type,
+    labels = vec_cast_named(attr(y, "labels"), data_type),
+    label = attr(y, "label", exact = TRUE)
+  )
+}
 #' @method vec_ptype2.integer haven_labelled
 #' @export
-vec_ptype2.integer.haven_labelled <- vec_ptype2_default_haven_labelled
+vec_ptype2.integer.haven_labelled <- vec_ptype2.double.haven_labelled
 #' @method vec_ptype2.character haven_labelled
 #' @export
-vec_ptype2.character.haven_labelled <- vec_ptype2_default_haven_labelled
+vec_ptype2.character.haven_labelled <- vec_ptype2.double.haven_labelled
+#' @method vec_ptype2.haven_labelled double
+#' @export
+vec_ptype2.haven_labelled.double <- function(x, y, ...) vec_ptype2(y, x, ...)
+#' @method vec_ptype2.haven_labelled integer
+#' @export
+vec_ptype2.haven_labelled.integer <- vec_ptype2.haven_labelled.double
+#' @method vec_ptype2.haven_labelled character
+#' @export
+vec_ptype2.haven_labelled.character <- vec_ptype2.haven_labelled.double
 
 #' @method vec_ptype2.haven_labelled haven_labelled
 #' @export
