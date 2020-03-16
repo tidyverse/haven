@@ -147,39 +147,6 @@ test_that("casting away tagged na values throws lossy cast", {
   ))
 })
 
-test_that("works with tidyr::pivot_longer() (#477)", {
-  skip_if_not_installed("tidyr")
-
-  tbl <- tibble(id = 1,
-    q1 = labelled(1, labels = c(Good = 1, Bad = 5)),
-    q2 = labelled(5, labels = c(Good = 1, Bad = 5)),
-  )
-
-  expect_equal(
-    tidyr::pivot_longer(tbl, cols = -id)$value,
-    labelled(c(1, 5), labels = c(Good = 1, Bad = 5))
-  )
-
-  tbl <- tibble(id = 1,
-    q1 = labelled(1, labels = c(Good = 1, Bad = 5)),
-    q2 = labelled(5, labels = c(Bad = 1, Good = 5)),
-  )
-
-  expect_error(
-    class = "vctrs_error_incompatible_type",
-    tidyr::pivot_longer(tbl, cols = -id)
-  )
-})
-
-test_that("works with dplyr::mutate() (#496)", {
-  skip_if_not_installed("dplyr")
-
-  expect_equal(
-    dplyr::mutate(tibble(a = 1), b = labelled(1, labels = c(Good = 1))),
-    tibble(a = 1, b = labelled(1, labels = c(Good = 1)))
-  )
-})
-
 
 # methods -----------------------------------------------------------------
 
