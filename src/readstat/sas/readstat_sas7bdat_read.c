@@ -167,11 +167,13 @@ cleanup:
 
 static readstat_error_t sas7bdat_realloc_col_info(sas7bdat_ctx_t *ctx, size_t count) {
     if (ctx->col_info_count < count) {
+        size_t old_count = ctx->col_info_count;
         ctx->col_info_count = count;
         ctx->col_info = readstat_realloc(ctx->col_info, ctx->col_info_count * sizeof(col_info_t));
         if (ctx->col_info == NULL) {
             return READSTAT_ERROR_MALLOC;
         }
+        memset(ctx->col_info + old_count, 0, (count - old_count) * sizeof(col_info_t));
     }
     return READSTAT_OK;
 }

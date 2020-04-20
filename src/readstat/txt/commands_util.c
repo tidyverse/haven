@@ -21,7 +21,7 @@ readstat_error_t submit_value_label(readstat_parser_t *parser, const char *label
             if (cb_retval != READSTAT_HANDLER_OK)
                 goto cleanup;
         }
-    } else {
+    } else if (label_type != LABEL_TYPE_OTHER) {
         readstat_value_t value = { { 0 } };
         if (label_type == LABEL_TYPE_DOUBLE) {
             value.type = READSTAT_TYPE_DOUBLE;

@@ -25,7 +25,7 @@ readstat_error_t sav_parse_time(const char *data, size_t len, struct tm *timesta
             temp_val = 10 * temp_val + (fc - '0');
         }
 
-        integer2 = [0-9]{2} >{ temp_val = 0; } $incr_val;
+        integer2 = ( " " %{ temp_val = 0; } | [0-9] ${ temp_val = fc - '0'; } ) [0-9] $incr_val;
 
         hour = integer2 %{ timestamp->tm_hour = temp_val; };
 
@@ -69,7 +69,10 @@ readstat_error_t sav_parse_date(const char *data, size_t len, struct tm *timesta
     int temp_val = 0;
     %%{
         action incr_val {
-            temp_val = 10 * temp_val + (fc - '0');
+            char digit = (fc - '0');
+            if (digit >= 0 && digit <= 9) {
+                temp_val = 10 * temp_val + digit;
+            }
         }
 
         action save_year {
@@ -80,7 +83,8 @@ readstat_error_t sav_parse_date(const char *data, size_t len, struct tm *timesta
             }
         }
 
-        integer2 = [0-9]{2} >{ temp_val = 0; } $incr_val;
+        # some files in the wild use space padding instead of 0 padding
+        integer2 = [0-9 ]{2} >{ temp_val = 0; } $incr_val;
 
         day = integer2 %{ timestamp->tm_mday = temp_val; };
 

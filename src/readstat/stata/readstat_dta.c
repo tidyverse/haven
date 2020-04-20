@@ -170,7 +170,12 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, uint32_t nvar, uint64_t nobs,
         }
     }
 
-    ctx->srtlist_len = (ctx->nvar + 1) * sizeof(int16_t);
+    if (ds_format < 119) {
+        ctx->srtlist_len = (ctx->nvar + 1) * sizeof(int16_t);
+    } else {
+        ctx->srtlist_len = (ctx->nvar + 1) * sizeof(int32_t);
+    }
+
     if ((ctx->srtlist = readstat_malloc(ctx->srtlist_len)) == NULL) {
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;

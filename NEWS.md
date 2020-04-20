@@ -1,5 +1,8 @@
 # haven (development version)
 
+* ReadStat update
+  * `read_sas()` now supports "any" encoding (#482).
+
 # haven 2.2.0
 
 ## Partial reading

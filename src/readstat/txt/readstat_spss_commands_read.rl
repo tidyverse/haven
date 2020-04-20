@@ -15,6 +15,11 @@
 
 readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
     const char *filepath, void *user_ctx, readstat_error_t *outError) {
+    if (parser->io->open(filepath, parser->io->io_ctx) == -1) {
+        if (outError)
+            *outError = READSTAT_ERROR_OPEN;
+        return NULL;
+    }
     readstat_schema_t *schema = NULL;
     unsigned char *bytes = NULL;
     readstat_error_t error = READSTAT_OK;
@@ -202,7 +207,7 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
 
         file_handle_cmd = "FILE"i whitespace+ "HANDLE"i whitespace+ identifier whitespace+ slash_args whitespace* ".";
 
-        save_cmd = "SAVE"i whitespace+ ( "OUTFILE"i | "DICTIONARY"i ) whitespace* "="? whitespace* quoted_string whitespace* ("/" whitespace* "COMPRESSED" whitespace*)? ".";
+        save_cmd = "SAVE"i whitespace+ ( "OUTFILE"i | "DICTIONARY"i ) whitespace* "="? whitespace* quoted_string "/"? whitespace* ("/" whitespace* "COMPRESSED" whitespace*)? ".";
         
         data_list_arg = ( "RECORD"i ("S"i)? whitespace* "=" whitespace* integer |
                          "FILE"i whitespace* "=" whitespace* (quoted_string | identifier) |
@@ -225,7 +230,7 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
                                        
         get_data_cmd = "GET"i whitespace+ "DATA"i whitespace+ get_data_args whitespace* ".";
                                        
-        get_file_cmd = "GET"i whitespace+ "FILE"i whitespace* "=" whitespace* quoted_string whitespace* ".";
+        get_file_cmd = "GET"i whitespace+ "FILE"i whitespace* ("=" whitespace*)? quoted_string whitespace* ".";
         
         dataset_cmd_arg = "WINDOW"i whitespace* "=" whitespace* identifier;
                                        
@@ -235,7 +240,7 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
                                        
         format_string = "F" integer "." integer;
                                        
-        format_spec = identifier whitespace+ "(" format_string ")";
+        format_spec = identifier (whitespace+ identifier)* whitespace+ "(" format_string ")";
                                        
         formats_cmd = "FORMATS"i whitespace+ format_spec (whitespace+ "/" whitespace+ format_spec)* whitespace* ".";
 
@@ -246,6 +251,10 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
         variable_list = var %reset_variable_list %add_variable_to_list (whitespace+ var %add_variable_to_list)*;
 
         missing_value_label = "." %{ label_type = -1; } whitespace+ quoted_string %handle_value_label;
+
+        missing_values_item = var whitespace+ "(" quoted_string ")";
+
+        missing_values_list = missing_values_item (whitespace+ missing_values_item)*;
         
         value_label = ( "-" integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = -integer; } |
                        integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = integer; } |
@@ -254,7 +263,7 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
             whitespace+ quoted_string %handle_value_label;
 
         variable_value_labels = variable_list whitespace+ ( value_label | missing_value_label )
-            (whitespace+ value_label)* %handle_labelset;
+            (whitespace+ value_label)* whitespace* %handle_labelset;
                                        
         variable_level = variable_list whitespace+ ( "(SCALE)"i | "(NOMINAL)"i | "(ORDINAL)"i );
                                        
@@ -262,8 +271,10 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
             ( whitespace* "/" whitespace* variable_level )*;
 
         value_labels_cmd = "VALUE"i whitespace+ "LABELS"i whitespace+ ("/" whitespace*)? variable_value_labels
-            ( whitespace+ "/" whitespace* variable_value_labels )*
-            whitespace*  ("/" whitespace* ( variable_level_subcmd whitespace* )? )? ".";
+            ( "/" whitespace* variable_value_labels )*
+            ( "/" whitespace* ( variable_level_subcmd whitespace* )? )? ".";
+
+        missing_values_cmd = "MISSING"i whitespace+ "VALUES"i whitespace+ missing_values_list whitespace* ".";
                                        
         recode_cmd = "RECODE"i whitespace+ identifier whitespace+ "(" double_value (whitespace+ double_value)* "=" whitespace* "SYSMIS" whitespace* ")" whitespace* ".";
                                        
@@ -282,6 +293,7 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
             dataset_cmd |
             display_cmd |
             formats_cmd |
+            missing_values_cmd |
             variable_labels_cmd |
             value_labels_cmd |
             recode_cmd |

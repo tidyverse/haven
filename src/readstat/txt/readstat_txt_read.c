@@ -27,13 +27,17 @@ static readstat_error_t handle_value(readstat_parser_t *parser, iconv_t converte
         if (error != READSTAT_OK)
             goto cleanup;
         value.v.string_value = converted_value;
-    } else if (variable->type == READSTAT_TYPE_DOUBLE) { 
-        value.v.double_value = strtod(bytes, NULL);
-    } else if (variable->type == READSTAT_TYPE_FLOAT) {
-        value.v.float_value = strtof(bytes, NULL);
     } else {
-        value.v.i32_value = strtol(bytes, NULL, 10);
-        value.type = READSTAT_TYPE_INT32;
+        char *endptr = NULL;
+        if (variable->type == READSTAT_TYPE_DOUBLE) {
+            value.v.double_value = strtod(bytes, &endptr);
+        } else if (variable->type == READSTAT_TYPE_FLOAT) {
+            value.v.float_value = strtof(bytes, &endptr);
+        } else {
+            value.v.i32_value = strtol(bytes, &endptr, 10);
+            value.type = READSTAT_TYPE_INT32;
+        }
+        value.is_system_missing = (endptr == bytes);
     }
     if (parser->handlers.value(obs_index, variable, value, ctx) == READSTAT_HANDLER_ABORT) {
         error = READSTAT_ERROR_USER_ABORT;
@@ -72,11 +76,13 @@ static readstat_error_t txt_parse_delimited(readstat_parser_t *parser,
     int k=0;
     
     while (1) {
-        int done = 0;
         for (int j=0; j<schema->entry_count; j++) {
             readstat_schema_entry_t *entry = &schema->entries[j];
             int delimiter = (j == schema->entry_count-1) ? '\n' : schema->field_delimiter;
             ssize_t chars_read = txt_getdelim(&value_buffer, &value_buffer_len, delimiter, io);
+            if (chars_read == 0)
+                goto cleanup;
+
             if (chars_read == -1) {
                 retval = READSTAT_ERROR_READ;
                 goto cleanup;
@@ -93,13 +99,13 @@ static readstat_error_t txt_parse_delimited(readstat_parser_t *parser,
                     goto cleanup;
             }
         }
-        k++;
-        if (done)
+        if (++k == parser->row_limit)
             break;
     }
-    ctx->rows = k;
 
 cleanup:
+    ctx->rows = k;
+
     if (value_buffer)
         free(value_buffer);
     
@@ -144,7 +150,8 @@ static readstat_error_t txt_parse_fixed_width(readstat_parser_t *parser,
             }
         }
         
-        k++;
+        if (++k == parser->row_limit)
+            break;
     }
 
 cleanup:

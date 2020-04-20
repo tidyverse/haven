@@ -25,7 +25,7 @@
 #define POR_LABEL_NAME_PREFIX   "labels"
 
 #define MAX_FORMAT_TYPE       120
-#define MAX_FORMAT_WIDTH      100
+#define MAX_FORMAT_WIDTH      255
 #define MAX_FORMAT_DECIMALS   100
 #define MAX_STRING_LENGTH   20000
 
@@ -214,6 +214,7 @@ static readstat_error_t maybe_read_string(por_ctx_t *ctx, char *data, size_t len
     if (string_length > ctx->string_buffer_len) {
         ctx->string_buffer_len = string_length;
         ctx->string_buffer = realloc(ctx->string_buffer, ctx->string_buffer_len);
+        memset(ctx->string_buffer, 0, ctx->string_buffer_len);
     }
     
     if (read_bytes(ctx, ctx->string_buffer, string_length) == -1) {
@@ -812,8 +813,10 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
-    
-    if (por_utf8_encode(check, sizeof(check), tr_check, sizeof(tr_check), ctx->byte2unicode) == -1) {
+
+    ssize_t encoded_len;
+
+    if ((encoded_len = por_utf8_encode(check, sizeof(check), tr_check, sizeof(tr_check), ctx->byte2unicode)) == -1) {
         if (ctx->handle.error) {
             snprintf(error_buf, sizeof(error_buf), "Error converting check string: %.*s", (int)sizeof(check), check);
             ctx->handle.error(error_buf, ctx->user_ctx);
@@ -822,7 +825,7 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
         goto cleanup;
     }
 
-    if (strncmp("SPSSPORT", tr_check, sizeof(tr_check)) != 0) {
+    if (strncmp("SPSSPORT", tr_check, encoded_len) != 0) {
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
     }
