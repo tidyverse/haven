@@ -23,9 +23,10 @@
 #' x2
 labelled_spss <- function(x = double(), labels = NULL, na_values = NULL,
                           na_range = NULL, label = NULL) {
-  # try to cast -- but if it fails, handle better error message later
-  tryCatch(na_values <- vec_cast_named(na_values, x), error = identity)
+
+  na_values <- vec_cast_named(na_values, x, x_arg = "na_values", to_arg = "x")
   labelled <- labelled(x, labels = labels, label = label)
+
   new_labelled_spss(
     vec_data(labelled),
     labels = attr(labelled, "labels"),

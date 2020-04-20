@@ -1,7 +1,7 @@
 context("labelled_spss")
 
 test_that("constructor checks na_value", {
-  expect_error(labelled_spss(1:10, na_values = "a"), "must be same type")
+  expect_incompatible_type(labelled_spss(1:10, na_values = "a"))
 })
 
 test_that("constructor checks na_range", {
