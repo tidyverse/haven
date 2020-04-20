@@ -100,9 +100,9 @@ test_that("combining with bare vectors results in a labelled()", {
 })
 
 test_that("casting to labelled throws lossy cast if not safe", {
-  expect_lossy_cast(vec_cast("a", labelled()))
-  expect_lossy_cast(vec_cast("a", labelled(integer())))
-  expect_lossy_cast(vec_cast(1.1, labelled(integer())))
+  expect_incompatible_type(vec_cast("a", labelled()))
+  expect_incompatible_type(vec_cast("a", labelled(integer())))
+  expect_incompatible_type(vec_cast(1.1, labelled(integer())))
 })
 
 test_that("casting to a superset of labels works", {
@@ -141,15 +141,15 @@ test_that("casting away tagged na values throws lossy cast", {
     labelled(tagged_na("a")),
     labelled(integer())
   ))
-  expect_lossy_cast(vec_cast(
+  expect_incompatible_type(vec_cast(
     labelled(tagged_na("a")),
     labelled(character())
   ))
 })
 
 test_that("won't cast labelled numeric to character", {
-  expect_incompatible_cast(vec_cast(labelled(), character()))
-  expect_incompatible_cast(vec_cast(labelled(integer()), character()))
+  expect_incompatible_type(vec_cast(labelled(), character()))
+  expect_incompatible_type(vec_cast(labelled(integer()), character()))
 })
 
 # methods -----------------------------------------------------------------

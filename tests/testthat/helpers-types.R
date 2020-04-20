@@ -5,7 +5,3 @@ expect_lossy_cast <- function(...) {
 expect_incompatible_type <- function(...) {
   expect_error(class = "vctrs_error_incompatible_type", ...)
 }
-
-expect_incompatible_cast <- function(...) {
-  expect_error(class = "vctrs_error_incompatible_cast", ...)
-}
