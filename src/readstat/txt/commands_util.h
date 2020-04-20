@@ -3,7 +3,8 @@ typedef enum {
     LABEL_TYPE_NAN = -1,
     LABEL_TYPE_DOUBLE,
     LABEL_TYPE_STRING,
-    LABEL_TYPE_RANGE
+    LABEL_TYPE_RANGE,
+    LABEL_TYPE_OTHER
 } label_type_t;
 
 readstat_error_t submit_columns(readstat_parser_t *parser, readstat_schema_t *dct, void *user_ctx);

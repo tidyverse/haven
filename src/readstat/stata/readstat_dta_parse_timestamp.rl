@@ -25,19 +25,19 @@ readstat_error_t dta_parse_timestamp(const char *data, size_t len, struct tm *ti
 
         day = integer %{ timestamp->tm_mday = temp_val; };
 
-        month = # with some German variants thrown in
-            ("Jan"i) %{ timestamp->tm_mon = 0; } |
+        month = # with some German and Spanish variants thrown in
+            ("Jan"i | "Ene"i) %{ timestamp->tm_mon = 0; } |
             ("Feb"i) %{ timestamp->tm_mon = 1; } |
             ("Mar"i) %{ timestamp->tm_mon = 2; } |
-            ("Apr"i) %{ timestamp->tm_mon = 3; } |
+            ("Apr"i | "Abr"i) %{ timestamp->tm_mon = 3; } |
             ("May"i | "Mai"i) %{ timestamp->tm_mon = 4; } |
             ("Jun"i) %{ timestamp->tm_mon = 5; } |
             ("Jul"i) %{ timestamp->tm_mon = 6; } |
-            ("Aug"i) %{ timestamp->tm_mon = 7; } |
+            ("Aug"i | "Ago"i) %{ timestamp->tm_mon = 7; } |
             ("Sep"i) %{ timestamp->tm_mon = 8; } |
             ("Oct"i | "Okt"i) %{ timestamp->tm_mon = 9; } |
             ("Nov"i) %{ timestamp->tm_mon = 10; } |
-            ("Dec"i | "Dez"i) %{ timestamp->tm_mon = 11; };
+            ("Dec"i | "Dez"i | "Dic"i) %{ timestamp->tm_mon = 11; };
 
         year = integer %{ timestamp->tm_year = temp_val - 1900; };
         

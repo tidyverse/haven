@@ -1,6 +1,6 @@
 
 #line 1 "src/spss/readstat_sav_parse.rl"
-
+#include <limits.h>
 #include <stdlib.h>
 #include "../readstat.h"
 #include "../readstat_iconv.h"
@@ -1102,24 +1102,29 @@ _match:
 	case 2:
 #line 224 "src/spss/readstat_sav_parse.rl"
 	{
-            if ((*p) != '\0') { 
-                temp_val = 10 * temp_val + ((*p) - '0'); 
+            if ((*p) != '\0') {
+                unsigned char digit = (*p) - '0';
+                if (temp_val <= (UINT_MAX - digit) / 10) {
+                    temp_val = 10 * temp_val + digit;
+                } else {
+                    {p++; goto _out; }
+                }
             }
         }
 	break;
 	case 3:
-#line 236 "src/spss/readstat_sav_parse.rl"
+#line 241 "src/spss/readstat_sav_parse.rl"
 	{ str_start = p; }
 	break;
 	case 4:
-#line 236 "src/spss/readstat_sav_parse.rl"
+#line 241 "src/spss/readstat_sav_parse.rl"
 	{ str_len = p - str_start; }
 	break;
 	case 5:
-#line 238 "src/spss/readstat_sav_parse.rl"
+#line 243 "src/spss/readstat_sav_parse.rl"
 	{ temp_val = 0; }
 	break;
-#line 1123 "src/spss/readstat_sav_parse.c"
+#line 1128 "src/spss/readstat_sav_parse.c"
 		}
 	}
 
@@ -1132,7 +1137,7 @@ _again:
 	_out: {}
 	}
 
-#line 246 "src/spss/readstat_sav_parse.rl"
+#line 251 "src/spss/readstat_sav_parse.rl"
 
     
     if (cs < 36 || p != pe) {

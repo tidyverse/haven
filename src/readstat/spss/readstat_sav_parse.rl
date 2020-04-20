@@ -1,4 +1,4 @@
-
+#include <limits.h>
 #include <stdlib.h>
 #include "../readstat.h"
 #include "../readstat_iconv.h"
@@ -222,8 +222,13 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
         }
         
         action incr_val {
-            if (fc != '\0') { 
-                temp_val = 10 * temp_val + (fc - '0'); 
+            if (fc != '\0') {
+                unsigned char digit = fc - '0';
+                if (temp_val <= (UINT_MAX - digit) / 10) {
+                    temp_val = 10 * temp_val + digit;
+                } else {
+                    fbreak;
+                }
             }
         }
         

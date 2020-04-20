@@ -127,7 +127,7 @@ int ck_str_n_hash_insert(const char *key, size_t keylen, const void *value, ck_h
 	
 	uint64_t hash_key = ck_hash_str(key);
 	hash_key %= table->capacity;
-	uint64_t end = (hash_key - 1) % table->capacity;
+	uint64_t end = hash_key ? ((hash_key - 1) % table->capacity) : (table->capacity -1);
 	while (hash_key != end) {
         if (table->entries[hash_key].key[0] == '\0') {
             table->count++;
@@ -150,6 +150,7 @@ ck_hash_table_t *ck_hash_table_init(size_t size)
 	ck_hash_table_t *table;
 	if ((table = malloc(sizeof(ck_hash_table_t))) == NULL)
 		return NULL;
+	size *= 2;
     if ((table->entries = malloc(size * sizeof(ck_hash_entry_t))) == NULL) {
         free(table);
         return NULL;

@@ -28,8 +28,7 @@ readstat_schema_entry_t *readstat_schema_find_or_create_entry(readstat_schema_t 
         
         readstat_copy(entry->variable.name, sizeof(entry->variable.name), var_name, strlen(var_name));
         entry->decimal_separator = '.';
-        
-        dct->entry_count++;
+        entry->variable.index = dct->entry_count++;
     }
     return entry;
 }

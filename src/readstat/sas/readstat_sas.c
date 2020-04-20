@@ -67,7 +67,8 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 125,   .name = "GB18030" }, // "euc-cn" in SAS
     { .code = 134,   .name = "EUC-JP" },
     { .code = 138,   .name = "CP932" }, // "shift-jis" in SAS
-    { .code = 140,   .name = "EUC-KR" }
+    { .code = 140,   .name = "EUC-KR" },
+    { .code = 204,   .name = SAS_DEFAULT_STRING_ENCODING } // "any" in SAS
 };
 
 static time_t sas_convert_time(double time, time_t epoch) {
@@ -247,12 +248,16 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
         goto cleanup;
     }
     int major, minor, revision;
-    if (sscanf(header_end.release, "%1d.%04dM%1d", &major, &minor, &revision) == 3) {
-        hinfo->major_version = major;
-        hinfo->minor_version = minor;
-        hinfo->revision = revision;
+    if (sscanf(header_end.release, "%1d.%04dM%1d", &major, &minor, &revision) != 3) {
+        retval = READSTAT_ERROR_PARSE;
+        goto cleanup;
     }
-    if (major == 9 && minor == 0 && revision == 0) {
+
+    hinfo->major_version = major;
+    hinfo->minor_version = minor;
+    hinfo->revision = revision;
+
+    if ((major == 8 || major == 9) && minor == 0 && revision == 0) {
         /* A bit of a hack, but most SAS installations are running a minor update */
         hinfo->vendor = READSTAT_VENDOR_STAT_TRANSFER;
     } else {
