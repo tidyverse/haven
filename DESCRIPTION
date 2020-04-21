@@ -22,7 +22,7 @@ URL: http://haven.tidyverse.org,
 BugReports: https://github.com/tidyverse/haven/issues
 Depends: 
     R (>= 3.2)
-Imports:
+Imports: 
     forcats (>= 0.2.0),
     hms,
     methods,
