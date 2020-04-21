@@ -3,14 +3,11 @@
 \name{labelled}
 \alias{labelled}
 \alias{is.labelled}
-\alias{as_labelled}
 \title{Create a labelled vector.}
 \usage{
 labelled(x = double(), labels = NULL, label = NULL)
 
 is.labelled(x)
-
-as_labelled(x)
 }
 \arguments{
 \item{x}{A vector to label. Must be either numeric (integer or double) or
