@@ -169,16 +169,35 @@ file extension." />
 file extension.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>read_sav</span>(<span class='no'>file</span>, <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>skip</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>.name_repair</span> <span class='kw'>=</span> <span class='st'>"unique"</span>)
+    <pre class="usage"><span class='fu'>read_sav</span>(
+  <span class='no'>file</span>,
+  <span class='kw'>encoding</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>skip</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
+  <span class='kw'>.name_repair</span> <span class='kw'>=</span> <span class='st'>"unique"</span>
+)
 
-<span class='fu'>read_por</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>skip</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>.name_repair</span> <span class='kw'>=</span> <span class='st'>"unique"</span>)
+<span class='fu'>read_por</span>(
+  <span class='no'>file</span>,
+  <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>skip</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
+  <span class='kw'>.name_repair</span> <span class='kw'>=</span> <span class='st'>"unique"</span>
+)
 
 <span class='fu'>write_sav</span>(<span class='no'>data</span>, <span class='no'>path</span>, <span class='kw'>compress</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
-<span class='fu'>read_spss</span>(<span class='no'>file</span>, <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>skip</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>.name_repair</span> <span class='kw'>=</span> <span class='st'>"unique"</span>)</pre>
+<span class='fu'>read_spss</span>(
+  <span class='no'>file</span>,
+  <span class='kw'>user_na</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>col_select</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>skip</span> <span class='kw'>=</span> <span class='fl'>0</span>,
+  <span class='kw'>n_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
+  <span class='kw'>.name_repair</span> <span class='kw'>=</span> <span class='st'>"unique"</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -195,7 +214,7 @@ decompressed.</p>
 <p>Literal data is most useful for examples and tests. It must contain at
 least one new line to be recognised as data (instead of a path) or be a
 vector of greater than length 1.</p>
-<p>Using a value of <code><a href='https://rdrr.io/r/base/connections.html'>clipboard()</a></code> will read from the system clipboard.</p></td>
+<p>Using a value of <code><a href='https://readr.tidyverse.org/reference/clipboard.html'>clipboard()</a></code> will read from the system clipboard.</p></td>
     </tr>
     <tr>
       <th>encoding</th>
@@ -237,7 +256,8 @@ for names in the style of base R).</p></li>
 <li><p>A purrr-style anonymous function, see <code><a href='https://rlang.r-lib.org/reference/as_function.html'>rlang::as_function()</a></code></p></li>
 </ul>
 
-<p>See name-repair for more details on these terms and the strategies used
+<p>This argument is passed on as <code>repair</code> to <code><a href='https://rdrr.io/pkg/vctrs/man/vec_as_names.html'>vctrs::vec_as_names()</a></code>.
+See there for more details on these terms and the strategies used
 to enforce them.</p></td>
     </tr>
     <tr>
