@@ -7,16 +7,35 @@
 \alias{write_sav}
 \title{Read SPSS (\code{.sav}, \code{.zsav}, \code{.por}) files. Write \code{.sav} and \code{.zsav} files.}
 \usage{
-read_sav(file, encoding = NULL, user_na = FALSE, col_select = NULL,
-  skip = 0, n_max = Inf, .name_repair = "unique")
+read_sav(
+  file,
+  encoding = NULL,
+  user_na = FALSE,
+  col_select = NULL,
+  skip = 0,
+  n_max = Inf,
+  .name_repair = "unique"
+)
 
-read_por(file, user_na = FALSE, col_select = NULL, skip = 0,
-  n_max = Inf, .name_repair = "unique")
+read_por(
+  file,
+  user_na = FALSE,
+  col_select = NULL,
+  skip = 0,
+  n_max = Inf,
+  .name_repair = "unique"
+)
 
 write_sav(data, path, compress = FALSE)
 
-read_spss(file, user_na = FALSE, col_select = NULL, skip = 0,
-  n_max = Inf, .name_repair = "unique")
+read_spss(
+  file,
+  user_na = FALSE,
+  col_select = NULL,
+  skip = 0,
+  n_max = Inf,
+  .name_repair = "unique"
+)
 }
 \arguments{
 \item{file}{Either a path to a file, a connection, or literal data
@@ -32,7 +51,7 @@ Literal data is most useful for examples and tests. It must contain at
 least one new line to be recognised as data (instead of a path) or be a
 vector of greater than length 1.
 
-Using a value of \code{\link[=clipboard]{clipboard()}} will read from the system clipboard.}
+Using a value of \code{\link[readr:clipboard]{clipboard()}} will read from the system clipboard.}
 
 \item{encoding}{The character encoding used for the file. The default,
 \code{NULL}, use the encoding specified in the file, but sometimes this
@@ -63,7 +82,8 @@ for names in the style of base R).
 \item A purrr-style anonymous function, see \code{\link[rlang:as_function]{rlang::as_function()}}
 }
 
-See \link{name-repair} for more details on these terms and the strategies used
+This argument is passed on as \code{repair} to \code{\link[vctrs:vec_as_names]{vctrs::vec_as_names()}}.
+See there for more details on these terms and the strategies used
 to enforce them.}
 
 \item{data}{Data frame to write.}

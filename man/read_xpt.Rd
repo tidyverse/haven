@@ -5,8 +5,13 @@
 \alias{write_xpt}
 \title{Read and write SAS transport files}
 \usage{
-read_xpt(file, col_select = NULL, skip = 0, n_max = Inf,
-  .name_repair = "unique")
+read_xpt(
+  file,
+  col_select = NULL,
+  skip = 0,
+  n_max = Inf,
+  .name_repair = "unique"
+)
 
 write_xpt(data, path, version = 8, name = NULL)
 }
@@ -24,7 +29,7 @@ Literal data is most useful for examples and tests. It must contain at
 least one new line to be recognised as data (instead of a path) or be a
 vector of greater than length 1.
 
-Using a value of \code{\link[=clipboard]{clipboard()}} will read from the system clipboard.}
+Using a value of \code{\link[readr:clipboard]{clipboard()}} will read from the system clipboard.}
 
 \item{col_select}{One or more selection expressions, like in
 \code{\link[dplyr:select]{dplyr::select()}}. Use \code{c()} or \code{list()} to use more than one expression.
@@ -47,7 +52,8 @@ for names in the style of base R).
 \item A purrr-style anonymous function, see \code{\link[rlang:as_function]{rlang::as_function()}}
 }
 
-See \link{name-repair} for more details on these terms and the strategies used
+This argument is passed on as \code{repair} to \code{\link[vctrs:vec_as_names]{vctrs::vec_as_names()}}.
+See there for more details on these terms and the strategies used
 to enforce them.}
 
 \item{data}{Data frame to write.}

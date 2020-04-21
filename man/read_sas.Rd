@@ -5,9 +5,17 @@
 \alias{write_sas}
 \title{Read and write SAS files.}
 \usage{
-read_sas(data_file, catalog_file = NULL, encoding = NULL,
-  catalog_encoding = encoding, col_select = NULL, skip = 0L,
-  n_max = Inf, cols_only = "DEPRECATED", .name_repair = "unique")
+read_sas(
+  data_file,
+  catalog_file = NULL,
+  encoding = NULL,
+  catalog_encoding = encoding,
+  col_select = NULL,
+  skip = 0L,
+  n_max = Inf,
+  cols_only = "DEPRECATED",
+  .name_repair = "unique"
+)
 
 write_sas(data, path)
 }
@@ -43,7 +51,8 @@ for names in the style of base R).
 \item A purrr-style anonymous function, see \code{\link[rlang:as_function]{rlang::as_function()}}
 }
 
-See \link{name-repair} for more details on these terms and the strategies used
+This argument is passed on as \code{repair} to \code{\link[vctrs:vec_as_names]{vctrs::vec_as_names()}}.
+See there for more details on these terms and the strategies used
 to enforce them.}
 
 \item{data}{Data frame to write.}
