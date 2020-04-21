@@ -111,7 +111,6 @@ obj_print_footer.haven_labelled <- function(x, ...) {
 
 # Type system -------------------------------------------------------------
 
-#' @importFrom methods setOldClass
 methods::setOldClass(c("haven_labelled", "vctrs_vctr"))
 
 #' @export
@@ -124,11 +123,6 @@ is.labelled <- function(x) inherits(x, "haven_labelled")
 #' @export
 vec_ptype2.haven_labelled <- function(x, y, ...) {
   UseMethod("vec_ptype2.haven_labelled", y)
-}
-#' @method vec_ptype2.haven_labelled default
-#' @export
-vec_ptype2.haven_labelled.default <- function(x, y, ..., x_arg = "x", y_arg = "y") {
-  vec_default_ptype2(x, y, x_arg = x_arg, y_arg = y_arg)
 }
 
 #' @method vec_ptype2.double haven_labelled
@@ -181,15 +175,6 @@ vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ...) {
 #' @export
 vec_cast.haven_labelled <- function(x, to, ...) {
   UseMethod("vec_cast.haven_labelled")
-}
-#' @method vec_cast.haven_labelled default
-#' @export
-vec_cast.haven_labelled.default <- function(x, to, ...) {
-  if (inherits_any(x, c("numeric", "double", "integer", "character"))) {
-    vec_restore(vec_cast(x, vec_data(to)), to)
-  } else {
-    vec_default_cast(x, to, ...)
-  }
 }
 
 #' @method vec_cast.double haven_labelled
