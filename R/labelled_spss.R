@@ -82,15 +82,16 @@ obj_print_footer.haven_labelled_spss <- function(x, ...) {
 #' @export
 is.na.haven_labelled_spss <- function(x) {
   miss <- NextMethod()
+  val <- vec_data(x)
 
   na_values <- attr(x, "na_values")
   if (!is.null(na_values)) {
-    miss <- miss | x %in% na_values
+    miss <- miss | val %in% na_values
   }
 
   na_range <- attr(x, "na_range")
   if (!is.null(na_range)) {
-    miss <- miss | (x >= na_range[1] & x <= na_range[2])
+    miss <- miss | (val >= na_range[1] & val <= na_range[2])
   }
 
   miss
