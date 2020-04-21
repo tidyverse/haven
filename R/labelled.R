@@ -43,13 +43,6 @@ labelled <- function(x = double(), labels = NULL, label = NULL) {
   validate_labelled(new_labelled(x, labels = labels, label = label))
 }
 
-# TODO: Remove once vec_cast() preserves names.
-# https://github.com/r-lib/vctrs/issues/623
-#' @importFrom stats setNames
-vec_cast_named <- function(x, to, ...) {
-  setNames(vec_cast(x, to, ...), names(x))
-}
-
 new_labelled <- function(x = double(), labels = NULL, label = NULL,
                          ..., class = character()) {
   if (!is.numeric(x) && !is.character(x)) {
@@ -527,3 +520,9 @@ get_labeltext <- function(x, prefix=": ") {
   }
 }
 
+
+# TODO: Remove once vec_cast() preserves names.
+# https://github.com/r-lib/vctrs/issues/623
+vec_cast_named <- function(x, to, ...) {
+  stats::setNames(vec_cast(x, to, ...), names(x))
+}
