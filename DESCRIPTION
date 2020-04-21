@@ -32,6 +32,7 @@ Imports:
     tibble,
     tidyselect,
     vctrs (>= 0.2.4)
+Remotes: r-lib/vctrs
 Suggests: 
     covr,
     fs,
