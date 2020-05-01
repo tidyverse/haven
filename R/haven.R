@@ -1,4 +1,6 @@
 #' @useDynLib haven, .registration = TRUE
+#' @import rlang
+#' @import vctrs
 #' @importFrom Rcpp sourceCpp
 #' @importFrom tibble tibble
 #' @importFrom hms hms

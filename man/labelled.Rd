@@ -5,7 +5,7 @@
 \alias{is.labelled}
 \title{Create a labelled vector.}
 \usage{
-labelled(x, labels, label = NULL)
+labelled(x = double(), labels = NULL, label = NULL)
 
 is.labelled(x)
 }

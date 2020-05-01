@@ -38,66 +38,171 @@
 #' # values
 #' x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 #' zap_labels(x)
-labelled <- function(x, labels, label = NULL) {
+labelled <- function(x = double(), labels = NULL, label = NULL) {
+  labels <- vec_cast_named(labels, x, x_arg = "labels", to_arg = "x")
+  validate_labelled(new_labelled(x, labels = labels, label = label))
+}
+
+new_labelled <- function(x = double(), labels = NULL, label = NULL,
+                         ..., class = character()) {
   if (!is.numeric(x) && !is.character(x)) {
-    stop("`x` must be a numeric or a character vector", call. = FALSE)
+    abort("`x` must be a numeric or a character vector.")
   }
-  if (!is.null(labels) && !is_coercible(x, labels)) {
-    stop("`x` and `labels` must be same type", call. = FALSE)
-  }
-  if (!is.null(labels) && is.null(names(labels))) {
-    stop("`labels` must have names", call. = FALSE)
-  }
-  if (any(duplicated(stats::na.omit(labels)))) {
-    stop("`labels` must be unique", call. = FALSE)
+  if (!is.null(labels) && !vec_is(labels, x)) {
+    abort("`labels` must be same type as `x`.")
   }
   if (!is.null(label) && (!is.character(label) || length(label) != 1)) {
-    stop("`label` must be a character vector of length one", call. = FALSE)
+    abort("`label` must be a character vector of length one.")
   }
 
-  structure(x,
-    label = label,
+  new_vctr(x,
     labels = labels,
-    class = "haven_labelled"
+    label = label,
+    ...,
+    class = c(class, "haven_labelled"),
+    inherit_base_type = TRUE
   )
 }
 
-is_coercible <- function(x, labels) {
-  if (typeof(x) == typeof(labels)) {
-    return(TRUE)
+validate_labelled <- function(x) {
+  labels <- attr(x, "labels")
+  if (!is.null(labels) && is.null(names(labels))) {
+    abort("`labels` must have names.")
+  }
+  if (any(duplicated(stats::na.omit(labels)))) {
+    abort("`labels` must be unique.")
   }
 
-  if (is.numeric(x) && is.numeric(labels)) {
-    return(TRUE)
-  }
-
-  FALSE
+  x
 }
+
+
+# Formatting --------------------------------------------------------------
+
+#' @export
+vec_ptype_full.haven_labelled <- function(x, ...) {
+  paste0("labelled<", vec_ptype_full(vec_data(x)), ">")
+}
+
+#' @export
+vec_ptype_abbr.haven_labelled <- function(x, ...) {
+  paste0(vec_ptype_abbr(vec_data(x)), "+lbl")
+}
+
+#' @export
+obj_print_header.haven_labelled <- function(x, ...) {
+  cat_line("<", vec_ptype_full(x), "[", vec_size(x), "]>", get_labeltext(x))
+  invisible(x)
+}
+
+#' @export
+format.haven_labelled <- function(x, ..., digits = getOption("digits")) {
+  if (is.double(x)) {
+    format_tagged_na(x, digits = digits)
+  } else {
+    format(vec_data(x), ...)
+  }
+}
+
+
+#' @export
+obj_print_footer.haven_labelled <- function(x, ...) {
+  print_labels(x)
+}
+
+
+# Type system -------------------------------------------------------------
+
+methods::setOldClass(c("haven_labelled", "vctrs_vctr"))
 
 #' @export
 #' @rdname labelled
 is.labelled <- function(x) inherits(x, "haven_labelled")
 
 #' @export
-`[.haven_labelled` <- function(x, ...) {
-  labelled(NextMethod(), attr(x, "labels"), attr(x, "label", exact = TRUE))
+vec_ptype2.double.haven_labelled <- function(x, y, ...) {
+  data_type <- vec_ptype2(x, vec_data(y), ...)
+  new_labelled(data_type,
+    labels = vec_cast_named(attr(y, "labels"), data_type),
+    label = attr(y, "label", exact = TRUE)
+  )
+}
+#' @export
+vec_ptype2.integer.haven_labelled <- vec_ptype2.double.haven_labelled
+#' @export
+vec_ptype2.character.haven_labelled <- vec_ptype2.double.haven_labelled
+#' @export
+vec_ptype2.haven_labelled.double <- function(x, y, ...) vec_ptype2(y, x, ...)
+#' @export
+vec_ptype2.haven_labelled.integer <- vec_ptype2.haven_labelled.double
+#' @export
+vec_ptype2.haven_labelled.character <- vec_ptype2.haven_labelled.double
+
+#' @export
+vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "", y_arg = "") {
+  data_type <- vec_ptype2(vec_data(x), vec_data(y), ..., x_arg = x_arg, y_arg = y_arg)
+
+  x_labels <- vec_cast_named(attr(x, "labels"), data_type, x_arg = x_arg)
+  y_labels <- vec_cast_named(attr(y, "labels"), data_type, x_arg = y_arg)
+  if (!identical(x_labels, y_labels)) {
+    details <- "Can't safely combine labelled vectors with different label sets."
+    stop_incompatible_type(x, y, details = details, x_arg = x_arg, y_arg = y_arg)
+  }
+
+  new_labelled(data_type,
+    labels = x_labels,
+    label = attr(x, "label", exact = TRUE)
+  )
+}
+
+
+#' @export
+vec_cast.double.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
+#' @export
+vec_cast.integer.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
+#' @export
+vec_cast.character.haven_labelled <- function(x, to, ...) {
+  if (is.character(x)) {
+    vec_cast(vec_data(x), to, ...)
+  } else {
+    stop_incompatible_cast(x, to, ...)
+  }
 }
 
 #' @export
-print.haven_labelled <- function(x, ..., digits = getOption("digits")) {
-  cat("<Labelled ", typeof(x), ">", get_labeltext(x), "\n", sep = "")
+vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_arg = "") {
+  out_data <- vec_cast(vec_data(x), vec_data(to), ..., x_arg = x_arg, to_arg = to_arg)
 
-  if (is.double(x)) {
-    print_tagged_na(x, digits = digits)
-  } else {
-    xx <- x
-    attributes(xx) <- NULL
-    print.default(xx, quote = FALSE)
+  x_labels <- attr(x, "labels")
+  to_labels <- attr(to, "labels")
+  out_labels <- to_labels %||% x_labels
+
+  out <- labelled(out_data,
+    labels = out_labels,
+    label = attr(x, "label", exact = TRUE)
+  )
+
+  # do we lose tagged na values?
+  if (is.double(x) && !is.double(out)) {
+    lossy <- is_tagged_na(x)
+    maybe_lossy_cast(out, x, to, lossy,
+      x_arg = x_arg,
+      to_arg = to_arg,
+      details = "Only doubles can hold tagged na values."
+    )
   }
 
-  print_labels(x)
+  # do any values become unlabelled?
+  if (!is.null(to_labels)) {
+    lossy <- x %in% x_labels[!x_labels %in% out_labels]
+    maybe_lossy_cast(out, x, to, lossy,
+      x_arg = x_arg,
+      to_arg = to_arg,
+      details = paste0("Values are labelled in `", x_arg, "` but not in `", to_arg, "`.")
+    )
+  }
 
-  invisible()
+  out
 }
 
 #' Print the labels of a labelled vector
@@ -151,11 +256,6 @@ label_length <- function(x) {
   }
 }
 
-#' @export
-#' @importFrom tibble type_sum
-type_sum.haven_labelled <- function(x) {
-  paste0(tibble::type_sum(unclass(x)), "+lbl")
-}
 
 # Dynamically exported, see zzz.R
 pillar_shaft.haven_labelled <- function(
@@ -323,6 +423,9 @@ format.pillar_shaft_haven_labelled_chr <- function(x, width, ...) {
   pillar::new_ornament(out, width = width, align = "left")
 }
 
+
+# Helpers -----------------------------------------------------------------
+
 str_trunc <- function(x, widths, subtle = FALSE) {
   str_width <- pillar::get_extent(x)
   too_wide <- which(!is.na(x) & str_width > widths)
@@ -372,4 +475,11 @@ get_labeltext <- function(x, prefix=": ") {
   if(!is.null(label)) {
     paste0(prefix, label)
   }
+}
+
+
+# TODO: Remove once vec_cast() preserves names.
+# https://github.com/r-lib/vctrs/issues/623
+vec_cast_named <- function(x, to, ...) {
+  stats::setNames(vec_cast(x, to, ...), names(x))
 }

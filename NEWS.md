@@ -1,5 +1,11 @@
 # haven (development version)
 
+* `labelled()` gains the necessary support to work seemlessly in dplyr 1.0.0,
+  tidyr 1.0.0, and other packages that use vctrs (@mikmart, #496).
+
+* `labelled()` vectors now explicitly inherit from the corresponding base
+  types (e.g. integer, double, or character) (#509).
+
 * ReadStat update
   * `read_sas()` now supports "any" encoding (#482).
 

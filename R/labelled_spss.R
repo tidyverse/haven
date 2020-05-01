@@ -21,75 +21,77 @@
 #'
 #' # Print data and metadata
 #' x2
-labelled_spss <- function(x, labels, na_values = NULL, na_range = NULL, label = NULL) {
-  if (!is.null(na_values)) {
-    if (!is_coercible(x, na_values)) {
-      stop("`x` and `na_values` must be same type", call. = FALSE)
-    }
+labelled_spss <- function(x = double(), labels = NULL, na_values = NULL,
+                          na_range = NULL, label = NULL) {
+
+  na_values <- vec_cast_named(na_values, x, x_arg = "na_values", to_arg = "x")
+  labelled <- labelled(x, labels = labels, label = label)
+
+  new_labelled_spss(
+    vec_data(labelled),
+    labels = attr(labelled, "labels"),
+    na_values = na_values,
+    na_range = na_range,
+    label = attr(labelled, "label", exact = TRUE)
+  )
+}
+
+new_labelled_spss <- function(x, labels, na_values, na_range, label) {
+  if (!is.null(na_values) && !vec_is(x, na_values)) {
+    abort("`na_values` must be same type as `x`.")
   }
   if (!is.null(na_range)) {
     if (!is.numeric(x)) {
-      stop("`na_range` is only applicable for labelled numeric vectors", call. = FALSE)
+      abort("`na_range` is only applicable for labelled numeric vectors.")
     }
     if (!is.numeric(na_range) || length(na_range) != 2) {
-      stop("`na_range` must be a numeric vector of length two.", call. = FALSE)
+      abort("`na_range` must be a numeric vector of length two.")
     }
   }
 
-  structure(
-    labelled(x, labels, label = label),
+  new_labelled(x,
+    labels = labels,
+    label = label,
     na_values = na_values,
     na_range = na_range,
-    class = c("haven_labelled_spss", "haven_labelled")
+    class = "haven_labelled_spss"
   )
 }
 
 #' @export
-`[.haven_labelled_spss` <- function(x, ...) {
-  labelled_spss(
-    NextMethod(),
-    labels = attr(x, "labels"),
-    label = attr(x, "label", exact = TRUE),
-    na_values = attr(x, "na_values"),
-    na_range = attr(x, "na_range")
-  )
+vec_ptype_full.haven_labelled_spss <- function(x, ...) {
+  paste0("labelled_spss<", vec_ptype_full(vec_data(x)), ">")
 }
 
 #' @export
-print.haven_labelled_spss <- function(x, ...) {
-  cat("<Labelled SPSS ", typeof(x), ">", get_labeltext(x), "\n", sep = "")
-
-  xx <- x
-  attributes(xx) <- NULL
-  print(xx, quote = FALSE)
-
+obj_print_footer.haven_labelled_spss <- function(x, ...) {
   na_values <- attr(x, "na_values")
   if (!is.null(na_values)) {
-    cat("Missing values: ", paste(na_values, collapse = ", "), "\n", sep = "")
+    cat_line("Missing values: ", paste(na_values, collapse = ", "))
   }
 
   na_range <- attr(x, "na_range")
   if (!is.null(na_range)) {
-    cat("Missing range:  [", paste(na_range, collapse = ", "), "]\n", sep = "")
+    cat_line("Missing range:  [", paste(na_range, collapse = ", "), "]")
   }
 
-  print_labels(x)
-  invisible()
+  NextMethod()
 }
 
 
 #' @export
 is.na.haven_labelled_spss <- function(x) {
   miss <- NextMethod()
+  val <- vec_data(x)
 
   na_values <- attr(x, "na_values")
   if (!is.null(na_values)) {
-    miss <- miss | x %in% na_values
+    miss <- miss | val %in% na_values
   }
 
   na_range <- attr(x, "na_range")
   if (!is.null(na_range)) {
-    miss <- miss | (x >= na_range[1] & x <= na_range[2])
+    miss <- miss | (val >= na_range[1] & val <= na_range[2])
   }
 
   miss

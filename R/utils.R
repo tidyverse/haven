@@ -18,3 +18,7 @@ is_integerish <- function(x) {
   x_finite <- x[finite_elts & !missing_elts]
   all(x_finite == as.integer(x_finite))
 }
+
+cat_line <- function(...) {
+  cat(paste0(..., "\n", collapse = ""))
+}

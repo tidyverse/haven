@@ -18,3 +18,4 @@
 ^\.github$
 ^\.httr-oauth$
 ^LICENSE\.md$
+^.vscode$

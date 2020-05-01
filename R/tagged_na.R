@@ -52,7 +52,7 @@ is_tagged_na <- function(x, tag = NULL) {
 #' @rdname tagged_na
 #' @export
 format_tagged_na <- function(x, digits = getOption("digits")) {
-  out <- format(x, digits = digits)
+  out <- format(vec_data(x), digits = digits)
   out[is_tagged_na(x)] <- paste0("NA(", na_tag(x)[is_tagged_na(x)], ")")
 
   # format again to make sure all elements have same width

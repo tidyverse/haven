@@ -246,6 +246,7 @@ public:
         }
 
         col.attr("na_values") = na_values;
+        col.attr("class") = CharacterVector::create("haven_labelled_spss", "haven_labelled", "vctrs_vctr", "character");
         break;
       }
       case READSTAT_TYPE_INT8:
@@ -283,9 +284,9 @@ public:
         if (has_range)
           col.attr("na_range") = na_range;
 
+        col.attr("class") = CharacterVector::create("haven_labelled_spss", "haven_labelled", "vctrs_vctr", "double");
       }
       }
-      col.attr("class") = CharacterVector::create("haven_labelled_spss", "haven_labelled");
     }
 
 
@@ -392,7 +393,7 @@ public:
 
       if (hasLabel(i)) {
         if (col.attr("class") == R_NilValue) {
-          col.attr("class") = "haven_labelled";
+          col.attr("class") = CharacterVector::create("haven_labelled", "vctrs_vctr", Rf_type2char(TYPEOF(col)));
         }
         col.attr("labels") = label_sets_[val_labels_[i]].labels();
       }

@@ -4,7 +4,13 @@
 \alias{labelled_spss}
 \title{Labelled vectors for SPSS}
 \usage{
-labelled_spss(x, labels, na_values = NULL, na_range = NULL, label = NULL)
+labelled_spss(
+  x = double(),
+  labels = NULL,
+  na_values = NULL,
+  na_range = NULL,
+  label = NULL
+)
 }
 \arguments{
 \item{x}{A vector to label. Must be either numeric (integer or double) or

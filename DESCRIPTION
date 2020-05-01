@@ -25,11 +25,14 @@ Depends:
 Imports: 
     forcats (>= 0.2.0),
     hms,
+    methods,
     Rcpp (>= 0.11.4),
     readr (>= 0.1.0),
     rlang (>= 0.4.0),
     tibble,
-    tidyselect
+    tidyselect,
+    vctrs (>= 0.2.4)
+Remotes: r-lib/vctrs
 Suggests: 
     covr,
     fs,
