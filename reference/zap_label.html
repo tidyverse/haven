@@ -190,13 +190,13 @@ labels.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>x1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>good</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>bad</span> <span class='kw'>=</span> <span class='fl'>5</span>))
-<span class='no'>x1</span></div><div class='output co'>#&gt; &lt;Labelled integer&gt;
+<span class='no'>x1</span></div><div class='output co'>#&gt; &lt;labelled&lt;integer&gt;[5]&gt;
 #&gt; [1] 1 2 3 4 5
 #&gt; 
 #&gt; Labels:
 #&gt;  value label
 #&gt;      1  good
-#&gt;      5   bad</div><div class='input'><span class='fu'>zap_label</span>(<span class='no'>x1</span>)</div><div class='output co'>#&gt; &lt;Labelled integer&gt;
+#&gt;      5   bad</div><div class='input'><span class='fu'>zap_label</span>(<span class='no'>x1</span>)</div><div class='output co'>#&gt; &lt;labelled&lt;integer&gt;[5]&gt;
 #&gt; [1] 1 2 3 4 5
 #&gt; 
 #&gt; Labels:
@@ -204,14 +204,14 @@ labels.</p>
 #&gt;      1  good
 #&gt;      5   bad</div><div class='input'>
 <span class='no'>x2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled_spss.html'>labelled_spss</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>:<span class='fl'>4</span>, <span class='fl'>9</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>good</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>bad</span> <span class='kw'>=</span> <span class='fl'>5</span>), <span class='kw'>na_values</span> <span class='kw'>=</span> <span class='fl'>9</span>)
-<span class='no'>x2</span></div><div class='output co'>#&gt; &lt;Labelled SPSS double&gt;
+<span class='no'>x2</span></div><div class='output co'>#&gt; &lt;labelled_spss&lt;double&gt;[5]&gt;
 #&gt; [1] 1 2 3 4 9
 #&gt; Missing values: 9
 #&gt; 
 #&gt; Labels:
 #&gt;  value label
 #&gt;      1  good
-#&gt;      5   bad</div><div class='input'><span class='fu'>zap_label</span>(<span class='no'>x2</span>)</div><div class='output co'>#&gt; &lt;Labelled SPSS double&gt;
+#&gt;      5   bad</div><div class='input'><span class='fu'>zap_label</span>(<span class='no'>x2</span>)</div><div class='output co'>#&gt; &lt;labelled_spss&lt;double&gt;[5]&gt;
 #&gt; [1] 1 2 3 4 9
 #&gt; Missing values: 9
 #&gt; 

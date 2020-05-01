@@ -162,7 +162,10 @@
 <a href="#haven-development-version" class="anchor"></a>haven (development version)<small> Unreleased </small>
 </h1>
 <ul>
-<li>ReadStat update
+<li><p><code><a href="../reference/labelled.html">labelled()</a></code> gains the necessary support to work seemlessly in dplyr 1.0.0, tidyr 1.0.0, and other packages that use vctrs (<a href='https://github.com/mikmart'>@mikmart</a>, <a href='https://github.com/tidyverse/haven/issues/496'>#496</a>).</p></li>
+<li><p><code><a href="../reference/labelled.html">labelled()</a></code> vectors now explicitly inherit from the corresponding base types (e.g. integer, double, or character) (<a href='https://github.com/tidyverse/haven/issues/509'>#509</a>).</p></li>
+<li>
+<p>ReadStat update</p>
 <ul>
 <li>
 <code><a href="../reference/read_sas.html">read_sas()</a></code> now supports “any” encoding (<a href='https://github.com/tidyverse/haven/issues/482'>#482</a>).</li>

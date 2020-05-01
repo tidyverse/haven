@@ -173,7 +173,7 @@ expect you'll coerce to a standard R class (e.g. a <code><a href='https://rdrr.i
 soon after importing.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>labelled</span>(<span class='no'>x</span>, <span class='no'>labels</span>, <span class='kw'>label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+    <pre class="usage"><span class='fu'>labelled</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/double.html'>double</a></span>(), <span class='kw'>labels</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
 <span class='fu'>is.labelled</span>(<span class='no'>x</span>)</pre>
 
@@ -214,7 +214,7 @@ of the values might be labelled.</p></td>
 <span class='no'>s3</span> <span class='kw'>&lt;-</span> <span class='fu'>labelled</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span>, <span class='st'>"X"</span>, <span class='st'>"N/A"</span>),
   <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>Male</span> <span class='kw'>=</span> <span class='st'>"M"</span>, <span class='kw'>Female</span> <span class='kw'>=</span> <span class='st'>"F"</span>, <span class='kw'>Refused</span> <span class='kw'>=</span> <span class='st'>"X"</span>, <span class='st'>"Not applicable"</span> <span class='kw'>=</span> <span class='st'>"N/A"</span>)
 )
-<span class='no'>s3</span></div><div class='output co'>#&gt; &lt;Labelled character&gt;
+<span class='no'>s3</span></div><div class='output co'>#&gt; &lt;labelled&lt;character&gt;[5]&gt;
 #&gt; [1] M   M   F   X   N/A
 #&gt; 
 #&gt; Labels:
