@@ -49,7 +49,7 @@ test_that("labelleds are round tripped", {
   num <- labelled(c(1, 2), c(a = 1, b = 3))
   chr <- labelled(c("a", "b"), c(a = "b", b = "a"))
 
-  expect_equal(roundtrip_var(int, "dta"), int)
+  expect_equal(roundtrip_var(num, "dta"), num)
   # FIXME!
   # expect_equal(roundtrip_var(chr, "dta"), chr)
 })

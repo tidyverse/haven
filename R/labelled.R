@@ -59,7 +59,8 @@ new_labelled <- function(x = double(), labels = NULL, label = NULL,
     labels = labels,
     label = label,
     ...,
-    class = c(class, "haven_labelled")
+    class = c(class, "haven_labelled"),
+    inherit_base_type = TRUE
   )
 }
 

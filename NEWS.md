@@ -1,5 +1,8 @@
 # haven (development version)
 
+* `labelled()` vectors now explicitly inherit from the corresponding base
+  types (e.g. integer, double, or character) (#509).
+
 * ReadStat update
   * `read_sas()` now supports "any" encoding (#482).
 
