@@ -1,15 +1,9 @@
 #' @useDynLib haven, .registration = TRUE
 #' @import rlang
+#' @import vctrs
 #' @importFrom Rcpp sourceCpp
 #' @importFrom tibble tibble
 #' @importFrom hms hms
-NULL
-
-#' Internal vctrs methods
-#'
-#' @import vctrs
-#' @keywords internal
-#' @name haven-vctrs
 NULL
 
 #' Read and write SAS files.

@@ -103,6 +103,7 @@ format.haven_labelled <- function(x, ..., digits = getOption("digits")) {
   }
 }
 
+
 #' @export
 obj_print_footer.haven_labelled <- function(x, ...) {
   print_labels(x)
@@ -117,49 +118,34 @@ methods::setOldClass(c("haven_labelled", "vctrs_vctr"))
 #' @rdname labelled
 is.labelled <- function(x) inherits(x, "haven_labelled")
 
-#' @rdname haven-vctrs
-#' @method vec_ptype2 haven_labelled
-#' @export vec_ptype2.haven_labelled
-#' @export
-vec_ptype2.haven_labelled <- function(x, y, ...) {
-  UseMethod("vec_ptype2.haven_labelled", y)
-}
-
-#' @method vec_ptype2.double haven_labelled
 #' @export
 vec_ptype2.double.haven_labelled <- function(x, y, ...) {
-  data_type <- vec_ptype2(x, vec_data(y))
+  data_type <- vec_ptype2(x, vec_data(y), ...)
   new_labelled(data_type,
     labels = vec_cast_named(attr(y, "labels"), data_type),
     label = attr(y, "label", exact = TRUE)
   )
 }
-#' @method vec_ptype2.integer haven_labelled
 #' @export
 vec_ptype2.integer.haven_labelled <- vec_ptype2.double.haven_labelled
-#' @method vec_ptype2.character haven_labelled
 #' @export
 vec_ptype2.character.haven_labelled <- vec_ptype2.double.haven_labelled
-#' @method vec_ptype2.haven_labelled double
 #' @export
 vec_ptype2.haven_labelled.double <- function(x, y, ...) vec_ptype2(y, x, ...)
-#' @method vec_ptype2.haven_labelled integer
 #' @export
 vec_ptype2.haven_labelled.integer <- vec_ptype2.haven_labelled.double
-#' @method vec_ptype2.haven_labelled character
 #' @export
 vec_ptype2.haven_labelled.character <- vec_ptype2.haven_labelled.double
 
-#' @method vec_ptype2.haven_labelled haven_labelled
 #' @export
-vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ...) {
-  data_type <- vec_ptype2(vec_data(x), vec_data(y))
+vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "", y_arg = "") {
+  data_type <- vec_ptype2(vec_data(x), vec_data(y), ..., x_arg = x_arg, y_arg = y_arg)
 
-  x_labels <- vec_cast_named(attr(x, "labels"), data_type)
-  y_labels <- vec_cast_named(attr(y, "labels"), data_type)
+  x_labels <- vec_cast_named(attr(x, "labels"), data_type, x_arg = x_arg)
+  y_labels <- vec_cast_named(attr(y, "labels"), data_type, x_arg = y_arg)
   if (!identical(x_labels, y_labels)) {
     details <- "Can't safely combine labelled vectors with different label sets."
-    stop_incompatible_type(x, y, details = details)
+    stop_incompatible_type(x, y, details = details, x_arg = x_arg, y_arg = y_arg)
   }
 
   new_labelled(data_type,
@@ -169,34 +155,22 @@ vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ...) {
 }
 
 
-#' @rdname haven-vctrs
-#' @method vec_cast haven_labelled
-#' @export vec_cast.haven_labelled
-#' @export
-vec_cast.haven_labelled <- function(x, to, ...) {
-  UseMethod("vec_cast.haven_labelled")
-}
-
-#' @method vec_cast.double haven_labelled
 #' @export
 vec_cast.double.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
-#' @method vec_cast.integer haven_labelled
 #' @export
 vec_cast.integer.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
-#' @method vec_cast.character haven_labelled
 #' @export
 vec_cast.character.haven_labelled <- function(x, to, ...) {
   if (is.character(x)) {
-    vec_cast(vec_data(x), to)
+    vec_cast(vec_data(x), to, ...)
   } else {
     stop_incompatible_cast(x, to, ...)
   }
 }
 
-#' @method vec_cast.haven_labelled haven_labelled
 #' @export
-vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "x", to_arg = "to") {
-  out_data <- vec_cast(vec_data(x), vec_data(to))
+vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_arg = "") {
+  out_data <- vec_cast(vec_data(x), vec_data(to), ..., x_arg = x_arg, to_arg = to_arg)
 
   x_labels <- attr(x, "labels")
   to_labels <- attr(to, "labels")
@@ -210,17 +184,21 @@ vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "x", to_a
   # do we lose tagged na values?
   if (is.double(x) && !is.double(out)) {
     lossy <- is_tagged_na(x)
-    maybe_lossy_cast(out, x, to, lossy, details = {
-      "Only doubles can hold tagged na values."
-    })
+    maybe_lossy_cast(out, x, to, lossy,
+      x_arg = x_arg,
+      to_arg = to_arg,
+      details = "Only doubles can hold tagged na values."
+    )
   }
 
   # do any values become unlabelled?
   if (!is.null(to_labels)) {
     lossy <- x %in% x_labels[!x_labels %in% out_labels]
-    maybe_lossy_cast(out, x, to, lossy, details = paste0(
-      "Values are labelled in `", x_arg, "` but not in `", to_arg, "`."
-    ))
+    maybe_lossy_cast(out, x, to, lossy,
+      x_arg = x_arg,
+      to_arg = to_arg,
+      details = paste0("Values are labelled in `", x_arg, "` but not in `", to_arg, "`.")
+    )
   }
 
   out
