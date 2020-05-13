@@ -48,9 +48,9 @@ read_sas <- function(data_file, catalog_file = NULL,
     stopifnot(is.character(cols_only)) # used to only work with a char vector
 
     # guarantee a quosure to keep NULL and tidyselect logic clean downstream
-    col_select <- rlang::quo(c(!!!cols_only))
+    col_select <- quo(c(!!!cols_only))
   } else {
-    col_select <- rlang::enquo(col_select)
+    col_select <- enquo(col_select)
   }
 
   if (is.null(encoding)) {
@@ -413,8 +413,8 @@ var_names <- function(data, i) {
 }
 
 skip_cols <- function(reader, col_select = NULL, ...) {
-  col_select <- rlang::enquo(col_select)
-  if (rlang::quo_is_null(col_select)) {
+  col_select <- enquo(col_select)
+  if (quo_is_null(col_select)) {
     return(character())
   }
 
