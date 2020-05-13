@@ -12,10 +12,12 @@
 #define XPORT_DEFAULT_VERISON   8
 #define RECORD_LEN 80
 
-static void copypad(char *dst, size_t dst_len, const char *src) {
-    strncpy(dst, src, dst_len);
-    if (strlen(src) < dst_len)
-        memset(&dst[strlen(src)], ' ', dst_len-strlen(src));
+static void copypad(char * restrict dst, size_t dst_len, const char * restrict src) {
+    char *dst_end = dst + dst_len;
+    while (dst < dst_end && *src)
+        *dst++ = *src++;
+    while (dst < dst_end)
+        *dst++ = ' ';
 }
 
 static readstat_error_t xport_write_bytes(readstat_writer_t *writer, const void *bytes, size_t len) {
