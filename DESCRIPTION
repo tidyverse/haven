@@ -31,8 +31,7 @@ Imports:
     rlang (>= 0.4.0),
     tibble,
     tidyselect,
-    vctrs (>= 0.2.4)
-Remotes: r-lib/vctrs
+    vctrs (>= 0.3.0)
 Suggests: 
     covr,
     fs,
