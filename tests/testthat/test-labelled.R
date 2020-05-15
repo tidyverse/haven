@@ -68,15 +68,14 @@ test_that("combining preserves label sets", {
   )
 })
 
-test_that("won't combine if label sets differ", {
-  expect_incompatible_type(vec_c(
-    labelled(labels = c(Good = 1, Bad = 5)),
-    labelled(labels = c(Bad = 1, Good = 5)),
-  ))
-  expect_incompatible_type(vec_c(
-    labelled(labels = c(Bad = 1)),
-    labelled(labels = c(Good = 5)),
-  ))
+test_that("strip labels if different", {
+  expect_equal(
+    vec_c(
+      labelled(labels = c(Good = 1, Bad = 5)),
+      labelled(labels = c(Bad = 1, Good = 5)),
+    ),
+    double()
+  )
 })
 
 test_that("combining picks label from the left", {

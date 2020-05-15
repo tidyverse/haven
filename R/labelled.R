@@ -145,14 +145,14 @@ vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "", y_ar
   x_labels <- vec_cast_named(attr(x, "labels"), data_type, x_arg = x_arg)
   y_labels <- vec_cast_named(attr(y, "labels"), data_type, x_arg = y_arg)
   if (!identical(x_labels, y_labels)) {
-    details <- "Can't safely combine labelled vectors with different label sets."
-    stop_incompatible_type(x, y, details = details, x_arg = x_arg, y_arg = y_arg)
+    # strip labels if not compatible
+    return(vec_data(x))
   }
 
-  new_labelled(data_type,
-    labels = x_labels,
-    label = attr(x, "label", exact = TRUE)
-  )
+  # Take label from LHS
+  label <- attr(x, "label", exact = TRUE) %||% attr(y, "label", exact = TRUE)
+
+  new_labelled(data_type, labels = x_labels, label = label)
 }
 
 
