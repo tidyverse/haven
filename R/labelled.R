@@ -247,15 +247,6 @@ print_labels <- function(x, name = NULL) {
   invisible(x)
 }
 
-#' @export
-as.data.frame.haven_labelled <- function(x, ...) {
-  df <- list(x)
-  class(df) <- "data.frame"
-  attr(df, "row.names") <- .set_row_names(length(x))
-
-  df
-}
-
 
 # Arithmetic --------------------------------------------------------------
 
