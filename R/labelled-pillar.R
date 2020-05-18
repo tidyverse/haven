@@ -208,13 +208,3 @@ pillar_print_pkgs_available <- function() {
   requireNamespace("crayon", quietly = TRUE) &
     requireNamespace("cli", quietly = TRUE)
 }
-
-# Convenience function for getting the label with
-# with a prefix (if label is not empty), used for
-# printing 'label' and 'labelled_spss' vectors
-get_labeltext <- function(x, prefix=": ") {
-  label = attr(x, "label", exact = TRUE)
-  if(!is.null(label)) {
-    paste0(prefix, label)
-  }
-}

@@ -104,6 +104,16 @@ obj_print_header.haven_labelled <- function(x, ...) {
   invisible(x)
 }
 
+# Convenience function for getting the label with
+# with a prefix (if label is not empty), used for
+# printing 'label' and 'labelled_spss' vectors
+get_labeltext <- function(x, prefix=": ") {
+  label = attr(x, "label", exact = TRUE)
+  if(!is.null(label)) {
+    paste0(prefix, label)
+  }
+}
+
 #' @export
 format.haven_labelled <- function(x, ..., digits = getOption("digits")) {
   if (is.double(x)) {
