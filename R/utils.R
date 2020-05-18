@@ -22,3 +22,9 @@ is_integerish <- function(x) {
 cat_line <- function(...) {
   cat(paste0(..., "\n", collapse = ""))
 }
+
+# TODO: Remove once vec_cast() preserves names.
+# https://github.com/r-lib/vctrs/issues/623
+vec_cast_named <- function(x, to, ...) {
+  stats::setNames(vec_cast(x, to, ...), names(x))
+}
