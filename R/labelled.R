@@ -119,6 +119,41 @@ obj_print_footer.haven_labelled <- function(x, ...) {
 }
 
 
+#' Print the labels of a labelled vector
+#'
+#' This is a convenience function, useful to explore the variables of
+#' a newly imported dataset.
+#' @param x A labelled vector
+#' @param name The name of the vector (optional)
+#' @export
+#' @examples
+#' s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
+#' s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
+#' labelled_df <- tibble::tibble(s1, s2)
+#'
+#' for (var in names(labelled_df)) {
+#'   print_labels(labelled_df[[var]], var)
+#' }
+print_labels <- function(x, name = NULL) {
+  if (!is.labelled(x)) {
+    stop("x must be a labelled vector", call. = FALSE)
+  }
+  labels <- attr(x, "labels")
+  if (length(labels) == 0) {
+    return(invisible(x))
+  }
+
+  cat("\nLabels:", name, "\n", sep = "")
+
+  value <- if (is.double(labels)) format_tagged_na(labels) else unname(labels)
+
+  lab_df <- data.frame(value = value, label = names(labels), row.names = NULL)
+  print(lab_df, row.names = FALSE)
+
+  invisible(x)
+}
+
+
 # Type system -------------------------------------------------------------
 
 methods::setOldClass(c("haven_labelled", "vctrs_vctr"))
@@ -212,41 +247,6 @@ vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_ar
 
   out
 }
-
-#' Print the labels of a labelled vector
-#'
-#' This is a convenience function, useful to explore the variables of
-#' a newly imported dataset.
-#' @param x A labelled vector
-#' @param name The name of the vector (optional)
-#' @export
-#' @examples
-#' s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
-#' s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
-#' labelled_df <- tibble::tibble(s1, s2)
-#'
-#' for (var in names(labelled_df)) {
-#'   print_labels(labelled_df[[var]], var)
-#' }
-print_labels <- function(x, name = NULL) {
-  if (!is.labelled(x)) {
-    stop("x must be a labelled vector", call. = FALSE)
-  }
-  labels <- attr(x, "labels")
-  if (length(labels) == 0) {
-    return(invisible(x))
-  }
-
-  cat("\nLabels:", name, "\n", sep = "")
-
-  value <- if (is.double(labels)) format_tagged_na(labels) else unname(labels)
-
-  lab_df <- data.frame(value = value, label = names(labels), row.names = NULL)
-  print(lab_df, row.names = FALSE)
-
-  invisible(x)
-}
-
 
 # Arithmetic --------------------------------------------------------------
 
