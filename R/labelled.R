@@ -492,3 +492,41 @@ get_labeltext <- function(x, prefix=": ") {
 vec_cast_named <- function(x, to, ...) {
   stats::setNames(vec_cast(x, to, ...), names(x))
 }
+
+
+# Arithmetic --------------------------------------------------------------
+
+#' Internal vctrs methods
+#'
+#' @keywords internal
+#' @export
+vec_arith.haven_labelled <- function(op, x, y, ...) {
+  UseMethod("vec_arith.haven_labelled", y)
+}
+#' @export
+#' @method vec_arith.haven_labelled default
+vec_arith.haven_labelled.default <- function(op, x, y, ...) {
+  stop_incompatible_op(op, x, y)
+}
+#' @export
+#' @method vec_arith.haven_labelled haven_labelled
+vec_arith.haven_labelled.haven_labelled <- function(op, x, y, ...) {
+  vec_arith_base(op, x, y)
+}
+#' @export
+#' @method vec_arith.haven_labelled numeric
+vec_arith.haven_labelled.numeric <- function(op, x, y, ...) {
+  vec_arith_base(op, x, y)
+}
+#' @export
+#' @method vec_arith.numeric haven_labelled
+vec_arith.numeric.haven_labelled <- function(op, x, y, ...) {
+  vec_arith_base(op, x, y)
+}
+
+#' @export
+vec_math.haven_labelled <- function(.fn, .x, ...) {
+  vec_math_base(.fn, .x, ...)
+}
+
+

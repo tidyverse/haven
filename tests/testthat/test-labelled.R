@@ -36,11 +36,25 @@ test_that("labels must be unique", {
   expect_error(labelled(1, c(female = 1, male = 1)), "must be unique")
 })
 
-
 test_that("have methods used by revdeps", {
   x <- labelled(1:3, labels = c(x = 1L, y = 2L))
   expect_equal(as.character(x), c("1", "2", "3"))
   expect_equal(levels(x), NULL)
+})
+
+test_that("arithmetic strips class", {
+  int <- labelled(1L)
+  dbl <- labelled(2)
+
+  expect_error(int + "x", class = "vctrs_error_incompatible")
+
+  expect_identical(int + dbl, 3)
+  expect_identical(int + 1L, 2L)
+  expect_identical(1L + int, 2L)
+  expect_identical(int + 1, 2)
+  expect_identical(1 + int, 2)
+
+  expect_identical(sum(int), 1L)
 })
 
 # types -------------------------------------------------------------------
