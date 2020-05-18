@@ -256,14 +256,6 @@ as.data.frame.haven_labelled <- function(x, ...) {
   df
 }
 
-label_length <- function(x) {
-  if (!is.labelled(x)) {
-    0L
-  } else {
-    max(nchar(names(attr(x, "labels"))))
-  }
-}
-
 
 # Arithmetic --------------------------------------------------------------
 
