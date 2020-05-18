@@ -76,6 +76,15 @@ validate_labelled <- function(x) {
   x
 }
 
+#' @export
+as.character.haven_labelled <- function(x, ...) {
+  as.character(vec_data(x))
+}
+
+#' @export
+levels.haven_labelled <- function(x) {
+  NULL
+}
 
 # Formatting --------------------------------------------------------------
 

@@ -37,6 +37,12 @@ test_that("labels must be unique", {
 })
 
 
+test_that("have methods used by revdeps", {
+  x <- labelled(1:3, labels = c(x = 1L, y = 2L))
+  expect_equal(as.character(x), c("1", "2", "3"))
+  expect_equal(levels(x), NULL)
+})
+
 # types -------------------------------------------------------------------
 
 test_that("combining is symmetrical w.r.t. data types", {
