@@ -24,6 +24,7 @@
 labelled_spss <- function(x = double(), labels = NULL, na_values = NULL,
                           na_range = NULL, label = NULL) {
 
+  x <- vec_data(x)
   na_values <- vec_cast_named(na_values, x, x_arg = "na_values", to_arg = "x")
   labelled <- labelled(x, labels = labels, label = label)
 
