@@ -9,7 +9,7 @@
 * Date/Publication: 2020-01-08 14:30:02 UTC
 * Number of recursive dependencies: 59
 
-Run `revdep_details(,"crosswalkr")` for more info
+Run `cloud_details(, "crosswalkr")` for more info
 
 </details>
 
@@ -63,46 +63,6 @@ Run `revdep_details(,"crosswalkr")` for more info
       Execution halted
     ```
 
-# crunch
-
-<details>
-
-* Version: 1.26.3
-* Source code: https://github.com/cran/crunch
-* URL: https://crunch.io/r/crunch/, https://github.com/Crunch-io/rcrunch
-* BugReports: https://github.com/Crunch-io/rcrunch/issues
-* Date/Publication: 2020-03-12 18:00:02 UTC
-* Number of recursive dependencies: 103
-
-Run `revdep_details(,"crunch")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking tests ... ERROR
-    ```
-      Running ‘spelling.R’
-      Running ‘testthat.R’
-    Running the tests in ‘tests/testthat.R’ failed.
-    Last 13 lines of output:
-      [90m 12. [39mvctrs::vec_default_cast(...)
-      [90m 13. [39mvctrs::stop_incompatible_cast(...)
-      [90m 14. [39mvctrs::stop_incompatible_type(...)
-      [90m 15. [39mvctrs:::stop_incompatible(...)
-      [90m 16. [39mvctrs:::stop_vctrs(...)
-      
-      
-      ══ testthat results  ═══════════════════════════════════════════════════════════
-      [ OK: 3135 | SKIPPED: 16 | WARNINGS: 0 | FAILED: 2 ]
-      1. Error: toVariable parses haven::labelled (@test-add-variable.R#114) 
-      2. Error: toVariable parses haven::labelled_spss (@test-add-variable.R#132) 
-      
-      Error: testthat unit tests failed
-      Total teardown: Time difference of 2.098083e-05 secs
-      Execution halted
-    ```
-
 # dataMaid
 
 <details>
@@ -114,7 +74,7 @@ Run `revdep_details(,"crunch")` for more info
 * Date/Publication: 2019-12-10 19:20:09 UTC
 * Number of recursive dependencies: 77
 
-Run `revdep_details(,"dataMaid")` for more info
+Run `cloud_details(, "dataMaid")` for more info
 
 </details>
 
@@ -153,7 +113,7 @@ Run `revdep_details(,"dataMaid")` for more info
 * Date/Publication: 2020-04-30 23:40:05 UTC
 * Number of recursive dependencies: 107
 
-Run `revdep_details(,"ipumsr")` for more info
+Run `cloud_details(, "ipumsr")` for more info
 
 </details>
 
@@ -174,7 +134,7 @@ Run `revdep_details(,"ipumsr")` for more info
       Attributes: < Component "class": Lengths (1, 3) differ (string compare on first 1) >
       
       ══ testthat results  ═══════════════════════════════════════════════════════════
-      [ OK: 195 | SKIPPED: 23 | WARNINGS: 0 | FAILED: 1 ]
+      [ OK: 243 | SKIPPED: 11 | WARNINGS: 0 | FAILED: 1 ]
       1. Failure: lbl_define: basic (@test_lbls.r#193) 
       
       Error: testthat unit tests failed
@@ -192,7 +152,7 @@ Run `revdep_details(,"ipumsr")` for more info
 * Date/Publication: 2020-04-29 10:30:07 UTC
 * Number of recursive dependencies: 69
 
-Run `revdep_details(,"labelled")` for more info
+Run `cloud_details(, "labelled")` for more info
 
 </details>
 
@@ -201,26 +161,26 @@ Run `revdep_details(,"labelled")` for more info
 *   checking examples ... ERROR
     ```
     ...
-    [1] Male   Male   Female
-    Levels: Male Female
-    > to_factor(s1, levels = "prefixed")
-    [1] [M] Male   [M] Male   [F] Female
-    Levels: [M] Male [F] Female
-    > to_factor(s2)
-    Error: Can't convert <labelled<double>> to <character>.
+    > ### ** Examples
+    > 
+    > v <- labelled(c(1,2,2,2,3,9,1,3,2,NA), c(yes = 1, no = 3, "don't know" = 9))
+    > v
+    <labelled<double>[10]>
+     [1]  1  2  2  2  3  9  1  3  2 NA
+    
+    Labels:
+     value      label
+         1        yes
+         3         no
+         9 don't know
+    > na_values(v) <- 9
+    Error: `na_values` must be same type as `x`.
     Backtrace:
-         █
-      1. ├─labelled::to_factor(s2)
-      2. ├─labelled:::to_factor.haven_labelled(s2)
-      3. │ └─base::factor(...)
-      4. │   ├─base::as.character(x)
-      5. │   └─vctrs:::as.character.vctrs_vctr(x)
-      6. │     └─vctrs::vec_cast(x, character())
-      7. └─haven:::vec_cast.character.haven_labelled(...)
-      8.   └─vctrs::stop_incompatible_cast(x, to, ...)
-      9.     └─vctrs::stop_incompatible_type(...)
-     10.       └─vctrs:::stop_incompatible(...)
-     11.         └─vctrs:::stop_vctrs(...)
+        █
+     1. ├─labelled::`na_values<-`(`*tmp*`, value = 9)
+     2. └─labelled:::`na_values<-.haven_labelled`(`*tmp*`, value = 9)
+     3.   └─haven::labelled_spss(...)
+     4.     └─haven:::new_labelled_spss(...)
     Execution halted
     ```
 
@@ -230,16 +190,16 @@ Run `revdep_details(,"labelled")` for more info
     Running the tests in ‘tests/testthat.R’ failed.
     Last 13 lines of output:
       ══ testthat results  ═══════════════════════════════════════════════════════════
-      [ OK: 34 | SKIPPED: 0 | WARNINGS: 0 | FAILED: 21 ]
+      [ OK: 47 | SKIPPED: 0 | WARNINGS: 0 | FAILED: 15 ]
       1. Failure: labelled return an object of class haven_labelled (@test-labelled.r#53) 
       2. Error: val_labels preserves variable label (@test-labelled.r#76) 
       3. Error: val_label preserves variable label (@test-labelled.r#86) 
       4. Error: val_labels and val_label preserves spss missing values (@test-labelled.r#95) 
       5. Error: value labels can be removed if missing values are defined (@test-labelled.r#113) 
-      6. Error: to_factor preserves variable label (@test-labelled.r#139) 
-      7. Error: strict option of to_factor works correctly (@test-labelled.r#144) 
-      8. Error: to_factor works on data.frame (@test-labelled.r#157) 
-      9. Error: to_character produce an appropriate character vector (@test-labelled.r#169) 
+      6. Error: strict option of to_factor works correctly (@test-labelled.r#144) 
+      7. Failure: set_value_labels replaces all value labels (@test-labelled.r#222) 
+      8. Error: add_value_labels and remove_value_labels updates the list of value labels (@test-labelled.r#228) 
+      9. Error: na_values and na_range keep variable label (@test-labelled.r#261) 
       1. ...
       
       Error: testthat unit tests failed
@@ -269,7 +229,7 @@ Run `revdep_details(,"labelled")` for more info
 * Date/Publication: 2019-03-19 14:20:03 UTC
 * Number of recursive dependencies: 89
 
-Run `revdep_details(,"rdhs")` for more info
+Run `cloud_details(, "rdhs")` for more info
 
 </details>
 
@@ -278,26 +238,26 @@ Run `revdep_details(,"rdhs")` for more info
 *   checking examples ... ERROR
     ```
     ...
-    + climate = haven::labelled(c(1L, 0L), c("cold"=0, "warm"=1))
-    + )
-    > 
-    > # Default: all data frames inherit labels from first df. Incorrect if
-    > # "reg 1" and "reg A" are from different countries, for example.
-    > dfA <- rbind_labelled(df1, df2)
-    Warning in rbind_labelled(df1, df2) :
-      Some variables have non-matching value labels: area, climate.
-    Inheriting labels from first data frame with labels.
-    Error: `levels.haven_labelled()` not supported.
+    + labels=list(area = "concatenate", climate = c("cold"=0, "warm/hot"=1)))
+    Error: Can't convert <double> to <labelled<integer>>.
     Backtrace:
-        █
-     1. └─rdhs::rbind_labelled(df1, df2)
-     2.   ├─base::do.call(rbind, dfs)
-     3.   └─(function (..., deparse.level = 1) ...
-     4.     └─base::rbind(deparse.level, ...)
-     5.       ├─base::levels(xj)
-     6.       └─vctrs:::levels.vctrs_vctr(xj)
-     7.         └─vctrs:::stop_unsupported(x, "levels")
-     8.           └─vctrs:::stop_vctrs(...)
+         █
+      1. ├─rdhs::rbind_labelled(...)
+      2. │ └─base::Map(haven::labelled, df[names(labels)], labels, labl)
+      3. │   └─base::mapply(FUN = f, ..., SIMPLIFY = FALSE)
+      4. │     └─(function (x = double(), labels = NULL, label = NULL) ...
+      5. │       └─haven:::vec_cast_named(labels, x, x_arg = "labels", to_arg = "x")
+      6. │         ├─stats::setNames(vec_cast(x, to, ...), names(x))
+      7. │         └─vctrs::vec_cast(x, to, ...)
+      8. ├─vctrs::vec_default_cast(...)
+      9. │ └─vctrs:::vctr_cast(x, to, x_arg = x_arg, to_arg = to_arg)
+     10. │   └─vctrs::vec_restore(x, to)
+     11. ├─vctrs:::vec_restore_dispatch(x = x, to = to, n = n)
+     12. └─vctrs:::vec_restore.vctrs_vctr(x = x, to = to, n = n)
+     13.   └─vctrs::stop_incompatible_cast(x, to, x_arg = "", to_arg = "")
+     14.     └─vctrs::stop_incompatible_type(...)
+     15.       └─vctrs:::stop_incompatible(...)
+     16.     
     Execution halted
     ```
 
@@ -334,7 +294,7 @@ Run `revdep_details(,"rdhs")` for more info
 * Date/Publication: 2020-04-30 22:00:07 UTC
 * Number of recursive dependencies: 96
 
-Run `revdep_details(,"sjlabelled")` for more info
+Run `cloud_details(, "sjlabelled")` for more info
 
 </details>
 
@@ -363,49 +323,6 @@ Run `revdep_details(,"sjlabelled")` for more info
      13.     └─vctrs::stop_incompatible_type(...)
      14.       └─vctrs:::stop_incompatible(...)
      15.         └─vctrs:::stop_vctrs(...)
-    Execution halted
-    ```
-
-# sjmisc
-
-<details>
-
-* Version: 2.8.4
-* Source code: https://github.com/cran/sjmisc
-* URL: https://strengejacke.github.io/sjmisc
-* BugReports: https://github.com/strengejacke/sjmisc/issues
-* Date/Publication: 2020-04-03 13:20:02 UTC
-* Number of recursive dependencies: 97
-
-Run `revdep_details(,"sjmisc")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking examples ... ERROR
-    ```
-    ...
-    +   # recode 2 into 5; Values of tagged NAs are preserved
-    +   rec(x, rec = "2=5;else=copy")
-    +   na_tag(rec(x, rec = "2=5;else=copy"))
-    + }
-    Loading required package: haven
-    Error: <labelled<double>> %% <double> is not permitted
-    Backtrace:
-         █
-      1. ├─sjmisc::rec(x, rec = "2=5;else=copy")
-      2. └─sjmisc:::rec.default(x, rec = "2=5;else=copy")
-      3.   └─sjmisc:::rec_core_fun(...)
-      4.     └─sjmisc:::rec_helper(...)
-      5.       ├─sjmisc::is_float(x)
-      6.       └─sjmisc:::is_float.default(x)
-      7.         └─vctrs:::`%%.vctrs_vctr`(x, 1)
-      8.           ├─vctrs::vec_arith("%%", e1, e2)
-      9.           └─vctrs:::vec_arith.default("%%", e1, e2)
-     10.             └─vctrs::stop_incompatible_op(op, x, y)
-     11.               └─vctrs:::stop_incompatible(...)
-     12.                 └─vctrs:::stop_vctrs(...)
     Execution halted
     ```
 
