@@ -87,6 +87,13 @@ levels.haven_labelled <- function(x) {
   NULL
 }
 
+# TODO: https://github.com/r-lib/vctrs/issues/1108
+#' @export
+`names<-.haven_labelled` <- function(x, value) {
+  attr(x, "names") <- value
+  x
+}
+
 # Formatting --------------------------------------------------------------
 
 #' @export

@@ -88,6 +88,12 @@ test_that("combining preserves label sets", {
   )
 })
 
+test_that("can combine names", {
+  x <- labelled(c(x = 1L))
+  expect_named(vec_c(x, x), c("x", "x"))
+  expect_named(vec_c(x, c(y = 1L)), c("x", "y"))
+})
+
 test_that("strip labels if different", {
   expect_equal(
     vec_c(
