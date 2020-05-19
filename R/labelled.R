@@ -39,6 +39,7 @@
 #' x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
 #' zap_labels(x)
 labelled <- function(x = double(), labels = NULL, label = NULL) {
+  x <- vec_data(x)
   labels <- vec_cast_named(labels, x, x_arg = "labels", to_arg = "x")
   validate_labelled(new_labelled(x, labels = labels, label = label))
 }
