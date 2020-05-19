@@ -2,14 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-
 using namespace Rcpp;
-
-#if defined(_WIN32)
-  #define ICONV_CONST const
-#else
-  #define ICONV_CONST
-#endif
 
 #include "readstat.h"
 #include "haven_types.h"
