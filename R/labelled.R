@@ -271,6 +271,8 @@ vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_ar
 #' Internal vctrs methods
 #'
 #' @keywords internal
+#' @export vec_arith.haven_labelled
+#' @method vec_arith haven_labelled
 #' @export
 vec_arith.haven_labelled <- function(op, x, y, ...) {
   UseMethod("vec_arith.haven_labelled", y)

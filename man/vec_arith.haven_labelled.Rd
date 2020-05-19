@@ -4,7 +4,7 @@
 \alias{vec_arith.haven_labelled}
 \title{Internal vctrs methods}
 \usage{
-vec_arith.haven_labelled(op, x, y, ...)
+\method{vec_arith}{haven_labelled}(op, x, y, ...)
 }
 \description{
 Internal vctrs methods
