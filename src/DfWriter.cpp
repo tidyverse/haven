@@ -1,5 +1,6 @@
 #include <Rcpp.h>
 using namespace Rcpp;
+
 #include "readstat.h"
 #include "haven_types.h"
 

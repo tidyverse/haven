@@ -2,8 +2,8 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-
 using namespace Rcpp;
+
 #include "readstat.h"
 #include "haven_types.h"
 #include "tagged_na.h"
