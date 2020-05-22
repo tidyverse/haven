@@ -13,13 +13,32 @@
 
 ## revdepcheck results
 
-We checked 54 reverse dependencies (53 from CRAN + 1 from BioConductor), comparing R CMD check results across CRAN and dev versions of this package.
+We checked 66 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
- * We saw 0 new problems
- * We failed to check 1 packages
+ * We saw 4 new problems
+ * We failed to check 0 packages
 
 Issues with CRAN packages are summarised below.
 
-### Failed to check
+### New problems
+(This reports the first line of each new failure)
 
-* bpnreg (NA)
+* crosswalkr
+  checking examples ... ERROR
+  checking tests ... ERROR
+  Problem caused by labelled package (below)
+
+* ipumsr
+  checking tests ... ERROR
+  Fix merged in development version:
+  https://github.com/mnpopcenter/ipumsr/pull/60
+
+* labelled
+  checking tests ... ERROR
+  Fix merged in development version:
+  https://github.com/larmarange/labelled/pull/59
+
+* sjlabelled
+  checking examples ... ERROR
+  Author alerted to problem and fix proposed:
+  https://github.com/strengejacke/sjlabelled/pull/35

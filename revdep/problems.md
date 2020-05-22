@@ -63,45 +63,6 @@ Run `cloud_details(, "crosswalkr")` for more info
       Execution halted
     ```
 
-# dataMaid
-
-<details>
-
-* Version: 1.4.0
-* Source code: https://github.com/cran/dataMaid
-* URL: https://github.com/ekstroem/dataMaid, https://doi.org/10.18637/jss.v090.i06
-* BugReports: https://github.com/ekstroem/dataMaid/issues
-* Date/Publication: 2019-12-10 19:20:09 UTC
-* Number of recursive dependencies: 77
-
-Run `cloud_details(, "dataMaid")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking tests ... ERROR
-    ```
-      Running ‘testthat.R’
-    Running the tests in ‘tests/testthat.R’ failed.
-    Last 13 lines of output:
-      If any elements are named, all elements must be named.
-      Backtrace:
-        1. testthat::expect_equal(length(summarize(typelab)), 4)
-       21. vctrs:::set_names_fallback(x = x, names = names)
-       23. vctrs:::`names<-.vctrs_vctr`(`*tmp*`, value = names)
-      
-      ══ testthat results  ═══════════════════════════════════════════════════════════
-      [ OK: 62 | SKIPPED: 0 | WARNINGS: 0 | FAILED: 4 ]
-      1. Error: check returns a list for (most) atomic vectors (@testcheck.R#33) 
-      2. Error: check return the right number of tests for (most) atomic vectors (@testcheck.R#47) 
-      3. Error: summarize returns a list for (most) atomic vectors (@testsummarize.R#30) 
-      4. Error: summarize return the right number of tests for (most) atomic vectors (@testsummarize.R#44) 
-      
-      Error: testthat unit tests failed
-      Execution halted
-    ```
-
 # ipumsr
 
 <details>
@@ -158,49 +119,23 @@ Run `cloud_details(, "labelled")` for more info
 
 ## Newly broken
 
-*   checking examples ... ERROR
-    ```
-    ...
-    > ### ** Examples
-    > 
-    > v <- labelled(c(1,2,2,2,3,9,1,3,2,NA), c(yes = 1, no = 3, "don't know" = 9))
-    > v
-    <labelled<double>[10]>
-     [1]  1  2  2  2  3  9  1  3  2 NA
-    
-    Labels:
-     value      label
-         1        yes
-         3         no
-         9 don't know
-    > na_values(v) <- 9
-    Error: `na_values` must be same type as `x`.
-    Backtrace:
-        █
-     1. ├─labelled::`na_values<-`(`*tmp*`, value = 9)
-     2. └─labelled:::`na_values<-.haven_labelled`(`*tmp*`, value = 9)
-     3.   └─haven::labelled_spss(...)
-     4.     └─haven:::new_labelled_spss(...)
-    Execution halted
-    ```
-
 *   checking tests ... ERROR
     ```
       Running ‘testthat.R’
     Running the tests in ‘tests/testthat.R’ failed.
     Last 13 lines of output:
+      class(update_labelled(v1)) not equal to c("haven_labelled_spss", "haven_labelled").
+      Lengths differ: 4 is not 2
+      
       ══ testthat results  ═══════════════════════════════════════════════════════════
-      [ OK: 47 | SKIPPED: 0 | WARNINGS: 0 | FAILED: 15 ]
+      [ OK: 76 | SKIPPED: 0 | WARNINGS: 0 | FAILED: 7 ]
       1. Failure: labelled return an object of class haven_labelled (@test-labelled.r#53) 
-      2. Error: val_labels preserves variable label (@test-labelled.r#76) 
-      3. Error: val_label preserves variable label (@test-labelled.r#86) 
-      4. Error: val_labels and val_label preserves spss missing values (@test-labelled.r#95) 
-      5. Error: value labels can be removed if missing values are defined (@test-labelled.r#113) 
-      6. Error: strict option of to_factor works correctly (@test-labelled.r#144) 
-      7. Failure: set_value_labels replaces all value labels (@test-labelled.r#222) 
-      8. Error: add_value_labels and remove_value_labels updates the list of value labels (@test-labelled.r#228) 
-      9. Error: na_values and na_range keep variable label (@test-labelled.r#261) 
-      1. ...
+      2. Failure: dplyr::recode could be applied to numeric labelled vector (@test-labelled.r#268) 
+      3. Failure: dplyr::recode could be applied to character labelled vector (@test-labelled.r#273) 
+      4. Failure: update_labelled update previous haven's labelled objects but not Hmisc's labelled objects (@test-labelled.r#282) 
+      5. Failure: update_labelled update previous haven's labelled objects but not Hmisc's labelled objects (@test-labelled.r#286) 
+      6. Failure: update_labelled update to haven_labelled_spss if there are na values (@test-labelled.r#296) 
+      7. Failure: update_labelled update to haven_labelled_spss if there are na values (@test-labelled.r#297) 
       
       Error: testthat unit tests failed
       Execution halted
@@ -216,71 +151,6 @@ Run `cloud_details(, "labelled")` for more info
 *   checking Rd cross-references ... NOTE
     ```
     Package unavailable to check Rd xrefs: ‘memisc’
-    ```
-
-# rdhs
-
-<details>
-
-* Version: 0.6.3
-* Source code: https://github.com/cran/rdhs
-* URL: https://ropensci.github.io/rdhs/
-* BugReports: https://github.com/ropensci/rdhs/issues
-* Date/Publication: 2019-03-19 14:20:03 UTC
-* Number of recursive dependencies: 89
-
-Run `cloud_details(, "rdhs")` for more info
-
-</details>
-
-## Newly broken
-
-*   checking examples ... ERROR
-    ```
-    ...
-    + labels=list(area = "concatenate", climate = c("cold"=0, "warm/hot"=1)))
-    Error: Can't convert <double> to <labelled<integer>>.
-    Backtrace:
-         █
-      1. ├─rdhs::rbind_labelled(...)
-      2. │ └─base::Map(haven::labelled, df[names(labels)], labels, labl)
-      3. │   └─base::mapply(FUN = f, ..., SIMPLIFY = FALSE)
-      4. │     └─(function (x = double(), labels = NULL, label = NULL) ...
-      5. │       └─haven:::vec_cast_named(labels, x, x_arg = "labels", to_arg = "x")
-      6. │         ├─stats::setNames(vec_cast(x, to, ...), names(x))
-      7. │         └─vctrs::vec_cast(x, to, ...)
-      8. ├─vctrs::vec_default_cast(...)
-      9. │ └─vctrs:::vctr_cast(x, to, x_arg = x_arg, to_arg = to_arg)
-     10. │   └─vctrs::vec_restore(x, to)
-     11. ├─vctrs:::vec_restore_dispatch(x = x, to = to, n = n)
-     12. └─vctrs:::vec_restore.vctrs_vctr(x = x, to = to, n = n)
-     13.   └─vctrs::stop_incompatible_cast(x, to, x_arg = "", to_arg = "")
-     14.     └─vctrs::stop_incompatible_type(...)
-     15.       └─vctrs:::stop_incompatible(...)
-     16.     
-    Execution halted
-    ```
-
-*   checking tests ... ERROR
-    ```
-      Running ‘testthat.R’
-    Running the tests in ‘tests/testthat.R’ failed.
-    Last 13 lines of output:
-       2. base::Map(...)
-       3. base::mapply(FUN = f, ..., SIMPLIFY = FALSE)
-       6. haven:::new_labelled(x, labels = labels, label = label)
-      
-      trying URL 'https://dhsprogram.com/customcf/legacy/data/sample_download_dataset.cfm?Filename=ZZAR61FL.ZIP&Tp=4&Ctry_Code=zz&survey_id=0&doctype=hiv'
-      Content type 'application/x-zip-compressed' length 81939 bytes (80 KB)
-      ==================================================
-      downloaded 80 KB
-      
-      ══ testthat results  ═══════════════════════════════════════════════════════════
-      [ OK: 18 | SKIPPED: 44 | WARNINGS: 0 | FAILED: 1 ]
-      1. Error: datasets parse (@test_read_dhs_flat.R#13) 
-      
-      Error: testthat unit tests failed
-      Execution halted
     ```
 
 # sjlabelled
