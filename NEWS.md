@@ -1,4 +1,4 @@
-# haven (development version)
+# haven 2.3.0
 
 * `labelled()` gains the necessary support to work seemlessly in dplyr 1.0.0,
   tidyr 1.0.0, and other packages that use vctrs (@mikmart, #496).
