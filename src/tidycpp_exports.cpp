@@ -75,34 +75,34 @@ extern "C" SEXP _tidycpp_df_parse_por_raw(SEXP spec, SEXP encoding, SEXP user_na
   END_TIDYCPP
 }
 // DfWriter.cpp
-void write_sav_(Rcpp::List data, Rcpp::CharacterVector path, bool compress);
+void write_sav_(tidycpp::list data, tidycpp::character_vector path, bool compress);
 extern "C" SEXP _tidycpp_write_sav_(SEXP data, SEXP path, SEXP compress) {
   BEGIN_TIDYCPP
-    write_sav_(tidycpp::as_cpp<Rcpp::List>(data), tidycpp::as_cpp<Rcpp::CharacterVector>(path), tidycpp::as_cpp<bool>(compress));
+    write_sav_(tidycpp::as_cpp<tidycpp::list>(data), tidycpp::as_cpp<tidycpp::character_vector>(path), tidycpp::as_cpp<bool>(compress));
   return R_NilValue;
   END_TIDYCPP
 }
 // DfWriter.cpp
-void write_dta_(Rcpp::List data, Rcpp::CharacterVector path, int version, Rcpp::RObject label);
+void write_dta_(tidycpp::list data, tidycpp::character_vector path, int version, tidycpp::sexp label);
 extern "C" SEXP _tidycpp_write_dta_(SEXP data, SEXP path, SEXP version, SEXP label) {
   BEGIN_TIDYCPP
-    write_dta_(tidycpp::as_cpp<Rcpp::List>(data), tidycpp::as_cpp<Rcpp::CharacterVector>(path), tidycpp::as_cpp<int>(version), tidycpp::as_cpp<Rcpp::RObject>(label));
+    write_dta_(tidycpp::as_cpp<tidycpp::list>(data), tidycpp::as_cpp<tidycpp::character_vector>(path), tidycpp::as_cpp<int>(version), tidycpp::as_cpp<tidycpp::sexp>(label));
   return R_NilValue;
   END_TIDYCPP
 }
 // DfWriter.cpp
-void write_sas_(Rcpp::List data, Rcpp::CharacterVector path);
+void write_sas_(tidycpp::list data, tidycpp::character_vector path);
 extern "C" SEXP _tidycpp_write_sas_(SEXP data, SEXP path) {
   BEGIN_TIDYCPP
-    write_sas_(tidycpp::as_cpp<Rcpp::List>(data), tidycpp::as_cpp<Rcpp::CharacterVector>(path));
+    write_sas_(tidycpp::as_cpp<tidycpp::list>(data), tidycpp::as_cpp<tidycpp::character_vector>(path));
   return R_NilValue;
   END_TIDYCPP
 }
 // DfWriter.cpp
-void write_xpt_(Rcpp::List data, Rcpp::CharacterVector path, int version, std::string name);
+void write_xpt_(tidycpp::list data, tidycpp::character_vector path, int version, std::string name);
 extern "C" SEXP _tidycpp_write_xpt_(SEXP data, SEXP path, SEXP version, SEXP name) {
   BEGIN_TIDYCPP
-    write_xpt_(tidycpp::as_cpp<Rcpp::List>(data), tidycpp::as_cpp<Rcpp::CharacterVector>(path), tidycpp::as_cpp<int>(version), tidycpp::as_cpp<std::string>(name));
+    write_xpt_(tidycpp::as_cpp<tidycpp::list>(data), tidycpp::as_cpp<tidycpp::character_vector>(path), tidycpp::as_cpp<int>(version), tidycpp::as_cpp<std::string>(name));
   return R_NilValue;
   END_TIDYCPP
 }
