@@ -94,6 +94,42 @@ test_that("combining is symmetrical w.r.t. data types", {
   )
 })
 
+test_that("can cast labelled to atomic vectors", {
+  x_int <- labelled(1:2)
+  x_dbl <- labelled(c(1, 2))
+  x_chr <- labelled(c("a", "b"))
+
+  expect_identical(vec_cast(x_int, integer()), 1:2)
+  expect_identical(vec_cast(x_int, double()), c(1, 2))
+  expect_error(vec_cast(x_int, character()), class = "vctrs_error_incompatible_type")
+
+  expect_identical(vec_cast(x_dbl, integer()), 1:2)
+  expect_identical(vec_cast(x_dbl, double()), c(1, 2))
+  expect_error(vec_cast(x_dbl, character()), class = "vctrs_error_incompatible_type")
+
+  expect_error(vec_cast(x_chr, integer()), class = "vctrs_error_incompatible_type")
+  expect_error(vec_cast(x_chr, double()), class = "vctrs_error_incompatible_type")
+  expect_identical(vec_cast(x_chr, character()), c("a", "b"))
+})
+
+test_that("can cast atomic vectors to labelled", {
+  x_int <- labelled(1:2)
+  x_dbl <- labelled(c(1, 2))
+  x_chr <- labelled(c("a", "b"))
+
+  expect_identical(vec_cast(1:3, x_int), labelled(1:3))
+  expect_identical(vec_cast(1:3, x_dbl), labelled(c(1, 2, 3)))
+  expect_error(vec_cast(1:3, x_chr), class = "vctrs_error_incompatible_type")
+
+  expect_identical(vec_cast(c(0, 1), x_int), labelled(0:1))
+  expect_identical(vec_cast(c(0, 1), x_dbl), labelled(c(0, 1)))
+  expect_error(vec_cast(c(0, 1), x_chr), class = "vctrs_error_incompatible_type")
+
+  expect_error(vec_cast("a", x_int), class = "vctrs_error_incompatible_type")
+  expect_error(vec_cast("a", x_dbl), class = "vctrs_error_incompatible_type")
+  expect_identical(vec_cast("a", x_chr), labelled("a"))
+})
+
 test_that("combining preserves label sets", {
   expect_equal(
     vec_c(
@@ -143,7 +179,7 @@ test_that("combining with bare vectors results in a labelled()", {
 test_that("casting to labelled throws lossy cast if not safe", {
   expect_incompatible_type(vec_cast("a", labelled()))
   expect_incompatible_type(vec_cast("a", labelled(integer())))
-  expect_incompatible_type(vec_cast(1.1, labelled(integer())))
+  expect_error(vec_cast(1.1, labelled(integer())), class = "vctrs_error_cast_lossy")
 })
 
 test_that("casting to a superset of labels works", {

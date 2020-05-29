@@ -2,6 +2,8 @@
 
 * Add missing methods so `median()`, `quantile()` and `summary()` work
   once more (#520).
+  
+* Add missing cast methods (#522).
 
 # haven 2.3.0
 

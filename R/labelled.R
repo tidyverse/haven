@@ -289,6 +289,19 @@ vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_ar
   out
 }
 
+#' @export
+vec_cast.haven_labelled.double <- function(x, to, ...) {
+  vec_cast.haven_labelled.haven_labelled(x, to, ...)
+}
+#' @export
+vec_cast.haven_labelled.integer <- function(x, to, ...) {
+  vec_cast.haven_labelled.haven_labelled(x, to, ...)
+}
+#' @export
+vec_cast.haven_labelled.character <- function(x, to, ...) {
+  vec_cast.haven_labelled.haven_labelled(x, to, ...)
+}
+
 # Arithmetic --------------------------------------------------------------
 
 #' Internal vctrs methods
