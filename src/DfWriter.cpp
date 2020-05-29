@@ -3,7 +3,9 @@
 #include "readstat.h"
 #include "haven_types.h"
 
+#include "tidycpp/character.hpp"
 #include "tidycpp/sexp.hpp"
+#include "tidycpp/list.hpp"
 
 ssize_t data_writer(const void *data, size_t len, void *ctx);
 
@@ -51,17 +53,17 @@ class Writer {
   FileExt ext_;
   FileVendor vendor_;
 
-  Rcpp::List x_;
+  tidycpp::list x_;
   readstat_writer_t* writer_;
   FILE* pOut_;
 
 public:
-  Writer(FileExt ext, Rcpp::List x, Rcpp::CharacterVector pathEnc): ext_(ext), vendor_(extVendor(ext)), x_(x) {
+  Writer(FileExt ext, tidycpp::list x, tidycpp::character_vector pathEnc): ext_(ext), vendor_(extVendor(ext)), x_(x) {
     std::string path(Rf_translateChar(pathEnc[0]));
 
     pOut_ = fopen(path.c_str(), "wb");
     if (pOut_ == NULL)
-      Rcpp::stop("Failed to open '%s' for writing", path);
+      tidycpp::stop("Failed to open '%s' for writing", path.c_str());
 
     writer_ = readstat_writer_init();
     checkStatus(readstat_set_data_writer(writer_, data_writer));
@@ -86,7 +88,7 @@ public:
     readstat_writer_set_table_name(writer_, name.c_str());
   }
 
-  void setFileLabel(Rcpp::RObject label) {
+  void setFileLabel(tidycpp::sexp label) {
     if (label == R_NilValue)
       return;
 
@@ -98,11 +100,11 @@ public:
     if (p == 0)
       return;
 
-    Rcpp::CharacterVector names(Rcpp::as<Rcpp::CharacterVector>(x_.attr("names")));
+    tidycpp::character_vector names(x_.attr("names"));
 
     // Define variables
     for (int j = 0; j < p; ++j) {
-      Rcpp::RObject col = x_[j];
+      tidycpp::sexp col = x_[j];
       VarType type = numType(col);
 
       const char* name = string_utf8(names, j);
@@ -114,7 +116,7 @@ public:
         case REALSXP: defineVariable(Rcpp::as<Rcpp::NumericVector>(col), name, format);  break;
         case STRSXP:  defineVariable(Rcpp::as<Rcpp::CharacterVector>(col), name, format); break;
       default:
-                      Rcpp::stop("Variables of type %s not supported yet",
+                      tidycpp::stop("Variables of type %s not supported yet",
           Rf_type2char(TYPEOF(col)));
       }
     }
@@ -185,9 +187,9 @@ public:
     return string_utf8(label, 0);
   }
 
-  const char* var_format(Rcpp::RObject x, VarType varType) {
+  const char* var_format(tidycpp::sexp x, VarType varType) {
     // Use attribute, if present
-    Rcpp::RObject format = x.attr(formatAttribute(vendor_));
+    tidycpp::sexp format(x.attr(formatAttribute(vendor_).c_str()));
     if (format != R_NilValue)
       return string_utf8(format, 0);
 
@@ -353,7 +355,7 @@ ssize_t data_writer(const void *data, size_t len, void *ctx) {
 }
 
 [[tidycpp::export]]
-void write_sav_(Rcpp::List data, Rcpp::CharacterVector path, bool compress) {
+void write_sav_(tidycpp::list data, tidycpp::character_vector path, bool compress) {
   Writer writer(HAVEN_SAV, data, path);
   if (compress)
     writer.setCompression(READSTAT_COMPRESS_BINARY);
@@ -361,7 +363,7 @@ void write_sav_(Rcpp::List data, Rcpp::CharacterVector path, bool compress) {
 }
 
 [[tidycpp::export]]
-void write_dta_(Rcpp::List data, Rcpp::CharacterVector path, int version, Rcpp::RObject label) {
+void write_dta_(tidycpp::list data, tidycpp::character_vector path, int version, tidycpp::sexp label) {
   Writer writer(HAVEN_DTA, data, path);
   writer.setVersion(version);
   writer.setFileLabel(label);
@@ -369,12 +371,12 @@ void write_dta_(Rcpp::List data, Rcpp::CharacterVector path, int version, Rcpp::
 }
 
 [[tidycpp::export]]
-void write_sas_(Rcpp::List data, Rcpp::CharacterVector path) {
+void write_sas_(tidycpp::list data, tidycpp::character_vector path) {
   Writer(HAVEN_SAS7BDAT, data, path).write();
 }
 
 [[tidycpp::export]]
-void write_xpt_(Rcpp::List data, Rcpp::CharacterVector path, int version, std::string name) {
+void write_xpt_(tidycpp::list data, tidycpp::character_vector path, int version, std::string name) {
   Writer writer(HAVEN_XPT, data, path);
   writer.setVersion(version);
   writer.setName(name);
