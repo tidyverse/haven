@@ -1,7 +1,10 @@
-#include <Rcpp.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <vector>
+#include <string>
+#include <map>
+#include <set>
 
 #include "readstat.h"
 #include "haven_types.h"
@@ -11,7 +14,9 @@
 #include "tidycpp/double.hpp"
 #include "tidycpp/integer.hpp"
 #include "tidycpp/list.hpp"
+#include "tidycpp/raw.hpp"
 #include "tidycpp/sexp.hpp"
+
 #include "tidycpp/protect.hpp"
 #include "tidycpp/function.hpp"
 
@@ -531,7 +536,7 @@ public:
 class DfReaderInputRaw : public DfReaderInputStream<std::istringstream> {
 public:
   DfReaderInputRaw(tidycpp::list spec, std::string encoding = "") {
-    Rcpp::RawVector raw_data(spec[0]);
+    tidycpp::raw_vector raw_data(spec[0]);
     std::string string_data((char*) RAW(raw_data), Rf_length(raw_data));
     file_.str(string_data);
     this->encoding = encoding;
