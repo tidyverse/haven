@@ -1,3 +1,5 @@
+# haven (development version)
+
 # haven 2.3.0
 
 * `labelled()` gains the necessary support to work seemlessly in dplyr 1.0.0,
