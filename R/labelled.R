@@ -94,6 +94,29 @@ levels.haven_labelled <- function(x) {
   x
 }
 
+#' @importFrom stats median
+#' @export
+median.haven_labelled <- function(x, na.rm = TRUE, ...) {
+  if (is.character(x)) {
+    abort("Can't compute median of labelled<character>")
+  }
+  median(vec_data(x), na.rm = TRUE, ...)
+}
+
+#' @importFrom stats quantile
+#' @export
+quantile.haven_labelled <- function(x, ...) {
+  if (is.character(x)) {
+    abort("Can't compute median of labelled<character>")
+  }
+  quantile(vec_data(x), ...)
+}
+
+#' @export
+summary.haven_labelled <- function(object, ...) {
+  summary(vec_data(object), ...)
+}
+
 # Formatting --------------------------------------------------------------
 
 #' @export

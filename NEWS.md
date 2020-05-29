@@ -1,5 +1,8 @@
 # haven (development version)
 
+* Add missing methods so `median()`, `quantile()` and `summary()` work
+  once more (#520).
+
 # haven 2.3.0
 
 * `labelled()` gains the necessary support to work seemlessly in dplyr 1.0.0,

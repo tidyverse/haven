@@ -57,6 +57,22 @@ test_that("arithmetic strips class", {
   expect_identical(sum(int), 1L)
 })
 
+
+# methods -----------------------------------------------------------------
+
+test_that("implements methods that vctrs requires", {
+  x_int <- labelled(1:3)
+  expect_equal(median(x_int), 2L)
+  expect_equal(quantile(x_int, 0.25), c("25%" = 1.5))
+  expect_equal(summary(x_int), summary(1:3))
+
+  x_chr <- labelled(letters[1:3])
+  expect_error(median(x_chr), "labelled<character>")
+  expect_error(quantile(x_chr), "labelled<character>")
+  expect_equal(summary(x_chr), summary(letters[1:3]))
+})
+
+
 # types -------------------------------------------------------------------
 
 test_that("combining is symmetrical w.r.t. data types", {
