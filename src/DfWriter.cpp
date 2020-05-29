@@ -351,7 +351,7 @@ ssize_t data_writer(const void *data, size_t len, void *ctx) {
   return ((Writer*) ctx)->write(data, len);
 }
 
-// [[Rcpp::export]]
+[[tidycpp::export]]
 void write_sav_(List data, CharacterVector path, bool compress) {
   Writer writer(HAVEN_SAV, data, path);
   if (compress)
@@ -359,7 +359,7 @@ void write_sav_(List data, CharacterVector path, bool compress) {
   writer.write();
 }
 
-// [[Rcpp::export]]
+[[tidycpp::export]]
 void write_dta_(List data, CharacterVector path, int version, RObject label) {
   Writer writer(HAVEN_DTA, data, path);
   writer.setVersion(version);
@@ -367,12 +367,12 @@ void write_dta_(List data, CharacterVector path, int version, RObject label) {
   writer.write();
 }
 
-// [[Rcpp::export]]
+[[tidycpp::export]]
 void write_sas_(List data, CharacterVector path) {
   Writer(HAVEN_SAS7BDAT, data, path).write();
 }
 
-// [[Rcpp::export]]
+[[tidycpp::export]]
 void write_xpt_(List data, CharacterVector path, int version, std::string name) {
   Writer writer(HAVEN_XPT, data, path);
   writer.setVersion(version);

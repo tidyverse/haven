@@ -1,7 +1,7 @@
 context("connections")
 
 test_that("connections are read", {
-  file_conn <- file("hadley.sas7bdat")
+  file_conn <- file(test_path("hadley.sas7bdat"))
   expect_identical(read_sas(file_conn), read_sas("hadley.sas7bdat"))
 })
 
