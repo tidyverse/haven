@@ -142,7 +142,7 @@ public:
     for (int i = 0; i < n; ++i) {
       checkStatus(readstat_begin_row(writer_));
       for (int j = 0; j < p; ++j) {
-        Rcpp::RObject col = x_[j];
+        tidycpp::sexp col(x_[j]);
         readstat_variable_t* var = readstat_get_variable(writer_, j);
 
         switch (TYPEOF(col)) {
@@ -178,8 +178,8 @@ public:
 
   // Define variables ----------------------------------------------------------
 
-  const char* var_label(Rcpp::RObject x) {
-    Rcpp::RObject label = x.attr("label");
+  const char* var_label(tidycpp::sexp x) {
+    tidycpp::sexp label(x.attr("label"));
 
     if (label == R_NilValue)
       return NULL;
@@ -241,7 +241,7 @@ public:
     readstat_variable_t* var =
       readstat_add_variable(writer_, name, READSTAT_TYPE_INT32, 0);
     readstat_variable_set_format(var, format);
-    readstat_variable_set_label(var, var_label(x));
+    readstat_variable_set_label(var, var_label(static_cast<SEXP>(x)));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(static_cast<SEXP>(x)));
@@ -263,7 +263,7 @@ public:
       readstat_add_variable(writer_, name, READSTAT_TYPE_DOUBLE, 0);
 
     readstat_variable_set_format(var, format);
-    readstat_variable_set_label(var, var_label(x));
+    readstat_variable_set_label(var, var_label(static_cast<SEXP>(x)));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(static_cast<SEXP>(x)));
@@ -305,7 +305,7 @@ public:
     readstat_variable_t* var =
       readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, max_length);
     readstat_variable_set_format(var, format);
-    readstat_variable_set_label(var, var_label(x));
+    readstat_variable_set_label(var, var_label(static_cast<SEXP>(x)));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(static_cast<SEXP>(x)));
