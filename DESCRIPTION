@@ -42,7 +42,7 @@ Suggests:
     cli,
     crayon
 LinkingTo: 
-    Rcpp
+    tidycpp, Rcpp
 VignetteBuilder: 
     knitr
 Encoding: UTF-8
