@@ -1,6 +1,6 @@
-#include <Rcpp.h>
 #include <cmath>
 #include "haven_types.h"
+#include <tidycpp/protect.hpp>
 
 FileVendor extVendor(FileExt ext) {
   switch (ext) {
@@ -11,7 +11,7 @@ FileVendor extVendor(FileExt ext) {
   case HAVEN_SAS7BCAT:
   case HAVEN_XPT:      return HAVEN_SAS;
   default:
-    Rcpp::stop("Unknown file extension");
+                       tidycpp::stop("Unknown file extension");
   }
 }
 
