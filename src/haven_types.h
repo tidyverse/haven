@@ -1,8 +1,9 @@
 #ifndef __HAVEN_TYPES__
 #define __HAVEN_TYPES__
 
-#include <Rcpp.h>
 #include <cmath>
+#include <string>
+#include <tidycpp/R.hpp>
 
 enum FileVendor {
   HAVEN_SPSS,
