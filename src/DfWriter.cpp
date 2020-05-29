@@ -111,7 +111,7 @@ public:
       const char* format = var_format(col, type);
 
       switch(TYPEOF(col)) {
-        case LGLSXP:  defineVariable(tidycpp::integer_vector(col), name, format); break;
+        case LGLSXP:  defineVariable(tidycpp::integer_vector(tidycpp::safe[Rf_coerceVector](col, INTSXP)), name, format); break;
         case INTSXP:  defineVariable(tidycpp::integer_vector(col), name, format); break;
         case REALSXP: defineVariable(tidycpp::double_vector(col), name, format);  break;
         case STRSXP:  defineVariable(tidycpp::character_vector(col), name, format); break;
