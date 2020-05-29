@@ -1,9 +1,9 @@
-#include <Rcpp.h>
-
 #include "readstat.h"
 #include "haven_types.h"
 
+#include "tidycpp/double.hpp"
 #include "tidycpp/character.hpp"
+#include "tidycpp/integer.hpp"
 #include "tidycpp/sexp.hpp"
 #include "tidycpp/list.hpp"
 
@@ -111,10 +111,10 @@ public:
       const char* format = var_format(col, type);
 
       switch(TYPEOF(col)) {
-        case LGLSXP:  defineVariable(Rcpp::as<Rcpp::IntegerVector>(col), name, format); break;
-        case INTSXP:  defineVariable(Rcpp::as<Rcpp::IntegerVector>(col), name, format); break;
-        case REALSXP: defineVariable(Rcpp::as<Rcpp::NumericVector>(col), name, format);  break;
-        case STRSXP:  defineVariable(Rcpp::as<Rcpp::CharacterVector>(col), name, format); break;
+        case LGLSXP:  defineVariable(tidycpp::integer_vector(col), name, format); break;
+        case INTSXP:  defineVariable(tidycpp::integer_vector(col), name, format); break;
+        case REALSXP: defineVariable(tidycpp::double_vector(col), name, format);  break;
+        case STRSXP:  defineVariable(tidycpp::character_vector(col), name, format); break;
       default:
                       tidycpp::stop("Variables of type %s not supported yet",
           Rf_type2char(TYPEOF(col)));
@@ -220,19 +220,19 @@ public:
     return NULL;
   }
 
-  void defineVariable(Rcpp::IntegerVector x, const char* name, const char* format = NULL) {
+  void defineVariable(tidycpp::integer_vector x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (Rf_inherits(x, "factor")) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
 
-      Rcpp::CharacterVector levels = Rcpp::as<Rcpp::CharacterVector>(x.attr("levels"));
+      tidycpp::character_vector levels(x.attr("levels"));
       for (int i = 0; i < levels.size(); ++i)
         readstat_label_int32_value(labelSet, i + 1, string_utf8(levels, i));
     } else if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
 
-      Rcpp::IntegerVector values = Rcpp::as<Rcpp::IntegerVector>(x.attr("labels"));
-      Rcpp::CharacterVector labels = Rcpp::as<Rcpp::CharacterVector>(values.attr("names"));
+      tidycpp::integer_vector values(x.attr("labels"));
+      tidycpp::character_vector labels(values.attr("names"));
 
       for (int i = 0; i < values.size(); ++i)
         readstat_label_int32_value(labelSet, values[i], string_utf8(labels, i));
@@ -247,13 +247,13 @@ public:
     readstat_variable_set_display_width(var, displayWidth(static_cast<SEXP>(x)));
   }
 
-  void defineVariable(Rcpp::NumericVector x, const char* name, const char* format = NULL) {
+  void defineVariable(tidycpp::double_vector x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name);
 
-      Rcpp::NumericVector values = Rcpp::as<Rcpp::NumericVector>(x.attr("labels"));
-      Rcpp::CharacterVector labels = Rcpp::as<Rcpp::CharacterVector>(values.attr("names"));
+      tidycpp::double_vector values(x.attr("labels"));
+      tidycpp::character_vector labels(values.attr("names"));
 
       for (int i = 0; i < values.size(); ++i)
         readstat_label_double_value(labelSet, values[i], string_utf8(labels, i));
@@ -284,13 +284,13 @@ public:
     }
   }
 
-  void defineVariable(Rcpp::CharacterVector x, const char* name, const char* format = NULL) {
+  void defineVariable(tidycpp::character_vector x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name);
 
-      Rcpp::CharacterVector values = Rcpp::as<Rcpp::CharacterVector>(x.attr("labels"));
-      Rcpp::CharacterVector labels = Rcpp::as<Rcpp::CharacterVector>(values.attr("names"));
+      tidycpp::character_vector values(x.attr("labels"));
+      tidycpp::character_vector labels(values.attr("names"));
 
       for (int i = 0; i < values.size(); ++i)
         readstat_label_string_value(labelSet, string_utf8(values, i), string_utf8(labels, i));
@@ -342,7 +342,7 @@ public:
   void checkStatus(readstat_error_t err) {
     if (err == 0) return;
 
-    Rcpp::stop("Writing failure: %s.", readstat_error_message(err));
+    tidycpp::stop("Writing failure: %s.", readstat_error_message(err));
   }
 
   ssize_t write(const void *data, size_t len) {
