@@ -197,7 +197,9 @@ print_labels <- function(x, name = NULL) {
 
 # Type system -------------------------------------------------------------
 
-methods::setOldClass(c("haven_labelled", "vctrs_vctr"))
+# Import to avoid R CMD check NOTE
+#' @importFrom methods setOldClass
+setOldClass(c("haven_labelled", "vctrs_vctr"))
 
 #' @export
 #' @rdname labelled
