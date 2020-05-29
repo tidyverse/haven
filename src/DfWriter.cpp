@@ -107,9 +107,9 @@ public:
       const char* format = var_format(col, type);
 
       switch(TYPEOF(col)) {
-        case LGLSXP:  defineVariable(Rcpp::as<IntegerVector>(col), name, format); break;
-        case INTSXP:  defineVariable(Rcpp::as<IntegerVector>(col), name, format); break;
-        case REALSXP: defineVariable(Rcpp::as<NumericVector>(col), name, format);  break;
+        case LGLSXP:  defineVariable(Rcpp::as<Rcpp::IntegerVector>(col), name, format); break;
+        case INTSXP:  defineVariable(Rcpp::as<Rcpp::IntegerVector>(col), name, format); break;
+        case REALSXP: defineVariable(Rcpp::as<Rcpp::NumericVector>(col), name, format);  break;
         case STRSXP:  defineVariable(Rcpp::as<Rcpp::CharacterVector>(col), name, format); break;
       default:
                       Rcpp::stop("Variables of type %s not supported yet",
