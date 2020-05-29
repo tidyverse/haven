@@ -507,7 +507,7 @@ class DfReaderInputFile : public DfReaderInputStream<std::ifstream> {
   std::string filename_;
 
 public:
-  DfReaderInputFile(Rcpp::List spec, std::string encoding = "") {
+  DfReaderInputFile(tidycpp::list spec, std::string encoding = "") {
     tidycpp::character_vector path(static_cast<SEXP>(spec[0]));
     filename_ = std::string(Rf_translateChar(path[0]));
     this->encoding = encoding;
@@ -530,7 +530,7 @@ public:
 
 class DfReaderInputRaw : public DfReaderInputStream<std::istringstream> {
 public:
-  DfReaderInputRaw(Rcpp::List spec, std::string encoding = "") {
+  DfReaderInputRaw(tidycpp::list spec, std::string encoding = "") {
     Rcpp::RawVector raw_data(spec[0]);
     std::string string_data((char*) RAW(raw_data), Rf_length(raw_data));
     file_.str(string_data);
@@ -622,12 +622,12 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
 }
 
 template<FileExt ext, typename InputClass>
-Rcpp::List df_parse(const Rcpp::List& spec, const std::vector<std::string>& cols_skip,
+tidycpp::list df_parse(tidycpp::list spec, const std::vector<std::string>& cols_skip,
               const long& n_max = -1, const long& rows_skip = 0,
               const std::string& encoding = "",
               const bool& user_na = false,
               const std::string& name_repair = "check_unique",
-              const Rcpp::List& catalog_spec = Rcpp::List(),
+              tidycpp::list catalog_spec = tidycpp::writable::list(),
               const std::string& catalog_encoding = ""
               ) {
   DfReader builder(ext, user_na);
@@ -656,14 +656,14 @@ Rcpp::List df_parse(const Rcpp::List& spec, const std::vector<std::string>& cols
 // # nocov start
 
 [[tidycpp::export]]
-Rcpp::List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
+tidycpp::list df_parse_sas_file(tidycpp::list spec_b7dat, tidycpp::list spec_b7cat,
                        std::string encoding, std::string catalog_encoding,
                        std::vector<std::string> cols_skip, long n_max, long rows_skip,
                        std::string name_repair) {
   return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, cols_skip, n_max, rows_skip, encoding, false, name_repair, spec_b7cat, catalog_encoding);
 }
 [[tidycpp::export]]
-Rcpp::List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
+tidycpp::list df_parse_sas_raw(tidycpp::list spec_b7dat, tidycpp::list spec_b7cat,
                       std::string encoding, std::string catalog_encoding,
                       std::vector<std::string> cols_skip, long n_max, long rows_skip,
                       std::string name_repair) {
@@ -671,38 +671,38 @@ Rcpp::List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat,
 }
 
 [[tidycpp::export]]
-Rcpp::List df_parse_xpt_file(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+tidycpp::list df_parse_xpt_file(tidycpp::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_XPT, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, "", false, name_repair);
 }
 [[tidycpp::export]]
-Rcpp::List df_parse_xpt_raw(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+tidycpp::list df_parse_xpt_raw(tidycpp::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_XPT, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, "", false, name_repair);
 }
 
 [[tidycpp::export]]
-Rcpp::List df_parse_dta_file(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+tidycpp::list df_parse_dta_file(tidycpp::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_DTA, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding, false, name_repair);
 }
 [[tidycpp::export]]
-Rcpp::List df_parse_dta_raw(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+tidycpp::list df_parse_dta_raw(tidycpp::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_DTA, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding, false, name_repair);
 }
 
 [[tidycpp::export]]
-Rcpp::List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+tidycpp::list df_parse_sav_file(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_SAV, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding, user_na, name_repair);
 }
 [[tidycpp::export]]
-Rcpp::List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+tidycpp::list df_parse_sav_raw(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_SAV, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding, user_na, name_repair);
 }
 
 [[tidycpp::export]]
-Rcpp::List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+tidycpp::list df_parse_por_file(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_POR, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding, user_na, name_repair);
 }
 [[tidycpp::export]]
-Rcpp::List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+tidycpp::list df_parse_por_raw(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_POR, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding, user_na, name_repair);
 }
 

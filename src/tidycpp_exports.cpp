@@ -5,73 +5,73 @@
 using namespace Rcpp;
 
 // DfReader.cpp
-Rcpp::List df_parse_sas_file(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+tidycpp::list df_parse_sas_file(tidycpp::list spec_b7dat, tidycpp::list spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
 extern "C" SEXP _tidycpp_df_parse_sas_file(SEXP spec_b7dat, SEXP spec_b7cat, SEXP encoding, SEXP catalog_encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_TIDYCPP
-    return tidycpp::as_sexp(df_parse_sas_file(tidycpp::as_cpp<Rcpp::List>(spec_b7dat), tidycpp::as_cpp<Rcpp::List>(spec_b7cat), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<std::string>(catalog_encoding), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
+    return tidycpp::as_sexp(df_parse_sas_file(tidycpp::as_cpp<tidycpp::list>(spec_b7dat), tidycpp::as_cpp<tidycpp::list>(spec_b7cat), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<std::string>(catalog_encoding), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
   END_TIDYCPP
 }
 // DfReader.cpp
-Rcpp::List df_parse_sas_raw(Rcpp::List spec_b7dat, Rcpp::List spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+tidycpp::list df_parse_sas_raw(tidycpp::list spec_b7dat, tidycpp::list spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
 extern "C" SEXP _tidycpp_df_parse_sas_raw(SEXP spec_b7dat, SEXP spec_b7cat, SEXP encoding, SEXP catalog_encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_TIDYCPP
-    return tidycpp::as_sexp(df_parse_sas_raw(tidycpp::as_cpp<Rcpp::List>(spec_b7dat), tidycpp::as_cpp<Rcpp::List>(spec_b7cat), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<std::string>(catalog_encoding), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
+    return tidycpp::as_sexp(df_parse_sas_raw(tidycpp::as_cpp<tidycpp::list>(spec_b7dat), tidycpp::as_cpp<tidycpp::list>(spec_b7cat), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<std::string>(catalog_encoding), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
   END_TIDYCPP
 }
 // DfReader.cpp
-Rcpp::List df_parse_xpt_file(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+tidycpp::list df_parse_xpt_file(tidycpp::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
 extern "C" SEXP _tidycpp_df_parse_xpt_file(SEXP spec, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_TIDYCPP
-    return tidycpp::as_sexp(df_parse_xpt_file(tidycpp::as_cpp<Rcpp::List>(spec), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
+    return tidycpp::as_sexp(df_parse_xpt_file(tidycpp::as_cpp<tidycpp::list>(spec), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
   END_TIDYCPP
 }
 // DfReader.cpp
-Rcpp::List df_parse_xpt_raw(Rcpp::List spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+tidycpp::list df_parse_xpt_raw(tidycpp::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
 extern "C" SEXP _tidycpp_df_parse_xpt_raw(SEXP spec, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_TIDYCPP
-    return tidycpp::as_sexp(df_parse_xpt_raw(tidycpp::as_cpp<Rcpp::List>(spec), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
+    return tidycpp::as_sexp(df_parse_xpt_raw(tidycpp::as_cpp<tidycpp::list>(spec), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
   END_TIDYCPP
 }
 // DfReader.cpp
-Rcpp::List df_parse_dta_file(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+tidycpp::list df_parse_dta_file(tidycpp::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
 extern "C" SEXP _tidycpp_df_parse_dta_file(SEXP spec, SEXP encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_TIDYCPP
-    return tidycpp::as_sexp(df_parse_dta_file(tidycpp::as_cpp<Rcpp::List>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
+    return tidycpp::as_sexp(df_parse_dta_file(tidycpp::as_cpp<tidycpp::list>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
   END_TIDYCPP
 }
 // DfReader.cpp
-Rcpp::List df_parse_dta_raw(Rcpp::List spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+tidycpp::list df_parse_dta_raw(tidycpp::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
 extern "C" SEXP _tidycpp_df_parse_dta_raw(SEXP spec, SEXP encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_TIDYCPP
-    return tidycpp::as_sexp(df_parse_dta_raw(tidycpp::as_cpp<Rcpp::List>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
+    return tidycpp::as_sexp(df_parse_dta_raw(tidycpp::as_cpp<tidycpp::list>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
   END_TIDYCPP
 }
 // DfReader.cpp
-Rcpp::List df_parse_sav_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+tidycpp::list df_parse_sav_file(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
 extern "C" SEXP _tidycpp_df_parse_sav_file(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_TIDYCPP
-    return tidycpp::as_sexp(df_parse_sav_file(tidycpp::as_cpp<Rcpp::List>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<bool>(user_na), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
+    return tidycpp::as_sexp(df_parse_sav_file(tidycpp::as_cpp<tidycpp::list>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<bool>(user_na), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
   END_TIDYCPP
 }
 // DfReader.cpp
-Rcpp::List df_parse_sav_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+tidycpp::list df_parse_sav_raw(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
 extern "C" SEXP _tidycpp_df_parse_sav_raw(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_TIDYCPP
-    return tidycpp::as_sexp(df_parse_sav_raw(tidycpp::as_cpp<Rcpp::List>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<bool>(user_na), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
+    return tidycpp::as_sexp(df_parse_sav_raw(tidycpp::as_cpp<tidycpp::list>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<bool>(user_na), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
   END_TIDYCPP
 }
 // DfReader.cpp
-Rcpp::List df_parse_por_file(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+tidycpp::list df_parse_por_file(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
 extern "C" SEXP _tidycpp_df_parse_por_file(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_TIDYCPP
-    return tidycpp::as_sexp(df_parse_por_file(tidycpp::as_cpp<Rcpp::List>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<bool>(user_na), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
+    return tidycpp::as_sexp(df_parse_por_file(tidycpp::as_cpp<tidycpp::list>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<bool>(user_na), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
   END_TIDYCPP
 }
 // DfReader.cpp
-Rcpp::List df_parse_por_raw(Rcpp::List spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+tidycpp::list df_parse_por_raw(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
 extern "C" SEXP _tidycpp_df_parse_por_raw(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_TIDYCPP
-    return tidycpp::as_sexp(df_parse_por_raw(tidycpp::as_cpp<Rcpp::List>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<bool>(user_na), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
+    return tidycpp::as_sexp(df_parse_por_raw(tidycpp::as_cpp<tidycpp::list>(spec), tidycpp::as_cpp<std::string>(encoding), tidycpp::as_cpp<bool>(user_na), tidycpp::as_cpp<std::vector<std::string>>(cols_skip), tidycpp::as_cpp<long>(n_max), tidycpp::as_cpp<long>(rows_skip), tidycpp::as_cpp<std::string>(name_repair)));
   END_TIDYCPP
 }
 // DfWriter.cpp
