@@ -127,7 +127,7 @@ class DfReader {
 
   int nrows_, nrowsAlloc_;
   int ncols_;
-  Rcpp::List output_;
+  tidycpp::writable::list output_;
   tidycpp::writable::character_vector names_;
   bool user_na_;
 
@@ -162,7 +162,7 @@ public:
 
     ncols_ = var_count - colsSkip_.size();
 
-    output_ = Rcpp::List(ncols_);
+    output_.resize(ncols_);
     names_.resize(ncols_);
     val_labels_.resize(ncols_);
     var_types_.resize(ncols_);
@@ -206,7 +206,7 @@ public:
       break;
     }
 
-    Rcpp::RObject col(output_[var_index]);
+    tidycpp::sexp col(output_[var_index]);
 
     const char* var_label = readstat_variable_get_label(variable);
     if (var_label != NULL && strcmp(var_label, "") != 0) {
@@ -289,7 +289,7 @@ public:
         }
 
         if (na_values.size() > 0)
-          col.attr("na_values") = Rcpp::wrap(na_values);
+          col.attr("na_values") = tidycpp::as_sexp(na_values);
         if (has_range)
           col.attr("na_range") = na_range;
 
