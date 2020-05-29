@@ -3,6 +3,8 @@
 #include "readstat.h"
 #include "haven_types.h"
 
+#include "tidycpp/sexp.hpp"
+
 ssize_t data_writer(const void *data, size_t len, void *ctx);
 
 inline const char* string_utf8(SEXP x, int i) {
@@ -33,8 +35,8 @@ inline readstat_measure_e measureType(SEXP x) {
   }
 }
 
-inline int displayWidth(Rcpp::RObject x) {
-  Rcpp::RObject display_width_obj = x.attr("display_width");
+inline int displayWidth(tidycpp::sexp x) {
+  tidycpp::sexp display_width_obj(x.attr("display_width"));
   switch(TYPEOF(display_width_obj)) {
   case INTSXP:
     return INTEGER(display_width_obj)[0];
@@ -240,7 +242,7 @@ public:
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
-    readstat_variable_set_display_width(var, displayWidth(x));
+    readstat_variable_set_display_width(var, displayWidth(static_cast<SEXP>(x)));
   }
 
   void defineVariable(Rcpp::NumericVector x, const char* name, const char* format = NULL) {
@@ -262,7 +264,7 @@ public:
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
-    readstat_variable_set_display_width(var, displayWidth(x));
+    readstat_variable_set_display_width(var, displayWidth(static_cast<SEXP>(x)));
 
     if (Rf_inherits(x, "haven_labelled_spss")) {
       SEXP na_range = x.attr("na_range");
@@ -304,7 +306,7 @@ public:
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
-    readstat_variable_set_display_width(var, displayWidth(x));
+    readstat_variable_set_display_width(var, displayWidth(static_cast<SEXP>(x)));
   }
 
   // Value helper -------------------------------------------------------------
