@@ -1,7 +1,7 @@
 #include <iconv.h>
 
 /* ICONV_CONST defined by autotools; so we hack this in manually */
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__sun)
   #define ICONV_CONST const
 #else
   #define ICONV_CONST
