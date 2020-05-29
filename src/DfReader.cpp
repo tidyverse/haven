@@ -75,13 +75,13 @@ public:
     return labels_.size();
   }
 
-  Rcpp::RObject labels() const {
-    Rcpp::RObject out;
+  tidycpp::sexp labels() const {
+    tidycpp::sexp out;
 
     if (values_i_.size() > 0) {
       int n = values_i_.size();
-      Rcpp::IntegerVector values(n);
-      Rcpp::CharacterVector labels(n);
+      tidycpp::writable::integer_vector values(n);
+      tidycpp::writable::character_vector labels(n);
 
       for (int i = 0; i < n; ++i) {
         values[i] = values_i_[i];
@@ -92,8 +92,8 @@ public:
       out = values;
     } else if (values_d_.size() > 0) {
       int n = values_d_.size();
-      Rcpp::NumericVector values(n);
-      Rcpp::CharacterVector labels(n);
+      tidycpp::writable::double_vector values(n);
+      tidycpp::writable::character_vector labels(n);
 
       for (int i = 0; i < n; ++i) {
         values[i] = values_d_[i];
@@ -104,7 +104,7 @@ public:
       out = values;
     } else {
       int n = values_s_.size();
-      Rcpp::CharacterVector values(n), labels(n);
+      tidycpp::writable::character_vector values(n), labels(n);
 
       for (int i = 0; i < n; ++i) {
         values[i] = Rf_mkCharCE(values_s_[i].c_str(), CE_UTF8);
