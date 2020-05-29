@@ -293,7 +293,7 @@ public:
         if (has_range)
           col.attr("na_range") = na_range;
 
-        col.attr("class") = tidycpp::as_sexp({"haven_labelled_spss", "haven_labelled", "vctrs_vctr", "double"});
+        col.attr("class") = {"haven_labelled_spss", "haven_labelled", "vctrs_vctr", "double"};
       }
       }
     }
@@ -327,8 +327,7 @@ public:
     case READSTAT_TYPE_STRING_REF:
     case READSTAT_TYPE_STRING:
     {
-      Rcpp::CharacterVector col(output_[var_index]);
-
+      tidycpp::writable::character_vector col(static_cast<SEXP>(output_[var_index]));
       const char* str_value = readstat_string_value(value);
       col[obs_index] = str_value == NULL ? NA_STRING : Rf_mkCharCE(str_value, CE_UTF8);
       break;
@@ -339,7 +338,7 @@ public:
     case READSTAT_TYPE_FLOAT:
     case READSTAT_TYPE_DOUBLE:
     {
-      tidycpp::writable::double_vector col (static_cast<SEXP>(output_[var_index]));
+      tidycpp::writable::double_vector col(static_cast<SEXP>(output_[var_index]));
       double val = haven_double_value_udm(value, variable, user_na_);
       col[obs_index] = adjustDatetimeToR(vendor_, var_type, val);
       break;
