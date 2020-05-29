@@ -397,7 +397,7 @@ public:
       resizeCols(nrows_);
 
     for (int i = 0; i < output_.size(); ++i) {
-      Rcpp::RObject col(output_[i]);
+      tidycpp::sexp col(output_[i]);
 
       if (hasLabel(i)) {
         if (Rf_getAttrib(col, R_ClassSymbol) == R_NilValue) {
