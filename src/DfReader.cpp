@@ -200,14 +200,14 @@ public:
     switch(readstat_variable_get_type(variable)) {
     case READSTAT_TYPE_STRING_REF:
     case READSTAT_TYPE_STRING:
-      output_[var_index] = tidycpp::safe[Rf_allocVector](STRSXP, nrowsAlloc_);
+      output_[var_index] = tidycpp::writable::character_vector(nrowsAlloc_);
       break;
     case READSTAT_TYPE_INT8:
     case READSTAT_TYPE_INT16:
     case READSTAT_TYPE_INT32:
     case READSTAT_TYPE_FLOAT:
     case READSTAT_TYPE_DOUBLE:
-      output_[var_index] = tidycpp::safe[Rf_allocVector](REALSXP, nrowsAlloc_);
+      output_[var_index] = tidycpp::writable::double_vector(nrowsAlloc_);
       break;
     }
 
@@ -249,8 +249,7 @@ public:
       case READSTAT_TYPE_STRING_REF:
       case READSTAT_TYPE_STRING:
       {
-        tidycpp::writable::character_vector na_values;
-        na_values.resize(n_ranges);
+        tidycpp::writable::character_vector na_values(n_ranges);
 
         for (int i = 0; i < n_ranges; ++i) {
           readstat_value_t value = readstat_variable_get_missing_range_lo(variable, i);
@@ -269,8 +268,7 @@ public:
       case READSTAT_TYPE_DOUBLE:
       {
         std::vector<double> na_values;
-        tidycpp::writable::double_vector na_range;
-        na_range.resize(2);
+        tidycpp::writable::double_vector na_range(2);
         bool has_range = false;
 
         for (int i = 0; i < n_ranges; ++i) {
@@ -414,8 +412,8 @@ public:
 
     int nNotes = notes_.size();
     if (nNotes > 0) {
-      tidycpp::writable::character_vector notes;
-      notes.resize(nNotes);
+      tidycpp::writable::character_vector notes(nNotes);
+
       for (int i = 0; i < nNotes; ++i) {
         notes[i] = Rf_mkCharCE(notes_[i].c_str(), CE_UTF8);
       }
