@@ -236,11 +236,11 @@ public:
       col.attr("class") = "Date";
       break;
     case HAVEN_TIME:
-      col.attr("class") = tidycpp::as_sexp({"hms", "difftime"});
+      col.attr("class") = {"hms", "difftime"};
       col.attr("units") = "secs";
       break;
     case HAVEN_DATETIME:
-      col.attr("class") = tidycpp::as_sexp({"POSIXct", "POSIXt"});
+      col.attr("class") = {"POSIXct", "POSIXt"};
       col.attr("tzone") = "UTC";
       break;
     default:
@@ -263,7 +263,7 @@ public:
         }
 
         col.attr("na_values") = na_values;
-        col.attr("class") = tidycpp::as_sexp({"haven_labelled_spss", "haven_labelled", "vctrs_vctr", "character"});
+        col.attr("class") = {"haven_labelled_spss", "haven_labelled", "vctrs_vctr", "character"};
         break;
       }
       case READSTAT_TYPE_INT8:
@@ -409,7 +409,7 @@ public:
 
       if (hasLabel(i)) {
         if (Rf_getAttrib(col, R_ClassSymbol) == R_NilValue) {
-          col.attr("class") = tidycpp::as_sexp({"haven_labelled", "vctrs_vctr", Rf_type2char(TYPEOF(col))});
+          col.attr("class") = {"haven_labelled", "vctrs_vctr", Rf_type2char(TYPEOF(col))};
         }
         col.attr("labels") = label_sets_[val_labels_[i]].labels();
       }
