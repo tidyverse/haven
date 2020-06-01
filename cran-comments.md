@@ -13,32 +13,7 @@
 
 ## revdepcheck results
 
-We checked 66 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+We checked 67 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
- * We saw 4 new problems
+ * We saw 0 new problems
  * We failed to check 0 packages
-
-Issues with CRAN packages are summarised below.
-
-### New problems
-(This reports the first line of each new failure)
-
-* crosswalkr
-  checking examples ... ERROR
-  checking tests ... ERROR
-  Problem caused by labelled package (below)
-
-* ipumsr
-  checking tests ... ERROR
-  Fix merged in development version:
-  https://github.com/mnpopcenter/ipumsr/pull/60
-
-* labelled
-  checking tests ... ERROR
-  Fix merged in development version:
-  https://github.com/larmarange/labelled/pull/59
-
-* sjlabelled
-  checking examples ... ERROR
-  Author alerted to problem and fix proposed:
-  https://github.com/strengejacke/sjlabelled/pull/35
