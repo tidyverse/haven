@@ -297,7 +297,7 @@ public:
         }
 
         if (na_values.size() > 0)
-          col.attr("na_values") = tidycpp::as_sexp(na_values);
+          col.attr("na_values") = na_values;
         if (has_range)
           col.attr("na_range") = na_range;
 
@@ -423,14 +423,14 @@ public:
         notes[i] = notes_[i].c_str();
       }
 
-      output_.attr("notes") = tidycpp::as_sexp(notes_);
+      output_.attr("notes") = notes_;
     }
 
     output_.attr("names") = names_;
 
     static tidycpp::function as_tibble = tidycpp::package("tibble")["as_tibble"];
     using namespace tidycpp::literals;
-    return SEXP(as_tibble(output_, ".rows"_nm = nrows_, ".name_repair"_nm = tidycpp::as_sexp(name_repair)));
+    return SEXP(as_tibble(output_, ".rows"_nm = nrows_, ".name_repair"_nm = name_repair));
   }
 };
 
