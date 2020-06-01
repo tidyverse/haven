@@ -241,10 +241,10 @@ public:
     readstat_variable_t* var =
       readstat_add_variable(writer_, name, READSTAT_TYPE_INT32, 0);
     readstat_variable_set_format(var, format);
-    readstat_variable_set_label(var, var_label(static_cast<SEXP>(x)));
+    readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
-    readstat_variable_set_display_width(var, displayWidth(static_cast<SEXP>(x)));
+    readstat_variable_set_display_width(var, displayWidth(x));
   }
 
   void defineVariable(tidycpp::double_vector x, const char* name, const char* format = NULL) {
@@ -263,10 +263,10 @@ public:
       readstat_add_variable(writer_, name, READSTAT_TYPE_DOUBLE, 0);
 
     readstat_variable_set_format(var, format);
-    readstat_variable_set_label(var, var_label(static_cast<SEXP>(x)));
+    readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
-    readstat_variable_set_display_width(var, displayWidth(static_cast<SEXP>(x)));
+    readstat_variable_set_display_width(var, displayWidth(x));
 
     if (Rf_inherits(x, "haven_labelled_spss")) {
       SEXP na_range = x.attr("na_range");
@@ -305,10 +305,10 @@ public:
     readstat_variable_t* var =
       readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, max_length);
     readstat_variable_set_format(var, format);
-    readstat_variable_set_label(var, var_label(static_cast<SEXP>(x)));
+    readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
-    readstat_variable_set_display_width(var, displayWidth(static_cast<SEXP>(x)));
+    readstat_variable_set_display_width(var, displayWidth(x));
   }
 
   // Value helper -------------------------------------------------------------
