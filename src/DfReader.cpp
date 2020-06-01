@@ -144,8 +144,13 @@ class DfReader {
   std::set<std::string> colsSkip_;
 
 public:
-  DfReader(FileExt ext, bool user_na = false): ext_(ext), vendor_(extVendor(ext)), nrows_(0), ncols_(0), user_na_(user_na) {
-  }
+  DfReader(FileExt ext, bool user_na = false) :
+    ext_(ext),
+    vendor_(extVendor(ext)),
+    nrows_(0),
+    ncols_(0),
+    output_(static_cast<R_xlen_t>(0)),
+    user_na_(user_na) { }
 
   void skipCols(const std::vector<std::string>& cols) {
     std::set<std::string> cols_set(cols.begin(), cols.end());
