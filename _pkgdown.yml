@@ -3,6 +3,10 @@ template:
 
 url: https://haven.tidyverse.org
 
+navbar:
+  components:
+    home: ~
+
 home:
   strip_header: true
 
@@ -50,28 +54,17 @@ reference:
   contents:
   - starts_with("zap")
 
-navbar:
-  type: default
-  left:
-  - text: Reference
-    href: reference/index.html
-  - text: Semantics
-    href: articles/semantics.html
-  - text: News
-    menu:
-      - text: "Release notes"
-      - text: "Version 2.2.0"
-        href: https://www.tidyverse.org/articles/2019/11/haven-2-2-0/
-      - text: "Version 2.1.0"
-        href: https://www.tidyverse.org/articles/2019/02/haven-2-1-0/
-      - text: "Version 2.0.0"
-        href: https://www.tidyverse.org/articles/2019/01/haven-2-0-0/
-      - text: "Version 1.1.2"
-        href: https://www.tidyverse.org/articles/2018/06/haven-1-1-2/
-      - text: "Version 1.0.0"
-        href: articles/releases/haven-1.0.0.html
-      - text: "Version 0.1.0"
-        href: articles/releases/haven-0.1.0.html
-      - text: "------------------"
-      - text: "Change log"
-        href: news/index.html
+news:
+  releases:
+  - text: "Version 2.2.0"
+    href: https://www.tidyverse.org/articles/2019/11/haven-2-2-0/
+  - text: "Version 2.1.0"
+    href: https://www.tidyverse.org/articles/2019/02/haven-2-1-0/
+  - text: "Version 2.0.0"
+    href: https://www.tidyverse.org/articles/2019/01/haven-2-0-0/
+  - text: "Version 1.1.2"
+    href: https://www.tidyverse.org/articles/2018/06/haven-1-1-2/
+  - text: "Version 1.0.0"
+    href: articles/releases/haven-1.0.0.html
+  - text: "Version 0.1.0"
+    href: articles/releases/haven-0.1.0.html
