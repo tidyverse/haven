@@ -90,7 +90,7 @@ public:
 
       for (int i = 0; i < n; ++i) {
         values[i] = values_i_[i];
-        labels[i] = Rf_mkCharCE(labels_[i].c_str(), CE_UTF8);
+        labels[i] = labels_[i].c_str();
       }
 
       values.attr("names") = labels;
@@ -102,7 +102,7 @@ public:
 
       for (int i = 0; i < n; ++i) {
         values[i] = values_d_[i];
-        labels[i] = Rf_mkCharCE(labels_[i].c_str(), CE_UTF8);
+        labels[i] = labels_[i].c_str();
       }
 
       values.attr("names") = labels;
@@ -112,8 +112,8 @@ public:
       tidycpp::writable::character_vector values(n), labels(n);
 
       for (int i = 0; i < n; ++i) {
-        values[i] = Rf_mkCharCE(values_s_[i].c_str(), CE_UTF8);
-        labels[i] = Rf_mkCharCE(labels_[i].c_str(), CE_UTF8);
+        values[i] = values_s_[i].c_str();
+        labels[i] = labels_[i].c_str();
       }
 
       values.attr("names") = labels;
@@ -200,7 +200,7 @@ public:
 
     int var_index = readstat_variable_get_index_after_skipping(variable);
 
-    names_[var_index] = Rf_mkCharCE(name, CE_UTF8);
+    names_[var_index] = name;
 
     switch(readstat_variable_get_type(variable)) {
     case READSTAT_TYPE_STRING_REF:
@@ -259,7 +259,7 @@ public:
         for (int i = 0; i < n_ranges; ++i) {
           readstat_value_t value = readstat_variable_get_missing_range_lo(variable, i);
           const char* str_value = readstat_string_value(value);
-          na_values[0] = str_value == NULL ? NA_STRING : Rf_mkCharCE(str_value, CE_UTF8);
+          na_values[0] = str_value == NULL ? tidycpp::string(NA_STRING) : tidycpp::string(str_value);
         }
 
         col.attr("na_values") = na_values;
@@ -309,7 +309,7 @@ public:
 
     // Store original format as attribute
     if (var_format != NULL && strcmp(var_format, "") != 0) {
-      col.attr(formatAttribute(vendor_).c_str()) = var_format;
+      col.attr(formatAttribute(vendor_)) = var_format;
     }
 
     // Store original display width as attribute if it differs from the default
@@ -337,7 +337,7 @@ public:
     {
       tidycpp::writable::character_vector col(static_cast<SEXP>(output_[var_index]));
       const char* str_value = readstat_string_value(value);
-      col[obs_index] = str_value == NULL ? NA_STRING : Rf_mkCharCE(str_value, CE_UTF8);
+      col[obs_index] = str_value == NULL ? tidycpp::string(NA_STRING) : tidycpp::string(str_value);
       break;
     }
     case READSTAT_TYPE_INT8:
@@ -420,7 +420,7 @@ public:
       tidycpp::writable::character_vector notes(nNotes);
 
       for (int i = 0; i < nNotes; ++i) {
-        notes[i] = Rf_mkCharCE(notes_[i].c_str(), CE_UTF8);
+        notes[i] = notes_[i].c_str();
       }
 
       output_.attr("notes") = tidycpp::as_sexp(notes_);
