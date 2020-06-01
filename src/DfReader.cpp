@@ -335,7 +335,7 @@ public:
     case READSTAT_TYPE_STRING_REF:
     case READSTAT_TYPE_STRING:
     {
-      tidycpp::writable::character_vector col(static_cast<SEXP>(output_[var_index]));
+      tidycpp::writable::character_vector col(output_[var_index]);
       const char* str_value = readstat_string_value(value);
       col[obs_index] = str_value == NULL ? tidycpp::string(NA_STRING) : tidycpp::string(str_value);
       break;
@@ -346,7 +346,7 @@ public:
     case READSTAT_TYPE_FLOAT:
     case READSTAT_TYPE_DOUBLE:
     {
-      tidycpp::writable::double_vector col(static_cast<SEXP>(output_[var_index]));
+      tidycpp::writable::double_vector col(output_[var_index]);
       double val = haven_double_value_udm(value, variable, user_na_);
       col[obs_index] = adjustDatetimeToR(vendor_, var_type, val);
       break;
@@ -516,7 +516,7 @@ class DfReaderInputFile : public DfReaderInputStream<std::ifstream> {
 
 public:
   DfReaderInputFile(tidycpp::list spec, std::string encoding = "") {
-    tidycpp::character_vector path(static_cast<SEXP>(spec[0]));
+    tidycpp::character_vector path(spec[0]);
     filename_ = std::string(Rf_translateChar(path[0]));
     this->encoding = encoding;
   }
@@ -658,7 +658,7 @@ tidycpp::list df_parse(tidycpp::list spec, const std::vector<std::string>& cols_
     builder.limitRows(n_max); // must enforce n_max = 0
   }
 
-  return static_cast<SEXP>(builder.output(name_repair));
+  return builder.output(name_repair);
 }
 
 // # nocov start
