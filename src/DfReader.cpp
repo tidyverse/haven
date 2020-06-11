@@ -10,15 +10,15 @@
 #include "haven_types.h"
 #include "tagged_na.h"
 
-#include "tidycpp/character.hpp"
-#include "tidycpp/double.hpp"
-#include "tidycpp/integer.hpp"
-#include "tidycpp/list.hpp"
-#include "tidycpp/raw.hpp"
-#include "tidycpp/sexp.hpp"
+#include "cpp11/strings.hpp"
+#include "cpp11/doubles.hpp"
+#include "cpp11/integers.hpp"
+#include "cpp11/list.hpp"
+#include "cpp11/raws.hpp"
+#include "cpp11/sexp.hpp"
 
-#include "tidycpp/protect.hpp"
-#include "tidycpp/function.hpp"
+#include "cpp11/protect.hpp"
+#include "cpp11/function.hpp"
 
 double haven_double_value_udm(readstat_value_t value, readstat_variable_t* var, bool user_na) {
   if (readstat_value_is_tagged_missing(value)) {
@@ -54,7 +54,7 @@ public:
 
   void add(const char* value, std::string label) {
     if (values_i_.size() > 0 || values_d_.size() > 0)
-      tidycpp::stop("Can't add string to integer/double labelset");
+      cpp11::stop("Can't add string to integer/double labelset");
 
     values_s_.push_back(value);
     labels_.push_back(label);
@@ -62,7 +62,7 @@ public:
 
   void add(int value, std::string label) {
     if (values_d_.size() > 0 || values_s_.size() > 0)
-      tidycpp::stop("Can't add integer to string/double labelset");
+      cpp11::stop("Can't add integer to string/double labelset");
 
     values_i_.push_back(value);
     labels_.push_back(label);
@@ -70,7 +70,7 @@ public:
 
   void add(double value, std::string label) {
     if (values_i_.size() > 0 || values_s_.size() > 0)
-      tidycpp::stop("Can't add double to integer/string labelset");
+      cpp11::stop("Can't add double to integer/string labelset");
 
     values_d_.push_back(value);
     labels_.push_back(label);
@@ -80,13 +80,13 @@ public:
     return labels_.size();
   }
 
-  tidycpp::sexp labels() const {
-    tidycpp::sexp out;
+  cpp11::sexp labels() const {
+    cpp11::sexp out;
 
     if (values_i_.size() > 0) {
       int n = values_i_.size();
-      tidycpp::writable::integer_vector values(n);
-      tidycpp::writable::character_vector labels(n);
+      cpp11::writable::integers values(n);
+      cpp11::writable::strings labels(n);
 
       for (int i = 0; i < n; ++i) {
         values[i] = values_i_[i];
@@ -97,8 +97,8 @@ public:
       out = values;
     } else if (values_d_.size() > 0) {
       int n = values_d_.size();
-      tidycpp::writable::double_vector values(n);
-      tidycpp::writable::character_vector labels(n);
+      cpp11::writable::doubles values(n);
+      cpp11::writable::strings labels(n);
 
       for (int i = 0; i < n; ++i) {
         values[i] = values_d_[i];
@@ -109,7 +109,7 @@ public:
       out = values;
     } else {
       int n = values_s_.size();
-      tidycpp::writable::character_vector values(n), labels(n);
+      cpp11::writable::strings values(n), labels(n);
 
       for (int i = 0; i < n; ++i) {
         values[i] = values_s_[i].c_str();
@@ -132,8 +132,8 @@ class DfReader {
 
   int nrows_, nrowsAlloc_;
   int ncols_;
-  tidycpp::writable::list output_;
-  tidycpp::writable::character_vector names_;
+  cpp11::writable::list output_;
+  cpp11::writable::strings names_;
   bool user_na_;
 
   std::vector<std::string> val_labels_;
@@ -205,18 +205,18 @@ public:
     switch(readstat_variable_get_type(variable)) {
     case READSTAT_TYPE_STRING_REF:
     case READSTAT_TYPE_STRING:
-      output_[var_index] = tidycpp::writable::character_vector(nrowsAlloc_);
+      output_[var_index] = cpp11::writable::strings(nrowsAlloc_);
       break;
     case READSTAT_TYPE_INT8:
     case READSTAT_TYPE_INT16:
     case READSTAT_TYPE_INT32:
     case READSTAT_TYPE_FLOAT:
     case READSTAT_TYPE_DOUBLE:
-      output_[var_index] = tidycpp::writable::double_vector(nrowsAlloc_);
+      output_[var_index] = cpp11::writable::doubles(nrowsAlloc_);
       break;
     }
 
-    tidycpp::sexp col(output_[var_index]);
+    cpp11::sexp col(output_[var_index]);
 
     const char* var_label = readstat_variable_get_label(variable);
     if (var_label != NULL && strcmp(var_label, "") != 0) {
@@ -254,12 +254,12 @@ public:
       case READSTAT_TYPE_STRING_REF:
       case READSTAT_TYPE_STRING:
       {
-        tidycpp::writable::character_vector na_values(n_ranges);
+        cpp11::writable::strings na_values(n_ranges);
 
         for (int i = 0; i < n_ranges; ++i) {
           readstat_value_t value = readstat_variable_get_missing_range_lo(variable, i);
           const char* str_value = readstat_string_value(value);
-          na_values[0] = str_value == NULL ? tidycpp::string(NA_STRING) : tidycpp::string(str_value);
+          na_values[0] = str_value == NULL ? cpp11::string(NA_STRING) : cpp11::string(str_value);
         }
 
         col.attr("na_values") = na_values;
@@ -273,7 +273,7 @@ public:
       case READSTAT_TYPE_DOUBLE:
       {
         std::vector<double> na_values;
-        tidycpp::writable::double_vector na_range(2);
+        cpp11::writable::doubles na_range(2);
         bool has_range = false;
 
         for (int i = 0; i < n_ranges; ++i) {
@@ -335,9 +335,9 @@ public:
     case READSTAT_TYPE_STRING_REF:
     case READSTAT_TYPE_STRING:
     {
-      tidycpp::writable::character_vector col(output_[var_index]);
+      cpp11::writable::strings col(output_[var_index]);
       const char* str_value = readstat_string_value(value);
-      col[obs_index] = str_value == NULL ? tidycpp::string(NA_STRING) : tidycpp::string(str_value);
+      col[obs_index] = str_value == NULL ? cpp11::string(NA_STRING) : cpp11::string(str_value);
       break;
     }
     case READSTAT_TYPE_INT8:
@@ -346,7 +346,7 @@ public:
     case READSTAT_TYPE_FLOAT:
     case READSTAT_TYPE_DOUBLE:
     {
-      tidycpp::writable::double_vector col(output_[var_index]);
+      cpp11::writable::doubles col(output_[var_index]);
       double val = haven_double_value_udm(value, variable, user_na_);
       col[obs_index] = adjustDatetimeToR(vendor_, var_type, val);
       break;
@@ -388,7 +388,7 @@ public:
     nrowsAlloc_ = n;
 
     for (int i = 0; i < ncols_; ++i) {
-      tidycpp::sexp copy(Rf_lengthgets(output_[i], n));
+      cpp11::sexp copy(Rf_lengthgets(output_[i], n));
       Rf_copyMostAttrib(output_[i], copy);
       output_[i] = copy;
     }
@@ -400,12 +400,12 @@ public:
     }
   }
 
-  tidycpp::list output(const std::string& name_repair) {
+  cpp11::list output(const std::string& name_repair) {
     if (nrows_ != nrowsAlloc_)
       resizeCols(nrows_);
 
     for (int i = 0; i < output_.size(); ++i) {
-      tidycpp::sexp col(output_[i]);
+      cpp11::sexp col(output_[i]);
 
       if (hasLabel(i)) {
         if (Rf_getAttrib(col, R_ClassSymbol) == R_NilValue) {
@@ -417,7 +417,7 @@ public:
 
     int nNotes = notes_.size();
     if (nNotes > 0) {
-      tidycpp::writable::character_vector notes(nNotes);
+      cpp11::writable::strings notes(nNotes);
 
       for (int i = 0; i < nNotes; ++i) {
         notes[i] = notes_[i].c_str();
@@ -428,8 +428,8 @@ public:
 
     output_.attr("names") = names_;
 
-    static tidycpp::function as_tibble = tidycpp::package("tibble")["as_tibble"];
-    using namespace tidycpp::literals;
+    static cpp11::function as_tibble = cpp11::package("tibble")["as_tibble"];
+    using namespace cpp11::literals;
     return SEXP(as_tibble(output_, ".rows"_nm = nrows_, ".name_repair"_nm = name_repair));
   }
 };
@@ -456,7 +456,7 @@ int dfreader_value(int obs_index, readstat_variable_t *variable,
                    readstat_value_t value, void *ctx) {
   // Check for user interrupts every 10,000 rows or cols
   if ((obs_index + 1) % 10000 == 0 || (variable->index + 1) % 10000 == 0)
-    tidycpp::check_user_interrupt();
+    cpp11::check_user_interrupt();
 
   ((DfReader*) ctx)->setValue(obs_index, variable, value);
   return 0;
@@ -515,8 +515,8 @@ class DfReaderInputFile : public DfReaderInputStream<std::ifstream> {
   std::string filename_;
 
 public:
-  DfReaderInputFile(tidycpp::list spec, std::string encoding = "") {
-    tidycpp::character_vector path(spec[0]);
+  DfReaderInputFile(cpp11::list spec, std::string encoding = "") {
+    cpp11::strings path(spec[0]);
     filename_ = std::string(Rf_translateChar(path[0]));
     this->encoding = encoding;
   }
@@ -538,8 +538,8 @@ public:
 
 class DfReaderInputRaw : public DfReaderInputStream<std::istringstream> {
 public:
-  DfReaderInputRaw(tidycpp::list spec, std::string encoding = "") {
-    tidycpp::raw_vector raw_data(spec[0]);
+  DfReaderInputRaw(cpp11::list spec, std::string encoding = "") {
+    cpp11::raws raw_data(spec[0]);
     std::string string_data((char*) RAW(raw_data), Rf_length(raw_data));
     file_.str(string_data);
     this->encoding = encoding;
@@ -625,17 +625,17 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
     std::string source = builder_input.source();
     readstat_parser_free(parser);
     std::string msg(readstat_error_message(result));
-    tidycpp::stop("Failed to parse %s: %s.", source.c_str(), msg.c_str());
+    cpp11::stop("Failed to parse %s: %s.", source.c_str(), msg.c_str());
   }
 }
 
 template<FileExt ext, typename InputClass>
-tidycpp::list df_parse(tidycpp::list spec, const std::vector<std::string>& cols_skip,
+cpp11::list df_parse(cpp11::list spec, const std::vector<std::string>& cols_skip,
               const long& n_max = -1, const long& rows_skip = 0,
               const std::string& encoding = "",
               const bool& user_na = false,
               const std::string& name_repair = "check_unique",
-              tidycpp::list catalog_spec = tidycpp::writable::list(),
+              cpp11::list catalog_spec = cpp11::writable::list(),
               const std::string& catalog_encoding = ""
               ) {
   DfReader builder(ext, user_na);
@@ -663,54 +663,54 @@ tidycpp::list df_parse(tidycpp::list spec, const std::vector<std::string>& cols_
 
 // # nocov start
 
-[[tidycpp::export]]
-tidycpp::list df_parse_sas_file(tidycpp::list spec_b7dat, tidycpp::list spec_b7cat,
+[[cpp11::export]]
+cpp11::list df_parse_sas_file(cpp11::list spec_b7dat, cpp11::list spec_b7cat,
                        std::string encoding, std::string catalog_encoding,
                        std::vector<std::string> cols_skip, long n_max, long rows_skip,
                        std::string name_repair) {
   return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, cols_skip, n_max, rows_skip, encoding, false, name_repair, spec_b7cat, catalog_encoding);
 }
-[[tidycpp::export]]
-tidycpp::list df_parse_sas_raw(tidycpp::list spec_b7dat, tidycpp::list spec_b7cat,
+[[cpp11::export]]
+cpp11::list df_parse_sas_raw(cpp11::list spec_b7dat, cpp11::list spec_b7cat,
                       std::string encoding, std::string catalog_encoding,
                       std::vector<std::string> cols_skip, long n_max, long rows_skip,
                       std::string name_repair) {
   return df_parse<HAVEN_SAS7BDAT, DfReaderInputRaw>(spec_b7dat, cols_skip, n_max, rows_skip, encoding, false, name_repair, spec_b7cat, catalog_encoding);
 }
 
-[[tidycpp::export]]
-tidycpp::list df_parse_xpt_file(tidycpp::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+[[cpp11::export]]
+cpp11::list df_parse_xpt_file(cpp11::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_XPT, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, "", false, name_repair);
 }
-[[tidycpp::export]]
-tidycpp::list df_parse_xpt_raw(tidycpp::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+[[cpp11::export]]
+cpp11::list df_parse_xpt_raw(cpp11::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_XPT, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, "", false, name_repair);
 }
 
-[[tidycpp::export]]
-tidycpp::list df_parse_dta_file(tidycpp::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+[[cpp11::export]]
+cpp11::list df_parse_dta_file(cpp11::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_DTA, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding, false, name_repair);
 }
-[[tidycpp::export]]
-tidycpp::list df_parse_dta_raw(tidycpp::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+[[cpp11::export]]
+cpp11::list df_parse_dta_raw(cpp11::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_DTA, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding, false, name_repair);
 }
 
-[[tidycpp::export]]
-tidycpp::list df_parse_sav_file(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+[[cpp11::export]]
+cpp11::list df_parse_sav_file(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_SAV, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding, user_na, name_repair);
 }
-[[tidycpp::export]]
-tidycpp::list df_parse_sav_raw(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+[[cpp11::export]]
+cpp11::list df_parse_sav_raw(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_SAV, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding, user_na, name_repair);
 }
 
-[[tidycpp::export]]
-tidycpp::list df_parse_por_file(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+[[cpp11::export]]
+cpp11::list df_parse_por_file(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_POR, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding, user_na, name_repair);
 }
-[[tidycpp::export]]
-tidycpp::list df_parse_por_raw(tidycpp::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
+[[cpp11::export]]
+cpp11::list df_parse_por_raw(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair) {
   return df_parse<HAVEN_POR, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding, user_na, name_repair);
 }
 
