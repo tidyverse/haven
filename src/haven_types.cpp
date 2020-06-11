@@ -13,6 +13,8 @@ FileVendor extVendor(FileExt ext) {
   default:
                        cpp11::stop("Unknown file extension");
   }
+  /* not actually reached */
+  return HAVEN_SAS;
 }
 
 std::string formatAttribute(FileVendor vendor) {
