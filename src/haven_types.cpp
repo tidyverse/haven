@@ -1,6 +1,6 @@
 #include <cmath>
 #include "haven_types.h"
-#include <tidycpp/protect.hpp>
+#include <cpp11/protect.hpp>
 
 FileVendor extVendor(FileExt ext) {
   switch (ext) {
@@ -11,7 +11,7 @@ FileVendor extVendor(FileExt ext) {
   case HAVEN_SAS7BCAT:
   case HAVEN_XPT:      return HAVEN_SAS;
   default:
-                       tidycpp::stop("Unknown file extension");
+                       cpp11::stop("Unknown file extension");
   }
 }
 

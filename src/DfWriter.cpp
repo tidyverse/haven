@@ -1,11 +1,11 @@
 #include "readstat.h"
 #include "haven_types.h"
 
-#include "tidycpp/double.hpp"
-#include "tidycpp/character.hpp"
-#include "tidycpp/integer.hpp"
-#include "tidycpp/sexp.hpp"
-#include "tidycpp/list.hpp"
+#include "cpp11/doubles.hpp"
+#include "cpp11/strings.hpp"
+#include "cpp11/integers.hpp"
+#include "cpp11/sexp.hpp"
+#include "cpp11/list.hpp"
 
 ssize_t data_writer(const void *data, size_t len, void *ctx);
 
@@ -37,8 +37,8 @@ inline readstat_measure_e measureType(SEXP x) {
   }
 }
 
-inline int displayWidth(tidycpp::sexp x) {
-  tidycpp::sexp display_width_obj(x.attr("display_width"));
+inline int displayWidth(cpp11::sexp x) {
+  cpp11::sexp display_width_obj(x.attr("display_width"));
   switch(TYPEOF(display_width_obj)) {
   case INTSXP:
     return INTEGER(display_width_obj)[0];
@@ -53,17 +53,17 @@ class Writer {
   FileExt ext_;
   FileVendor vendor_;
 
-  tidycpp::list x_;
+  cpp11::list x_;
   readstat_writer_t* writer_;
   FILE* pOut_;
 
 public:
-  Writer(FileExt ext, tidycpp::list x, tidycpp::character_vector pathEnc): ext_(ext), vendor_(extVendor(ext)), x_(x) {
+  Writer(FileExt ext, cpp11::list x, cpp11::strings pathEnc): ext_(ext), vendor_(extVendor(ext)), x_(x) {
     std::string path(Rf_translateChar(pathEnc[0]));
 
     pOut_ = fopen(path.c_str(), "wb");
     if (pOut_ == NULL)
-      tidycpp::stop("Failed to open '%s' for writing", path.c_str());
+      cpp11::stop("Failed to open '%s' for writing", path.c_str());
 
     writer_ = readstat_writer_init();
     checkStatus(readstat_set_data_writer(writer_, data_writer));
@@ -88,7 +88,7 @@ public:
     readstat_writer_set_table_name(writer_, name.c_str());
   }
 
-  void setFileLabel(tidycpp::sexp label) {
+  void setFileLabel(cpp11::sexp label) {
     if (label == R_NilValue)
       return;
 
@@ -100,23 +100,23 @@ public:
     if (p == 0)
       return;
 
-    tidycpp::character_vector names(x_.attr("names"));
+    cpp11::strings names(x_.attr("names"));
 
     // Define variables
     for (int j = 0; j < p; ++j) {
-      tidycpp::sexp col = x_[j];
+      cpp11::sexp col = x_[j];
       VarType type = numType(col);
 
       const char* name = string_utf8(names, j);
       const char* format = var_format(col, type);
 
       switch(TYPEOF(col)) {
-        case LGLSXP:  defineVariable(tidycpp::integer_vector(tidycpp::safe[Rf_coerceVector](col, INTSXP)), name, format); break;
-        case INTSXP:  defineVariable(tidycpp::integer_vector(col), name, format); break;
-        case REALSXP: defineVariable(tidycpp::double_vector(col), name, format);  break;
-        case STRSXP:  defineVariable(tidycpp::character_vector(col), name, format); break;
+        case LGLSXP:  defineVariable(cpp11::integers(cpp11::safe[Rf_coerceVector](col, INTSXP)), name, format); break;
+        case INTSXP:  defineVariable(cpp11::integers(col), name, format); break;
+        case REALSXP: defineVariable(cpp11::doubles(col), name, format);  break;
+        case STRSXP:  defineVariable(cpp11::strings(col), name, format); break;
       default:
-                      tidycpp::stop("Variables of type %s not supported yet",
+                      cpp11::stop("Variables of type %s not supported yet",
           Rf_type2char(TYPEOF(col)));
       }
     }
@@ -142,7 +142,7 @@ public:
     for (int i = 0; i < n; ++i) {
       checkStatus(readstat_begin_row(writer_));
       for (int j = 0; j < p; ++j) {
-        tidycpp::sexp col(x_[j]);
+        cpp11::sexp col(x_[j]);
         readstat_variable_t* var = readstat_get_variable(writer_, j);
 
         switch (TYPEOF(col)) {
@@ -178,8 +178,8 @@ public:
 
   // Define variables ----------------------------------------------------------
 
-  const char* var_label(tidycpp::sexp x) {
-    tidycpp::sexp label(x.attr("label"));
+  const char* var_label(cpp11::sexp x) {
+    cpp11::sexp label(x.attr("label"));
 
     if (label == R_NilValue)
       return NULL;
@@ -187,9 +187,9 @@ public:
     return string_utf8(label, 0);
   }
 
-  const char* var_format(tidycpp::sexp x, VarType varType) {
+  const char* var_format(cpp11::sexp x, VarType varType) {
     // Use attribute, if present
-    tidycpp::sexp format(x.attr(formatAttribute(vendor_).c_str()));
+    cpp11::sexp format(x.attr(formatAttribute(vendor_).c_str()));
     if (format != R_NilValue)
       return string_utf8(format, 0);
 
@@ -220,19 +220,19 @@ public:
     return NULL;
   }
 
-  void defineVariable(tidycpp::integer_vector x, const char* name, const char* format = NULL) {
+  void defineVariable(cpp11::integers x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (Rf_inherits(x, "factor")) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
 
-      tidycpp::character_vector levels(x.attr("levels"));
+      cpp11::strings levels(x.attr("levels"));
       for (int i = 0; i < levels.size(); ++i)
         readstat_label_int32_value(labelSet, i + 1, string_utf8(levels, i));
     } else if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
 
-      tidycpp::integer_vector values(x.attr("labels"));
-      tidycpp::character_vector labels(values.attr("names"));
+      cpp11::integers values(x.attr("labels"));
+      cpp11::strings labels(values.attr("names"));
 
       for (int i = 0; i < values.size(); ++i)
         readstat_label_int32_value(labelSet, values[i], string_utf8(labels, i));
@@ -247,13 +247,13 @@ public:
     readstat_variable_set_display_width(var, displayWidth(x));
   }
 
-  void defineVariable(tidycpp::double_vector x, const char* name, const char* format = NULL) {
+  void defineVariable(cpp11::doubles x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name);
 
-      tidycpp::double_vector values(x.attr("labels"));
-      tidycpp::character_vector labels(values.attr("names"));
+      cpp11::doubles values(x.attr("labels"));
+      cpp11::strings labels(values.attr("names"));
 
       for (int i = 0; i < values.size(); ++i)
         readstat_label_double_value(labelSet, values[i], string_utf8(labels, i));
@@ -284,13 +284,13 @@ public:
     }
   }
 
-  void defineVariable(tidycpp::character_vector x, const char* name, const char* format = NULL) {
+  void defineVariable(cpp11::strings x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name);
 
-      tidycpp::character_vector values(x.attr("labels"));
-      tidycpp::character_vector labels(values.attr("names"));
+      cpp11::strings values(x.attr("labels"));
+      cpp11::strings labels(values.attr("names"));
 
       for (int i = 0; i < values.size(); ++i)
         readstat_label_string_value(labelSet, string_utf8(values, i), string_utf8(labels, i));
@@ -342,7 +342,7 @@ public:
   void checkStatus(readstat_error_t err) {
     if (err == 0) return;
 
-    tidycpp::stop("Writing failure: %s.", readstat_error_message(err));
+    cpp11::stop("Writing failure: %s.", readstat_error_message(err));
   }
 
   ssize_t write(const void *data, size_t len) {
@@ -354,29 +354,29 @@ ssize_t data_writer(const void *data, size_t len, void *ctx) {
   return ((Writer*) ctx)->write(data, len);
 }
 
-[[tidycpp::export]]
-void write_sav_(tidycpp::list data, tidycpp::character_vector path, bool compress) {
+[[cpp11::export]]
+void write_sav_(cpp11::list data, cpp11::strings path, bool compress) {
   Writer writer(HAVEN_SAV, data, path);
   if (compress)
     writer.setCompression(READSTAT_COMPRESS_BINARY);
   writer.write();
 }
 
-[[tidycpp::export]]
-void write_dta_(tidycpp::list data, tidycpp::character_vector path, int version, tidycpp::sexp label) {
+[[cpp11::export]]
+void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label) {
   Writer writer(HAVEN_DTA, data, path);
   writer.setVersion(version);
   writer.setFileLabel(label);
   writer.write();
 }
 
-[[tidycpp::export]]
-void write_sas_(tidycpp::list data, tidycpp::character_vector path) {
+[[cpp11::export]]
+void write_sas_(cpp11::list data, cpp11::strings path) {
   Writer(HAVEN_SAS7BDAT, data, path).write();
 }
 
-[[tidycpp::export]]
-void write_xpt_(tidycpp::list data, tidycpp::character_vector path, int version, std::string name) {
+[[cpp11::export]]
+void write_xpt_(cpp11::list data, cpp11::strings path, int version, std::string name) {
   Writer writer(HAVEN_XPT, data, path);
   writer.setVersion(version);
   writer.setName(name);

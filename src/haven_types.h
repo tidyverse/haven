@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <string>
-#include <tidycpp/R.hpp>
+#include <cpp11/R.hpp>
 
 enum FileVendor {
   HAVEN_SPSS,
