@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><link href="tidyverse-2.css" rel="stylesheet">
+<!--optional theme--><link href=".css" rel="stylesheet">
 <meta property="og:title" content="Import and Export SPSS, Stata and SAS Files">
 <meta property="og:description" content="Import foreign statistical formats into R via the
     embedded ReadStat C library,
@@ -157,7 +158,8 @@
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<div class="sourceCode" id="cb1"><pre class="r"><span class="co"># The easiest way to get haven is to install the whole tidyverse:</span>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="co"># The easiest way to get haven is to install the whole tidyverse:</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"tidyverse"</span>)
 
 <span class="co"># Alternatively, install just haven:</span>
@@ -165,24 +167,27 @@
 
 <span class="co"># Or the the development version from GitHub:</span>
 <span class="co"># install.packages("devtools")</span>
-<span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu">install_github</span>(<span class="st">"tidyverse/haven"</span>)</pre></div>
+<span class="kw">devtools</span>::<span class="fu">install_github</span>(<span class="st">"tidyverse/haven"</span>)
+</pre></div>
 </div>
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h2>
-<div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">haven</span>)
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="http://haven.tidyverse.org">haven</a></span>)
 
 <span class="co"># SAS</span>
 <span class="fu"><a href="reference/read_sas.html">read_sas</a></span>(<span class="st">"mtcars.sas7bdat"</span>)
-<span class="fu"><a href="reference/read_sas.html">write_sas</a></span>(<span class="no">mtcars</span>, <span class="st">"mtcars.sas7bdat"</span>)
+<span class="fu"><a href="reference/read_sas.html">write_sas</a></span>(<span class="kw">mtcars</span>, <span class="st">"mtcars.sas7bdat"</span>)
 
 <span class="co"># SPSS</span>
 <span class="fu"><a href="reference/read_spss.html">read_sav</a></span>(<span class="st">"mtcars.sav"</span>)
-<span class="fu"><a href="reference/read_spss.html">write_sav</a></span>(<span class="no">mtcars</span>, <span class="st">"mtcars.sav"</span>)
+<span class="fu"><a href="reference/read_spss.html">write_sav</a></span>(<span class="kw">mtcars</span>, <span class="st">"mtcars.sav"</span>)
 
 <span class="co"># Stata</span>
 <span class="fu"><a href="reference/read_dta.html">read_dta</a></span>(<span class="st">"mtcars.dta"</span>)
-<span class="fu"><a href="reference/read_dta.html">write_dta</a></span>(<span class="no">mtcars</span>, <span class="st">"mtcars.dta"</span>)</pre></div>
+<span class="fu"><a href="reference/read_dta.html">write_dta</a></span>(<span class="kw">mtcars</span>, <span class="st">"mtcars.dta"</span>)
+</pre></div>
 </div>
 <div id="related-work" class="section level2">
 <h2 class="hasAnchor">

@@ -43,6 +43,10 @@
 <script src="../pkgdown.js"></script>
 <link href="../tidyverse-2.css" rel="stylesheet">
 
+<!--optional theme-->
+<link href="../.css" rel="stylesheet">
+
+
 
 
 <meta property="og:title" content="Zap label — zap_label" />
@@ -186,11 +190,11 @@ labels." />
     <div class="ref-description">
     <p>Removes label, leaving unlabelled vectors as is. Use this if you want to
 simply drop all <code>label</code> attributes from a data frame.</p>
-<p>This function removes variable labels; use <code><a href='zap_labels.html'>zap_labels()</a></code> to remove value
+<p>This function removes variable labels; use <code><a href='https://haven.tidyverse.org/reference/zap_labels.html'>zap_labels()</a></code> to remove value
 labels.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>zap_label</span>(<span class='no'>x</span>)</pre>
+    <pre class="usage"><span class='fu'><a href='https://haven.tidyverse.org/reference/zap_label.html'>zap_label</a></span>(<span class='kw'>x</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -204,35 +208,35 @@ labels.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p>Other zappers: 
-<code><a href='zap_empty.html'>zap_empty</a>()</code>,
-<code><a href='zap_formats.html'>zap_formats</a>()</code>,
-<code><a href='zap_labels.html'>zap_labels</a>()</code>,
-<code><a href='zap_widths.html'>zap_widths</a>()</code></p></div>
+<code><a href='https://haven.tidyverse.org/reference/zap_empty.html'>zap_empty</a>()</code>,
+<code><a href='https://haven.tidyverse.org/reference/zap_formats.html'>zap_formats</a>()</code>,
+<code><a href='https://haven.tidyverse.org/reference/zap_labels.html'>zap_labels</a>()</code>,
+<code><a href='https://haven.tidyverse.org/reference/zap_widths.html'>zap_widths</a>()</code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>x1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span>(<span class='fl'>1</span>:<span class='fl'>5</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>good</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>bad</span> <span class='kw'>=</span> <span class='fl'>5</span>))
-<span class='no'>x1</span></div><div class='output co'>#&gt; &lt;labelled&lt;integer&gt;[5]&gt;
+    <pre class="examples"><div class='input'><span class='kw'>x1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://haven.tidyverse.org/reference/labelled.html'>labelled</a></span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(good = <span class='fl'>1</span>, bad = <span class='fl'>5</span>))
+<span class='kw'>x1</span></div><div class='output co'>#&gt; &lt;labelled&lt;integer&gt;[5]&gt;
 #&gt; [1] 1 2 3 4 5
 #&gt; 
 #&gt; Labels:
 #&gt;  value label
 #&gt;      1  good
-#&gt;      5   bad</div><div class='input'><span class='fu'>zap_label</span>(<span class='no'>x1</span>)</div><div class='output co'>#&gt; &lt;labelled&lt;integer&gt;[5]&gt;
+#&gt;      5   bad</div><div class='input'><span class='fu'><a href='https://haven.tidyverse.org/reference/zap_label.html'>zap_label</a></span>(<span class='kw'>x1</span>)</div><div class='output co'>#&gt; &lt;labelled&lt;integer&gt;[5]&gt;
 #&gt; [1] 1 2 3 4 5
 #&gt; 
 #&gt; Labels:
 #&gt;  value label
 #&gt;      1  good
 #&gt;      5   bad</div><div class='input'>
-<span class='no'>x2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled_spss.html'>labelled_spss</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>:<span class='fl'>4</span>, <span class='fl'>9</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>good</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>bad</span> <span class='kw'>=</span> <span class='fl'>5</span>), <span class='kw'>na_values</span> <span class='kw'>=</span> <span class='fl'>9</span>)
-<span class='no'>x2</span></div><div class='output co'>#&gt; &lt;labelled_spss&lt;double&gt;[5]&gt;
+<span class='kw'>x2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://haven.tidyverse.org/reference/labelled_spss.html'>labelled_spss</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>4</span>, <span class='fl'>9</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(good = <span class='fl'>1</span>, bad = <span class='fl'>5</span>), na_values = <span class='fl'>9</span>)
+<span class='kw'>x2</span></div><div class='output co'>#&gt; &lt;labelled_spss&lt;double&gt;[5]&gt;
 #&gt; [1] 1 2 3 4 9
 #&gt; Missing values: 9
 #&gt; 
 #&gt; Labels:
 #&gt;  value label
 #&gt;      1  good
-#&gt;      5   bad</div><div class='input'><span class='fu'>zap_label</span>(<span class='no'>x2</span>)</div><div class='output co'>#&gt; &lt;labelled_spss&lt;double&gt;[5]&gt;
+#&gt;      5   bad</div><div class='input'><span class='fu'><a href='https://haven.tidyverse.org/reference/zap_label.html'>zap_label</a></span>(<span class='kw'>x2</span>)</div><div class='output co'>#&gt; &lt;labelled_spss&lt;double&gt;[5]&gt;
 #&gt; [1] 1 2 3 4 9
 #&gt; Missing values: 9
 #&gt; 
@@ -241,15 +245,15 @@ labels.</p>
 #&gt;      1  good
 #&gt;      5   bad</div><div class='input'>
 <span class='co'># zap_label also works with data frames</span>
-<span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>tibble</span><span class='kw ns'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span>(<span class='no'>x1</span>, <span class='no'>x2</span>)
-<span class='no'>df</span></div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 5 x 2</span><span>
+<span class='kw'>df</span> <span class='op'>&lt;-</span> <span class='kw'>tibble</span>::<span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span>(<span class='kw'>x1</span>, <span class='kw'>x2</span>)
+<span class='kw'>df</span></div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 5 x 2</span><span>
 #&gt;          x1        x2
 #&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int+lbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl+lbl&gt;</span><span>
 #&gt; </span><span style='color: #555555;'>1</span><span>  1</span><span style='color: #555555;'> [good]</span><span>  1</span><span style='color: #555555;'> [good]</span><span>
 #&gt; </span><span style='color: #555555;'>2</span><span>  2         2       
 #&gt; </span><span style='color: #555555;'>3</span><span>  3         3       
 #&gt; </span><span style='color: #555555;'>4</span><span>  4         4       
-#&gt; </span><span style='color: #555555;'>5</span><span>  5</span><span style='color: #555555;'> [bad]</span><span>   9</span><span style='color: #BB0000;'> (NA)</span><span>  </div><div class='input'><span class='fu'>zap_label</span>(<span class='no'>df</span>)</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 5 x 2</span><span>
+#&gt; </span><span style='color: #555555;'>5</span><span>  5</span><span style='color: #555555;'> [bad]</span><span>   9</span><span style='color: #BB0000;'> (NA)</span><span>  </div><div class='input'><span class='fu'><a href='https://haven.tidyverse.org/reference/zap_label.html'>zap_label</a></span>(<span class='kw'>df</span>)</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 5 x 2</span><span>
 #&gt;          x1        x2
 #&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int+lbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl+lbl&gt;</span><span>
 #&gt; </span><span style='color: #555555;'>1</span><span>  1</span><span style='color: #555555;'> [good]</span><span>  1</span><span style='color: #555555;'> [good]</span><span>

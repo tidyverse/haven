@@ -43,6 +43,10 @@
 <script src="../pkgdown.js"></script>
 <link href="../tidyverse-2.css" rel="stylesheet">
 
+<!--optional theme-->
+<link href="../.css" rel="stylesheet">
+
+
 
 
 <meta property="og:title" content="Convert input to a factor. — as_factor" />
@@ -187,26 +191,26 @@ it only affects labelled columns." />
     <p>The base function <code><a href='https://rdrr.io/r/base/factor.html'>as.factor()</a></code> is not a generic, but this variant
 is. Methods are provided for factors, character vectors, labelled
 vectors, and data frames. By default, when applied to a data frame,
-it only affects <a href='labelled.html'>labelled</a> columns.</p>
+it only affects <a href='https://haven.tidyverse.org/reference/labelled.html'>labelled</a> columns.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for data.frame</span>
-<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='no'>...</span>, <span class='kw'>only_labelled</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'><a href='https://haven.tidyverse.org/reference/as_factor.html'>as_factor</a></span>(<span class='kw'>x</span>, <span class='kw'>...</span>, only_labelled = <span class='fl'>TRUE</span>)
 
 <span class='co'># S3 method for haven_labelled</span>
-<span class='fu'>as_factor</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>levels</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"default"</span>, <span class='st'>"labels"</span>, <span class='st'>"values"</span>, <span class='st'>"both"</span>),
-  <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>
+<span class='fu'><a href='https://haven.tidyverse.org/reference/as_factor.html'>as_factor</a></span>(
+  <span class='kw'>x</span>,
+  levels = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"default"</span>, <span class='st'>"labels"</span>, <span class='st'>"values"</span>, <span class='st'>"both"</span>),
+  ordered = <span class='fl'>FALSE</span>,
+  <span class='kw'>...</span>
 )
 
 <span class='co'># S3 method for labelled</span>
-<span class='fu'>as_factor</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>levels</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"default"</span>, <span class='st'>"labels"</span>, <span class='st'>"values"</span>, <span class='st'>"both"</span>),
-  <span class='kw'>ordered</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='no'>...</span>
+<span class='fu'><a href='https://haven.tidyverse.org/reference/as_factor.html'>as_factor</a></span>(
+  <span class='kw'>x</span>,
+  levels = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"default"</span>, <span class='st'>"labels"</span>, <span class='st'>"values"</span>, <span class='st'>"both"</span>),
+  ordered = <span class='fl'>FALSE</span>,
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -247,16 +251,16 @@ Labels are sorted by value.</p></li>
 for backward compatibility.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span>(<span class='fl'>5</span>, <span class='fl'>10</span>, <span class='kw'>replace</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw'>Bad</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>Good</span> <span class='kw'>=</span> <span class='fl'>5</span>))
+    <pre class="examples"><div class='input'><span class='kw'>x</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://haven.tidyverse.org/reference/labelled.html'>labelled</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/sample.html'>sample</a></span>(<span class='fl'>5</span>, <span class='fl'>10</span>, replace = <span class='fl'>TRUE</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(Bad = <span class='fl'>1</span>, Good = <span class='fl'>5</span>))
 
 <span class='co'># Default method uses values where available</span>
-<span class='fu'>as_factor</span>(<span class='no'>x</span>)</div><div class='output co'>#&gt;  [1] Good 4    Good 4    Bad  Good Good Good 2    3   
+<span class='fu'><a href='https://haven.tidyverse.org/reference/as_factor.html'>as_factor</a></span>(<span class='kw'>x</span>)</div><div class='output co'>#&gt;  [1] Good 4    Good 4    Bad  Good Good Good 2    3   
 #&gt; Levels: Bad 2 3 4 Good</div><div class='input'><span class='co'># You can also extract just the labels</span>
-<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='st'>"labels"</span>)</div><div class='output co'>#&gt;  [1] Good &lt;NA&gt; Good &lt;NA&gt; Bad  Good Good Good &lt;NA&gt; &lt;NA&gt;
+<span class='fu'><a href='https://haven.tidyverse.org/reference/as_factor.html'>as_factor</a></span>(<span class='kw'>x</span>, levels = <span class='st'>"labels"</span>)</div><div class='output co'>#&gt;  [1] Good &lt;NA&gt; Good &lt;NA&gt; Bad  Good Good Good &lt;NA&gt; &lt;NA&gt;
 #&gt; Levels: Bad Good</div><div class='input'><span class='co'># Or just the values</span>
-<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='st'>"values"</span>)</div><div class='output co'>#&gt;  [1] 5    &lt;NA&gt; 5    &lt;NA&gt; 1    5    5    5    &lt;NA&gt; &lt;NA&gt;
+<span class='fu'><a href='https://haven.tidyverse.org/reference/as_factor.html'>as_factor</a></span>(<span class='kw'>x</span>, levels = <span class='st'>"values"</span>)</div><div class='output co'>#&gt;  [1] 5    &lt;NA&gt; 5    &lt;NA&gt; 1    5    5    5    &lt;NA&gt; &lt;NA&gt;
 #&gt; Levels: 1 5</div><div class='input'><span class='co'># Or combine value and label</span>
-<span class='fu'>as_factor</span>(<span class='no'>x</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='st'>"both"</span>)</div><div class='output co'>#&gt;  [1] [5] Good 4        [5] Good 4        [1] Bad  [5] Good [5] Good [5] Good
+<span class='fu'><a href='https://haven.tidyverse.org/reference/as_factor.html'>as_factor</a></span>(<span class='kw'>x</span>, levels = <span class='st'>"both"</span>)</div><div class='output co'>#&gt;  [1] [5] Good 4        [5] Good 4        [1] Bad  [5] Good [5] Good [5] Good
 #&gt;  [9] 2        3       
 #&gt; Levels: [1] Bad 2 3 4 [5] Good</div></pre>
   </div>
