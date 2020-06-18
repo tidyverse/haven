@@ -39,7 +39,6 @@ test_that("tagged missings are read correctly", {
 })
 
 test_that("default name repair can be overridden", {
-  skip_if(getRversion() < "3.5")
   df <- data.frame(1:3, 1:3)
   colnames(df) <- c("id", "id")
 
