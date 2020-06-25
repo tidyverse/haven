@@ -4,6 +4,10 @@
 #include <cmath>
 #include <string>
 #include <cpp11/R.hpp>
+#include <cpp11/list.hpp>
+#include <cpp11/strings.hpp>
+
+#define CPP11_PARTIAL
 
 enum FileVendor {
   HAVEN_SPSS,

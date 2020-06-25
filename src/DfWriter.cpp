@@ -354,7 +354,7 @@ ssize_t data_writer(const void *data, size_t len, void *ctx) {
   return ((Writer*) ctx)->write(data, len);
 }
 
-[[cpp11::export]]
+[[cpp11::register]]
 void write_sav_(cpp11::list data, cpp11::strings path, bool compress) {
   Writer writer(HAVEN_SAV, data, path);
   if (compress)
@@ -362,7 +362,7 @@ void write_sav_(cpp11::list data, cpp11::strings path, bool compress) {
   writer.write();
 }
 
-[[cpp11::export]]
+[[cpp11::register]]
 void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label) {
   Writer writer(HAVEN_DTA, data, path);
   writer.setVersion(version);
@@ -370,12 +370,12 @@ void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp 
   writer.write();
 }
 
-[[cpp11::export]]
+[[cpp11::register]]
 void write_sas_(cpp11::list data, cpp11::strings path) {
   Writer(HAVEN_SAS7BDAT, data, path).write();
 }
 
-[[cpp11::export]]
+[[cpp11::register]]
 void write_xpt_(cpp11::list data, cpp11::strings path, int version, std::string name) {
   Writer writer(HAVEN_XPT, data, path);
   writer.setVersion(version);
