@@ -87,9 +87,11 @@ static readstat_error_t xport_write_variables(readstat_writer_t *writer) {
         readstat_variable_t *variable = readstat_get_variable(writer, i);
         size_t width = xport_variable_width(variable->type, variable->user_width);
         xport_namestr_t namestr = { 
-            .nvar0 = i,
+            .nvar0 = i+1,
             .nlng = width,
-            .npos = offset
+            .npos = offset,
+            .niform = "        ",
+            .nform = "        "
         };
         if (readstat_variable_get_type_class(variable) == READSTAT_TYPE_CLASS_STRING) {
             namestr.ntype = SAS_COLUMN_TYPE_CHR;
@@ -119,6 +121,8 @@ static readstat_error_t xport_write_variables(readstat_writer_t *writer) {
                 any_has_long_format = 1;
                 needs_long_record = 1;
             }
+        } else if (variable->display_width) {
+            namestr.nfl = variable->display_width;
         }
 
         namestr.nfj = (variable->alignment == READSTAT_ALIGNMENT_RIGHT);
@@ -189,7 +193,7 @@ static readstat_error_t xport_write_variables(readstat_writer_t *writer) {
             }
 
             if (has_long_format) {
-                uint16_t labeldef[5] = { i, name_len, format_len, format_len, label_len };
+                uint16_t labeldef[5] = { i+1, name_len, format_len, format_len, label_len };
 
                 if (machine_is_little_endian()) {
                     labeldef[0] = byteswap2(labeldef[0]);
@@ -220,7 +224,7 @@ static readstat_error_t xport_write_variables(readstat_writer_t *writer) {
                     goto cleanup;
 
             } else if (has_long_label) {
-                uint16_t labeldef[3] = { i, name_len, label_len };
+                uint16_t labeldef[3] = { i+1, name_len, label_len };
 
                 if (machine_is_little_endian()) {
                     labeldef[0] = byteswap2(labeldef[0]);

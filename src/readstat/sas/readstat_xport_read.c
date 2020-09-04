@@ -282,8 +282,12 @@ static readstat_error_t xport_construct_format(char *dst, size_t dst_len,
         const char *src, size_t src_len, int width, int decimals) {
     char format[4*src_len+1];
     readstat_error_t retval = readstat_convert(format, sizeof(format), src, src_len, NULL);
+    if (retval != READSTAT_OK)
+        return retval;
 
-    if (decimals) {
+    if (!format[0]) {
+        *dst = '\0';
+    } else if (decimals) {
         snprintf(dst, dst_len, "%s%d.%d",
                 format, width, decimals);
     } else if (width) {
@@ -317,14 +321,14 @@ static readstat_error_t xport_read_labels_v8(xport_ctx_t *ctx, int label_count) 
             label_len = labeldef[2];
         }
 
-        if (index >= ctx->var_count) {
+        if (index > ctx->var_count || index == 0) {
             retval = READSTAT_ERROR_PARSE;
             goto cleanup;
         }
 
         char name[name_len+1];
         char label[label_len+1];
-        readstat_variable_t *variable = ctx->variables[index];
+        readstat_variable_t *variable = ctx->variables[index-1];
 
         if (read_bytes(ctx, name, name_len) != name_len ||
                 read_bytes(ctx, label, label_len) != label_len) {
@@ -380,7 +384,7 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
             label_len = labeldef[4];
         }
 
-        if (index >= ctx->var_count) {
+        if (index > ctx->var_count || index == 0) {
             retval = READSTAT_ERROR_PARSE;
             goto cleanup;
         }
@@ -390,7 +394,7 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
         char informat[informat_len+1];
         char label[label_len+1];
 
-        readstat_variable_t *variable = ctx->variables[index];
+        readstat_variable_t *variable = ctx->variables[index-1];
 
         if (read_bytes(ctx, name, name_len) != name_len ||
                 read_bytes(ctx, format, format_len) != format_len ||
@@ -449,17 +453,22 @@ static readstat_error_t xport_read_variables(xport_ctx_t *ctx) {
         variable->decimals = namestr.nfd;
         variable->alignment = namestr.nfj ? READSTAT_ALIGNMENT_RIGHT : READSTAT_ALIGNMENT_LEFT;
 
-        readstat_convert(variable->name, sizeof(variable->name),
-                namestr.nname, sizeof(namestr.nname), ctx->converter);
+        if (ctx->version == 5) {
+            retval = readstat_convert(variable->name, sizeof(variable->name),
+                    namestr.nname, sizeof(namestr.nname), ctx->converter);
+        } else {
+            retval = readstat_convert(variable->name, sizeof(variable->name),
+                    namestr.longname, sizeof(namestr.longname), ctx->converter);
+        }
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        readstat_convert(variable->label, sizeof(variable->label),
+        retval = readstat_convert(variable->label, sizeof(variable->label),
                 namestr.nlabel, sizeof(namestr.nlabel), ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        xport_construct_format(variable->format, sizeof(variable->format),
+        retval = xport_construct_format(variable->format, sizeof(variable->format),
                 namestr.nform, sizeof(namestr.nform),
                 variable->display_width, variable->decimals);
         if (retval != READSTAT_OK)
@@ -500,7 +509,7 @@ static readstat_error_t xport_read_variables(xport_ctx_t *ctx) {
     for (i=0; i<ctx->var_count; i++) {
         readstat_variable_t *variable = ctx->variables[i];
         variable->index_after_skipping = index_after_skipping;
-        
+
         int cb_retval = READSTAT_HANDLER_OK;
         if (ctx->handle.variable) {
             cb_retval = ctx->handle.variable(i, variable, variable->format, ctx->user_ctx);

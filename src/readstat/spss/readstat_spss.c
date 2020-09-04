@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 #include "../readstat.h"
+#include "../readstat_iconv.h"
+#include "../readstat_convert.h"
 #include "readstat_spss.h"
 #include "readstat_spss_parse.h"
 
@@ -145,7 +147,8 @@ readstat_missingness_t spss_missingness_for_info(spss_varinfo_t *info) {
     return missingness;
 }
 
-readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info, int index_after_skipping) {
+readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info, int index_after_skipping,
+        iconv_t converter) {
     readstat_variable_t *variable = calloc(1, sizeof(readstat_variable_t));
 
     variable->index = info->index;
@@ -158,9 +161,11 @@ readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info, int index
     }
 
     if (info->longname[0]) {
-        snprintf(variable->name, sizeof(variable->name), "%s", info->longname);
+        readstat_convert(variable->name, sizeof(variable->name),
+                info->longname, sizeof(info->longname), converter);
     } else {
-        snprintf(variable->name, sizeof(variable->name), "%s", info->name);
+        readstat_convert(variable->name, sizeof(variable->name),
+                info->name, sizeof(info->name), converter);
     }
     if (info->label) {
         snprintf(variable->label, sizeof(variable->label), "%s", info->label);
@@ -170,7 +175,11 @@ readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info, int index
 
     variable->missingness = spss_missingness_for_info(info);
     variable->measure = info->measure;
-    variable->display_width = info->display_width;
+    if (info->display_width) {
+        variable->display_width = info->display_width;
+    } else {
+        variable->display_width = info->print_format.width;
+    }
 
     return variable;
 }
@@ -227,14 +236,20 @@ readstat_error_t spss_format_for_variable(readstat_variable_t *r_variable,
 
     if (r_variable->type == READSTAT_TYPE_STRING) {
         spss_format->type = SPSS_FORMAT_TYPE_A;
-        if (r_variable->user_width) {
+        if (r_variable->display_width) {
+            spss_format->width = r_variable->display_width;
+        } else if (r_variable->user_width) {
             spss_format->width = r_variable->user_width;
         } else {
             spss_format->width = r_variable->storage_width;
         }
     } else {
         spss_format->type = SPSS_FORMAT_TYPE_F;
-        spss_format->width = 8;
+        if (r_variable->display_width) {
+            spss_format->width = r_variable->display_width;
+        } else {
+            spss_format->width = 8;
+        }
         if (r_variable->type == READSTAT_TYPE_DOUBLE ||
                 r_variable->type == READSTAT_TYPE_FLOAT) {
             spss_format->decimal_places = 2;

@@ -10,6 +10,8 @@
     write data nofinal noerror;
 }%%
 
+// For minimum width information see
+// https://www.ibm.com/support/knowledgecenter/SSLVMB_sub/statistics_reference_project_ddita/spss/base/syn_date_and_time_date_time_formats.html
 readstat_error_t spss_parse_format(const char *data, int count, spss_format_t *fmt) {
     unsigned char *p = (unsigned char *)data;
     unsigned char *pe = (unsigned char *)data + count;
@@ -50,19 +52,19 @@ readstat_error_t spss_parse_format(const char *data, int count, spss_format_t *f
                 "Z"i %{ fmt->type = SPSS_FORMAT_TYPE_Z; } |
                 "N"i %{ fmt->type = SPSS_FORMAT_TYPE_N; } |
                 "E"i %{ fmt->type = SPSS_FORMAT_TYPE_E; } |
-                "DATE"i %{ fmt->type = SPSS_FORMAT_TYPE_DATE; } |
+                "DATE"i %{ fmt->type = SPSS_FORMAT_TYPE_DATE; fmt->width = 11; } |
                 "TIME"i %{ fmt->type = SPSS_FORMAT_TYPE_TIME; } |
-                "DATETIME"i %{ fmt->type = SPSS_FORMAT_TYPE_DATETIME; } |
-                "YMDHMS"i %{ fmt->type = SPSS_FORMAT_TYPE_YMDHMS; } |
-                "ADATE"i %{ fmt->type = SPSS_FORMAT_TYPE_ADATE; } |
+                "DATETIME"i %{ fmt->type = SPSS_FORMAT_TYPE_DATETIME; fmt->width = 20; } |
+                "YMDHMS"i %{ fmt->type = SPSS_FORMAT_TYPE_YMDHMS; fmt->width = 19; } |
+                "ADATE"i %{ fmt->type = SPSS_FORMAT_TYPE_ADATE; fmt->width = 10; } |
                 "JDATE"i %{ fmt->type = SPSS_FORMAT_TYPE_JDATE; } |
-                "DTIME"i %{ fmt->type = SPSS_FORMAT_TYPE_DTIME; } |
+                "DTIME"i %{ fmt->type = SPSS_FORMAT_TYPE_DTIME; fmt->width = 23; } |
                 "MTIME"i %{ fmt->type = SPSS_FORMAT_TYPE_MTIME; } |
                 "WKDAY"i %{ fmt->type = SPSS_FORMAT_TYPE_WKDAY; } |
                 "MONTH"i %{ fmt->type = SPSS_FORMAT_TYPE_MONTH; } |
                 "MOYR"i %{ fmt->type = SPSS_FORMAT_TYPE_MOYR; } |
                 "QYR"i %{ fmt->type = SPSS_FORMAT_TYPE_QYR; } |
-                "WKYR"i %{ fmt->type = SPSS_FORMAT_TYPE_WKYR; } |
+                "WKYR"i %{ fmt->type = SPSS_FORMAT_TYPE_WKYR; fmt->width = 10; } |
                 "PCT"i %{ fmt->type = SPSS_FORMAT_TYPE_PCT; } |
                 "DOT"i %{ fmt->type = SPSS_FORMAT_TYPE_DOT; } |
                 "CCA"i %{ fmt->type = SPSS_FORMAT_TYPE_CCA; } |
@@ -70,8 +72,8 @@ readstat_error_t spss_parse_format(const char *data, int count, spss_format_t *f
                 "CCC"i %{ fmt->type = SPSS_FORMAT_TYPE_CCC; } |
                 "CCD"i %{ fmt->type = SPSS_FORMAT_TYPE_CCD; } |
                 "CCE"i %{ fmt->type = SPSS_FORMAT_TYPE_CCE; } |
-                "EDATE"i %{ fmt->type = SPSS_FORMAT_TYPE_EDATE; } |
-                "SDATE"i %{ fmt->type = SPSS_FORMAT_TYPE_SDATE; }
+                "EDATE"i %{ fmt->type = SPSS_FORMAT_TYPE_EDATE; fmt->width = 10; } |
+                "SDATE"i %{ fmt->type = SPSS_FORMAT_TYPE_SDATE; fmt->width = 10; }
                 );
 
         integer = [0-9]+ >start_integer $incr_integer;

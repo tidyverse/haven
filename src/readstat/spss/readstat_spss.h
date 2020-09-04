@@ -52,12 +52,19 @@
 #define SAV_ALIGNMENT_RIGHT     1
 #define SAV_ALIGNMENT_CENTER    2
 
+#include <iconv.h>
+
 typedef struct spss_format_s {
     int          type;
     int          width;
     int          decimal_places;
 } spss_format_t;
 
+// The reason some fields are stored unconverted is that some versions of SPSS
+// store truncated UTF-8 in the fields, and also use the truncated strings for
+// internal logic (such as matching names). If we convert them too early, the
+// last character of a truncated string will be dropped, and some of the column
+// information won't be found (e.g. in the key=value long variable record).
 typedef struct spss_varinfo_s {
     readstat_type_t  type;
     int              labels_index;
@@ -71,10 +78,10 @@ typedef struct spss_varinfo_s {
     int              n_missing_values;
     int              missing_range;
     double           missing_double_values[3];
-    char             missing_string_values[3][8*4+1];
-    char             name[8*4+1];
-    char             longname[64*4+1];
-    char            *label;
+    char             missing_string_values[3][8*4+1]; // stored UTF-8
+    char             name[8+1]; // stored UNCONVERTED
+    char             longname[64+1]; // stored UNCONVERTED
+    char            *label; // stored UTF-8
     readstat_measure_t      measure;
     readstat_alignment_t    alignment;
     int                     display_width;
@@ -86,7 +93,8 @@ int spss_varinfo_compare(const void *elem1, const void *elem2);
 void spss_varinfo_free(spss_varinfo_t *info);
 
 readstat_missingness_t spss_missingness_for_info(spss_varinfo_t *info);
-readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info, int index_after_skipping);
+readstat_variable_t *spss_init_variable_for_info(spss_varinfo_t *info,
+        int index_after_skipping, iconv_t converter);
 
 uint64_t spss_64bit_value(readstat_value_t value);
 

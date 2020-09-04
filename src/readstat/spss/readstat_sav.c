@@ -25,6 +25,15 @@ sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io) {
     if (ctx == NULL) {
         return NULL;
     }
+
+    if (memcmp(&header->rec_type, "$FL2", 4) == 0) {
+        ctx->format_version = 2;
+    } else if (memcmp(&header->rec_type, "$FL3", 4) == 0) {
+        ctx->format_version = 3;
+    } else {
+        sav_ctx_free(ctx);
+        return NULL;
+    }
     
     ctx->bswap = !(header->layout_code == 2 || header->layout_code == 3);
     ctx->endianness = (machine_is_little_endian() ^ ctx->bswap) ? READSTAT_ENDIAN_LITTLE : READSTAT_ENDIAN_BIG;
@@ -42,7 +51,6 @@ sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io) {
     ctx->highest_double = SAV_HIGHEST_DOUBLE;
     
     ctx->bias = ctx->bswap ? byteswap_double(header->bias) : header->bias;
-    ctx->format_version = header->rec_type[3] == '3' ? 3 : 2;
     
     ctx->varinfo_capacity = SAV_VARINFO_INITIAL_CAPACITY;
     

@@ -1,0 +1,58 @@
+New in 1.1.4:
+
+    * SAS7BDAT reader: Add support for binary-compressed files #21
+    * XPT v8 writer: Improve compatibility with SAS #207 (thanks to @reikoch)
+    * XPT reader: Fix reading of long variable names #208 (thanks to @reikoch) 
+    * SAS readers: Support for more character encodings
+    * SAV reader: Clients sometimes received truncated UTF-8 strings
+    * SPSS writers: Improve compatibility with PSPP with DATETIME fields #211
+    * All formats: Improved support for setting / getting the `display_width` #210
+
+New in 1.1.3:
+
+    * Fix warnings when compiling with GCC 10 #202
+    * SAS RLE compressor: Fixes for large files #201
+    * SAV reader: Improved support for UTF-8 column names #206
+    * SAV reader: Return a better error message if the magic number doesn't match
+    * SAV reader: Support for dash-separated timestamps
+
+New in 1.1.2:
+
+    * DTA reader: support for Spanish-locale timestamps
+    * SAS reader: support for "any" encoding tidyverse/haven#482
+    * CLI tool: Allow uppercase filename extensions
+    * Improved support for reading SPSS and SAS command files
+    * Improved support for reading POR files with format widths >100
+    * Improved support for reading SAV files containing space-padded timestamps #197
+    * Improved support for writing SAV files with a large number of variables #199
+    * Improved support for reading SAS7BDAT files created by Stat/Transfer #198
+    * Fix several integer overflows and undefined values #192 #193 #194 #195 #196
+
+New in 1.1.1:
+
+    * Support row limits in the plain-text parsers
+    * SAV reader: Allow spaces in timestamp strings
+    * README: Fix Windows / pacman instructions #189
+    * Fix </sortlist> errors opening files in Stata 15 (tidyverse/haven#461)
+
+New in 1.1:
+
+    * New function: readstat_set_row_offset (#185). Thanks to @mikmart
+    * Fix segfault when localtime fails on Windows
+    * Fix implicit float conversion warning (oss-fuzz/16372)
+    * New error code: READSTAT_ERROR_BAD_TIMESTAMP_VALUE
+    * Renamed error code: READSTAT_ERROR_BAD_TIMESTAMP => READSTAT_ERROR_BAD_TIMESTAMP_STRING
+
+New in 1.0.2:
+
+    * Compilation: Fix -Wstringop-truncation warnings on GCC 8.2 and later (#151)
+    * SPSS command parser: Fix signed integer overflow (oss-fuzz/15049)
+    * POR parser: Use doubles internally to prevent integer overflows with very large exponents (#182)
+
+New in 1.0.1:
+
+    * SAV writer: Validate variable names
+    * Fix a buffer overflow reading SPSS commands (oss-fuzz/15050) 
+    * New error code READSTAT_ERROR_NAME_IS_ZERO_LENGTH when a blank variable name is provided
+    * New fuzzing dictionary files in fuzz/dict for parsing plain-text file formats
+    * Move corpus files from corpus to fuzz/corpus

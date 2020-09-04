@@ -48,11 +48,21 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 29,    .name = "ISO-8859-1" },
     { .code = 30,    .name = "ISO-8859-2" },
     { .code = 31,    .name = "ISO-8859-3" },
+    { .code = 32,    .name = "ISO-8859-4" },
+    { .code = 33,    .name = "ISO-8859-5" },
     { .code = 34,    .name = "ISO-8859-6" },
     { .code = 35,    .name = "ISO-8859-7" },
     { .code = 36,    .name = "ISO-8859-8" },
+    { .code = 37,    .name = "ISO-8859-9" },
     { .code = 39,    .name = "ISO-8859-11" },
-    { .code = 40,    .name = "ISO-8859-9" },
+    { .code = 40,    .name = "ISO-8859-15" },
+    { .code = 43,    .name = "CP437" },
+    { .code = 44,    .name = "CP850" },
+    { .code = 45,    .name = "CP852" },
+    { .code = 46,    .name = "CP858" },
+    { .code = 47,    .name = "CP862" },
+    { .code = 51,    .name = "CP866" },
+    { .code = 58,    .name = "CP857" },
     { .code = 60,    .name = "WINDOWS-1250" },
     { .code = 61,    .name = "WINDOWS-1251" },
     { .code = 62,    .name = "WINDOWS-1252" },
@@ -62,13 +72,38 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 66,    .name = "WINDOWS-1256" },
     { .code = 67,    .name = "WINDOWS-1257" },
     { .code = 68,    .name = "WINDOWS-1258" },
+    { .code = 69,    .name = "MACROMAN" },
+    { .code = 70,    .name = "MACARABIC" },
+    { .code = 71,    .name = "MACHEBREW" },
+    { .code = 72,    .name = "MACGREEK" },
+    { .code = 73,    .name = "MACTHAI" },
+    { .code = 75,    .name = "MACTURKISH" },
+    { .code = 76,    .name = "MACUKRAINE" },
+    { .code = 118,   .name = "CP950" },
     { .code = 119,   .name = "EUC-TW" },
     { .code = 123,   .name = "BIG-5" },
     { .code = 125,   .name = "GB18030" }, // "euc-cn" in SAS
+    { .code = 126,   .name = "WINDOWS-936" }, // "zwin"
+    { .code = 128,   .name = "CP1381" }, // "zpce"
     { .code = 134,   .name = "EUC-JP" },
+    { .code = 136,   .name = "CP949" },
+    { .code = 137,   .name = "CP942" },
     { .code = 138,   .name = "CP932" }, // "shift-jis" in SAS
     { .code = 140,   .name = "EUC-KR" },
-    { .code = 204,   .name = SAS_DEFAULT_STRING_ENCODING } // "any" in SAS
+    { .code = 141,   .name = "CP949" }, // "kpce"
+    { .code = 142,   .name = "CP949" }, // "kwin"
+    { .code = 163,   .name = "MACICELAND" },
+    { .code = 167,   .name = "ISO-2022-JP" },
+    { .code = 168,   .name = "ISO-2022-KR" },
+    { .code = 169,   .name = "ISO-2022-CN" },
+    { .code = 172,   .name = "ISO-2022-CN-EXT" },
+    { .code = 204,   .name = SAS_DEFAULT_STRING_ENCODING }, // "any" in SAS
+    { .code = 205,   .name = "GB18030" },
+    { .code = 242,   .name = "ISO-8859-13" },
+    { .code = 245,   .name = "MACCROATIAN" },
+    { .code = 246,   .name = "MACCYRILLIC" },
+    { .code = 247,   .name = "MACROMANIA" },
+    { .code = 248,   .name = "SHIFT_JISX0213" },
 };
 
 static time_t sas_convert_time(double time, time_t epoch) {

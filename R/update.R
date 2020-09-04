@@ -14,6 +14,9 @@ update_readstat <- function(branch = "master") {
   fs::dir_copy(in_dir, out_dir)
   fs::dir_delete(fs::path(out_dir, c("bin", "fuzz", "test")))
 
+  fs::file_copy(fs::path(base, "LICENSE"), out_dir)
+  fs::file_copy(fs::path(base, "NEWS"), out_dir)
+
   invisible()
 }
 # nocov end
