@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Read SPSS (<code>.sav</code>, <code>.zsav</code>, <code>.por</code>) files. Write <code>.sav</code> and <code>.zsav</code> files. — read_spss • haven</title>
+<title>Read SPSS (.sav, .zsav, .por) files. Write .sav and .zsav files. — read_spss • haven</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -49,7 +49,7 @@
 
 
 
-<meta property="og:title" content="Read SPSS (<code>.sav</code>, <code>.zsav</code>, <code>.por</code>) files. Write <code>.sav</code> and <code>.zsav</code> files. — read_spss" />
+<meta property="og:title" content="Read SPSS (.sav, .zsav, .por) files. Write .sav and .zsav files. — read_spss" />
 <meta property="og:description" content="read_sav() reads both .sav and .zsav files; write_sav() creates
 .zsav files when compress = TRUE. read_por() reads .por files.
 read_spss() uses either read_por() or read_sav() based on the
@@ -188,13 +188,13 @@ file extension." />
     </div>
 
     <div class="ref-description">
-    <p><code><a href='https://haven.tidyverse.org/reference/read_spss.html'>read_sav()</a></code> reads both <code>.sav</code> and <code>.zsav</code> files; <code><a href='https://haven.tidyverse.org/reference/read_spss.html'>write_sav()</a></code> creates
-<code>.zsav</code> files when <code>compress = TRUE</code>. <code><a href='https://haven.tidyverse.org/reference/read_spss.html'>read_por()</a></code> reads <code>.por</code> files.
-<code><a href='https://haven.tidyverse.org/reference/read_spss.html'>read_spss()</a></code> uses either <code><a href='https://haven.tidyverse.org/reference/read_spss.html'>read_por()</a></code> or <code><a href='https://haven.tidyverse.org/reference/read_spss.html'>read_sav()</a></code> based on the
+    <p><code>read_sav()</code> reads both <code>.sav</code> and <code>.zsav</code> files; <code>write_sav()</code> creates
+<code>.zsav</code> files when <code>compress = TRUE</code>. <code>read_por()</code> reads <code>.por</code> files.
+<code>read_spss()</code> uses either <code>read_por()</code> or <code>read_sav()</code> based on the
 file extension.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://haven.tidyverse.org/reference/read_spss.html'>read_sav</a></span>(
+    <pre class="usage"><span class='fu'>read_sav</span>(
   <span class='kw'>file</span>,
   encoding = <span class='kw'>NULL</span>,
   user_na = <span class='fl'>FALSE</span>,
@@ -204,7 +204,7 @@ file extension.</p>
   .name_repair = <span class='st'>"unique"</span>
 )
 
-<span class='fu'><a href='https://haven.tidyverse.org/reference/read_spss.html'>read_por</a></span>(
+<span class='fu'>read_por</span>(
   <span class='kw'>file</span>,
   user_na = <span class='fl'>FALSE</span>,
   col_select = <span class='kw'>NULL</span>,
@@ -213,9 +213,9 @@ file extension.</p>
   .name_repair = <span class='st'>"unique"</span>
 )
 
-<span class='fu'><a href='https://haven.tidyverse.org/reference/read_spss.html'>write_sav</a></span>(<span class='kw'>data</span>, <span class='kw'>path</span>, compress = <span class='fl'>FALSE</span>)
+<span class='fu'>write_sav</span>(<span class='kw'>data</span>, <span class='kw'>path</span>, compress = <span class='fl'>FALSE</span>)
 
-<span class='fu'><a href='https://haven.tidyverse.org/reference/read_spss.html'>read_spss</a></span>(
+<span class='fu'>read_spss</span>(
   <span class='kw'>file</span>,
   user_na = <span class='fl'>FALSE</span>,
   col_select = <span class='kw'>NULL</span>,
@@ -250,7 +250,7 @@ value is incorrect and it is useful to be able to override it.</p></td>
     <tr>
       <th>user_na</th>
       <td><p>If <code>TRUE</code> variables with user defined missing will
-be read into <code><a href='https://haven.tidyverse.org/reference/labelled_spss.html'>labelled_spss()</a></code> objects. If <code>FALSE</code>, the
+be read into <code><a href='labelled_spss.html'>labelled_spss()</a></code> objects. If <code>FALSE</code>, the
 default, user-defined missings will be converted to <code>NA</code>.</p></td>
     </tr>
     <tr>
@@ -305,16 +305,17 @@ file.</p></td>
     <p>A tibble, data frame variant with nice defaults.</p>
 <p>Variable labels are stored in the "label" attribute of each variable.
 It is not printed on the console, but the RStudio viewer will show it.</p>
-<p><code><a href='https://haven.tidyverse.org/reference/read_spss.html'>write_sav()</a></code> returns the input <code>data</code> invisibly.</p>
+<p><code>write_sav()</code> returns the input <code>data</code> invisibly.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Currently haven can read and write logical, integer, numeric, character
-and factors. See <code><a href='https://haven.tidyverse.org/reference/labelled_spss.html'>labelled_spss()</a></code> for how labelled variables in
+and factors. See <code><a href='labelled_spss.html'>labelled_spss()</a></code> for how labelled variables in
 SPSS are handled in R.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>path</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>"examples"</span>, <span class='st'>"iris.sav"</span>, package = <span class='st'>"haven"</span>)
-<span class='fu'><a href='https://haven.tidyverse.org/reference/read_spss.html'>read_sav</a></span>(<span class='kw'>path</span>)</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 150 x 5</span><span>
+<span class='fu'>read_sav</span>(<span class='kw'>path</span>)
+</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 150 x 5</span><span>
 #&gt;    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
 #&gt;           </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl+lbl&gt;</span><span>
 #&gt; </span><span style='color: #555555;'> 1</span><span>          5.1         3.5          1.4         0.2 1</span><span style='color: #555555;'> [setosa]</span><span>
@@ -329,8 +330,9 @@ SPSS are handled in R.</p>
 #&gt; </span><span style='color: #555555;'>10</span><span>          4.9         3.1          1.5         0.1 1</span><span style='color: #555555;'> [setosa]</span><span>
 #&gt; </span><span style='color: #555555;'># … with 140 more rows</span><span></div><div class='input'>
 <span class='kw'>tmp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span>(fileext = <span class='st'>".sav"</span>)
-<span class='fu'><a href='https://haven.tidyverse.org/reference/read_spss.html'>write_sav</a></span>(<span class='kw'>mtcars</span>, <span class='kw'>tmp</span>)
-<span class='fu'><a href='https://haven.tidyverse.org/reference/read_spss.html'>read_sav</a></span>(<span class='kw'>tmp</span>)</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 32 x 11</span><span>
+<span class='fu'>write_sav</span>(<span class='kw'>mtcars</span>, <span class='kw'>tmp</span>)
+<span class='fu'>read_sav</span>(<span class='kw'>tmp</span>)
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 32 x 11</span><span>
 #&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
 #&gt; </span><span style='color: #555555;'> 1</span><span>  21       6  160    110  3.9   2.62  16.5     0     1     4     4

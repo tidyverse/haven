@@ -189,12 +189,12 @@ three distinct values, or for numeric vectors a range." />
 
     <div class="ref-description">
     <p>This class is only used when <code>user_na = TRUE</code> in
-<code><a href='https://haven.tidyverse.org/reference/read_spss.html'>read_sav()</a></code>. It is similar to the <code><a href='https://haven.tidyverse.org/reference/labelled.html'>labelled()</a></code> class
+<code><a href='read_spss.html'>read_sav()</a></code>. It is similar to the <code><a href='labelled.html'>labelled()</a></code> class
 but it also models SPSS's user-defined missings, which can be up to
 three distinct values, or for numeric vectors a range.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://haven.tidyverse.org/reference/labelled_spss.html'>labelled_spss</a></span>(
+    <pre class="usage"><span class='fu'>labelled_spss</span>(
   x = <span class='fu'><a href='https://rdrr.io/r/base/double.html'>double</a></span>(),
   labels = <span class='kw'>NULL</span>,
   na_values = <span class='kw'>NULL</span>,
@@ -234,13 +234,16 @@ open ended.</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>x1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://haven.tidyverse.org/reference/labelled_spss.html'>labelled_spss</a></span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(Good = <span class='fl'>1</span>, Bad = <span class='fl'>8</span>), na_values = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>9</span>, <span class='fl'>10</span>))
-<span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span>(<span class='kw'>x1</span>)</div><div class='output co'>#&gt;  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE</div><div class='input'>
-<span class='kw'>x2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://haven.tidyverse.org/reference/labelled_spss.html'>labelled_spss</a></span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(Good = <span class='fl'>1</span>, Bad = <span class='fl'>8</span>), na_range = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>9</span>, <span class='fl'>Inf</span>),
+    <pre class="examples"><div class='input'><span class='kw'>x1</span> <span class='op'>&lt;-</span> <span class='fu'>labelled_spss</span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(Good = <span class='fl'>1</span>, Bad = <span class='fl'>8</span>), na_values = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>9</span>, <span class='fl'>10</span>))
+<span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span>(<span class='kw'>x1</span>)
+</div><div class='output co'>#&gt;  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE</div><div class='input'>
+<span class='kw'>x2</span> <span class='op'>&lt;-</span> <span class='fu'>labelled_spss</span>(<span class='fl'>1</span><span class='op'>:</span><span class='fl'>10</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(Good = <span class='fl'>1</span>, Bad = <span class='fl'>8</span>), na_range = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>9</span>, <span class='fl'>Inf</span>),
                     label = <span class='st'>"Quality rating"</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span>(<span class='kw'>x2</span>)</div><div class='output co'>#&gt;  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE</div><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span>(<span class='kw'>x2</span>)
+</div><div class='output co'>#&gt;  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE</div><div class='input'>
 <span class='co'># Print data and metadata</span>
-<span class='kw'>x2</span></div><div class='output co'>#&gt; &lt;labelled_spss&lt;integer&gt;[10]&gt;: Quality rating
+<span class='kw'>x2</span>
+</div><div class='output co'>#&gt; &lt;labelled_spss&lt;integer&gt;[10]&gt;: Quality rating
 #&gt;  [1]  1  2  3  4  5  6  7  8  9 10
 #&gt; Missing range:  [9, Inf]
 #&gt; 

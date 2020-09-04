@@ -188,11 +188,11 @@ Stata are handled in R." />
 
     <div class="ref-description">
     <p>Currently haven can read and write logical, integer, numeric, character
-and factors. See <code><a href='https://haven.tidyverse.org/reference/labelled.html'>labelled()</a></code> for how labelled variables in
+and factors. See <code><a href='labelled.html'>labelled()</a></code> for how labelled variables in
 Stata are handled in R.</p>
     </div>
 
-    <pre class="usage"><span class='fu'><a href='https://haven.tidyverse.org/reference/read_dta.html'>read_dta</a></span>(
+    <pre class="usage"><span class='fu'>read_dta</span>(
   <span class='kw'>file</span>,
   encoding = <span class='kw'>NULL</span>,
   col_select = <span class='kw'>NULL</span>,
@@ -201,7 +201,7 @@ Stata are handled in R.</p>
   .name_repair = <span class='st'>"unique"</span>
 )
 
-<span class='fu'><a href='https://haven.tidyverse.org/reference/read_dta.html'>read_stata</a></span>(
+<span class='fu'>read_stata</span>(
   <span class='kw'>file</span>,
   encoding = <span class='kw'>NULL</span>,
   col_select = <span class='kw'>NULL</span>,
@@ -210,7 +210,7 @@ Stata are handled in R.</p>
   .name_repair = <span class='st'>"unique"</span>
 )
 
-<span class='fu'><a href='https://haven.tidyverse.org/reference/read_dta.html'>write_dta</a></span>(<span class='kw'>data</span>, <span class='kw'>path</span>, version = <span class='fl'>14</span>, label = <span class='fu'><a href='https://rdrr.io/r/base/attr.html'>attr</a></span>(<span class='kw'>data</span>, <span class='st'>"label"</span>))</pre>
+<span class='fu'>write_dta</span>(<span class='kw'>data</span>, <span class='kw'>path</span>, version = <span class='fl'>14</span>, label = <span class='fu'><a href='https://rdrr.io/r/base/attr.html'>attr</a></span>(<span class='kw'>data</span>, <span class='st'>"label"</span>))</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -293,7 +293,7 @@ the "label" attribute of <code>data</code>. Must be &lt;= 80 characters.</p></td
 It is not printed on the console, but the RStudio viewer will show it.</p>
 <p>If a dataset label is defined in Stata, it will stored in the "label"
 attribute of the tibble.</p>
-<p><code><a href='https://haven.tidyverse.org/reference/read_dta.html'>write_dta()</a></code> returns the input <code>data</code> invisibly.</p>
+<p><code>write_dta()</code> returns the input <code>data</code> invisibly.</p>
     <h2 class="hasAnchor" id="character-encoding"><a class="anchor" href="#character-encoding"></a>Character encoding</h2>
 
     
@@ -310,7 +310,8 @@ value unless the value was incorrectly recorded in the source file.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='kw'>path</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>"examples"</span>, <span class='st'>"iris.dta"</span>, package = <span class='st'>"haven"</span>)
-<span class='fu'><a href='https://haven.tidyverse.org/reference/read_dta.html'>read_dta</a></span>(<span class='kw'>path</span>)</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 150 x 5</span><span>
+<span class='fu'>read_dta</span>(<span class='kw'>path</span>)
+</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 150 x 5</span><span>
 #&gt;    sepallength sepalwidth petallength petalwidth species
 #&gt;          </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>  
 #&gt; </span><span style='color: #555555;'> 1</span><span>        5.10       3.5         1.40      0.200 setosa 
@@ -325,8 +326,9 @@ value unless the value was incorrectly recorded in the source file.</p>
 #&gt; </span><span style='color: #555555;'>10</span><span>        4.90       3.10        1.5       0.100 setosa 
 #&gt; </span><span style='color: #555555;'># … with 140 more rows</span><span></div><div class='input'>
 <span class='kw'>tmp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span>(fileext = <span class='st'>".dta"</span>)
-<span class='fu'><a href='https://haven.tidyverse.org/reference/read_dta.html'>write_dta</a></span>(<span class='kw'>mtcars</span>, <span class='kw'>tmp</span>)
-<span class='fu'><a href='https://haven.tidyverse.org/reference/read_dta.html'>read_dta</a></span>(<span class='kw'>tmp</span>)</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 32 x 11</span><span>
+<span class='fu'>write_dta</span>(<span class='kw'>mtcars</span>, <span class='kw'>tmp</span>)
+<span class='fu'>read_dta</span>(<span class='kw'>tmp</span>)
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 32 x 11</span><span>
 #&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
 #&gt; </span><span style='color: #555555;'> 1</span><span>  21       6  160    110  3.9   2.62  16.5     0     1     4     4
@@ -339,7 +341,8 @@ value unless the value was incorrectly recorded in the source file.</p>
 #&gt; </span><span style='color: #555555;'> 8</span><span>  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
 #&gt; </span><span style='color: #555555;'> 9</span><span>  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2
 #&gt; </span><span style='color: #555555;'>10</span><span>  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4
-#&gt; </span><span style='color: #555555;'># … with 22 more rows</span><span></div><div class='input'><span class='fu'><a href='https://haven.tidyverse.org/reference/read_dta.html'>read_stata</a></span>(<span class='kw'>tmp</span>)</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 32 x 11</span><span>
+#&gt; </span><span style='color: #555555;'># … with 22 more rows</span><span></div><div class='input'><span class='fu'>read_stata</span>(<span class='kw'>tmp</span>)
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 32 x 11</span><span>
 #&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
 #&gt; </span><span style='color: #555555;'> 1</span><span>  21       6  160    110  3.9   2.62  16.5     0     1     4     4
