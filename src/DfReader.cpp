@@ -13,6 +13,7 @@
 #include "cpp11/strings.hpp"
 #include "cpp11/doubles.hpp"
 #include "cpp11/integers.hpp"
+#include "cpp11/r_string.hpp"
 #include "cpp11/list.hpp"
 #include "cpp11/raws.hpp"
 #include "cpp11/sexp.hpp"
@@ -259,7 +260,7 @@ public:
         for (int i = 0; i < n_ranges; ++i) {
           readstat_value_t value = readstat_variable_get_missing_range_lo(variable, i);
           const char* str_value = readstat_string_value(value);
-          na_values[0] = str_value == NULL ? cpp11::string(NA_STRING) : cpp11::string(str_value);
+          na_values[0] = str_value == NULL ? cpp11::r_string(NA_STRING) : cpp11::r_string(str_value);
         }
 
         col.attr("na_values") = na_values;
@@ -337,7 +338,7 @@ public:
     {
       cpp11::writable::strings col(output_[var_index]);
       const char* str_value = readstat_string_value(value);
-      col[obs_index] = str_value == NULL ? cpp11::string(NA_STRING) : cpp11::string(str_value);
+      col[obs_index] = str_value == NULL ? cpp11::r_string(NA_STRING) : cpp11::r_string(str_value);
       break;
     }
     case READSTAT_TYPE_INT8:

@@ -55,4 +55,3 @@ write_sas_ <- function(data, path) {
 write_xpt_ <- function(data, path, version, name) {
   invisible(.Call("_haven_write_xpt_", data, path, version, name))
 }
-
