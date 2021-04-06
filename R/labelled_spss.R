@@ -143,9 +143,8 @@ vec_ptype2.haven_labelled_spss.haven_labelled_spss <- function(x, y, ..., x_arg 
   x_na_values <- vec_cast(attr(x, "na_values"), data_type, x_arg = x_arg)
   y_na_values <- vec_cast(attr(y, "na_values"), data_type, x_arg = y_arg)
 
-  # Ignore user defined missings and return a standard haven_labelled if:
-  # * There are mismatches between the missing attributes
-  # * No user defined missing values exist
+  # Ignore user defined missings and return a standard haven_labelled if
+  # there are mismatches between the missing attributes
   if (!identical(x_na_values, y_na_values) ||
       !identical(attr(x, "na_range"), attr(y, "na_range"))) {
     new_labelled(data_type, labels = x_labels, label = label)

@@ -76,6 +76,11 @@ test_that("combining is symmetrical w.r.t. data types", {
     vec_c(labelled_spss(), integer()),
     vec_c(integer(), labelled_spss())
   )
+
+  expect_identical(
+    vec_c(labelled_spss(), labelled()),
+    vec_c(labelled(), labelled_spss())
+  )
 })
 
 test_that("can cast labelled_spss to atomic vectors", {
