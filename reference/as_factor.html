@@ -267,8 +267,8 @@ for backward compatibility.</p>
 </div><div class='output co'>#&gt;  [1] Good &lt;NA&gt; Good &lt;NA&gt; Bad  Good Good Good &lt;NA&gt; &lt;NA&gt;
 #&gt; Levels: Bad Good</div><div class='input'><span class='co'># Or just the values</span>
 <span class='fu'>as_factor</span><span class='op'>(</span><span class='va'>x</span>, levels <span class='op'>=</span> <span class='st'>"values"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt;  [1] 5    &lt;NA&gt; 5    &lt;NA&gt; 1    5    5    5    &lt;NA&gt; &lt;NA&gt;
-#&gt; Levels: 1 5</div><div class='input'><span class='co'># Or combine value and label</span>
+</div><div class='output co'>#&gt;  [1] 5 4 5 4 1 5 5 5 2 3
+#&gt; Levels: 1 2 3 4 5</div><div class='input'><span class='co'># Or combine value and label</span>
 <span class='fu'>as_factor</span><span class='op'>(</span><span class='va'>x</span>, levels <span class='op'>=</span> <span class='st'>"both"</span><span class='op'>)</span>
 </div><div class='output co'>#&gt;  [1] [5] Good 4        [5] Good 4        [1] Bad  [5] Good [5] Good [5] Good
 #&gt;  [9] 2        3       
