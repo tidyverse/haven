@@ -253,15 +253,34 @@ public:
       case READSTAT_TYPE_STRING_REF:
       case READSTAT_TYPE_STRING:
       {
-        cpp11::writable::strings na_values(n_ranges);
+        cpp11::writable::strings na_values(R_xlen_t(0));
+        cpp11::writable::strings na_range(2);
+        bool has_range = false;
 
         for (int i = 0; i < n_ranges; ++i) {
-          readstat_value_t value = readstat_variable_get_missing_range_lo(variable, i);
-          const char* str_value = readstat_string_value(value);
-          na_values[0] = str_value == NULL ? cpp11::r_string(NA_STRING) : cpp11::r_string(str_value);
+          readstat_value_t
+            lo_value = readstat_variable_get_missing_range_lo(variable, i),
+            hi_value = readstat_variable_get_missing_range_hi(variable, i);
+
+          const char* lo = readstat_string_value(lo_value);
+          const char* hi = readstat_string_value(hi_value);
+
+          if (lo == hi) {
+            // single value
+            na_values.push_back(lo == NULL ? cpp11::r_string(NA_STRING) : cpp11::r_string(lo));
+          } else {
+            has_range = true;
+            // Can only ever be one range
+            na_range[0] = lo;
+            na_range[1] = hi;
+          }
         }
 
-        col.attr("na_values") = na_values;
+        if (na_values.size() > 0)
+          col.attr("na_values") = na_values;
+        if (has_range)
+          col.attr("na_range") = na_range;
+
         col.attr("class") = {"haven_labelled_spss", "haven_labelled", "vctrs_vctr", "character"};
         break;
       }
@@ -335,8 +354,16 @@ public:
     case READSTAT_TYPE_STRING:
     {
       cpp11::writable::strings col(output_[var_index]);
-      const char* str_value = readstat_string_value(value);
-      col[obs_index] = str_value == NULL ? cpp11::r_string(NA_STRING) : cpp11::r_string(str_value);
+
+      if (readstat_value_is_tagged_missing(value)) {
+        col[obs_index] = NA_STRING;
+      } else if (!user_na_ && readstat_value_is_defined_missing(value, variable)) {
+        col[obs_index] = NA_STRING;
+      } else if (readstat_value_is_system_missing(value)) {
+        col[obs_index] = NA_STRING;
+      } else {
+        col[obs_index] = cpp11::r_string(readstat_string_value(value));
+      }
       break;
     }
     case READSTAT_TYPE_INT8:

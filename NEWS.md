@@ -1,5 +1,7 @@
 # haven (development version)
 
+* `labelled_spss()` now supports character data with NA values and ranges (#409).
+
 * Validation failures now provide more details about the source of the problem
   (e.g. the column name of the problem) (#463).
 
