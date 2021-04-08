@@ -1,10 +1,10 @@
 #include <iconv.h>
 
-/* ICONV_CONST defined by autotools during configure according
- * to the current platform. Some people copy-paste the source code, so
- * provide some fallback logic */
-#ifndef ICONV_CONST
-#define ICONV_CONST
+/* ICONV_CONST defined by autotools; so we hack this in manually */
+#if defined(_WIN32) || defined(__sun)
+  #define ICONV_CONST const
+#else
+  #define ICONV_CONST
 #endif
 
 typedef ICONV_CONST char ** readstat_iconv_inbuf_t;
