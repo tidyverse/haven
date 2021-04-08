@@ -1,5 +1,3 @@
-context("zap_label")
-
 test_that("zap_label strips label but doesn't change other attributes", {
   var <- labelled(c(1L, 98L, 99L), c(not_answered = 98L, not_applicable = 99L), label = "foo")
   var_nolabel <- labelled(c(1L, 98L, 99L), c(not_answered = 98L, not_applicable = 99L))

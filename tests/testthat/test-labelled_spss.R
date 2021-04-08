@@ -1,5 +1,3 @@
-context("labelled_spss")
-
 test_that("constructor checks na_value", {
   expect_incompatible_type(labelled_spss(1:10, na_values = "a"))
 })

@@ -36,7 +36,7 @@ Suggests:
     fs,
     knitr,
     rmarkdown,
-    testthat,
+    testthat (>= 3.0.0),
     pillar (>= 1.4.0),
     cli,
     crayon
@@ -51,3 +51,4 @@ RoxygenNote: 7.1.0
 SystemRequirements: GNU make, C++11, zlib
 Remotes:
   rstudio/rmarkdown
+Config/testthat/edition: 3

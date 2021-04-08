@@ -1,5 +1,3 @@
-context("read_sas")
-
 test_that("variable label stored as attributes", {
   df <- read_sas("hadley.sas7bdat")
   expect_equal(attr(df$gender, "label"), NULL)

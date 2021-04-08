@@ -1,5 +1,3 @@
-context("test-read-xpt.R")
-
 test_that("can read date/times", {
   x <- as.Date("2018-01-01")
   df <- data.frame(date = x, datetime = as.POSIXct(x))

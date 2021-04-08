@@ -1,5 +1,3 @@
-context("pillar printing")
-
 test_that("pillar", {
   expect_known_output(
     print(tibble::tibble(x = labelled(

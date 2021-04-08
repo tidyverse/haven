@@ -1,5 +1,3 @@
-context("Labelled")
-
 test_that("labelled() with no args returns a zero-length vector", {
   expect_length(labelled(), 0)
 })

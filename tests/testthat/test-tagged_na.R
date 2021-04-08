@@ -1,5 +1,3 @@
-context("tagged_na")
-
 test_that("tagged_na is NA (but not NaN)", {
   x <- tagged_na("a")
 

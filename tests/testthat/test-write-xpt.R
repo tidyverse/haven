@@ -1,5 +1,3 @@
-context("write_xpt")
-
 test_that("can roundtrip basic types", {
   x <- runif(10)
   expect_equal(roundtrip_var(x, "xpt"), x)
