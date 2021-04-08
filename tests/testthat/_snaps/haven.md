@@ -7,5 +7,5 @@
     Code
       write_dta(df <- data.frame(.x = 1), tempfile())
     Error <simpleError>
-      Failed to create variable `.x`: A provided name contains an illegal character.
+      Failed to create column `.x`: A provided name contains an illegal character.
 
