@@ -58,7 +58,7 @@ as_factor.haven_labelled <- function(x, levels = c("default", "labels", "values"
   label <- attr(x, "label", exact = TRUE)
   labels <- attr(x, "labels")
 
-  if (levels == "default" || levels == "both") {
+  if (levels %in% c("default", "both")) {
     if (levels == "both") {
       names(labels) <- paste0("[", labels, "] ", names(labels))
     }
@@ -73,14 +73,18 @@ as_factor.haven_labelled <- function(x, levels = c("default", "labels", "values"
     x <- replace_with(vec_data(x), unname(labels), names(labels))
 
     x <- factor(x, levels = levs, ordered = ordered)
-  } else {
+  } else if (levels == "labels") {
     levs <- unname(labels)
-    labs <- switch(levels,
-      labels = names(labels),
-      values = levs
-    )
+    labs <- names(labels)
     x <- replace_with(vec_data(x), levs, labs)
     x <- factor(x, unique(labs), ordered = ordered)
+  } else if (levels == "values") {
+    if (all(x %in% labels)) {
+      levels <- unname(labels)
+    } else {
+      levels <- sort(unique(vec_data(x)))
+    }
+    x <- factor(vec_data(x), levels, ordered = ordered)
   }
 
   structure(x, label = label)

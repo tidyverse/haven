@@ -50,9 +50,15 @@ test_that("both combines values and levels", {
 
 # Values
 
-test_that("character labelled uses values when requested", {
+test_that("values preserves order if possible", {
   s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
   exp <- factor(c("M", "M", "F"), levels = c("M", "F"))
+  expect_equal(as_factor(s1, "values"), exp)
+})
+
+test_that("otherwise falls back to alphabetical", {
+  s1 <- labelled(c("M", "M", "F", "G"), c(Male = "M", Female = "F"))
+  exp <- factor(c("M", "M", "F", "G"), levels = c("F", "G", "M"))
   expect_equal(as_factor(s1, "values"), exp)
 })
 

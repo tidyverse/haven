@@ -1,5 +1,7 @@
 # haven (development version)
 
+* `as_factor(levels = "values")` preserves values of unlabelled elements (#570).
+
 * `labelled_spss()` now supports character data with NA values and ranges (#409).
 
 * Validation failures now provide more details about the source of the problem
