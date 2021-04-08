@@ -136,6 +136,10 @@ public:
     case HAVEN_XPT:
       checkStatus(readstat_begin_writing_xport(writer_, this, n));
       break;
+    case HAVEN_POR:
+    case HAVEN_SAS7BCAT:
+      // not used
+      break;
     }
 
     // Write data
