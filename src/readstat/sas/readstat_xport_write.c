@@ -12,6 +12,10 @@
 #define XPORT_DEFAULT_VERISON   8
 #define RECORD_LEN 80
 
+#if defined _MSC_VER
+#define restrict __restrict
+#endif
+
 static void copypad(char * restrict dst, size_t dst_len, const char * restrict src) {
     char *dst_end = dst + dst_len;
     while (dst < dst_end && *src)

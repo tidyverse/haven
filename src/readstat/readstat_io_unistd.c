@@ -1,7 +1,13 @@
 
 #include <fcntl.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <wchar.h>
+#if !defined(_MSC_VER)
+#   include <unistd.h>
+#endif
+#if defined _WIN32
+#   include <windows.h>
+#endif
 
 #include "readstat.h"
 #include "readstat_io_unistd.h"
@@ -14,13 +20,43 @@
 #define UNISTD_OPEN_OPTIONS O_RDONLY
 #endif
 
-#if defined _WIN32 || defined _AIX
+#if defined _MSC_VER && defined WIN64
+#define lseek _lseeki64
+#elif defined _MSC_VER
+#elif defined _WIN32 || defined _AIX
 #define lseek lseek64
 #endif
 
 
+int open_with_unicode(const char *path, int options)
+{
+#if defined _WIN32
+    const int buffer_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
+
+    if(buffer_size <= 0)
+        return -1;
+
+    wchar_t* wpath = malloc((buffer_size + 1) * sizeof(wchar_t));
+    const int res = MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, buffer_size);
+    wpath[buffer_size] = 0;
+
+    if(res <= 0)
+    {
+        free(wpath);
+        return -1;
+    }
+
+    int fd = _wopen(wpath, options);
+
+    free(wpath);
+    return fd;
+#else
+    return open(path, options);
+#endif
+}
+
 int unistd_open_handler(const char *path, void *io_ctx) {
-    int fd = open(path, UNISTD_OPEN_OPTIONS);
+    int fd = open_with_unicode(path, UNISTD_OPEN_OPTIONS);
     ((unistd_io_ctx_t*) io_ctx)->fd = fd;
     return fd;
 }

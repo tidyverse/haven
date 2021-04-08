@@ -258,9 +258,13 @@ static readstat_error_t readstat_write_repeated_byte(readstat_writer_t *writer, 
     if (len == 0)
         return READSTAT_OK;
 
-    char zeros[len];
+    char *zeros = malloc(len);
+
     memset(zeros, byte, len);
-    return readstat_write_bytes(writer, zeros, len);
+    readstat_error_t error = readstat_write_bytes(writer, zeros, len);
+
+    free(zeros);
+    return error;
 }
 
 readstat_error_t readstat_write_zeros(readstat_writer_t *writer, size_t len) {

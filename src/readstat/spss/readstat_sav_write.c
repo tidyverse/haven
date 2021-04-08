@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <stdint.h>
 #include <math.h>
 #include <float.h>
@@ -1293,7 +1292,7 @@ static readstat_error_t sav_variable_ok(const readstat_variable_t *variable) {
 static sav_varnames_t *sav_varnames_init(readstat_writer_t *writer) {
     sav_varnames_t *varnames = calloc(writer->variables_count, sizeof(sav_varnames_t));
 
-    ck_hash_table_t *table = ck_hash_table_init(writer->variables_count);
+    ck_hash_table_t *table = ck_hash_table_init(writer->variables_count, 8);
     int i, k;
     for (i=0; i<writer->variables_count; i++) {
         readstat_variable_t *r_variable = readstat_get_variable(writer, i);

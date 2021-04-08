@@ -1,7 +1,7 @@
 #include <stdlib.h>
-#include <strings.h>
 
 #include "../readstat.h"
+#include "../readstat_strings.h"
 #include "readstat_schema.h"
 
 #include "readstat_copy.h"
@@ -218,7 +218,7 @@ readstat_schema_t *readstat_parse_sas_commands(readstat_parser_t *parser,
 
         empty_cmd = ";";
 
-        value_label = ( "-" integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = -integer; } |
+        value_label = ( "-" integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = -(double)integer; } |
                 integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = integer; } |
                 integer whitespace+ "-" whitespace+ %{ first_integer = integer; } integer %{ label_type = LABEL_TYPE_RANGE; } |
                 unquoted_string %{ label_type = LABEL_TYPE_STRING; } %copy_string |

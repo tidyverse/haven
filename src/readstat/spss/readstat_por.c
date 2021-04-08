@@ -69,7 +69,7 @@ por_ctx_t *por_ctx_init() {
 
     ctx->space = ' ';
     ctx->base30_precision = 20;
-    ctx->var_dict = ck_hash_table_init(1024);
+    ctx->var_dict = ck_hash_table_init(1024, 8);
     return ctx;
 }
 

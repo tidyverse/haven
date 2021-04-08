@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <time.h>
 
 #include "../readstat.h"
@@ -523,13 +522,15 @@ cleanup:
 static readstat_error_t dta_emit_characteristics(readstat_writer_t *writer, dta_ctx_t *ctx) {
     readstat_error_t error = READSTAT_OK;
     int i;
-    char buffer[ctx->ch_metadata_len];
+    char *buffer = NULL;
 
     if (ctx->expansion_len_len == 0)
         return READSTAT_OK;
 
     if ((error = dta_write_tag(writer, ctx, "<characteristics>")) != READSTAT_OK)
-        goto cleanup;
+        return error;
+
+    buffer = malloc(ctx->ch_metadata_len);
 
     for (i=0; i<writer->notes_count; i++) {
         if (ctx->file_is_xmlish) {
@@ -581,6 +582,7 @@ static readstat_error_t dta_emit_characteristics(readstat_writer_t *writer, dta_
         goto cleanup;
 
 cleanup:
+    free(buffer);
     return error;
 }
 
