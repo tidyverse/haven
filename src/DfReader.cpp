@@ -128,7 +128,6 @@ public:
 // DfReader ------------------------------------------------------------------
 
 class DfReader {
-  FileExt ext_;
   FileVendor vendor_;
 
   int nrows_, nrowsAlloc_;
@@ -146,7 +145,6 @@ class DfReader {
 
 public:
   DfReader(FileExt ext, bool user_na = false) :
-    ext_(ext),
     vendor_(extVendor(ext)),
     nrows_(0),
     ncols_(0),
