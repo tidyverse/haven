@@ -17,8 +17,8 @@ test_that("stata data types read into expected types (#45)", {
 test_that("Stata %td (date) and %tc (datetime) read into expected classes", {
   df <- read_stata("types.dta")
 
-  expect_is(df$vdate, "Date")
-  expect_is(df$vdatetime, "POSIXct")
+  expect_s3_class(df$vdate, "Date")
+  expect_s3_class(df$vdatetime, "POSIXct")
 })
 
 
