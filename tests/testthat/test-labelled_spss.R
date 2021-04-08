@@ -1,5 +1,3 @@
-context("labelled_spss")
-
 test_that("constructor checks na_value", {
   expect_incompatible_type(labelled_spss(1:10, na_values = "a"))
 })
@@ -19,7 +17,7 @@ test_that("printed output is stable", {
     na_values = c(1, 2),
     na_range = c(3, Inf)
   )
-  expect_output_file(print(x), "labelled-spss-output.txt")
+  expect_snapshot(x)
 })
 
 test_that("subsetting preserves attributes", {

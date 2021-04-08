@@ -1,0 +1,15 @@
+# printed output is stable
+
+    Code
+      x
+    Output
+      <labelled<double>[9]>
+      [1]     1     2     3     4     5    NA NA(x) NA(y) NA(z)
+      
+      Labels:
+       value             label
+           1              Good
+           5               Bad
+       NA(x)    Not Applicable
+       NA(y) Refused to answer
+

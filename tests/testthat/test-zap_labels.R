@@ -1,5 +1,3 @@
-context("zap_labels")
-
 test_that("zap_labels strips labelled attributes", {
   var <- labelled(c(1L, 98L, 99L), c(not_answered = 98L, not_applicable = 99L))
   exp <- c(1L, 98L, 99L)

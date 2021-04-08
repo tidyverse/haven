@@ -1,5 +1,3 @@
-context("as_factor")
-
 # Base types --------------------------------------------------------------
 
 test_that("variable label is kept when converting characters to factors (#178)", {

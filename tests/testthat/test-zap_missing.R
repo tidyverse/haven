@@ -1,5 +1,3 @@
-context("zap_missing")
-
 test_that("strips na tags", {
   x1 <- labelled(tagged_na("a", "b"), c(a = tagged_na("a"), b = 1))
   x2 <- zap_missing(x1)

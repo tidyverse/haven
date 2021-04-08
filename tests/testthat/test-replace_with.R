@@ -1,5 +1,3 @@
-context("replace_with")
-
 test_that("updates numeric values", {
   x <- 1:5
 

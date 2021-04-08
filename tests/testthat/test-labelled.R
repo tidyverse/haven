@@ -1,5 +1,3 @@
-context("Labelled")
-
 test_that("labelled() with no args returns a zero-length vector", {
   expect_length(labelled(), 0)
 })
@@ -242,7 +240,7 @@ test_that("printed output is stable", {
     )
   )
 
-  expect_output_file(print(x), "labelled-output.txt")
+  expect_snapshot(x)
 })
 
 test_that("given correct name in data frame", {
