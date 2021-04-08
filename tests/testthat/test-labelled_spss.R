@@ -345,6 +345,15 @@ test_that("casting away user missing throws lossy cast", {
   ))
 })
 
+test_that("casting to regular labelled ignores missing values", {
+  expect_equal(
+    vec_cast(
+      labelled_spss(1, na_values = c(1, 5)),
+      labelled()
+    ),
+    labelled(1)
+  )
+})
 
 test_that("casting away tagged na values throws lossy cast", {
   expect_lossy_cast(vec_cast(

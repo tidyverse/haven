@@ -191,18 +191,10 @@ vec_cast.haven_labelled_spss.haven_labelled_spss <- function(x, to, ..., x_arg =
   x_na_range <- attr(x, "na_range")
   to_na_range <- attr(to, "na_range")
 
-  if (is.null(to_na_values) & is.null(to_na_range)) {
-    out_na_values <- x_na_values
-    out_na_range <- x_na_range
-  } else {
-    out_na_values <- to_na_values
-    out_na_range <- to_na_range
-  }
-
   out <- labelled_spss(out_data,
     labels = out_labels,
-    na_values = out_na_values,
-    na_range = out_na_range,
+    na_values = to_na_values,
+    na_range = to_na_range,
     label = attr(x, "label", exact = TRUE)
   )
 
@@ -233,10 +225,10 @@ vec_cast.haven_labelled_spss.haven_labelled_spss <- function(x, to, ..., x_arg =
     if (!is.null(x_na_range))
       lossy <- lossy | (vec_data(x) >= x_na_range[1] & vec_data(x) <= x_na_range[2])
 
-    if (!is.null(out_na_range))
-      lossy <- lossy & !(vec_data(x) >= out_na_range[1] & vec_data(x) <= out_na_range[2])
-    else if (!is.null(out_na_values))
-      lossy <- lossy & !x %in% out_na_values
+    if (!is.null(to_na_range))
+      lossy <- lossy & !(vec_data(x) >= to_na_range[1] & vec_data(x) <= to_na_range[2])
+    else if (!is.null(to_na_values))
+      lossy <- lossy & !x %in% to_na_values
 
     maybe_lossy_cast(out, x, to, lossy,
       x_arg = x_arg,
@@ -263,17 +255,7 @@ vec_cast.haven_labelled_spss.character <- function(x, to, ...) {
 
 #' @export
 vec_cast.haven_labelled.haven_labelled_spss <- function(x, to, ...) {
-  out <- vec_cast.haven_labelled.haven_labelled(x, to, ...)
-
-  if (!is.null(attr(x, "na_values")) || !is.null(attr(x, "na_range"))) {
-    maybe_lossy_cast(
-      out, x, to,
-      x_arg = x_arg,
-      to_arg = to_arg,
-      details = paste0("User defined na values or na range will be dropped when converting ",
-                       "from class `haven_labelled_spss` to `haven_labelled`.")
-    )
-  }
+  vec_cast.haven_labelled.haven_labelled(x, to, ...)
 }
 
 #' @export
