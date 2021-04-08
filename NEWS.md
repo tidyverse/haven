@@ -1,5 +1,13 @@
 # haven (development version)
 
+* Validation failures now provide more details about the source of the problem
+  (e.g. the column name of the problem) (#463).
+
+* Restore validation for length of Stata variables (#485).
+
+* All writers now validate file and variable metadata with ReadStat. This 
+  should prevent many invalid files from being written (#408). 
+
 * Updated to ReadStat 1.1.5. Most importantly this includes support for
   SAS binary compression.
 

@@ -100,6 +100,37 @@ public:
     if (p == 0)
       return;
 
+    int n = Rf_length(x_[0]);
+
+    readstat_error_t status;
+    switch(ext_) {
+    case HAVEN_SAV:
+      status = readstat_begin_writing_sav(writer_, this, n);
+      break;
+    case HAVEN_DTA:
+      status = readstat_begin_writing_dta(writer_, this, n);
+      break;
+    case HAVEN_SAS7BDAT:
+      status = readstat_begin_writing_sas7bdat(writer_, this, n);
+      break;
+    case HAVEN_XPT:
+      status = readstat_begin_writing_xport(writer_, this, n);
+      break;
+    case HAVEN_POR:
+    case HAVEN_SAS7BCAT:
+      status = READSTAT_OK;
+      // not used
+      break;
+    }
+    if (status) {
+      cpp11::stop("Failed to create file: %s.", readstat_error_message(status));
+    }
+
+    status = readstat_validate_metadata(writer_);
+    if (status) {
+      cpp11::stop("Failed to write metadata: %s.", readstat_error_message(status));
+    }
+
     cpp11::strings names(x_.attr("names"));
 
     // Define variables
@@ -111,35 +142,15 @@ public:
       const char* format = var_format(col, type);
 
       switch(TYPEOF(col)) {
-        case LGLSXP:  defineVariable(cpp11::integers(cpp11::safe[Rf_coerceVector](col, INTSXP)), name, format); break;
-        case INTSXP:  defineVariable(cpp11::integers(col), name, format); break;
-        case REALSXP: defineVariable(cpp11::doubles(col), name, format);  break;
-        case STRSXP:  defineVariable(cpp11::strings(col), name, format); break;
-      default:
-                      cpp11::stop("Variables of type %s not supported yet",
-          Rf_type2char(TYPEOF(col)));
+        case LGLSXP:  status = defineVariable(cpp11::integers(cpp11::safe[Rf_coerceVector](col, INTSXP)), name, format); break;
+        case INTSXP:  status = defineVariable(cpp11::integers(col), name, format); break;
+        case REALSXP: status = defineVariable(cpp11::doubles(col), name, format);  break;
+        case STRSXP:  status = defineVariable(cpp11::strings(col), name, format); break;
+        default:      cpp11::stop("Columns of type %s not supported yet", Rf_type2char(TYPEOF(col)));
       }
-    }
-
-    int n = Rf_length(x_[0]);
-
-    switch(ext_) {
-    case HAVEN_SAV:
-      checkStatus(readstat_begin_writing_sav(writer_, this, n));
-      break;
-    case HAVEN_DTA:
-      checkStatus(readstat_begin_writing_dta(writer_, this, n));
-      break;
-    case HAVEN_SAS7BDAT:
-      checkStatus(readstat_begin_writing_sas7bdat(writer_, this, n));
-      break;
-    case HAVEN_XPT:
-      checkStatus(readstat_begin_writing_xport(writer_, this, n));
-      break;
-    case HAVEN_POR:
-    case HAVEN_SAS7BCAT:
-      // not used
-      break;
+      if (status) {
+        cpp11::stop("Failed to create column `%s`: %s.", name, readstat_error_message(status));
+      }
     }
 
     // Write data
@@ -152,25 +163,30 @@ public:
         switch (TYPEOF(col)) {
         case LGLSXP: {
           int val = LOGICAL(col)[i];
-          insertValue(var, val, val == NA_LOGICAL);
+          status = insertValue(var, val, val == NA_LOGICAL);
           break;
         }
         case INTSXP: {
           int val = INTEGER(col)[i];
-          insertValue(var, (int) adjustDatetimeFromR(vendor_, col, val), val == NA_INTEGER);
+          status = insertValue(var, (int) adjustDatetimeFromR(vendor_, col, val), val == NA_INTEGER);
           break;
         }
         case REALSXP: {
           double val = REAL(col)[i];
-          insertValue(var, adjustDatetimeFromR(vendor_, col, val), !R_finite(val));
+          status = insertValue(var, adjustDatetimeFromR(vendor_, col, val), !R_finite(val));
           break;
         }
         case STRSXP: {
-          insertValue(var, string_utf8(col, i), string_is_missing(col, i));
+          status = insertValue(var, string_utf8(col, i), string_is_missing(col, i));
           break;
         }
         default:
+          status = READSTAT_OK;
           break;
+        }
+
+        if (status) {
+          cpp11::stop("Failed to insert value [%i, %i]: %s.", i, j, readstat_error_message(status));
         }
       }
 
@@ -224,7 +240,7 @@ public:
     return NULL;
   }
 
-  void defineVariable(cpp11::integers x, const char* name, const char* format = NULL) {
+  readstat_error_t defineVariable(cpp11::integers x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (Rf_inherits(x, "factor")) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
@@ -249,9 +265,10 @@ public:
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(x));
+    return readstat_validate_variable(writer_, var);
   }
 
-  void defineVariable(cpp11::doubles x, const char* name, const char* format = NULL) {
+  readstat_error_t defineVariable(cpp11::doubles x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name);
@@ -286,9 +303,10 @@ public:
         }
       }
     }
+    return readstat_validate_variable(writer_, var);
   }
 
-  void defineVariable(cpp11::strings x, const char* name, const char* format = NULL) {
+  readstat_error_t defineVariable(cpp11::strings x, const char* name, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_STRING, name);
@@ -313,31 +331,32 @@ public:
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(x));
+    return readstat_validate_variable(writer_, var);
   }
 
   // Value helper -------------------------------------------------------------
 
-  void insertValue(readstat_variable_t* var, int val, bool is_missing) {
+  readstat_error_t insertValue(readstat_variable_t* var, int val, bool is_missing) {
     if (is_missing) {
-      checkStatus(readstat_insert_missing_value(writer_, var));
+      return readstat_insert_missing_value(writer_, var);
     } else {
-      checkStatus(readstat_insert_int32_value(writer_, var, val));
+      return readstat_insert_int32_value(writer_, var, val);
     }
   }
 
-  void insertValue(readstat_variable_t* var, double val, bool is_missing) {
+  readstat_error_t insertValue(readstat_variable_t* var, double val, bool is_missing) {
     if (is_missing) {
-      checkStatus(readstat_insert_missing_value(writer_, var));
+      return readstat_insert_missing_value(writer_, var);
     } else {
-      checkStatus(readstat_insert_double_value(writer_, var, val));
+      return readstat_insert_double_value(writer_, var, val);
     }
   }
 
-  void insertValue(readstat_variable_t* var, const char* val, bool is_missing) {
+  readstat_error_t insertValue(readstat_variable_t* var, const char* val, bool is_missing) {
     if (is_missing) {
-      checkStatus(readstat_insert_missing_value(writer_, var));
+      return readstat_insert_missing_value(writer_, var);
     } else {
-      checkStatus(readstat_insert_string_value(writer_, var, val));
+      return readstat_insert_string_value(writer_, var, val);
     }
   }
 

@@ -343,11 +343,13 @@ validate_dta <- function(data, version) {
   stopifnot(is.data.frame(data))
 
   # Check variable names
-  bad_names <- !grepl("^[A-Za-z_]{1}[A-Za-z0-9_]{0,31}$", names(data))
-  if (version < 14 && any(bad_names)) {
+  bad_name <- !grepl("^[A-Za-z_]{1}[A-Za-z0-9_]+$", names(data))
+  bad_length <- nchar(names(data)) > 31
+  bad_vars <- if (version >= 14) bad_length else bad_length || bad_name
+  if (any(bad_vars)) {
     stop(
       "The following variable names are not valid Stata variables: ",
-      var_names(data, bad_names),
+      var_names(data, bad_vars),
       call. = FALSE
     )
   }
