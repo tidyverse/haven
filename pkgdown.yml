@@ -1,8 +1,12 @@
 pandoc: 2.7.3
-pkgdown: 1.5.1.9000
-pkgdown_sha: c6b35532515a7ae433eff4b547d77eeae4278664
-articles: []
-last_built: 2020-09-04T19:05Z
+pkgdown: 1.6.1.9001
+pkgdown_sha: c6bd498aa2e0ae2e15e267891aaa69c6c15ab79f
+articles:
+  datetimes: datetimes.html
+  releases/haven-0.1.0: haven-0.1.0.html
+  releases/haven-1.0.0: haven-1.0.0.html
+  semantics: semantics.html
+last_built: 2021-04-08T17:28Z
 urls:
   reference: https://haven.tidyverse.org/reference
   article: https://haven.tidyverse.org/articles

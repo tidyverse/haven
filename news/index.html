@@ -75,9 +75,15 @@
   gtag('config', 'UA-115082821-1');
 </script>
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -161,7 +167,7 @@
 </li>
         <li>
   <a href="https://github.com/tidyverse/haven/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -195,7 +201,7 @@
 <a href="#haven-231" class="anchor"></a>haven 2.3.1<small> 2020-06-01 </small>
 </h1>
 <ul>
-<li><p>Add missing methods so <code><a href="https://rdrr.io/r/stats/median.html">median()</a></code>, <code><a href="https://rdrr.io/r/stats/quantile.html">quantile()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> work once more (<a href='https://github.com/tidyverse/haven/issues/520'>#520</a>).</p></li>
+<li><p>Add missing methods so <code><a href="https://rdrr.io/r/stats/median.html" class="external-link">median()</a></code>, <code><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> work once more (<a href='https://github.com/tidyverse/haven/issues/520'>#520</a>).</p></li>
 <li><p>Add missing cast methods (<a href='https://github.com/tidyverse/haven/issues/522'>#522</a>).</p></li>
 </ul>
 </div>
@@ -255,7 +261,7 @@
 <div id="improved-labelling" class="section level2">
 <h2 class="hasAnchor">
 <a href="#improved-labelling" class="anchor"></a>Improved labelling</h2>
-<p><code>labelled</code> objects get pretty printing that shows the labels and NA values when inside of a <code>tbl_df</code>. Turn this behaviour off with behavior using <code><a href="https://rdrr.io/r/base/options.html">option(haven.show_pillar_labels = FALSE)</a></code> (<a href='https://github.com/tidyverse/haven/issues/340'>#340</a>, <a href='https://github.com/gergness'>@gergness</a>).</p>
+<p><code>labelled</code> objects get pretty printing that shows the labels and NA values when inside of a <code>tbl_df</code>. Turn this behaviour off with behavior using <code><a href="https://rdrr.io/r/base/options.html" class="external-link">option(haven.show_pillar_labels = FALSE)</a></code> (<a href='https://github.com/tidyverse/haven/issues/340'>#340</a>, <a href='https://github.com/gergness'>@gergness</a>).</p>
 <p><code><a href="../reference/labelled.html">labelled()</a></code> and <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> now allow <code>NULL</code> labels. This makes both classes more flexible, allowing you to use them for their other attributes (<a href='https://github.com/tidyverse/haven/issues/219'>#219</a>).</p>
 <p><code><a href="../reference/labelled.html">labelled()</a></code> tests that value labels are unique (<a href='https://github.com/larmarange'>@larmarange</a>, <a href='https://github.com/tidyverse/haven/issues/364'>#364</a>)</p>
 </div>
@@ -388,7 +394,7 @@
 <li><p>Share <code><a href="../reference/as_factor.html">as_factor()</a></code> with forcats package (<a href='https://github.com/tidyverse/haven/issues/256'>#256</a>)</p></li>
 <li><p><code><a href="../reference/read_spss.html">read_sav()</a></code> once again correctly returns system defined missings as <code>NA</code> (rather than <code>NaN</code>) (<a href='https://github.com/tidyverse/haven/issues/223'>#223</a>). <code><a href="../reference/read_spss.html">read_sav()</a></code> and <code><a href="../reference/read_spss.html">write_sav()</a></code> preserve SPSS’s display widths (<a href='https://github.com/ecortens'>@ecortens</a>).</p></li>
 <li><p><code><a href="../reference/read_sas.html">read_sas()</a></code> gains experimental <code>cols_only</code> argument to only read in specified columns (<a href='https://github.com/tidyverse/haven/issues/248'>#248</a>).</p></li>
-<li><p>tibbles are created with <code><a href="https://tibble.tidyverse.org/reference/as_tibble.html">tibble::as_tibble()</a></code>, rather than by “hand” (<a href='https://github.com/tidyverse/haven/issues/229'>#229</a>).</p></li>
+<li><p>tibbles are created with <code><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">tibble::as_tibble()</a></code>, rather than by “hand” (<a href='https://github.com/tidyverse/haven/issues/229'>#229</a>).</p></li>
 <li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> checks that factors don’t have levels with &gt;120 characters (<a href='https://github.com/tidyverse/haven/issues/262'>#262</a>)</p></li>
 <li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> no longer checks that all value labels are at most 32 characters (since this is not a restriction of dta files) (<a href='https://github.com/tidyverse/haven/issues/239'>#239</a>).</p></li>
 <li><p>All write methds now check that you’re trying to write a data frame (<a href='https://github.com/tidyverse/haven/issues/287'>#287</a>).</p></li>
@@ -424,7 +430,7 @@
 <li><p>Using <code><a href="../reference/as_factor.html">as_factor()</a></code> with <code>levels = "default</code> or <code>levels = "both"</code> preserves unused labels (implicit missing) when converting (<a href='https://github.com/tidyverse/haven/issues/172'>#172</a>, <a href='https://github.com/itsdalmo'>@itsdalmo</a>). Labels (and the resulting factor levels) are always sorted by values.</p></li>
 <li><p><code><a href="../reference/as_factor.html">as_factor()</a></code> gains a new <code>levels = "default"</code> mechanism. This uses the labels where present, and otherwise uses the labels. This is now the default, as it seems to map better to the semantics of labelled values in other statistical packages (<a href='https://github.com/tidyverse/haven/issues/81'>#81</a>). You can also use <code>levels = "both"</code> to combine the value and the label into a single string (<a href='https://github.com/tidyverse/haven/issues/82'>#82</a>). It also gains a method for data frames, so you can easily convert every labelled column to a factor in one function call.</p></li>
 <li><p>New <code><a href="../articles/semantics.html">vignette("semantics", package = "haven")</a></code> discusses the semantics of missing values and labelling in SAS, SPSS, and Stata, and how they are translated into R.</p></li>
-<li><p>Support for <code>hms()</code> has been moved into the hms package (<a href='https://github.com/tidyverse/haven/issues/162'>#162</a>). Time varibles now have class <code><a href="https://rdrr.io/r/base/c.html">c("hms", "difftime")</a></code> and a <code>units</code> attribute with value “secs” (<a href='https://github.com/tidyverse/haven/issues/162'>#162</a>).</p></li>
+<li><p>Support for <code>hms()</code> has been moved into the hms package (<a href='https://github.com/tidyverse/haven/issues/162'>#162</a>). Time varibles now have class <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c("hms", "difftime")</a></code> and a <code>units</code> attribute with value “secs” (<a href='https://github.com/tidyverse/haven/issues/162'>#162</a>).</p></li>
 <li><p><code><a href="../reference/labelled.html">labelled()</a></code> is less strict with its checks: you can mix double and integer value and labels (<a href='https://github.com/tidyverse/haven/issues/86'>#86</a>, <a href='https://github.com/tidyverse/haven/issues/110'>#110</a>, <a href='https://github.com/lionel-'>@lionel-</a>), and <code><a href="../reference/labelled.html">is.labelled()</a></code> is now exported (<a href='https://github.com/tidyverse/haven/issues/124'>#124</a>). Putting a labelled vector in a data frame now generates the correct column name (<a href='https://github.com/tidyverse/haven/issues/193'>#193</a>).</p></li>
 <li><p><code><a href="../reference/read_dta.html">read_dta()</a></code> now recognises “%d” and custom date types (<a href='https://github.com/tidyverse/haven/issues/80'>#80</a>, <a href='https://github.com/tidyverse/haven/issues/130'>#130</a>). It also gains an encoding parameter which you can use to override the default encoding. This is particularly useful for Stata 13 and below which did not store the encoding used in the file (<a href='https://github.com/tidyverse/haven/issues/163'>#163</a>).</p></li>
 <li><p><code><a href="../reference/read_spss.html">read_por()</a></code> now actually works (<a href='https://github.com/tidyverse/haven/issues/35'>#35</a>).</p></li>
@@ -448,7 +454,7 @@
 <li><p>fixed a bug in <code>as_factor.labelled</code>, which generated <na>’s and wrong labels for integer labels.</na></p></li>
 <li><p><code><a href="../reference/zap_labels.html">zap_labels()</a></code> now leaves unlabelled vectors unchanged, making it easier to apply to all columns.</p></li>
 <li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> and <code><a href="../reference/read_spss.html">write_sav()</a></code> take more care to always write output as UTF-8 (<a href='https://github.com/tidyverse/haven/issues/36'>#36</a>)</p></li>
-<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> and <code><a href="../reference/read_spss.html">write_sav()</a></code> won’t crash if you give them invalid paths, and you can now use <code><a href="https://rdrr.io/r/base/tilde.html">~</a></code> to refer to your home directory (<a href='https://github.com/tidyverse/haven/issues/37'>#37</a>).</p></li>
+<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> and <code><a href="../reference/read_spss.html">write_sav()</a></code> won’t crash if you give them invalid paths, and you can now use <code><a href="https://rdrr.io/r/base/tilde.html" class="external-link">~</a></code> to refer to your home directory (<a href='https://github.com/tidyverse/haven/issues/37'>#37</a>).</p></li>
 <li><p>Byte variables are now correctly read into integers (not strings, <a href='https://github.com/tidyverse/haven/issues/45'>#45</a>), and missing values are captured correctly (<a href='https://github.com/tidyverse/haven/issues/43'>#43</a>).</p></li>
 <li><p>Added <code><a href="../reference/read_dta.html">read_stata()</a></code> as alias to <code><a href="../reference/read_dta.html">read_dta()</a></code> (<a href='https://github.com/tidyverse/haven/issues/52'>#52</a>).</p></li>
 <li><p><code><a href="../reference/read_spss.html">read_spss()</a></code> uses extension to automatically choose between <code><a href="../reference/read_spss.html">read_sav()</a></code> and <code><a href="../reference/read_spss.html">read_por()</a></code> (<a href='https://github.com/tidyverse/haven/issues/53'>#53</a>)</p></li>
@@ -478,12 +484,12 @@
 
       <footer>
       <div class="tidyverse">
-  <p>haven is a part of the <strong>tidyverse</strong>, an ecosystem of packages designed with common APIs and a shared philosophy. Learn more at <a href="https://tidyverse.org">tidyverse.org</a>.</p>
+  <p><p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.</p>,<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
 <div class="author">
   <p>
-    Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='https://www.tidyverse.org/rstudio-logo.svg' alt='RStudio' height='24' /></a>.
+    Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.
     Site built by <a href="https://pkgdown.r-lib.org">pkgdown</a>.
   </p>
 </div>
@@ -493,6 +499,8 @@
 
   
 
+
+  
 
   </body>
 </html>

@@ -78,9 +78,15 @@ and only works for limited datasets." />
   gtag('config', 'UA-115082821-1');
 </script>
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -164,7 +170,7 @@ and only works for limited datasets." />
 </li>
         <li>
   <a href="https://github.com/tidyverse/haven/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -192,19 +198,19 @@ that SAS uses to record value labels. <code>write_sas()</code> is currently expe
 and only works for limited datasets.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>read_sas</span>(
-  <span class='kw'>data_file</span>,
-  catalog_file = <span class='kw'>NULL</span>,
-  encoding = <span class='kw'>NULL</span>,
-  catalog_encoding = <span class='kw'>encoding</span>,
-  col_select = <span class='kw'>NULL</span>,
-  skip = <span class='fl'>0L</span>,
-  n_max = <span class='fl'>Inf</span>,
-  cols_only = <span class='st'>"DEPRECATED"</span>,
-  .name_repair = <span class='st'>"unique"</span>
-)
+    <pre class="usage"><span class='fu'>read_sas</span><span class='op'>(</span>
+  <span class='va'>data_file</span>,
+  catalog_file <span class='op'>=</span> <span class='cn'>NULL</span>,
+  encoding <span class='op'>=</span> <span class='cn'>NULL</span>,
+  catalog_encoding <span class='op'>=</span> <span class='va'>encoding</span>,
+  col_select <span class='op'>=</span> <span class='cn'>NULL</span>,
+  skip <span class='op'>=</span> <span class='fl'>0L</span>,
+  n_max <span class='op'>=</span> <span class='cn'>Inf</span>,
+  cols_only <span class='op'>=</span> <span class='st'>"DEPRECATED"</span>,
+  .name_repair <span class='op'>=</span> <span class='st'>"unique"</span>
+<span class='op'>)</span>
 
-<span class='fu'>write_sas</span>(<span class='kw'>data</span>, <span class='kw'>path</span>)</pre>
+<span class='fu'>write_sas</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>path</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -275,22 +281,22 @@ not printed on the console, but the RStudio viewer will show it.</p>
 <p><code>write_sas()</code> returns the input <code>data</code> invisibly.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>path</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>"examples"</span>, <span class='st'>"iris.sas7bdat"</span>, package = <span class='st'>"haven"</span>)
-<span class='fu'>read_sas</span>(<span class='kw'>path</span>)
-</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 150 x 5</span><span>
+    <pre class="examples"><div class='input'><span class='va'>path</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span><span class='op'>(</span><span class='st'>"examples"</span>, <span class='st'>"iris.sas7bdat"</span>, package <span class='op'>=</span> <span class='st'>"haven"</span><span class='op'>)</span>
+<span class='fu'>read_sas</span><span class='op'>(</span><span class='va'>path</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span style='color: #949494;'># A tibble: 150 x 5</span><span>
 #&gt;    Sepal_Length Sepal_Width Petal_Length Petal_Width Species
-#&gt;           </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>  
-#&gt; </span><span style='color: #555555;'> 1</span><span>          5.1         3.5          1.4         0.2 setosa 
-#&gt; </span><span style='color: #555555;'> 2</span><span>          4.9         3            1.4         0.2 setosa 
-#&gt; </span><span style='color: #555555;'> 3</span><span>          4.7         3.2          1.3         0.2 setosa 
-#&gt; </span><span style='color: #555555;'> 4</span><span>          4.6         3.1          1.5         0.2 setosa 
-#&gt; </span><span style='color: #555555;'> 5</span><span>          5           3.6          1.4         0.2 setosa 
-#&gt; </span><span style='color: #555555;'> 6</span><span>          5.4         3.9          1.7         0.4 setosa 
-#&gt; </span><span style='color: #555555;'> 7</span><span>          4.6         3.4          1.4         0.3 setosa 
-#&gt; </span><span style='color: #555555;'> 8</span><span>          5           3.4          1.5         0.2 setosa 
-#&gt; </span><span style='color: #555555;'> 9</span><span>          4.4         2.9          1.4         0.2 setosa 
-#&gt; </span><span style='color: #555555;'>10</span><span>          4.9         3.1          1.5         0.1 setosa 
-#&gt; </span><span style='color: #555555;'># … with 140 more rows</span><span></div></span></pre>
+#&gt;           </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>        </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #949494;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #949494;font-style: italic;'>&lt;chr&gt;</span><span>  
+#&gt; </span><span style='color: #BCBCBC;'> 1</span><span>          5.1         3.5          1.4         0.2 setosa 
+#&gt; </span><span style='color: #BCBCBC;'> 2</span><span>          4.9         3            1.4         0.2 setosa 
+#&gt; </span><span style='color: #BCBCBC;'> 3</span><span>          4.7         3.2          1.3         0.2 setosa 
+#&gt; </span><span style='color: #BCBCBC;'> 4</span><span>          4.6         3.1          1.5         0.2 setosa 
+#&gt; </span><span style='color: #BCBCBC;'> 5</span><span>          5           3.6          1.4         0.2 setosa 
+#&gt; </span><span style='color: #BCBCBC;'> 6</span><span>          5.4         3.9          1.7         0.4 setosa 
+#&gt; </span><span style='color: #BCBCBC;'> 7</span><span>          4.6         3.4          1.4         0.3 setosa 
+#&gt; </span><span style='color: #BCBCBC;'> 8</span><span>          5           3.4          1.5         0.2 setosa 
+#&gt; </span><span style='color: #BCBCBC;'> 9</span><span>          4.4         2.9          1.4         0.2 setosa 
+#&gt; </span><span style='color: #BCBCBC;'>10</span><span>          4.9         3.1          1.5         0.1 setosa 
+#&gt; </span><span style='color: #949494;'># … with 140 more rows</span><span></div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -302,12 +308,12 @@ not printed on the console, but the RStudio viewer will show it.</p>
 
       <footer>
       <div class="tidyverse">
-  <p>haven is a part of the <strong>tidyverse</strong>, an ecosystem of packages designed with common APIs and a shared philosophy. Learn more at <a href="https://tidyverse.org">tidyverse.org</a>.</p>
+  <p><p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.</p>,<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
 <div class="author">
   <p>
-    Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='https://www.tidyverse.org/rstudio-logo.svg' alt='RStudio' height='24' /></a>.
+    Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.
     Site built by <a href="https://pkgdown.r-lib.org">pkgdown</a>.
   </p>
 </div>
@@ -317,6 +323,8 @@ not printed on the console, but the RStudio viewer will show it.</p>
 
   
 
+
+  
 
   </body>
 </html>

@@ -77,9 +77,15 @@ of the data to the FDA." />
   gtag('config', 'UA-115082821-1');
 </script>
 
+  
+
+  
+
   </head>
 
   <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -163,7 +169,7 @@ of the data to the FDA." />
 </li>
         <li>
   <a href="https://github.com/tidyverse/haven/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -190,15 +196,15 @@ of the data to the FDA." />
 of the data to the FDA.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>read_xpt</span>(
-  <span class='kw'>file</span>,
-  col_select = <span class='kw'>NULL</span>,
-  skip = <span class='fl'>0</span>,
-  n_max = <span class='fl'>Inf</span>,
-  .name_repair = <span class='st'>"unique"</span>
-)
+    <pre class="usage"><span class='fu'>read_xpt</span><span class='op'>(</span>
+  <span class='va'>file</span>,
+  col_select <span class='op'>=</span> <span class='cn'>NULL</span>,
+  skip <span class='op'>=</span> <span class='fl'>0</span>,
+  n_max <span class='op'>=</span> <span class='cn'>Inf</span>,
+  .name_repair <span class='op'>=</span> <span class='st'>"unique"</span>
+<span class='op'>)</span>
 
-<span class='fu'>write_xpt</span>(<span class='kw'>data</span>, <span class='kw'>path</span>, version = <span class='fl'>8</span>, name = <span class='kw'>NULL</span>)</pre>
+<span class='fu'>write_xpt</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>path</span>, version <span class='op'>=</span> <span class='fl'>8</span>, name <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -277,23 +283,10 @@ It is not printed on the console, but the RStudio viewer will show it.</p>
 <p><code>write_xpt()</code> returns the input <code>data</code> invisibly.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>tmp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span>(fileext = <span class='st'>".xpt"</span>)
-<span class='fu'>write_xpt</span>(<span class='kw'>mtcars</span>, <span class='kw'>tmp</span>)
-<span class='fu'>read_xpt</span>(<span class='kw'>tmp</span>)
-</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 32 x 11</span><span>
-#&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
-#&gt; </span><span style='color: #555555;'> 1</span><span>  21       6  160    110  3.9   2.62  16.5     0     1     4     4
-#&gt; </span><span style='color: #555555;'> 2</span><span>  21       6  160    110  3.9   2.88  17.0     0     1     4     4
-#&gt; </span><span style='color: #555555;'> 3</span><span>  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1
-#&gt; </span><span style='color: #555555;'> 4</span><span>  21.4     6  258    110  3.08  3.22  19.4     1     0     3     1
-#&gt; </span><span style='color: #555555;'> 5</span><span>  18.7     8  360    175  3.15  3.44  17.0     0     0     3     2
-#&gt; </span><span style='color: #555555;'> 6</span><span>  18.1     6  225    105  2.76  3.46  20.2     1     0     3     1
-#&gt; </span><span style='color: #555555;'> 7</span><span>  14.3     8  360    245  3.21  3.57  15.8     0     0     3     4
-#&gt; </span><span style='color: #555555;'> 8</span><span>  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
-#&gt; </span><span style='color: #555555;'> 9</span><span>  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2
-#&gt; </span><span style='color: #555555;'>10</span><span>  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4
-#&gt; </span><span style='color: #555555;'># … with 22 more rows</span><span></div></span></pre>
+    <pre class="examples"><div class='input'><span class='va'>tmp</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempfile</a></span><span class='op'>(</span>fileext <span class='op'>=</span> <span class='st'>".xpt"</span><span class='op'>)</span>
+<span class='fu'>write_xpt</span><span class='op'>(</span><span class='va'>mtcars</span>, <span class='va'>tmp</span><span class='op'>)</span>
+<span class='fu'>read_xpt</span><span class='op'>(</span><span class='va'>tmp</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error: Invalid input type, expected 'list' actual 'NULL'</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -305,12 +298,12 @@ It is not printed on the console, but the RStudio viewer will show it.</p>
 
       <footer>
       <div class="tidyverse">
-  <p>haven is a part of the <strong>tidyverse</strong>, an ecosystem of packages designed with common APIs and a shared philosophy. Learn more at <a href="https://tidyverse.org">tidyverse.org</a>.</p>
+  <p><p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.</p>,<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p></p>
 </div>
 
 <div class="author">
   <p>
-    Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src='https://www.tidyverse.org/rstudio-logo.svg' alt='RStudio' height='24' /></a>.
+    Developed by <a href='http://hadley.nz'>Hadley Wickham</a>, <a href='http://www.evanmiller.org'>Evan Miller</a>, <a href='https://www.rstudio.com'><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.
     Site built by <a href="https://pkgdown.r-lib.org">pkgdown</a>.
   </p>
 </div>
@@ -320,6 +313,8 @@ It is not printed on the console, but the RStudio viewer will show it.</p>
 
   
 
+
+  
 
   </body>
 </html>

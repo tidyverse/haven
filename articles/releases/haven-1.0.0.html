@@ -35,6 +35,8 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -49,7 +51,7 @@
       <div class="navbar-brand-container">
         <a class="navbar-brand" href="../../index.html">haven</a>
         <div class="info hidden-xs hidden-sm">
-          <span class="partof">part of the <a href="https://tidyverse.org">tidyverse</a></span>
+          <span class="partof">part of the <a href="https://tidyverse.org" class="external-link">tidyverse</a></span>
           <span class="version version-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.3.1.9000</span>
         </div>
       </div>
@@ -89,19 +91,19 @@
   <ul class="dropdown-menu" role="menu">
 <li class="dropdown-header">Releases</li>
     <li>
-      <a href="https://www.tidyverse.org/blog/2020/06/haven-2-3-0/">Version 2.3.0</a>
+      <a href="https://www.tidyverse.org/blog/2020/06/haven-2-3-0/" class="external-link">Version 2.3.0</a>
     </li>
     <li>
-      <a href="https://www.tidyverse.org/articles/2019/11/haven-2-2-0/">Version 2.2.0</a>
+      <a href="https://www.tidyverse.org/articles/2019/11/haven-2-2-0/" class="external-link">Version 2.2.0</a>
     </li>
     <li>
-      <a href="https://www.tidyverse.org/articles/2019/02/haven-2-1-0/">Version 2.1.0</a>
+      <a href="https://www.tidyverse.org/articles/2019/02/haven-2-1-0/" class="external-link">Version 2.1.0</a>
     </li>
     <li>
-      <a href="https://www.tidyverse.org/articles/2019/01/haven-2-0-0/">Version 2.0.0</a>
+      <a href="https://www.tidyverse.org/articles/2019/01/haven-2-0-0/" class="external-link">Version 2.0.0</a>
     </li>
     <li>
-      <a href="https://www.tidyverse.org/articles/2018/06/haven-1-1-2/">Version 1.1.2</a>
+      <a href="https://www.tidyverse.org/articles/2018/06/haven-1-1-2/" class="external-link">Version 1.1.2</a>
     </li>
     <li>
       <a href="../../articles/releases/haven-1.0.0.html">Version 1.0.0</a>
@@ -116,8 +118,8 @@
   </ul>
 </li>
         <li>
-  <a href="https://github.com/tidyverse/haven/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/tidyverse/haven/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -136,9 +138,9 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>haven 1.0.0</h1>
             
-            <h4 class="date">2016-09-30</h4>
+            <h4 data-toc-skip class="date">2016-09-30</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/tidyverse/haven/blob/master/vignettes/releases/haven-1.0.0.Rmd"><code>vignettes/releases/haven-1.0.0.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/tidyverse/haven/blob/master/vignettes/releases/haven-1.0.0.Rmd" class="external-link"><code>vignettes/releases/haven-1.0.0.Rmd</code></a></small>
       <div class="hidden name"><code>haven-1.0.0.Rmd</code></div>
 
     </div>
@@ -146,9 +148,8 @@
     
     
 <p>I’m pleased to announce the release of haven. Haven is designed to faciliate the transfer of data between R and SAS, SPSS, and Stata. It makes it easy to read SAS, SPSS, and Stata file formats in to R data frames, and makes it easy to save your R data frames in to SAS, SPSS, and Stata if you need to collaborate with others using closed source statistical software. Install haven by running:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"haven"</span>)
-</pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"haven"</span><span class="op">)</span></code></pre></div>
 <p>haven 1.0.0 is a major release, and indicates that haven is now largely feature complete and has been tested on many real world datasets. There are four major changes in this version of haven:</p>
 <ol style="list-style-type: decimal">
 <li>Improvements to the underlying ReadStat library</li>
@@ -156,11 +157,11 @@
 <li>Improved date/time support</li>
 <li>Support for other file metadata.</li>
 </ol>
-<p>There were also a whole bunch of other minor improvements and bug fixes: you can see the complete list in the <a href="http://haven.tidyverse.org/news/index.html#haven-1.0.0">release notes</a>.</p>
+<p>There were also a whole bunch of other minor improvements and bug fixes: you can see the complete list in the <a href="http://haven.tidyverse.org/news/index.html#haven-1.0.0" class="external-link">release notes</a>.</p>
 <div id="readstat" class="section level2">
 <h2 class="hasAnchor">
 <a href="#readstat" class="anchor"></a>ReadStat</h2>
-<p>Haven builds on top of the <a href="http://github.com/WizardMac/ReadStat/issues">ReadStat</a> C library by <a href="http://www.evanmiller.org">Evan Miller</a>. This version of haven includes many improvements thanks to Evan’s hard work on ReadStat:</p>
+<p>Haven builds on top of the <a href="http://github.com/WizardMac/ReadStat/issues" class="external-link">ReadStat</a> C library by <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>. This version of haven includes many improvements thanks to Evan’s hard work on ReadStat:</p>
 <ul>
 <li><p>Can read binary/Ross compressed SAS files.</p></li>
 <li><p>Support for reading and writing Stata 14 data files.</p></li>
@@ -186,7 +187,7 @@
 <li><p>For SPSS, haven provides <code><a href="../../reference/labelled_spss.html">labelled_spss()</a></code> that also models user defined values and ranges.</p></li>
 </ul>
 <p>Use <code><a href="../../reference/zap_missing.html">zap_missing()</a></code> if you just want to convert to R’s regular <code>NA</code>s.</p>
-<p>You can get more details in the <a href="http://haven.tidyverse.org/articles/semantics.html">semantics vignette</a>.</p>
+<p>You can get more details in the <a href="http://haven.tidyverse.org/articles/semantics.html" class="external-link">semantics vignette</a>.</p>
 </div>
 <div id="datetimes" class="section level2">
 <h2 class="hasAnchor">
@@ -196,7 +197,7 @@
 <li><p><code><a href="../../reference/read_dta.html">read_dta()</a></code> now recognises “%d” and custom date types.</p></li>
 <li><p><code><a href="../../reference/read_spss.html">read_sav()</a></code> now correctly recognises EDATE and JDATE formats as dates. Variables with format DATE, ADATE, EDATE, JDATE or SDATE are imported as <code>Date</code> variables instead of <code>POSIXct</code>.</p></li>
 <li><p><code><a href="../../reference/read_dta.html">write_dta()</a></code> and <code><a href="../../reference/read_spss.html">write_sav()</a></code> support writing date/times.</p></li>
-<li><p>Support for <code>hms()</code> has been moved into the <a href="https://github.com/rstats-db/hms">hms</a> package. Time varibles now have class <code><a href="https://rdrr.io/r/base/c.html">c("hms", "difftime")</a></code> and a <code>units</code> attribute with value “secs”.</p></li>
+<li><p>Support for <code>hms()</code> has been moved into the <a href="https://github.com/rstats-db/hms" class="external-link">hms</a> package. Time varibles now have class <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c("hms", "difftime")</a></code> and a <code>units</code> attribute with value “secs”.</p></li>
 </ul>
 </div>
 <div id="other-metadata" class="section level2">
@@ -221,13 +222,14 @@
 
 
       <footer><div class="tidyverse">
-  <p>haven is a part of the <strong>tidyverse</strong>, an ecosystem of packages designed with common APIs and a shared philosophy. Learn more at <a href="https://tidyverse.org">tidyverse.org</a>.</p>
+  <p></p>
+<p>Developed by <a href="http://hadley.nz" class="external-link external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link external-link">Evan Miller</a>, <a href="https://www.rstudio.com" class="external-link external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.</p>,<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
 </div>
 
 <div class="author">
   <p>
-    Developed by <a href="http://hadley.nz">Hadley Wickham</a>, <a href="http://www.evanmiller.org">Evan Miller</a>, <a href="https://www.rstudio.com"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.
-    Site built by <a href="https://pkgdown.r-lib.org">pkgdown</a>.
+    Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.
+    Site built by <a href="https://pkgdown.r-lib.org" class="external-link">pkgdown</a>.
   </p>
 </div>
 
@@ -236,6 +238,8 @@
 
   
 
+
+  
 
   </body>
 </html>
