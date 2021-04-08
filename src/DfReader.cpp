@@ -634,7 +634,7 @@ cpp11::list df_parse(cpp11::list spec, const std::vector<std::string>& cols_skip
               const std::string& encoding = "",
               const bool& user_na = false,
               const std::string& name_repair = "check_unique",
-              cpp11::list catalog_spec = cpp11::writable::list(),
+              cpp11::list catalog_spec = cpp11::writable::list(R_xlen_t(0)),
               const std::string& catalog_encoding = ""
               ) {
   DfReader builder(ext, user_na);
