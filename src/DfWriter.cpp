@@ -100,27 +100,6 @@ public:
     if (p == 0)
       return;
 
-    cpp11::strings names(x_.attr("names"));
-
-    // Define variables
-    for (int j = 0; j < p; ++j) {
-      cpp11::sexp col = x_[j];
-      VarType type = numType(col);
-
-      const char* name = string_utf8(names, j);
-      const char* format = var_format(col, type);
-
-      switch(TYPEOF(col)) {
-        case LGLSXP:  defineVariable(cpp11::integers(cpp11::safe[Rf_coerceVector](col, INTSXP)), name, format); break;
-        case INTSXP:  defineVariable(cpp11::integers(col), name, format); break;
-        case REALSXP: defineVariable(cpp11::doubles(col), name, format);  break;
-        case STRSXP:  defineVariable(cpp11::strings(col), name, format); break;
-      default:
-                      cpp11::stop("Variables of type %s not supported yet",
-          Rf_type2char(TYPEOF(col)));
-      }
-    }
-
     int n = Rf_length(x_[0]);
 
     switch(ext_) {
@@ -140,6 +119,26 @@ public:
     case HAVEN_SAS7BCAT:
       // not used
       break;
+    }
+    checkStatus(readstat_validate_metadata(writer_));
+
+    cpp11::strings names(x_.attr("names"));
+
+    // Define variables
+    for (int j = 0; j < p; ++j) {
+      cpp11::sexp col = x_[j];
+      VarType type = numType(col);
+
+      const char* name = string_utf8(names, j);
+      const char* format = var_format(col, type);
+
+      switch(TYPEOF(col)) {
+        case LGLSXP:  defineVariable(cpp11::integers(cpp11::safe[Rf_coerceVector](col, INTSXP)), name, format); break;
+        case INTSXP:  defineVariable(cpp11::integers(col), name, format); break;
+        case REALSXP: defineVariable(cpp11::doubles(col), name, format);  break;
+        case STRSXP:  defineVariable(cpp11::strings(col), name, format); break;
+        default:      cpp11::stop("Variables of type %s not supported yet", Rf_type2char(TYPEOF(col)));
+      }
     }
 
     // Write data
@@ -249,6 +248,7 @@ public:
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(x));
+    checkStatus(readstat_validate_variable(writer_, var));
   }
 
   void defineVariable(cpp11::doubles x, const char* name, const char* format = NULL) {
@@ -286,6 +286,7 @@ public:
         }
       }
     }
+    checkStatus(readstat_validate_variable(writer_, var));
   }
 
   void defineVariable(cpp11::strings x, const char* name, const char* format = NULL) {
@@ -313,6 +314,7 @@ public:
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(x));
+    checkStatus(readstat_validate_variable(writer_, var));
   }
 
   // Value helper -------------------------------------------------------------

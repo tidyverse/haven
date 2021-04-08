@@ -1,5 +1,8 @@
 # haven (development version)
 
+* All writers now validate file and variable metadata with ReadStat. This 
+  should prevent many invalid files from being written (#408).
+
 * Updated to ReadStat 1.1.5. Most importantly this includes support for
   SAS binary compression.
 
