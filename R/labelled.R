@@ -67,7 +67,11 @@ new_labelled <- function(x = double(), labels = NULL, label = NULL,
 
 validate_labelled <- function(x) {
   labels <- attr(x, "labels")
-  if (!is.null(labels) && is.null(names(labels))) {
+  if (is.null(labels)) {
+    return(x)
+  }
+
+  if (is.null(names(labels))) {
     abort("`labels` must have names.")
   }
   if (any(duplicated(stats::na.omit(labels)))) {
