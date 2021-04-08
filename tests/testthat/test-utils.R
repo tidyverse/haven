@@ -1,6 +1,3 @@
-context("test-utils.R")
-
-
 # max_level_lengths -------------------------------------------------------
 
 test_that("works with NA levels", {

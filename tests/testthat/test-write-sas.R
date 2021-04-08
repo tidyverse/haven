@@ -1,5 +1,3 @@
-context("write_sas")
-
 test_that("can roundtrip basic types", {
   x <- runif(10)
   expect_equal(roundtrip_var(x, "sas"), x)

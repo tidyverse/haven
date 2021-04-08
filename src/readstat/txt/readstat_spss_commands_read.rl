@@ -1,8 +1,8 @@
 #include <stdlib.h>
-#include <strings.h>
 #include <inttypes.h>
 
 #include "../readstat.h"
+#include "../readstat_strings.h"
 #include "readstat_schema.h"
 
 #include "readstat_copy.h"
@@ -256,7 +256,7 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
 
         missing_values_list = missing_values_item (whitespace+ missing_values_item)*;
         
-        value_label = ( "-" integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = -integer; } |
+        value_label = ( "-" integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = -(double)integer; } |
                        integer %{ label_type = LABEL_TYPE_DOUBLE; double_value = integer; } |
                        integer whitespace+ "-" whitespace+ %{ first_integer = integer; } integer %{ label_type = LABEL_TYPE_RANGE; } |
                        quoted_string %{ label_type = LABEL_TYPE_STRING; } %copy_quoted_string )

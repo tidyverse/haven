@@ -790,7 +790,7 @@ static readstat_error_t sav_read_data(sav_ctx_t *ctx) {
     if (retval != READSTAT_OK)
         goto done;
 
-    if (ctx->record_count != -1 && ctx->current_row != ctx->row_limit) {
+    if (ctx->record_count >= 0 && ctx->current_row != ctx->row_limit) {
         retval = READSTAT_ERROR_ROW_COUNT_MISMATCH;
     }
 
@@ -1593,7 +1593,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
     ctx->file_size = file_size;
     if (parser->row_offset > 0)
         ctx->row_offset = parser->row_offset;
-    if (ctx->record_count != -1) {
+    if (ctx->record_count >= 0) {
         int record_count_after_skipping = ctx->record_count - ctx->row_offset;
         if (record_count_after_skipping < 0) {
             record_count_after_skipping = 0;
@@ -1632,7 +1632,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
 
     if (ctx->handle.metadata) {
         readstat_metadata_t metadata = {
-            .row_count = ctx->record_count == -1 ? -1 : ctx->row_limit,
+            .row_count = ctx->record_count < 0 ? -1 : ctx->row_limit,
             .var_count = ctx->var_count,
             .file_encoding = ctx->input_encoding,
             .file_format_version = ctx->format_version,

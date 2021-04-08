@@ -1,6 +1,6 @@
 # haven (development version)
 
-* Updated to ReadStat 1.1.4. Most importantly this includes support for
+* Updated to ReadStat 1.1.5. Most importantly this includes support for
   SAS binary compression.
   
 * Add vctrs support for `labelled_spss()` vectors (@gorcha, #527, #534, #538, #557).

@@ -3,6 +3,11 @@
 #include <string.h>
 #include <stdio.h>
 
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
 #include "readstat_sas_rle.h"
 
 #define SAS_RLE_COMMAND_COPY64          0

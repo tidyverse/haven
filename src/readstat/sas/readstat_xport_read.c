@@ -32,7 +32,7 @@ typedef struct xport_ctx_s {
     int            row_offset;
     size_t         row_length;
     int            parsed_row_count;
-    char           file_label[40*4+1];
+    char           file_label[256*4+1];
     char           table_name[32*4+1];
 
     readstat_variable_t **variables;
@@ -280,10 +280,13 @@ static readstat_error_t xport_read_obs_header_record(xport_ctx_t *ctx) {
 
 static readstat_error_t xport_construct_format(char *dst, size_t dst_len,
         const char *src, size_t src_len, int width, int decimals) {
-    char format[4*src_len+1];
-    readstat_error_t retval = readstat_convert(format, sizeof(format), src, src_len, NULL);
-    if (retval != READSTAT_OK)
+    char *format = malloc(4 * src_len + 1);
+    readstat_error_t retval = readstat_convert(format, 4 * src_len + 1, src, src_len, NULL);
+
+    if (retval != READSTAT_OK) {
+        free(format);
         return retval;
+    }
 
     if (!format[0]) {
         *dst = '\0';
@@ -297,12 +300,15 @@ static readstat_error_t xport_construct_format(char *dst, size_t dst_len,
         snprintf(dst, dst_len, "%s", format);
     }
 
+    free(format);
     return retval;
 }
 
 static readstat_error_t xport_read_labels_v8(xport_ctx_t *ctx, int label_count) {
     readstat_error_t retval = READSTAT_OK;
     uint16_t labeldef[3];
+    char *name = NULL;
+    char *label = NULL;
     int i;
     for (i=0; i<label_count; i++) {
         int index, name_len, label_len;
@@ -326,8 +332,8 @@ static readstat_error_t xport_read_labels_v8(xport_ctx_t *ctx, int label_count) 
             goto cleanup;
         }
 
-        char name[name_len+1];
-        char label[label_len+1];
+        name = realloc(name, name_len + 1);
+        label = realloc(label, label_len + 1);
         readstat_variable_t *variable = ctx->variables[index-1];
 
         if (read_bytes(ctx, name, name_len) != name_len ||
@@ -356,6 +362,8 @@ static readstat_error_t xport_read_labels_v8(xport_ctx_t *ctx, int label_count) 
         goto cleanup;
 
 cleanup:
+    free(name);
+    free(label);
     return retval;
 }
 
@@ -363,6 +371,11 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
     readstat_error_t retval = READSTAT_OK;
     uint16_t labeldef[5];
     int i;
+    char *name = NULL;
+    char *format = NULL;
+    char *informat = NULL;
+    char *label = NULL;
+
     for (i=0; i<label_count; i++) {
         int index, name_len, format_len, informat_len, label_len;
         if (read_bytes(ctx, labeldef, sizeof(labeldef)) != sizeof(labeldef)) {
@@ -389,10 +402,10 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
             goto cleanup;
         }
 
-        char name[name_len+1];
-        char format[format_len+1];
-        char informat[informat_len+1];
-        char label[label_len+1];
+        name = realloc(name, name_len + 1);
+        format = realloc(format, format_len + 1);
+        informat = realloc(informat, informat_len + 1);
+        label = realloc(label, label_len + 1);
 
         readstat_variable_t *variable = ctx->variables[index-1];
 
@@ -429,6 +442,10 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
         goto cleanup;
 
 cleanup:
+    free(name);
+    free(format);
+    free(informat);
+    free(label);
     return retval;
 }
 

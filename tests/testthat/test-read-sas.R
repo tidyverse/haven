@@ -1,5 +1,3 @@
-context("read_sas")
-
 test_that("variable label stored as attributes", {
   df <- read_sas("hadley.sas7bdat")
   expect_equal(attr(df$gender, "label"), NULL)
@@ -103,10 +101,10 @@ test_that("can select columns to read, with tidyselect semantics", {
   full_data <- with_col_select(NULL)
   n_col <- ncol(full_data)
 
-  expect_equivalent(with_col_select("id"), full_data[, "id"])
-  expect_equivalent(with_col_select(id), full_data[, "id"])
-  expect_equivalent(with_col_select(2:3), full_data[, 2:3])
-  expect_equivalent(with_col_select(tidyselect::last_col()), full_data[, n_col])
+  expect_equal(with_col_select("id"), full_data[, "id"])
+  expect_equal(with_col_select(id), full_data[, "id"])
+  expect_equal(with_col_select(2:3), full_data[, 2:3])
+  expect_equal(with_col_select(tidyselect::last_col()), full_data[, n_col])
 })
 
 test_that("throws error on empty column selection", {

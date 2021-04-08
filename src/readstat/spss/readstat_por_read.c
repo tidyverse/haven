@@ -24,7 +24,8 @@
 #define POR_LINE_LENGTH         80
 #define POR_LABEL_NAME_PREFIX   "labels"
 
-#define MAX_FORMAT_TYPE       120
+#define POR_FORMAT_SHIFT     82
+#define MAX_FORMAT_TYPE     (POR_FORMAT_SHIFT+SPSS_FORMAT_TYPE_YMDHMS)
 #define MAX_FORMAT_WIDTH    20000
 #define MAX_FORMAT_DECIMALS   100
 #define MAX_STRING_LENGTH   20000
@@ -337,7 +338,14 @@ static readstat_error_t read_variable_record(por_ctx_t *ctx) {
         if ((retval = read_integer_in_range(ctx, 0, MAX_FORMAT_TYPE, &value)) != READSTAT_OK) {
             goto cleanup;
         }
-        format->type = value;
+        if (value > POR_FORMAT_SHIFT) {
+            // Some files in the wild have their format types shifted by 82 for date/time values
+            // I have no idea why, but see test files linked from:
+            // https://github.com/WizardMac/ReadStat/issues/158
+            format->type = value - POR_FORMAT_SHIFT;
+        } else {
+            format->type = value;
+        }
 
         if ((retval = read_integer_in_range(ctx, 0, MAX_FORMAT_WIDTH, &value)) != READSTAT_OK) {
             goto cleanup;

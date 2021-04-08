@@ -1,9 +1,9 @@
 
 #line 1 "src/txt/readstat_sas_commands_read.rl"
 #include <stdlib.h>
-#include <strings.h>
 
 #include "../readstat.h"
+#include "../readstat_strings.h"
 #include "readstat_schema.h"
 
 #include "readstat_copy.h"
@@ -3183,7 +3183,7 @@ _match:
 	break;
 	case 25:
 #line 221 "src/txt/readstat_sas_commands_read.rl"
-	{ label_type = LABEL_TYPE_DOUBLE; double_value = -integer; }
+	{ label_type = LABEL_TYPE_DOUBLE; double_value = -(double)integer; }
 	break;
 	case 26:
 #line 222 "src/txt/readstat_sas_commands_read.rl"

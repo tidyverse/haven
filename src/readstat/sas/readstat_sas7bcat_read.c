@@ -51,6 +51,7 @@ static readstat_error_t sas7bcat_parse_value_labels(const char *value_start, siz
     /* Doubles appear to be stored as big-endian, always */
     int bswap_doubles = machine_is_little_endian();
     int is_string = (name[0] == '$');
+    char *label = NULL;
 
     if (value_offset == NULL) {
         retval = READSTAT_ERROR_MALLOC;
@@ -117,8 +118,8 @@ static readstat_error_t sas7bcat_parse_value_labels(const char *value_start, siz
             goto cleanup;
         }
         if (ctx->value_label_handler) {
-            char label[4*label_len+1];
-            retval = readstat_convert(label, sizeof(label),
+            label = realloc(label, 4 * label_len + 1);
+            retval = readstat_convert(label, 4 * label_len + 1,
                     &lbp2[10], label_len, ctx->converter);
             if (retval != READSTAT_OK)
                 goto cleanup;
@@ -133,9 +134,8 @@ static readstat_error_t sas7bcat_parse_value_labels(const char *value_start, siz
     }
 
 cleanup:
-    if (value_offset)
-        free(value_offset);
-
+    free(label);
+    free(value_offset);
     return retval;
 }
 
@@ -415,7 +415,7 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
     }
 
     if (ctx->metadata_handler) {
-        char file_label[4*64+1];
+        char table_name[4*32+1];
         readstat_metadata_t metadata = { 
             .file_encoding = ctx->input_encoding, /* orig encoding? */
             .modified_time = hinfo->modification_time,
@@ -424,12 +424,12 @@ readstat_error_t readstat_parse_sas7bcat(readstat_parser_t *parser, const char *
             .endianness = hinfo->little_endian ? READSTAT_ENDIAN_LITTLE : READSTAT_ENDIAN_BIG,
             .is64bit = ctx->u64
         };
-        retval = readstat_convert(file_label, sizeof(file_label), 
-                hinfo->file_label, sizeof(hinfo->file_label), ctx->converter);
+        retval = readstat_convert(table_name, sizeof(table_name),
+                hinfo->table_name, sizeof(hinfo->table_name), ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        metadata.file_label = file_label;
+        metadata.table_name = table_name;
 
         if (ctx->metadata_handler(&metadata, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;

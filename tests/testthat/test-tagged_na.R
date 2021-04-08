@@ -1,5 +1,3 @@
-context("tagged_na")
-
 test_that("tagged_na is NA (but not NaN)", {
   x <- tagged_na("a")
 
@@ -54,5 +52,5 @@ test_that("format_tagged_na displays tagged NA's specially", {
 
 test_that("print_tagged_na is stable", {
   x <- c(1:100, tagged_na(letters), NA)
-  expect_output_file(print_tagged_na(x), "tagged-na.txt")
+  expect_snapshot(print_tagged_na(x))
 })
