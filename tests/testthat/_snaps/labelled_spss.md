@@ -1,3 +1,14 @@
+# constructor checks na_range
+
+    Code
+      labelled_spss(1:10, na_range = "a")
+    Error <rlang_error>
+      `na_range` must be a vector of length two the same type as `x`.
+    Code
+      labelled_spss(1:10, na_range = 1:3)
+    Error <rlang_error>
+      `na_range` must be a vector of length two the same type as `x`.
+
 # printed output is stable
 
     Code

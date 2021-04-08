@@ -331,6 +331,27 @@ public:
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(x));
+
+    if (Rf_inherits(x, "haven_labelled_spss")) {
+      SEXP na_range = x.attr("na_range");
+      if (Rf_length(na_range) == 2) {
+        if (TYPEOF(na_range) == STRSXP) {
+          readstat_variable_add_missing_string_range(var,
+            R_CHAR(STRING_ELT(na_range, 0)),
+            R_CHAR(STRING_ELT(na_range, 1))
+          );
+        }
+      }
+
+      SEXP na_values = x.attr("na_values");
+      int n = Rf_length(na_values);
+      if (TYPEOF(na_values) == STRSXP) {
+        for (int i = 0; i < n; ++i) {
+          readstat_variable_add_missing_string_value(var, R_CHAR(STRING_ELT(na_values, i)));
+        }
+      }
+    }
+
     return readstat_validate_variable(writer_, var);
   }
 

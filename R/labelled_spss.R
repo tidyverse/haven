@@ -42,11 +42,14 @@ new_labelled_spss <- function(x, labels, na_values, na_range, label) {
     abort("`na_values` must be same type as `x`.")
   }
   if (!is.null(na_range)) {
-    if (!is.numeric(x)) {
-      abort("`na_range` is only applicable for labelled numeric vectors.")
+    if (!is.numeric(x) && !is.character(x)) {
+      abort("`na_range` is only applicable for labelled numeric and character vectors.")
     }
-    if (!is.numeric(na_range) || length(na_range) != 2) {
-      abort("`na_range` must be a numeric vector of length two.")
+
+    type_ok <- (is.character(x) && is.character(na_range)) ||
+      (is.numeric(x) && is.numeric(na_range))
+    if (!type_ok || length(na_range) != 2) {
+      abort("`na_range` must be a vector of length two the same type as `x`.")
     }
   }
 

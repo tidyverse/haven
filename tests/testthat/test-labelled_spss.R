@@ -3,12 +3,10 @@ test_that("constructor checks na_value", {
 })
 
 test_that("constructor checks na_range", {
-  expect_error(labelled_spss(1:10, na_range = "a"), "must be a numeric vector")
-  expect_error(labelled_spss(1:10, na_range = 1:3), "of length two")
-  expect_error(
-    labelled_spss("a", c(a = "a"), na_range = 1:2),
-    "only applicable for labelled numeric"
-  )
+  expect_snapshot(error = TRUE,{
+    labelled_spss(1:10, na_range = "a")
+    labelled_spss(1:10, na_range = 1:3)
+  })
 })
 
 test_that("printed output is stable", {
