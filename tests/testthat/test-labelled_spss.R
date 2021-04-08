@@ -17,7 +17,7 @@ test_that("printed output is stable", {
     na_values = c(1, 2),
     na_range = c(3, Inf)
   )
-  expect_output_file(print(x), "labelled-spss-output.txt")
+  expect_snapshot(x)
 })
 
 test_that("subsetting preserves attributes", {
