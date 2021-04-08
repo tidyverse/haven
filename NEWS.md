@@ -1,5 +1,7 @@
 # haven (development version)
 
+* Restore validation for length of Stata variables (#485).
+
 * All writers now validate file and variable metadata with ReadStat. This 
   should prevent many invalid files from being written (#408).
 

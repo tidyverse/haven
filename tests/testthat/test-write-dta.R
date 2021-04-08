@@ -85,7 +85,11 @@ test_that("labels are converted to utf-8", {
 test_that("throws error on invalid variable names", {
   df <- data.frame(1)
   names(df) <- "x y"
-  expect_error(write_dta(df, tempfile(), version = 13), "not valid Stata variables: `x y`")
+  expect_error(write_dta(df, tempfile(), version = 13), "not valid Stata variables")
+
+  names(df) <- paste0(rep("a", 33), collapse = "")
+  expect_error(write_dta(df, tempfile(), version = 13), "not valid Stata variables")
+  expect_error(write_dta(df, tempfile(), version = 14), "not valid Stata variables")
 })
 
 test_that("can not write non-integer labels (#401)", {
