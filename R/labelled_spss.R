@@ -38,7 +38,7 @@ labelled_spss <- function(x = double(), labels = NULL, na_values = NULL,
 }
 
 new_labelled_spss <- function(x, labels, na_values, na_range, label) {
-  if (any(is.na(na_values))) {
+  if (!is.null(na_values) && any(is.na(na_values))) {
     abort("`na_values` can not contain missing values.")
   }
 
