@@ -403,6 +403,8 @@ void write_sav_(cpp11::list data, cpp11::strings path, bool compress) {
   Writer writer(HAVEN_SAV, data, path);
   if (compress)
     writer.setCompression(READSTAT_COMPRESS_BINARY);
+  else
+    writer.setCompression(READSTAT_COMPRESS_ROWS);
   writer.write();
 }
 

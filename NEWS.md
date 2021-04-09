@@ -15,6 +15,10 @@
 * Updated to ReadStat 1.1.5. Most importantly this includes support for
   SAS binary compression.
 
+* `write_sav(..., compress=FALSE)` now uses SPSS Bytecode compression instead
+  of the rarely-used uncompressed mode.  `compress=TRUE` continues to use the new
+  (and not universally supported, but more compact) ZLIB format. (@oliverbock, #544)
+
 # haven 2.3.1
 
 * Add missing methods so `median()`, `quantile()` and `summary()` work

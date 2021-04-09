@@ -217,7 +217,7 @@ read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max =
 #' @export
 #' @rdname read_spss
 #' @param compress If `TRUE`, will compress the file, resulting in a `.zsav`
-#'   file.
+#'   file.  Otherwise the `.sav` file will be bytecode compressed.
 write_sav <- function(data, path, compress = FALSE) {
   validate_sav(data)
   write_sav_(data, normalizePath(path, mustWork = FALSE), compress = compress)

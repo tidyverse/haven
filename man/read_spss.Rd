@@ -91,7 +91,7 @@ to enforce them.}
 \item{path}{Path to a file where the data will be written.}
 
 \item{compress}{If \code{TRUE}, will compress the file, resulting in a \code{.zsav}
-file.}
+file.  Otherwise the \code{.sav} file will be bytecode compressed.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
