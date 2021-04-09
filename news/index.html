@@ -193,6 +193,7 @@
 <a href="#haven-development-version" class="anchor"></a>haven (development version)<small> Unreleased </small>
 </h1>
 <ul>
+<li><p><code><a href="../reference/labelled.html">labelled()</a></code> vectors are more permissive when concatenating; output labels will be a combination of the left-hand and the right-hand side, preferring values assigned to the left-hand side (<a href='https://github.com/tidyverse/haven/issues/543'>#543</a>).</p></li>
 <li><p><code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> is a little stricter: it prevents <code>na_range</code> and <code>na_value</code> from containing missing values, and ensures that <code>na_range</code> is in the correct order (<a href='https://github.com/tidyverse/haven/issues/574'>#574</a>).</p></li>
 <li><p><code><a href="../reference/as_factor.html">as_factor(levels = "values")</a></code> preserves values of unlabelled elements (<a href='https://github.com/tidyverse/haven/issues/570'>#570</a>).</p></li>
 <li><p><code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> now supports character data with NA values and ranges (<a href='https://github.com/tidyverse/haven/issues/409'>#409</a>).</p></li>
