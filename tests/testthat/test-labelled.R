@@ -144,13 +144,13 @@ test_that("can combine names", {
   expect_named(vec_c(x, c(y = 1L)), c("x", "y"))
 })
 
-test_that("strip labels if different", {
+test_that("take labels from LHS", {
   expect_equal(
     vec_c(
-      labelled(labels = c(Good = 1, Bad = 5)),
-      labelled(labels = c(Bad = 1, Good = 5)),
+      labelled(1, labels = c(Good = 1, Bad = 5)),
+      labelled(5, labels = c(Bad = 1, Good = 5)),
     ),
-    double()
+    labelled(c(1, 5), labels = c(Good = 1, Bad = 5))
   )
 })
 

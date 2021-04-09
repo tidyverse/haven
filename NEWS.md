@@ -1,5 +1,9 @@
 # haven (development version)
 
+* `labelled()` vectors are more permissive when concatenating; output labels 
+  will be a combination of the left-hand and the right-hand side, preferring
+  values assigned to the left-hand side (#543).
+
 * `labelled_spss()` is a little stricter: it prevents `na_range` and `na_value`
   from containing missing values, and ensures that `na_range` is in the correct
   order (#574).

@@ -136,14 +136,12 @@ vec_ptype2.haven_labelled_spss.character <- vec_ptype2.haven_labelled_spss.doubl
 vec_ptype2.haven_labelled_spss.haven_labelled_spss <- function(x, y, ..., x_arg = "", y_arg = "") {
   data_type <- vec_ptype2(vec_data(x), vec_data(y), ..., x_arg = x_arg, y_arg = y_arg)
 
+  # Prefer labels from LHS
   x_labels <- vec_cast_named(attr(x, "labels"), data_type, x_arg = x_arg)
   y_labels <- vec_cast_named(attr(y, "labels"), data_type, x_arg = y_arg)
-  if (!identical(x_labels, y_labels)) {
-    # strip labels if not compatible
-    return(vec_data(x))
-  }
+  labels <- c(x_labels, y_labels[setdiff(names(y_labels), names(x_labels))])
 
-  # Take label from LHS
+  # Prefer labels from LHS
   label <- attr(x, "label", exact = TRUE) %||% attr(y, "label", exact = TRUE)
 
   x_na_values <- vec_cast(attr(x, "na_values"), data_type, x_arg = x_arg)
@@ -153,11 +151,11 @@ vec_ptype2.haven_labelled_spss.haven_labelled_spss <- function(x, y, ..., x_arg 
   # there are mismatches between the missing attributes
   if (!identical(x_na_values, y_na_values) ||
       !identical(attr(x, "na_range"), attr(y, "na_range"))) {
-    new_labelled(data_type, labels = x_labels, label = label)
+    new_labelled(data_type, labels = labels, label = label)
   } else {
     new_labelled_spss(
       data_type,
-      labels = x_labels,
+      labels = labels,
       na_values = x_na_values,
       na_range = attr(x, "na_range"),
       label = label)

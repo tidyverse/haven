@@ -160,10 +160,10 @@ test_that("can combine names", {
 test_that("strip labels if different", {
   expect_equal(
     vec_c(
-      labelled_spss(labels = c(Good = 1, Bad = 5)),
-      labelled_spss(labels = c(Bad = 1, Good = 5)),
+      labelled_spss(1, labels = c(Good = 1, Bad = 5)),
+      labelled_spss(5, labels = c(Bad = 1, Good = 5)),
     ),
-    double()
+    labelled_spss(c(1, 5), labels = c(Good = 1, Bad = 5))
   )
 })
 
