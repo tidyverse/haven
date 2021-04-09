@@ -1,5 +1,6 @@
 #include "readstat.h"
 #include "haven_types.h"
+#include "tagged_na.h"
 
 #include "cpp11/doubles.hpp"
 #include "cpp11/strings.hpp"
@@ -276,8 +277,14 @@ public:
       cpp11::doubles values(x.attr("labels"));
       cpp11::strings labels(values.attr("names"));
 
-      for (int i = 0; i < values.size(); ++i)
-        readstat_label_double_value(labelSet, values[i], string_utf8(labels, i));
+      for (int i = 0; i < values.size(); ++i) {
+        char tag = tagged_na_value(values[i]);
+        if (!isnan(values[i]) || tag == '\0') {
+          readstat_label_double_value(labelSet, values[i], string_utf8(labels, i));
+        } else {
+          readstat_label_tagged_value(labelSet, tag, string_utf8(labels, i));
+        }
+      }
     }
 
     readstat_variable_t* var =
@@ -367,7 +374,12 @@ public:
 
   readstat_error_t insertValue(readstat_variable_t* var, double val, bool is_missing) {
     if (is_missing) {
-      return readstat_insert_missing_value(writer_, var);
+      char tag = tagged_na_value(val);
+      if (tag == '\0') {
+        return readstat_insert_missing_value(writer_, var);
+      } else {
+        return readstat_insert_tagged_missing_value(writer_, var, tag);
+      }
     } else {
       return readstat_insert_double_value(writer_, var, val);
     }

@@ -22,6 +22,18 @@ test_that("can roundtrip date times", {
   expect_equal(roundtrip_var(x2, "dta"), x2)
 })
 
+test_that("can roundtrip tagged NAs", {
+  x <- c(1, 2, tagged_na('a', 'b'), NA)
+  expect_equal(roundtrip_var(x, "dta"), x)
+
+  tags <- tagged_na('a', 'b')
+  y <- labelled(
+    c(1, 2, 1, tags[1], tags[2]),
+    c("ABC" = tags[1], "DEF" = tags[2])
+  )
+  expect_equal(roundtrip_var(y, "dta"), y)
+})
+
 test_that("infinity gets converted to NA", {
   expect_equal(roundtrip_var(c(Inf, 0, -Inf), "dta"), c(NA, 0, NA))
 })

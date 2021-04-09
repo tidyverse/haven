@@ -1,5 +1,8 @@
 # haven (development version)
 
+* `write_dta()` now correctly writes tagged NAs (including tagged NAs in
+  labels) (#583).
+
 * `labelled()` vectors are more permissive when concatenating; output labels 
   will be a combination of the left-hand and the right-hand side, preferring
   values assigned to the left-hand side (#543).
