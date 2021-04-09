@@ -1,3 +1,14 @@
+# constructor checks na_value
+
+    Code
+      labelled_spss(1:10, na_values = "a")
+    Error <vctrs_error_incompatible_type>
+      Can't convert `na_values` <character> to match type of `x` <integer>.
+    Code
+      labelled_spss(1:10, na_values = NA_integer_)
+    Error <rlang_error>
+      `na_values` can not contain missing values.
+
 # constructor checks na_range
 
     Code
@@ -8,6 +19,14 @@
       labelled_spss(1:10, na_range = 1:3)
     Error <rlang_error>
       `na_range` must be a vector of length two the same type as `x`.
+    Code
+      labelled_spss(1:10, na_range = c(2, NA))
+    Error <rlang_error>
+      `na_range` can not contain missing values.
+    Code
+      labelled_spss(1:10, na_range = c(2, 1))
+    Error <rlang_error>
+      `na_range` must be in ascending order.
 
 # printed output is stable
 

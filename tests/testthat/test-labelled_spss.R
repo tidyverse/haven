@@ -1,11 +1,19 @@
 test_that("constructor checks na_value", {
   expect_incompatible_type(labelled_spss(1:10, na_values = "a"))
+
+  expect_snapshot(error = TRUE, {
+    labelled_spss(1:10, na_values = "a")
+    labelled_spss(1:10, na_values = NA_integer_)
+
+  })
 })
 
 test_that("constructor checks na_range", {
   expect_snapshot(error = TRUE,{
     labelled_spss(1:10, na_range = "a")
     labelled_spss(1:10, na_range = 1:3)
+    labelled_spss(1:10, na_range = c(2, NA))
+    labelled_spss(1:10, na_range = c(2, 1))
   })
 })
 

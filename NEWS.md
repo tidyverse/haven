@@ -1,5 +1,9 @@
 # haven (development version)
 
+* `labelled_spss()` is a little stricter: it prevents `na_range` and `na_value`
+  from containing missing values, and ensures that `na_range` is in the correct
+  order (#574).
+
 * `as_factor(levels = "values")` preserves values of unlabelled elements (#570).
 
 * `labelled_spss()` now supports character data with NA values and ranges (#409).
