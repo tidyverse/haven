@@ -76,7 +76,7 @@ read_sas <- function(data_file, catalog_file = NULL,
 #' @export
 #' @rdname read_sas
 write_sas <- function(data, path) {
-  validate_sas(data)
+  data <- validate_sas(data)
   write_sas_(data, normalizePath(path, mustWork = FALSE))
   invisible(data)
 }
@@ -125,6 +125,7 @@ write_xpt <- function(data, path, version = 8, name = NULL) {
   }
   name <- validate_xpt_name(name, version)
 
+  data <- validate_sas(data)
   write_xpt_(
     data,
     normalizePath(path, mustWork = FALSE),
@@ -219,7 +220,7 @@ read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max =
 #' @param compress If `TRUE`, will compress the file, resulting in a `.zsav`
 #'   file.  Otherwise the `.sav` file will be bytecode compressed.
 write_sav <- function(data, path, compress = FALSE) {
-  validate_sav(data)
+  data <- validate_sav(data)
   write_sav_(data, normalizePath(path, mustWork = FALSE), compress = compress)
   invisible(data)
 }
@@ -308,7 +309,7 @@ read_stata <- read_dta
 #' @param label Dataset label to use, or `NULL`. Defaults to the value stored in
 #'   the "label" attribute of `data`. Must be <= 80 characters.
 write_dta <- function(data, path, version = 14, label = attr(data, "label")) {
-  validate_dta(data, version = version)
+  data <- validate_dta(data, version = version)
   validate_dta_label(label)
   write_dta_(data,
     normalizePath(path, mustWork = FALSE),
@@ -363,6 +364,8 @@ validate_dta <- function(data, version) {
       call. = FALSE
     )
   }
+
+  adjust_tz(data)
 }
 
 validate_dta_label <- function(label) {
@@ -401,11 +404,14 @@ validate_sav <- function(data) {
       call. = FALSE
     )
   }
+
+  adjust_tz(data)
 }
 
 validate_sas <- function(data) {
   stopifnot(is.data.frame(data))
 
+  adjust_tz(data)
 }
 
 var_names <- function(data, i) {
@@ -443,4 +449,10 @@ validate_n_max <- function(n) {
   }
 
   as.integer(n)
+}
+
+adjust_tz <- function(df) {
+  datetime <- vapply(df, inherits, "POSIXt", FUN.VALUE = logical(1))
+  df[datetime] <- lapply(df[datetime], force_utc)
+  df
 }

@@ -1,5 +1,9 @@
 # haven (development version)
 
+* Date-times are no longer forced to UTC, but instead converted to the 
+  equivalent UTC (#555). This should ensure that you see the same date-time 
+  in R and in Stata/SPSS/SAS.
+
 * `write_dta()` now correctly writes tagged NAs (including tagged NAs in
   labels) (#583).
 

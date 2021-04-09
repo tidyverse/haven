@@ -28,3 +28,11 @@ cat_line <- function(...) {
 vec_cast_named <- function(x, to, ...) {
   stats::setNames(vec_cast(x, to, ...), names(x))
 }
+
+force_utc <- function(x) {
+  if (identical(attr(x, "tzone"), "UTC")) {
+    x
+  } else {
+    as.POSIXct(format(x, usetz = FALSE), tz = "UTC")
+  }
+}
