@@ -199,6 +199,7 @@
 <li><p>Restore validation for length of Stata variables (<a href='https://github.com/tidyverse/haven/issues/485'>#485</a>).</p></li>
 <li><p>All writers now validate file and variable metadata with ReadStat. This should prevent many invalid files from being written (<a href='https://github.com/tidyverse/haven/issues/408'>#408</a>).</p></li>
 <li><p>Updated to ReadStat 1.1.5. Most importantly this includes support for SAS binary compression.</p></li>
+<li><p><code><a href="../reference/read_spss.html">write_sav(..., compress=FALSE)</a></code> now uses SPSS Bytecode compression instead of the rarely-used uncompressed mode. <code>compress=TRUE</code> continues to use the new (and not universally supported, but more compact) ZLIB format. (<a href='https://github.com/oliverbock'>@oliverbock</a>, <a href='https://github.com/tidyverse/haven/issues/544'>#544</a>)</p></li>
 </ul>
 </div>
     <div id="haven-231" class="section level1">
