@@ -279,7 +279,7 @@ public:
 
       for (int i = 0; i < values.size(); ++i) {
         char tag = tagged_na_value(values[i]);
-        if (!isnan(values[i]) || tag == '\0') {
+        if (!std::isnan(values[i]) || tag == '\0') {
           readstat_label_double_value(labelSet, values[i], string_utf8(labels, i));
         } else {
           readstat_label_tagged_value(labelSet, tag, string_utf8(labels, i));
