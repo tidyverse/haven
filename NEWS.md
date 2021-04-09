@@ -14,6 +14,8 @@
 
 * Updated to ReadStat 1.1.5. Most importantly this includes support for
   SAS binary compression.
+  
+* Add vctrs support for `labelled_spss()` vectors (@gorcha, #527, #534, #538, #557).
 
 * `write_sav(..., compress=FALSE)` now uses SPSS Bytecode compression instead
   of the rarely-used uncompressed mode.  `compress=TRUE` continues to use the new
