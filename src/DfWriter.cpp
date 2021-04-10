@@ -187,7 +187,7 @@ public:
         }
 
         if (status) {
-          cpp11::stop("Failed to insert value [%i, %i]: %s.", i, j, readstat_error_message(status));
+          cpp11::stop("Failed to insert value [%i, %i]: %s.", i + 1, j + 1, readstat_error_message(status));
         }
       }
 
