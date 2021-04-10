@@ -33,6 +33,6 @@ force_utc <- function(x) {
   if (identical(attr(x, "tzone"), "UTC")) {
     x
   } else {
-    as.POSIXct(format(x, usetz = FALSE), tz = "UTC")
+    as.POSIXct(format(x, usetz = FALSE), tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
   }
 }
