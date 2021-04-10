@@ -333,8 +333,15 @@ public:
         max_length = length;
     }
 
-    readstat_variable_t* var =
-      readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, max_length);
+    readstat_variable_t* var;
+    // Use strL for Stata if max_length too long
+    // (lazily assuming constant for version 13 and above)
+    if (ext_ == HAVEN_DTA && max_length > 2045) {
+      var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING_REF, max_length);
+    } else {
+      var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, max_length);
+    }
+
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
@@ -391,13 +398,13 @@ public:
     if (is_missing) {
       return readstat_insert_missing_value(writer_, var);
     } else if (var->type == READSTAT_TYPE_STRING_REF) {
-      readstat_string_ref_t* ref;
-      if (string_ref_.count(val)) {
-        ref = string_ref_[val];
-      } else {
-        ref = string_ref_[val] = readstat_add_string_ref(writer_, val);
-      }
-      return readstat_insert_string_ref(writer_, var, ref);
+      // readstat_string_ref_t* ref;
+      // if (string_ref_.count(val)) {
+      //   ref = string_ref_[val];
+      // } else {
+      //   ref = string_ref_[val] = readstat_add_string_ref(writer_, val);
+      // }
+      return readstat_insert_string_ref(writer_, var, readstat_add_string_ref(writer_, val));
     } else {
       return readstat_insert_string_value(writer_, var, val);
     }
