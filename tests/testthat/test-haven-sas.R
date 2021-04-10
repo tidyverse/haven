@@ -1,3 +1,5 @@
+# read_sas ----------------------------------------------------------------
+
 test_that("variable label stored as attributes", {
   df <- read_sas("hadley.sas7bdat")
   expect_equal(attr(df$gender, "label"), NULL)
@@ -62,7 +64,6 @@ test_that("using skip returns correct number of rows", {
   expect_equal(rows_after_skipping(n + 1), 0)
 })
 
-
 # Row limiting ------------------------------------------------------------
 
 test_that("can limit the number of rows to read", {
@@ -90,7 +91,6 @@ test_that("throws informative error on bad row limit", {
   expect_error(rows_with_limit("foo"), "must be numeric")
 })
 
-
 # Column selection --------------------------------------------------------
 
 test_that("can select columns to read, with tidyselect semantics", {
@@ -116,9 +116,6 @@ test_that("throws error on empty column selection", {
   expect_error(with_col_select(tidyselect::starts_with("x")), "Can't find")
 })
 
-
-# Column selection (SAS specific) -----------------------------------------
-
 test_that("can select columns when a catalog file is present", {
   expect_named(
     read_sas(
@@ -136,4 +133,84 @@ test_that("using cols_only warns about deprecation, but works", {
     "is deprecated"
   )
   expect_named(out, "id")
+})
+
+# write_sas ---------------------------------------------------------------
+
+test_that("can roundtrip basic types", {
+  x <- runif(10)
+  expect_equal(roundtrip_var(x, "sas"), x)
+  expect_equal(roundtrip_var(1:10, "sas"), 1:10)
+  expect_equal(roundtrip_var(c(TRUE, FALSE), "sas"), c(1, 0))
+  expect_equal(roundtrip_var(letters, "sas"), letters)
+})
+
+test_that("can roundtrip missing values (as much as possible)", {
+  expect_equal(roundtrip_var(NA, "sas"), NA_integer_)
+  expect_equal(roundtrip_var(NA_real_, "sas"), NA_real_)
+  expect_equal(roundtrip_var(NA_integer_, "sas"), NA_integer_)
+  expect_equal(roundtrip_var(NA_character_, "sas"), "")
+})
+
+test_that("can write labelled with NULL labels", {
+  int <- labelled(c(1L, 2L), NULL)
+  num <- labelled(c(1, 2), NULL)
+  chr <- labelled(c("a", "b"), NULL)
+
+  expect_equal(roundtrip_var(int, "sas"), c(1L, 2L))
+  expect_equal(roundtrip_var(num, "sas"), c(1, 2))
+  expect_equal(roundtrip_var(chr, "sas"), c("a", "b"))
+})
+
+test_that("can roundtrip date times", {
+  x1 <- c(as.Date("2010-01-01"), NA)
+  x2 <- as.POSIXct(x1)
+  attr(x2, "tzone") <- "UTC"
+
+  expect_equal(roundtrip_var(x1, "sas"), x1)
+  expect_equal(roundtrip_var(x2, "sas"), x2)
+})
+
+test_that("can roundtrip format attribute", {
+  df <- data.frame(x = structure(1:5, format.sas = "xyz"))
+  path <- tempfile()
+
+  write_sas(df, path)
+  out <- read_sas(path)
+
+  expect_equal(df$x, out$x)
+})
+
+test_that("infinity gets converted to NA", {
+  expect_equal(roundtrip_var(c(Inf, 0, -Inf), "sas"), c(NA, 0, NA))
+})
+
+# read_xpt ----------------------------------------------------------------
+
+test_that("can read date/times", {
+  x <- as.Date("2018-01-01")
+  df <- data.frame(date = x, datetime = as.POSIXct(x))
+  path <- tempfile()
+  write_xpt(df, path)
+
+  res <- read_xpt(path)
+  expect_s3_class(res$date, "Date")
+  expect_s3_class(res$datetime, "POSIXct")
+})
+
+# write_xpt ---------------------------------------------------------------
+
+test_that("can roundtrip basic types", {
+  x <- runif(10)
+  expect_equal(roundtrip_var(x, "xpt"), x)
+  expect_equal(roundtrip_var(1:10, "xpt"), 1:10)
+  expect_equal(roundtrip_var(c(TRUE, FALSE), "xpt"), c(1, 0))
+  expect_equal(roundtrip_var(letters, "xpt"), letters)
+})
+
+test_that("can roundtrip missing values (as much as possible)", {
+  expect_equal(roundtrip_var(NA, "xpt"), NA_integer_)
+  expect_equal(roundtrip_var(NA_real_, "xpt"), NA_real_)
+  expect_equal(roundtrip_var(NA_integer_, "xpt"), NA_integer_)
+  expect_equal(roundtrip_var(NA_character_, "xpt"), "")
 })
