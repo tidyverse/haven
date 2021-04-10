@@ -107,3 +107,13 @@ validate_sav <- function(data) {
 
   adjust_tz(data)
 }
+
+# Helpers -----------------------------------------------------------------
+
+max_level_length <- function(x) {
+  if (!is.factor(x))
+    return(0L)
+
+  max(0L, nchar(levels(x)), na.rm = TRUE)
+}
+
