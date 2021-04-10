@@ -1,7 +1,7 @@
 # read_stata --------------------------------------------------------------
 
 test_that("stata data types read into expected types (#45)", {
-  df <- read_stata("types.dta")
+  df <- read_stata(test_path("stata/types.dta"))
   types <- vapply(df, typeof, character(1))
 
   expect_equal(types, c(
@@ -17,7 +17,7 @@ test_that("stata data types read into expected types (#45)", {
 })
 
 test_that("Stata %td (date) and %tc (datetime) read into expected classes", {
-  df <- read_stata("types.dta")
+  df <- read_stata(test_path("stata/types.dta"))
 
   expect_s3_class(df$vdate, "Date")
   expect_s3_class(df$vdatetime, "POSIXct")
@@ -25,13 +25,13 @@ test_that("Stata %td (date) and %tc (datetime) read into expected classes", {
 
 
 test_that("Old %d format read into Date class", {
-  df <- zap_formats(read_stata(test_path("datetime-d.dta")))
+  df <- zap_formats(read_stata(test_path("stata/datetime-d.dta")))
   expect_equal(df$date, as.Date("2015-11-02"))
 })
 
 
 test_that("tagged double missings are read correctly", {
-  x <- read_dta(test_path("tagged-na-double.dta"))$x
+  x <- read_dta(test_path("stata/tagged-na-double.dta"))$x
   expect_equal(na_tag(x), c(rep(NA, 5), "a", "h", "z"))
 
   labels <- attr(x, "labels")
@@ -39,7 +39,7 @@ test_that("tagged double missings are read correctly", {
 })
 
 test_that("tagged integer missings are read correctly", {
-  x <- read_dta(test_path("tagged-na-int.dta"))$x
+  x <- read_dta(test_path("stata/tagged-na-int.dta"))$x
   expect_equal(na_tag(x), c(rep(NA, 5), "a", "h", "z"))
 
   labels <- attr(x, "labels")
@@ -47,20 +47,20 @@ test_that("tagged integer missings are read correctly", {
 })
 
 test_that("file label and notes stored as attributes", {
-  df <- read_dta(test_path("notes.dta"))
+  df <- read_dta(test_path("stata/notes.dta"))
 
   expect_equal(attr(df, "label"), "This is a test dataset.")
   expect_length(attr(df, "notes"), 2)
 })
 
 test_that("only selected columns are read", {
-  out <- read_dta(test_path("notes.dta"), col_select = "id")
+  out <- read_dta(test_path("stata/notes.dta"), col_select = "id")
   expect_named(out, "id")
 })
 
 test_that("using skip returns correct number of rows", {
   rows_after_skipping <- function(n) {
-    nrow(read_dta(test_path("notes.dta"), skip = n))
+    nrow(read_dta(test_path("stata/notes.dta"), skip = n))
   }
 
   n <- rows_after_skipping(0)
@@ -73,7 +73,7 @@ test_that("using skip returns correct number of rows", {
 
 test_that("can limit the number of rows to read", {
   rows_with_limit <- function(n) {
-    nrow(read_dta(test_path("notes.dta"), n_max = n))
+    nrow(read_dta(test_path("stata/notes.dta"), n_max = n))
   }
 
   n <- rows_with_limit(Inf)

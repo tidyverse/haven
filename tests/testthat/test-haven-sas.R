@@ -1,13 +1,13 @@
 # read_sas ----------------------------------------------------------------
 
 test_that("variable label stored as attributes", {
-  df <- read_sas("hadley.sas7bdat")
+  df <- read_sas(test_path("sas/hadley.sas7bdat"))
   expect_equal(attr(df$gender, "label"), NULL)
   expect_equal(attr(df$q1, "label"), "The instructor was well prepared")
 })
 
 test_that("value labels parsed from bcat file", {
-  df <- read_sas("hadley.sas7bdat", "formats.sas7bcat")
+  df <- read_sas(test_path("sas/hadley.sas7bdat"), test_path("sas/formats.sas7bcat"))
 
   expect_s3_class(df$gender, "haven_labelled")
   expect_equal(attr(df$gender, "labels"), c(Female = "f", Male = "m"))
@@ -15,14 +15,14 @@ test_that("value labels parsed from bcat file", {
 })
 
 test_that("value labels read in as same type as vector", {
-  df <- read_sas("hadley.sas7bdat", "formats.sas7bcat")
+  df <- read_sas(test_path("sas/hadley.sas7bdat"), test_path("sas/formats.sas7bcat"))
 
   expect_equal(typeof(df$gender), typeof(attr(df$gender, "labels")))
   expect_equal(typeof(df$workshop), typeof(attr(df$workshop, "labels")))
 })
 
 test_that("date times are converted into corresponding R types", {
-  df <- read_sas(test_path("datetime.sas7bdat"))
+  df <- read_sas(test_path("sas/datetime.sas7bdat"))
   expect_equal(df$VAR1[1], ISOdatetime(2015, 02, 02, 14, 42, 12, "UTC"))
   expect_equal(df$VAR2[1], as.Date("2015-02-02"))
   expect_equal(df$VAR3[1], as.Date("2015-02-02"))
@@ -31,7 +31,7 @@ test_that("date times are converted into corresponding R types", {
 })
 
 test_that("tagged missings are read correctly", {
-  x <- read_sas(test_path("tagged-na.sas7bdat"), test_path("tagged-na.sas7bcat"))$x
+  x <- read_sas(test_path("sas/tagged-na.sas7bdat"), test_path("sas/tagged-na.sas7bcat"))$x
   expect_equal(na_tag(x), c(rep(NA, 5), "a", "h", "z"))
 
   labels <- attr(x, "labels")
@@ -49,11 +49,23 @@ test_that("default name repair can be overridden", {
   expect_message(read_sas(path, .name_repair = "minimal"), NA)
 })
 
+test_that("connections are read", {
+  file_conn <- file(test_path("sas/hadley.sas7bdat"))
+  expect_identical(read_sas(file_conn), read_sas("sas/hadley.sas7bdat"))
+})
+
+test_that("zip files are read", {
+  expect_identical(
+    read_sas(test_path("sas/hadley.zip")),
+    read_sas(test_path("sas/hadley.sas7bdat"))
+  )
+})
+
 # Row skipping ------------------------------------------------------------
 
 test_that("using skip returns correct number of rows", {
   rows_after_skipping <- function(n) {
-    nrow(read_sas(test_path("hadley.sas7bdat"), skip = n))
+    nrow(read_sas(test_path("sas/hadley.sas7bdat"), skip = n))
   }
 
   n <- rows_after_skipping(0)
@@ -68,7 +80,7 @@ test_that("using skip returns correct number of rows", {
 
 test_that("can limit the number of rows to read", {
   rows_with_limit <- function(n) {
-    nrow(read_sas(test_path("hadley.sas7bdat"), n_max = n))
+    nrow(read_sas(test_path("sas/hadley.sas7bdat"), n_max = n))
   }
 
   n <- rows_with_limit(Inf)
@@ -84,7 +96,7 @@ test_that("can limit the number of rows to read", {
 
 test_that("throws informative error on bad row limit", {
   rows_with_limit <- function(n) {
-    nrow(read_sas(test_path("hadley.sas7bdat"), n_max = n))
+    nrow(read_sas(test_path("sas/hadley.sas7bdat"), n_max = n))
   }
 
   expect_error(rows_with_limit(1:5), "must have length 1")
@@ -95,7 +107,7 @@ test_that("throws informative error on bad row limit", {
 
 test_that("can select columns to read, with tidyselect semantics", {
   with_col_select <- function(x) {
-    read_sas(test_path("hadley.sas7bdat"), col_select = {{ x }})
+    read_sas(test_path("sas/hadley.sas7bdat"), col_select = {{ x }})
   }
 
   full_data <- with_col_select(NULL)
@@ -109,7 +121,7 @@ test_that("can select columns to read, with tidyselect semantics", {
 
 test_that("throws error on empty column selection", {
   with_col_select <- function(x) {
-    read_sas(test_path("hadley.sas7bdat"), col_select = {{ x }})
+    read_sas(test_path("sas/hadley.sas7bdat"), col_select = {{ x }})
   }
 
   expect_error(with_col_select(character()), "Can't find")
@@ -119,8 +131,8 @@ test_that("throws error on empty column selection", {
 test_that("can select columns when a catalog file is present", {
   expect_named(
     read_sas(
-      test_path("hadley.sas7bdat"),
-      test_path("formats.sas7bcat"),
+      test_path("sas/hadley.sas7bdat"),
+      test_path("sas/formats.sas7bcat"),
       col_select = "workshop"
     ),
     "workshop"
@@ -129,7 +141,7 @@ test_that("can select columns when a catalog file is present", {
 
 test_that("using cols_only warns about deprecation, but works", {
   out <- expect_warning(
-    read_sas(test_path("hadley.sas7bdat"), cols_only = "id"),
+    read_sas(test_path("sas/hadley.sas7bdat"), cols_only = "id"),
     "is deprecated"
   )
   expect_named(out, "id")

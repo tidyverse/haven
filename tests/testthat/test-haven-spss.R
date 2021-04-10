@@ -1,22 +1,22 @@
 # read_spss ---------------------------------------------------------------
 
 test_that("variable label stored as attributes", {
-  df <- read_spss("variable-label.sav")
+  df <- read_spss(test_path("spss/variable-label.sav"))
   expect_equal(attr(df$sex, "label"), "Gender")
 })
 
 test_that("value labels stored as labelled class", {
-  num <- zap_formats(read_spss(test_path("labelled-num.sav")))
-  str <- zap_formats(read_spss(test_path("labelled-str.sav")))
+  num <- zap_formats(read_spss(test_path("spss/labelled-num.sav")))
+  str <- zap_formats(read_spss(test_path("spss/labelled-str.sav")))
 
   expect_equal(num[[1]], labelled(1, c("This is one" = 1)))
   expect_equal(str[[1]], labelled(c("M", "F"), c(Female = "F", Male = "M")))
 })
 
 test_that("value labels read in as same type as vector", {
-  df <- read_spss("variable-label.sav")
-  num <- read_spss("labelled-num.sav")
-  str <- read_spss("labelled-str.sav")
+  df <- read_spss(test_path("spss/variable-label.sav"))
+  num <- read_spss(test_path("spss/labelled-num.sav"))
+  str <- read_spss(test_path("spss/labelled-str.sav"))
 
   expect_equal(typeof(df$sex), typeof(attr(df$sex, "labels")))
   expect_equal(typeof(num[[1]]), typeof(attr(num[[1]], "labels")))
@@ -24,21 +24,21 @@ test_that("value labels read in as same type as vector", {
 })
 
 test_that("non-ASCII labels converted to utf-8", {
-  x <- read_spss("umlauts.sav")[[1]]
+  x <- read_spss(test_path("spss/umlauts.sav"))[[1]]
 
   expect_equal(attr(x, "label"), "This is an \u00e4-umlaut")
   expect_equal(names(attr(x, "labels"))[1], "the \u00e4 umlaut")
 })
 
 test_that("datetime variables converted to the correct class", {
-  df <- read_spss("datetime.sav")
+  df <- read_spss(test_path("spss/datetime.sav"))
   expect_true(inherits(df$date, "Date"))
   expect_true(inherits(df$date.posix, "POSIXct"))
   expect_true(inherits(df$time, "hms"))
 })
 
 test_that("datetime values correctly imported (offset)", {
-  df <- read_spss("datetime.sav")
+  df <- read_spss(test_path("spss/datetime.sav"))
   expect_equal(df$date[1], as.Date("2014-09-22d"))
   expect_equal(df$date.posix[2], as.POSIXct("2014-09-23 15:59:20", tz = "UTC"))
   expect_equal(as.integer(df$time[1]), 43870)
@@ -85,7 +85,7 @@ test_that("widths roundtrip", {
 })
 
 test_that("only selected columns are read", {
-  out <- read_spss(test_path("datetime.sav"), col_select = "date")
+  out <- read_spss(test_path("spss/datetime.sav"), col_select = "date")
   expect_named(out, "date")
 })
 
@@ -93,7 +93,7 @@ test_that("only selected columns are read", {
 
 test_that("using skip returns correct number of rows", {
   rows_after_skipping <- function(n) {
-    nrow(read_spss(test_path("datetime.sav"), skip = n))
+    nrow(read_spss(test_path("spss/datetime.sav"), skip = n))
   }
 
   n <- rows_after_skipping(0)
@@ -106,7 +106,7 @@ test_that("using skip returns correct number of rows", {
 
 test_that("can limit the number of rows to read", {
   rows_with_limit <- function(n) {
-    nrow(read_spss(test_path("datetime.sav"), n_max = n))
+    nrow(read_spss(test_path("spss/datetime.sav"), n_max = n))
   }
 
   n <- rows_with_limit(Inf)
@@ -123,12 +123,12 @@ test_that("can limit the number of rows to read", {
 # User-defined missings ---------------------------------------------------
 
 test_that("user-defined missing values read as missing by default", {
-  num <- read_spss(test_path("labelled-num-na.sav"))[[1]]
+  num <- read_spss(test_path("spss/labelled-num-na.sav"))[[1]]
   expect_equal(vec_data(num)[[2]], NA_real_)
 })
 
 test_that("user-defined missing values can be preserved", {
-  num <- read_spss(test_path("labelled-num-na.sav"), user_na = TRUE)[[1]]
+  num <- read_spss(test_path("spss/labelled-num-na.sav"), user_na = TRUE)[[1]]
 
   expect_s3_class(num, "haven_labelled_spss")
   expect_equal(vec_data(num)[[2]], 9)
