@@ -5,20 +5,6 @@ max_level_length <- function(x) {
   max(0L, nchar(levels(x)), na.rm = TRUE)
 }
 
-# Adapted from rlang
-is_integerish <- function(x) {
-  if (!typeof(x) %in% c("double", "integer")) return(FALSE)
-
-  missing_elts <- is.na(x)
-  finite_elts <- is.finite(x) | missing_elts
-  if (!all(finite_elts)) {
-    return(FALSE)
-  }
-
-  x_finite <- x[finite_elts & !missing_elts]
-  all(x_finite == as.integer(x_finite))
-}
-
 cat_line <- function(...) {
   cat(paste0(..., "\n", collapse = ""))
 }
@@ -35,4 +21,42 @@ force_utc <- function(x) {
   } else {
     as.POSIXct(format(x, usetz = FALSE), tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
   }
+}
+
+skip_cols <- function(reader, col_select = NULL, ...) {
+  col_select <- enquo(col_select)
+  if (quo_is_null(col_select)) {
+    return(character())
+  }
+
+  cols <- names(reader(..., n_max = 0L))
+  sels <- tidyselect::vars_select(cols, !!col_select)
+
+  if (length(sels) == 0) {
+    stop("Can't find any columns matching `col_select` in data.", call. = FALSE)
+  }
+
+  setdiff(cols, sels)
+}
+
+validate_n_max <- function(n) {
+  if (!is.numeric(n) && !is.na(n)) {
+    stop("`n_max` must be numeric, not ", class(n)[1], ".", call. = FALSE)
+  }
+
+  if (length(n) != 1) {
+    stop("`n_max` must have length 1, not ", length(n), ".", call. = FALSE)
+  }
+
+  if (is.na(n) || is.infinite(n) || n < 0) {
+    return(-1L)
+  }
+
+  as.integer(n)
+}
+
+adjust_tz <- function(df) {
+  datetime <- vapply(df, inherits, "POSIXt", FUN.VALUE = logical(1))
+  df[datetime] <- lapply(df[datetime], force_utc)
+  df
 }
