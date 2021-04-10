@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • haven</title>
+<title>haven: Import and Export 'SPSS', 'Stata' and 'SAS' Files — haven-package • haven</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -49,7 +49,11 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="haven: Import and Export 'SPSS', 'Stata' and 'SAS' Files — haven-package" />
+<meta property="og:description" content="
+Import foreign statistical formats into R via the
+    embedded 'ReadStat' C library,
+    &amp;lt;https://github.com/WizardMac/ReadStat&amp;gt;." />
 <meta property="og:image" content="https://haven.tidyverse.org/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -84,7 +88,7 @@
   <body data-spy="scroll" data-target="#toc">
     
 
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -182,165 +186,46 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>haven: Import and Export 'SPSS', 'Stata' and 'SAS' Files</h1>
+    <small class="dont-index">Source: <a href='https://github.com/tidyverse/haven/blob/master/R/haven-package.R'><code>R/haven-package.R</code></a></small>
+    <div class="hidden name"><code>haven-package.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p><img src='figures/logo.png' align='right' alt='logo' width='120' /></p>
+<p>Import foreign statistical formats into R via the
+    embedded 'ReadStat' C library,
+    &lt;https://github.com/WizardMac/ReadStat&gt;.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-reading-and-writing" class="hasAnchor"><a href="#section-reading-and-writing" class="anchor"></a>Reading and writing</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="read_dta.html">read_dta()</a></code> <code><a href="read_dta.html">read_stata()</a></code> <code><a href="read_dta.html">write_dta()</a></code> </p>
-        </td>
-        <td><p>Read and write Stata DTA files</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="read_sas.html">read_sas()</a></code> <code><a href="read_sas.html">write_sas()</a></code> </p>
-        </td>
-        <td><p>Read and write SAS files</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="read_spss.html">read_sav()</a></code> <code><a href="read_spss.html">read_por()</a></code> <code><a href="read_spss.html">write_sav()</a></code> <code><a href="read_spss.html">read_spss()</a></code> </p>
-        </td>
-        <td><p>Read and write SPSS files</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="read_xpt.html">read_xpt()</a></code> <code><a href="read_xpt.html">write_xpt()</a></code> </p>
-        </td>
-        <td><p>Read and write SAS transport files</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-labelled-vectors" class="hasAnchor"><a href="#section-labelled-vectors" class="anchor"></a>Labelled vectors</h2>
-          <p class="section-desc"><p>SAS, SPSS, and Stata share a simply concept of “labelled” vectors, which are similar to factors but a little more general. The <code><a href="../reference/labelled.html">labelled()</a></code> class provides a natural representaion in R.</p></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="labelled_spss.html">labelled_spss()</a></code> </p>
-        </td>
-        <td><p>Labelled vectors for SPSS</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="labelled.html">labelled()</a></code> <code><a href="labelled.html">is.labelled()</a></code> </p>
-        </td>
-        <td><p>Create a labelled vector.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="print_labels.html">print_labels()</a></code> </p>
-        </td>
-        <td><p>Print the labels of a labelled vector</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="as_factor.html">as_factor(<i>&lt;data.frame&gt;</i>)</a></code> <code><a href="as_factor.html">as_factor(<i>&lt;haven_labelled&gt;</i>)</a></code> <code><a href="as_factor.html">as_factor(<i>&lt;labelled&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Convert input to a factor.</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-tagged-missing-values" class="hasAnchor"><a href="#section-tagged-missing-values" class="anchor"></a>Tagged missing values</h2>
-          <p class="section-desc"><p>Both SAS and Stata supported tagged missing values, where a missing value can have multiple “types”, given by an letter from A through Z. <code><a href="../reference/tagged_na.html">tagged_na()</a></code> provides a convenient way of representing these types of missing values in R by taking advantage of the binary representation of <code>NA</code>.</p></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="tagged_na.html">tagged_na()</a></code> <code><a href="tagged_na.html">na_tag()</a></code> <code><a href="tagged_na.html">is_tagged_na()</a></code> <code><a href="tagged_na.html">format_tagged_na()</a></code> <code><a href="tagged_na.html">print_tagged_na()</a></code> </p>
-        </td>
-        <td><p>"Tagged" missing values</p></td>
-      </tr>
-    </tbody><tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-remove-attributes" class="hasAnchor"><a href="#section-remove-attributes" class="anchor"></a>Remove attributes</h2>
-          <p class="section-desc"><p>There are a number of SPSS/SAS/Stata features that have no direct equivalent in R. Haven preserves them so you can choose what do with them. To simply eliminate them, use one of the zap functions.</p></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="zap_empty.html">zap_empty()</a></code> </p>
-        </td>
-        <td><p>Convert empty strings into missing values.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="zap_formats.html">zap_formats()</a></code> </p>
-        </td>
-        <td><p>Remove format attributes</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="zap_label.html">zap_label()</a></code> </p>
-        </td>
-        <td><p>Zap label</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="zap_labels.html">zap_labels()</a></code> </p>
-        </td>
-        <td><p>Zap labels</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="zap_missing.html">zap_missing()</a></code> </p>
-        </td>
-        <td><p>Zap special missings to regular R missings</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="zap_widths.html">zap_widths()</a></code> </p>
-        </td>
-        <td><p>Remove display width attributes</p></td>
-      </tr>
-    </tbody>
-    </table>
+
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>Useful links:</p><ul>
+<li><p><a href='http://haven.tidyverse.org'>http://haven.tidyverse.org</a></p></li>
+<li><p><a href='https://github.com/tidyverse/haven'>https://github.com/tidyverse/haven</a></p></li>
+<li><p><a href='https://github.com/WizardMac/ReadStat'>https://github.com/WizardMac/ReadStat</a></p></li>
+<li><p>Report bugs at <a href='https://github.com/tidyverse/haven/issues'>https://github.com/tidyverse/haven/issues</a></p></li>
+</ul>
+
+</div>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p><strong>Maintainer</strong>: Hadley Wickham <a href='mailto:hadley@rstudio.com'>hadley@rstudio.com</a></p>
+<p>Authors:</p><ul>
+<li><p>Evan Miller (Author of included ReadStat code) [copyright holder]</p></li>
+</ul>
+
+<p>Other contributors:</p><ul>
+<li><p>RStudio [copyright holder, funder]</p></li>
+</ul>
+
+
+
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
