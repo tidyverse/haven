@@ -276,13 +276,12 @@ test_that("labels are converted to utf-8", {
 
 
 test_that("complain about long factor labels", {
-  x <- paste(rep("a", 200), collapse = "")
-  df <- data.frame(x = factor(x))
-
-  expect_error(roundtrip_sav(df), "levels with <= 120 characters")
+  expect_snapshot(error = TRUE, {
+    x <- paste(rep("a", 200), collapse = "")
+    df <- data.frame(x = factor(x))
+    write_sav(df, tempfile())
+  })
 })
-
-
 
 # max_level_lengths -------------------------------------------------------
 

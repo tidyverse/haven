@@ -226,3 +226,9 @@ test_that("can roundtrip missing values (as much as possible)", {
   expect_equal(roundtrip_var(NA_integer_, "xpt"), NA_integer_)
   expect_equal(roundtrip_var(NA_character_, "xpt"), "")
 })
+
+test_that("invalid files generate informative errors", {
+  expect_snapshot(error = TRUE, {
+    write_xpt(mtcars, file.path(tempdir(), " temp.xpt"))
+  })
+})

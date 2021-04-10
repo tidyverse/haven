@@ -187,24 +187,6 @@ test_that("labels are converted to utf-8", {
   expect_equal(names(attr(roundtrip_var(v_latin1, "dta"), "labels")), labels_utf8)
 })
 
-test_that("throws error on invalid variable names", {
-  df <- data.frame(1)
-  names(df) <- "x y"
-  expect_error(write_dta(df, tempfile(), version = 13), "not valid Stata variables")
-
-  names(df) <- paste0(rep("a", 33), collapse = "")
-  expect_error(write_dta(df, tempfile(), version = 13), "not valid Stata variables")
-  expect_error(write_dta(df, tempfile(), version = 14), "not valid Stata variables")
-})
-
-test_that("can not write non-integer labels (#401)", {
-  df <- data.frame(x = labelled(c(1, 2.5, 3), c("a" = 1)))
-  expect_error(write_dta(df, tempfile()), NA)
-
-  df <- data.frame(x = labelled(c(1, 2.5, 3), c("b" = 1.5)))
-  expect_error(write_dta(df, tempfile()), "supports labelling with integers")
-})
-
 test_that("supports stata version 15", {
   df <- tibble(x = factor(letters), y = runif(26))
 
@@ -228,14 +210,24 @@ test_that("can roundtrip file labels", {
   expect_null(attr(roundtrip_dta(df, label = NULL), "label"))
 })
 
-test_that("throws error for invalid file labels", {
-  df <- tibble(x = 1)
-  attr(df, "label") <- paste(rep("a", 100), collapse = "")
+test_that("invalid files generate informative errors", {
+  expect_snapshot(error = TRUE,{
+    long <- paste(rep("a", 100), collapse = "")
+    write_dta(data.frame(x = 1), tempfile(), label = long)
 
-  expect_error(write_dta(df, tempfile()),
-               "data labels must be 80 characters or fewer")
+    df <- data.frame(1)
+    names(df) <- "x y"
+    write_dta(df, tempfile(), version = 13)
 
-  expect_error(write_dta(df, tempfile(), label = paste(rep("a", 100), collapse = "")),
-               "data labels must be 80 characters or fewer")
+    names(df) <- long
+    write_dta(df, tempfile(), version = 13)
+    write_dta(df, tempfile(), version = 14)
+  })
 })
 
+test_that("can't write non-integer labels (#401)", {
+  expect_snapshot(error = TRUE, {
+    df <- data.frame(x = labelled(c(1, 2.5, 3), c("b" = 1.5)))
+    write_dta(df, tempfile())
+  })
+})
