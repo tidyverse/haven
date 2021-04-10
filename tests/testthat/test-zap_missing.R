@@ -9,9 +9,13 @@ test_that("strips na tags", {
 test_that("converts user-defined missings", {
   x1 <- labelled_spss(c(1, 2, 99), c(missing = 99), na_values = 99)
   x2 <- zap_missing(x1)
-
-  expect_equal(x2[[3]], NA_real_)
   expect_s3_class(x2, "haven_labelled")
+  expect_equal(as.integer(x2), c(1, 2, NA))
+
+  x3 <- labelled_spss(1:10, na_values = c(2, 4), na_range = c(8, 10))
+  x4 <- zap_missing(x3)
+  expect_s3_class(x4, "haven_labelled")
+  expect_equal(as.integer(x4), c(1, NA, 3, NA, 5, 6, 7, NA, NA, NA))
 })
 
 test_that("converts data frame", {

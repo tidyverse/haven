@@ -47,7 +47,7 @@ zap_missing.haven_labelled <- function(x) {
 
 #' @export
 zap_missing.haven_labelled_spss <- function(x) {
-  is.na(x) <- is.na(x)
+  x[is.na(x)] <- NA
 
   attr(x, "na_values") <- NULL
   attr(x, "na_range") <- NULL

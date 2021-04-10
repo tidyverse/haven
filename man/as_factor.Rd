@@ -63,4 +63,11 @@ as_factor(x, levels = "labels")
 as_factor(x, levels = "values")
 # Or combine value and label
 as_factor(x, levels = "both")
+
+# as_factor() will preserve SPSS missing values from values and ranges
+y <- labelled_spss(1:10, na_values = c(2, 4), na_range = c(8, 10))
+as_factor(y)
+# use zap_missing() first to convert to NAs
+zap_missing(y)
+as_factor(zap_missing(y))
 }
