@@ -2,6 +2,7 @@
 #include "haven_types.h"
 #include "tagged_na.h"
 
+#include <unordered_map>
 #include "cpp11/doubles.hpp"
 #include "cpp11/strings.hpp"
 #include "cpp11/integers.hpp"
@@ -53,6 +54,7 @@ inline int displayWidth(cpp11::sexp x) {
 class Writer {
   FileExt ext_;
   FileVendor vendor_;
+  std::unordered_map<const char*, readstat_string_ref_t*> string_ref_;
 
   cpp11::list x_;
   readstat_writer_t* writer_;
@@ -388,6 +390,14 @@ public:
   readstat_error_t insertValue(readstat_variable_t* var, const char* val, bool is_missing) {
     if (is_missing) {
       return readstat_insert_missing_value(writer_, var);
+    } else if (var->type == READSTAT_TYPE_STRING_REF) {
+      readstat_string_ref_t* ref;
+      if (string_ref_.count(val)) {
+        ref = string_ref_[val];
+      } else {
+        ref = string_ref_[val] = readstat_add_string_ref(writer_, val);
+      }
+      return readstat_insert_string_ref(writer_, var, ref);
     } else {
       return readstat_insert_string_value(writer_, var, val);
     }
