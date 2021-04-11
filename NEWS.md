@@ -1,5 +1,7 @@
 # haven (development version)
 
+* `write_dta()` now uses strL when strings are 500 characters or longer (#437). 
+
 * Date-times are no longer forced to UTC, but instead converted to the 
   equivalent UTC (#555). This should ensure that you see the same date-time 
   in R and in Stata/SPSS/SAS.

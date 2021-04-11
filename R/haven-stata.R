@@ -1,8 +1,13 @@
 #' Read and write Stata DTA files
 #'
+#' @description
 #' Currently haven can read and write logical, integer, numeric, character
 #' and factors. See [labelled()] for how labelled variables in
 #' Stata are handled in R.
+#'
+#' Character vectors will be stored as `strL` if any components are 500
+#' bytes or longer (and `version` >= 13); otherwise they will be stored
+#' as the appropriate `str#`.
 #'
 #' @section Character encoding:
 #' Prior to Stata 14, files did not declare a text encoding, and the

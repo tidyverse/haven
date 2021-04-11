@@ -95,6 +95,10 @@ attribute of the tibble.
 Currently haven can read and write logical, integer, numeric, character
 and factors. See \code{\link[=labelled]{labelled()}} for how labelled variables in
 Stata are handled in R.
+
+Character vectors will be stored as \code{strL} if any components are 500
+bytes or longer (and \code{version} >= 13); otherwise they will be stored
+as the appropriate \code{str#}.
 }
 \section{Character encoding}{
 

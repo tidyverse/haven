@@ -54,6 +54,7 @@ inline int displayWidth(cpp11::sexp x) {
 class Writer {
   FileExt ext_;
   FileVendor vendor_;
+  int version_;
   std::unordered_map<const char*, readstat_string_ref_t*> string_ref_;
 
   cpp11::list x_;
@@ -61,7 +62,7 @@ class Writer {
   FILE* pOut_;
 
 public:
-  Writer(FileExt ext, cpp11::list x, cpp11::strings pathEnc): ext_(ext), vendor_(extVendor(ext)), x_(x) {
+  Writer(FileExt ext, cpp11::list x, cpp11::strings pathEnc): ext_(ext), vendor_(extVendor(ext)), version_(0), x_(x) {
     std::string path(Rf_translateChar(pathEnc[0]));
 
     pOut_ = fopen(path.c_str(), "wb");
@@ -84,6 +85,7 @@ public:
   }
 
   void setVersion(int version) {
+    version_ = version;
     readstat_writer_set_file_format_version(writer_, version);
   }
 
@@ -333,10 +335,12 @@ public:
         max_length = length;
     }
 
+    // Use strL for "long" strings in stata. strL has an 80 byte overhead so
+    // we use it when it's likely to be more efficient. The main downside of
+    // strL is that it can't be used as a join key but this seems unlikely for
+    // very long strings.
     readstat_variable_t* var;
-    // Use strL for Stata if max_length too long
-    // (lazily assuming constant for version 13 and above)
-    if (ext_ == HAVEN_DTA && max_length > 2045) {
+    if (ext_ == HAVEN_DTA && version_ >= 117 && max_length >= 500) {
       var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING_REF, max_length);
     } else {
       var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, max_length);
