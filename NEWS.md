@@ -1,40 +1,44 @@
 # haven (development version)
 
-* Date-times are no longer forced to UTC, but instead converted to the 
-  equivalent UTC (#555). This should ensure that you see the same date-time 
-  in R and in Stata/SPSS/SAS.
+## New features
 
-* `write_dta()` now correctly writes tagged NAs (including tagged NAs in
-  labels) (#583).
+* `labelled_spss()` gains full vctrs support thanks to the hard work of @gorcha
+   (#527, #534, #538, #557). This means that they should now work seamlessly
+   in dplyr 1.0.0, tidyr 1.0.0 and other packages that use vctrs. 
 
 * `labelled()` vectors are more permissive when concatenating; output labels 
   will be a combination of the left-hand and the right-hand side, preferring
   values assigned to the left-hand side (#543).
 
+* Date-times are no longer forced to UTC, but instead converted to the 
+  equivalent UTC (#555). This should ensure that you see the same date-time 
+  in R and in Stata/SPSS/SAS.
+   
+## Minor improvements and bug fixes
+
+* Updated to ReadStat 1.1.5. Most importantly this includes support for
+  SAS binary compression.
+
+* `as_factor(levels = "values")` preserves values of unlabelled elements (#570).
+
 * `labelled_spss()` is a little stricter: it prevents `na_range` and `na_value`
   from containing missing values, and ensures that `na_range` is in the correct
   order (#574).
 
-* `as_factor(levels = "values")` preserves values of unlabelled elements (#570).
+* `read_spss()` now reads NA values and ranges of character variables (#409).
 
-* `labelled_spss()` now supports character data with NA values and ranges (#409).
+* `write_dta()` now correctly writes tagged NAs (including tagged NAs in
+  labels) (#583) and once again validates length of variables names (#485).
 
-* Validation failures now provide more details about the source of the problem
+* `write_*()` now validate file and variable metadata with ReadStat. This 
+  should prevent many invalid files from being written (#408). Additionally,
+  validation failures now provide more details about the source of the problem 
   (e.g. the column name of the problem) (#463).
 
-* Restore validation for length of Stata variables (#485).
-
-* All writers now validate file and variable metadata with ReadStat. This 
-  should prevent many invalid files from being written (#408). 
-
-* Updated to ReadStat 1.1.5. Most importantly this includes support for
-  SAS binary compression.
-  
-* Add vctrs support for `labelled_spss()` vectors (@gorcha, #527, #534, #538, #557).
-
-* `write_sav(..., compress=FALSE)` now uses SPSS Bytecode compression instead
-  of the rarely-used uncompressed mode.  `compress=TRUE` continues to use the new
-  (and not universally supported, but more compact) ZLIB format. (@oliverbock, #544)
+* `write_sav(compress = FALSE)` now uses SPSS bytecode compression instead of 
+  the rarely-used uncompressed mode. `compress = TRUE` continues to use the 
+  newer (and not universally supported, but more compact) zlib format 
+  (@oliverbock, #544).
 
 # haven 2.3.1
 
