@@ -12,12 +12,10 @@ Authors@R:
              comment = "Author of included ReadStat code"),
       person(given = "RStudio",
              role = c("cph", "fnd")))
-Description: Import foreign statistical formats into R via the
-    embedded 'ReadStat' C library,
-    <https://github.com/WizardMac/ReadStat>.
+Description: Import foreign statistical formats into R via the embedded
+    'ReadStat' C library, <https://github.com/WizardMac/ReadStat>.
 License: MIT + file LICENSE
-URL: https://haven.tidyverse.org,
-    https://github.com/tidyverse/haven,
+URL: https://haven.tidyverse.org, https://github.com/tidyverse/haven,
     https://github.com/WizardMac/ReadStat
 BugReports: https://github.com/tidyverse/haven/issues
 Depends: 
@@ -32,20 +30,20 @@ Imports:
     tidyselect,
     vctrs (>= 0.3.0)
 Suggests: 
+    cli,
     covr,
+    crayon,
     fs,
     knitr,
-    rmarkdown,
-    testthat (>= 3.0.0),
     pillar (>= 1.4.0),
-    cli,
-    crayon
+    rmarkdown,
+    testthat (>= 3.0.0)
 LinkingTo: 
     cpp11
 VignetteBuilder: 
     knitr
+Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 SystemRequirements: GNU make, C++11, zlib
-Config/testthat/edition: 3
