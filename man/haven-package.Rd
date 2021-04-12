@@ -15,7 +15,7 @@ Import foreign statistical formats into R via the
 \seealso{
 Useful links:
 \itemize{
-  \item \url{http://haven.tidyverse.org}
+  \item \url{https://haven.tidyverse.org}
   \item \url{https://github.com/tidyverse/haven}
   \item \url{https://github.com/WizardMac/ReadStat}
   \item Report bugs at \url{https://github.com/tidyverse/haven/issues}

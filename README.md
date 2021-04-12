@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# haven <a href='https:/haven.tidyverse.org'><img src='man/figures/logo.png' align="right" height="139" /></a>
+# haven <a href='https://haven.tidyverse.org'><img src='man/figures/logo.png' align="right" height="139" /></a>
 
 <!-- badges: start -->
 
@@ -18,8 +18,8 @@ coverage](https://codecov.io/gh/tidyverse/haven/branch/master/graph/badge.svg)](
 Haven enables R to read and write various data formats used by other
 statistical packages by wrapping the fantastic
 [ReadStat](https://github.com/WizardMac/ReadStat) C library written by
-[Evan Miller](http://www.evanmiller.org). Haven is part of the
-[tidyverse](http://tidyverse.org). Currently it supports:
+[Evan Miller](https://www.evanmiller.org). Haven is part of the
+[tidyverse](https://www.tidyverse.org/). Currently it supports:
 
 -   **SAS**: `read_sas()` reads `.sas7bdat` + `.sas7bcat` files and
     `read_xpt()` reads SAS transport files (version 5 and version 8).
@@ -32,8 +32,8 @@ statistical packages by wrapping the fantastic
 
 The output objects:
 
--   Are [tibbles](http://github.com/hadley/tibble), which have a better
-    print method for very long and very wide files.
+-   Are [tibbles](https://github.com/tidyverse/tibble), which have a
+    better print method for very long and very wide files.
 
 -   Translate value labels into a new `labelled()` class, which
     preserves the original semantics and can easily be coerced to

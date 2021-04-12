@@ -16,7 +16,7 @@ Description: Import foreign statistical formats into R via the
     embedded 'ReadStat' C library,
     <https://github.com/WizardMac/ReadStat>.
 License: MIT + file LICENSE
-URL: http://haven.tidyverse.org,
+URL: https://haven.tidyverse.org,
     https://github.com/tidyverse/haven,
     https://github.com/WizardMac/ReadStat
 BugReports: https://github.com/tidyverse/haven/issues

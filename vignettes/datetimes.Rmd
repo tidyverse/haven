@@ -50,4 +50,4 @@ Dates and date times use a difference offset to R:
   <http://www-01.ibm.com/support/knowledgecenter/#!/SSLVMB_20.0.0/com.ibm.spss.statistics.help/syn_date_and_time_date_time_formats.htm>
 
 * Stata:
-  <http://www.stata.com/manuals13/u24.pdf>
+  <https://www.stata.com/manuals13/u24.pdf>
