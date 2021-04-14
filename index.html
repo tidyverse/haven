@@ -20,9 +20,8 @@
 <script src="pkgdown.js"></script><link href="tidyverse-2.css" rel="stylesheet">
 <!--optional theme--><link href=".css" rel="stylesheet">
 <meta property="og:title" content="Import and Export SPSS, Stata and SAS Files">
-<meta property="og:description" content="Import foreign statistical formats into R via the
-    embedded ReadStat C library,
-    &lt;https://github.com/WizardMac/ReadStat&gt;.">
+<meta property="og:description" content="Import foreign statistical formats into R via the embedded
+    ReadStat C library, &lt;https://github.com/WizardMac/ReadStat&gt;.">
 <meta property="og:image" content="https://haven.tidyverse.org/logo.png">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -74,12 +73,6 @@
       <a href="articles/datetimes.html">Dates and times</a>
     </li>
     <li>
-      <a href="articles/releases/haven-0.1.0.html">haven 0.1.0</a>
-    </li>
-    <li>
-      <a href="articles/releases/haven-1.0.0.html">haven 1.0.0</a>
-    </li>
-    <li>
       <a href="articles/semantics.html">Conversion semantics</a>
     </li>
   </ul>
@@ -108,10 +101,10 @@
       <a href="https://www.tidyverse.org/articles/2018/06/haven-1-1-2/">Version 1.1.2</a>
     </li>
     <li>
-      <a href="articles/releases/haven-1.0.0.html">Version 1.0.0</a>
+      <a href="https://blog.rstudio.com/2016/10/04/haven-1-0-0/">Version 1.0.0</a>
     </li>
     <li>
-      <a href="articles/releases/haven-0.1.0.html">Version 0.1.0</a>
+      <a href="https://blog.rstudio.org/2015/03/04/haven-0-1-0/">Version 0.1.0</a>
     </li>
     <li class="divider">
     <li>
@@ -144,7 +137,7 @@
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
-<p>Haven enables R to read and write various data formats used by other statistical packages by wrapping the fantastic <a href="https://github.com/WizardMac/ReadStat" class="external-link">ReadStat</a> C library written by <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>. Haven is part of the <a href="http://tidyverse.org" class="external-link">tidyverse</a>. Currently it supports:</p>
+<p>Haven enables R to read and write various data formats used by other statistical packages by wrapping the fantastic <a href="https://github.com/WizardMac/ReadStat" class="external-link">ReadStat</a> C library written by <a href="https://www.evanmiller.org" class="external-link">Evan Miller</a>. Haven is part of the <a href="https://www.tidyverse.org/" class="external-link">tidyverse</a>. Currently it supports:</p>
 <ul>
 <li><p><strong>SAS</strong>: <code><a href="reference/read_sas.html">read_sas()</a></code> reads <code>.sas7bdat</code> + <code>.sas7bcat</code> files and <code><a href="reference/read_xpt.html">read_xpt()</a></code> reads SAS transport files (version 5 and version 8).</p></li>
 <li><p><strong>SPSS</strong>: <code><a href="reference/read_spss.html">read_sav()</a></code> reads <code>.sav</code> files and <code><a href="reference/read_spss.html">read_por()</a></code> reads the older <code>.por</code> files. <code><a href="reference/read_spss.html">write_sav()</a></code> writes <code>.sav</code> files.</p></li>
@@ -152,7 +145,7 @@
 </ul>
 <p>The output objects:</p>
 <ul>
-<li><p>Are <a href="http://github.com/hadley/tibble" class="external-link">tibbles</a>, which have a better print method for very long and very wide files.</p></li>
+<li><p>Are <a href="https://github.com/tidyverse/tibble" class="external-link">tibbles</a>, which have a better print method for very long and very wide files.</p></li>
 <li><p>Translate value labels into a new <code><a href="reference/labelled.html">labelled()</a></code> class, which preserves the original semantics and can easily be coerced to factors with <code><a href="reference/as_factor.html">as_factor()</a></code>. Special missing values are preserved. See <code><a href="articles/semantics.html">vignette("semantics")</a></code> for more details.</p></li>
 <li><p>Dates and times are converted to R date/time classes. Character vectors are not converted to factors.</p></li>
 </ul>
@@ -165,17 +158,13 @@
 <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"tidyverse"</span><span class="op">)</span>
 
 <span class="co"># Alternatively, install just haven:</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"haven"</span><span class="op">)</span>
-
-<span class="co"># Or the the development version from GitHub:</span>
-<span class="co"># install.packages("devtools")</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"tidyverse/haven"</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"haven"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://haven.tidyverse.org" class="external-link">haven</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://haven.tidyverse.org">haven</a></span><span class="op">)</span>
 
 <span class="co"># SAS</span>
 <span class="fu"><a href="reference/read_sas.html">read_sas</a></span><span class="op">(</span><span class="st">"mtcars.sas7bdat"</span><span class="op">)</span>

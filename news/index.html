@@ -120,12 +120,6 @@
       <a href="../articles/datetimes.html">Dates and times</a>
     </li>
     <li>
-      <a href="../articles/releases/haven-0.1.0.html">haven 0.1.0</a>
-    </li>
-    <li>
-      <a href="../articles/releases/haven-1.0.0.html">haven 1.0.0</a>
-    </li>
-    <li>
       <a href="../articles/semantics.html">Conversion semantics</a>
     </li>
   </ul>
@@ -154,10 +148,10 @@
       <a href="https://www.tidyverse.org/articles/2018/06/haven-1-1-2/">Version 1.1.2</a>
     </li>
     <li>
-      <a href="../articles/releases/haven-1.0.0.html">Version 1.0.0</a>
+      <a href="https://blog.rstudio.com/2016/10/04/haven-1-0-0/">Version 1.0.0</a>
     </li>
     <li>
-      <a href="../articles/releases/haven-0.1.0.html">Version 0.1.0</a>
+      <a href="https://blog.rstudio.org/2015/03/04/haven-0-1-0/">Version 0.1.0</a>
     </li>
     <li class="divider"></li>
     <li>
@@ -192,20 +186,28 @@
 <h1 class="page-header" data-toc-text="development version">
 <a href="#haven-development-version" class="anchor"></a>haven (development version)<small> Unreleased </small>
 </h1>
+<div id="new-features" class="section level2">
+<h2 class="hasAnchor">
+<a href="#new-features" class="anchor"></a>New features</h2>
 <ul>
-<li><p>Date-times are no longer forced to UTC, but instead converted to the equivalent UTC (<a href='https://github.com/tidyverse/haven/issues/555'>#555</a>). This should ensure that you see the same date-time in R and in Stata/SPSS/SAS.</p></li>
-<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> now correctly writes tagged NAs (including tagged NAs in labels) (<a href='https://github.com/tidyverse/haven/issues/583'>#583</a>).</p></li>
+<li><p><code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> gains full vctrs support thanks to the hard work of <a href='https://github.com/gorcha'>@gorcha</a> (<a href='https://github.com/tidyverse/haven/issues/527'>#527</a>, <a href='https://github.com/tidyverse/haven/issues/534'>#534</a>, <a href='https://github.com/tidyverse/haven/issues/538'>#538</a>, <a href='https://github.com/tidyverse/haven/issues/557'>#557</a>). This means that they should now work seamlessly in dplyr 1.0.0, tidyr 1.0.0 and other packages that use vctrs.</p></li>
 <li><p><code><a href="../reference/labelled.html">labelled()</a></code> vectors are more permissive when concatenating; output labels will be a combination of the left-hand and the right-hand side, preferring values assigned to the left-hand side (<a href='https://github.com/tidyverse/haven/issues/543'>#543</a>).</p></li>
-<li><p><code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> is a little stricter: it prevents <code>na_range</code> and <code>na_value</code> from containing missing values, and ensures that <code>na_range</code> is in the correct order (<a href='https://github.com/tidyverse/haven/issues/574'>#574</a>).</p></li>
-<li><p><code><a href="../reference/as_factor.html">as_factor(levels = "values")</a></code> preserves values of unlabelled elements (<a href='https://github.com/tidyverse/haven/issues/570'>#570</a>).</p></li>
-<li><p><code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> now supports character data with NA values and ranges (<a href='https://github.com/tidyverse/haven/issues/409'>#409</a>).</p></li>
-<li><p>Validation failures now provide more details about the source of the problem (e.g. the column name of the problem) (<a href='https://github.com/tidyverse/haven/issues/463'>#463</a>).</p></li>
-<li><p>Restore validation for length of Stata variables (<a href='https://github.com/tidyverse/haven/issues/485'>#485</a>).</p></li>
-<li><p>All writers now validate file and variable metadata with ReadStat. This should prevent many invalid files from being written (<a href='https://github.com/tidyverse/haven/issues/408'>#408</a>).</p></li>
-<li><p>Updated to ReadStat 1.1.5. Most importantly this includes support for SAS binary compression.</p></li>
-<li><p>Add vctrs support for <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> vectors (<a href='https://github.com/gorcha'>@gorcha</a>, <a href='https://github.com/tidyverse/haven/issues/527'>#527</a>, <a href='https://github.com/tidyverse/haven/issues/534'>#534</a>, <a href='https://github.com/tidyverse/haven/issues/538'>#538</a>, <a href='https://github.com/tidyverse/haven/issues/557'>#557</a>).</p></li>
-<li><p><code><a href="../reference/read_spss.html">write_sav(..., compress=FALSE)</a></code> now uses SPSS Bytecode compression instead of the rarely-used uncompressed mode. <code>compress=TRUE</code> continues to use the new (and not universally supported, but more compact) ZLIB format. (<a href='https://github.com/oliverbock'>@oliverbock</a>, <a href='https://github.com/tidyverse/haven/issues/544'>#544</a>)</p></li>
+<li><p>Date-times are no longer forced to UTC, but instead converted to the equivalent UTC (<a href='https://github.com/tidyverse/haven/issues/555'>#555</a>). This should ensure that you see the same date-time in R and in Stata/SPSS/SAS.</p></li>
 </ul>
+</div>
+<div id="minor-improvements-and-bug-fixes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#minor-improvements-and-bug-fixes" class="anchor"></a>Minor improvements and bug fixes</h2>
+<ul>
+<li><p>Updated to ReadStat 1.1.5. Most importantly this includes support for SAS binary compression.</p></li>
+<li><p><code><a href="../reference/as_factor.html">as_factor(levels = "values")</a></code> preserves values of unlabelled elements (<a href='https://github.com/tidyverse/haven/issues/570'>#570</a>).</p></li>
+<li><p><code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> is a little stricter: it prevents <code>na_range</code> and <code>na_value</code> from containing missing values, and ensures that <code>na_range</code> is in the correct order (<a href='https://github.com/tidyverse/haven/issues/574'>#574</a>).</p></li>
+<li><p><code><a href="../reference/read_spss.html">read_spss()</a></code> now reads NA values and ranges of character variables (<a href='https://github.com/tidyverse/haven/issues/409'>#409</a>).</p></li>
+<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> now correctly writes tagged NAs (including tagged NAs in labels) (<a href='https://github.com/tidyverse/haven/issues/583'>#583</a>) and once again validates length of variables names (<a href='https://github.com/tidyverse/haven/issues/485'>#485</a>).</p></li>
+<li><p><code>write_*()</code> now validate file and variable metadata with ReadStat. This should prevent many invalid files from being written (<a href='https://github.com/tidyverse/haven/issues/408'>#408</a>). Additionally, validation failures now provide more details about the source of the problem (e.g. the column name of the problem) (<a href='https://github.com/tidyverse/haven/issues/463'>#463</a>).</p></li>
+<li><p><code><a href="../reference/read_spss.html">write_sav(compress = FALSE)</a></code> now uses SPSS bytecode compression instead of the rarely-used uncompressed mode. <code>compress = TRUE</code> continues to use the newer (and not universally supported, but more compact) zlib format (<a href='https://github.com/oliverbock'>@oliverbock</a>, <a href='https://github.com/tidyverse/haven/issues/544'>#544</a>).</p></li>
+</ul>
+</div>
 </div>
     <div id="haven-231" class="section level1">
 <h1 class="page-header" data-toc-text="2.3.1">
@@ -244,9 +246,9 @@
 </ul>
 <p>This also brings with it a deprecation: <code>cols_only</code> in <code><a href="../reference/read_sas.html">read_sas()</a></code> has been deprecated in favour of the new <code>col_select</code> argument.</p>
 </div>
-<div id="minor-improvements-and-bug-fixes" class="section level2">
+<div id="minor-improvements-and-bug-fixes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#minor-improvements-and-bug-fixes" class="anchor"></a>Minor improvements and bug fixes</h2>
+<a href="#minor-improvements-and-bug-fixes-1" class="anchor"></a>Minor improvements and bug fixes</h2>
 <ul>
 <li><p><code><a href="../reference/as_factor.html">as_factor()</a></code> allows non-unique labels when <code>levels = "label"</code>. This fixes a particularly annoying printing bug (<a href='https://github.com/tidyverse/haven/issues/424'>#424</a>, <a href='https://github.com/gergness'>@gergness</a>)</p></li>
 <li><p><code><a href="../reference/read_sas.html">read_sas()</a></code> now supports (IS|E|B)8601(DT|DA|TM) date/time formats (<a href='https://github.com/mikmart'>@mikmart</a>).</p></li>
@@ -276,9 +278,9 @@
 <p><code><a href="../reference/labelled.html">labelled()</a></code> and <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> now allow <code>NULL</code> labels. This makes both classes more flexible, allowing you to use them for their other attributes (<a href='https://github.com/tidyverse/haven/issues/219'>#219</a>).</p>
 <p><code><a href="../reference/labelled.html">labelled()</a></code> tests that value labels are unique (<a href='https://github.com/larmarange'>@larmarange</a>, <a href='https://github.com/tidyverse/haven/issues/364'>#364</a>)</p>
 </div>
-<div id="minor-improvements-and-bug-fixes-1" class="section level2">
+<div id="minor-improvements-and-bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#minor-improvements-and-bug-fixes-1" class="anchor"></a>Minor improvements and bug fixes</h2>
+<a href="#minor-improvements-and-bug-fixes-2" class="anchor"></a>Minor improvements and bug fixes</h2>
 <ul>
 <li>
 <p><code><a href="../reference/as_factor.html">as_factor()</a></code>:</p>
