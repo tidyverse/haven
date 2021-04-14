@@ -1,4 +1,4 @@
-# haven (development version)
+# haven 2.4.0
 
 ## New features
 
