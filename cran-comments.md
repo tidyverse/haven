@@ -19,4 +19,5 @@ Issues with CRAN packages are summarised below.
 
 * duawranglr
   checking tests ... ERROR
+  I submitted a fix to the maintainer, and they have submitted to CRAN.
 
