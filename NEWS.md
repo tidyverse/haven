@@ -3,8 +3,8 @@
 ## New features
 
 * `labelled_spss()` gains full vctrs support thanks to the hard work of @gorcha
-   (#527, #534, #538, #557). This means that they should now work seamlessly
-   in dplyr 1.0.0, tidyr 1.0.0 and other packages that use vctrs. 
+  (#527, #534, #538, #557). This means that they should now work seamlessly
+  in dplyr 1.0.0, tidyr 1.0.0 and other packages that use vctrs. 
 
 * `labelled()` vectors are more permissive when concatenating; output labels 
   will be a combination of the left-hand and the right-hand side, preferring
