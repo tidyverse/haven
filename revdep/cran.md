@@ -1,10 +1,3 @@
-## R CMD check results
-
-0 ERRORs | 0 WARNINGs | 1 NOTEs
-
-* checking for GNU extensions in Makefiles ... NOTE
-  GNU make is a SystemRequirements.
-
 ## revdepcheck results
 
 We checked 88 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
