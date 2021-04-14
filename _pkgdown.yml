@@ -1,11 +1,7 @@
-template:
-  package: tidytemplate
-
 url: https://haven.tidyverse.org
 
-navbar:
-  components:
-    home: ~
+template:
+  package: tidytemplate
 
 home:
   strip_header: true
@@ -16,7 +12,6 @@ authors:
 
 reference:
 - title: Reading and writing
-  desc: ~
   contents:
   - read_dta
   - read_sas
@@ -67,6 +62,6 @@ news:
   - text: "Version 1.1.2"
     href: https://www.tidyverse.org/articles/2018/06/haven-1-1-2/
   - text: "Version 1.0.0"
-    href: articles/releases/haven-1.0.0.html
+    href: https://blog.rstudio.com/2016/10/04/haven-1-0-0/
   - text: "Version 0.1.0"
-    href: articles/releases/haven-0.1.0.html
+    href: https://blog.rstudio.org/2015/03/04/haven-0-1-0/
