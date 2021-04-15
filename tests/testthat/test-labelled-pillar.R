@@ -46,4 +46,21 @@ test_that("pillar", {
     )
     tibble::tibble(x)
   })
+
+  expect_snapshot({
+    x <- labelled(
+      c("spaces", "tabs", "newlines", "c0", "c1", "quote"),
+      c("a b" = "spaces", "a\tb" = "tabs", "a\nb" = "newlines", "a\u0001b" = "c0", "a\u0080b" = "c1", 'a"b' = "quote")
+    )
+    tibble::tibble(x)
+  })
+
+  expect_snapshot({
+    "For some reason expect_snapshot() only records one backslash here. The output is correct."
+    x <- labelled(
+      c("backslash"),
+      c("a\\b" = "backslash")
+    )
+    tibble::tibble(x)
+  })
 })

@@ -123,3 +123,33 @@
       10 10 (NA) [Refused]
       11 NA               
 
+---
+
+    Code
+      x <- labelled(c("spaces", "tabs", "newlines", "c0", "c1", "quote"), c(`a b` = "spaces",
+        `a	b` = "tabs", `a
+      b` = "newlines", `ab` = "c0", `ab` = "c1", `a"b` = "quote"))
+      tibble::tibble(x)
+    Output
+      # A tibble: 6 x 1
+        x              
+        <chr+lbl>      
+      1 spaces [a b]   
+      2 tabs [a\tb]    
+      3 newlines [a\nb]
+      4 c0 [a\u0001b]  
+      5 c1 [a\u0080b]  
+      6 quote [a"b]    
+
+---
+
+    Code
+      # For some reason expect_snapshot() only records one backslash here. The output is correct.
+      x <- labelled(c("backslash"), c(`a\b` = "backslash"))
+      tibble::tibble(x)
+    Output
+      # A tibble: 1 x 1
+        x              
+        <chr+lbl>      
+      1 backslash [a\b]
+
