@@ -144,7 +144,7 @@
 ---
 
     Code
-      # For some reason expect_snapshot() only records one backslash here. The output is correct.
+      # https://github.com/r-lib/rlang/issues/1160
       x <- labelled(c("backslash"), c(`a\b` = "backslash"))
       tibble::tibble(x)
     Output
