@@ -235,7 +235,7 @@ vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "", y_ar
   # Prefer labels from LHS
   x_labels <- vec_cast_named(attr(x, "labels"), data_type, x_arg = x_arg)
   y_labels <- vec_cast_named(attr(y, "labels"), data_type, x_arg = y_arg)
-  labels <- c(x_labels, y_labels[setdiff(names(y_labels), names(x_labels))])
+  labels <- c(x_labels, y_labels[!y_labels %in% x_labels])
 
   # Prefer labels from LHS
   label <- attr(x, "label", exact = TRUE) %||% attr(y, "label", exact = TRUE)
