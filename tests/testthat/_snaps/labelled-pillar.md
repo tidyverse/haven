@@ -126,20 +126,19 @@
 ---
 
     Code
-      x <- labelled(c("spaces", "tabs", "newlines", "c0", "c1", "quote"), c(`a b` = "spaces",
+      x <- labelled(c("spaces", "tabs", "newlines", "c0", "quote"), c(`a b` = "spaces",
         `a	b` = "tabs", `a
-      b` = "newlines", `ab` = "c0", `ab` = "c1", `a"b` = "quote"))
+      b` = "newlines", `ab` = "c0", `a"b` = "quote"))
       tibble::tibble(x)
     Output
-      # A tibble: 6 x 1
+      # A tibble: 5 x 1
         x              
         <chr+lbl>      
       1 spaces [a b]   
       2 tabs [a\tb]    
       3 newlines [a\nb]
       4 c0 [a\u0001b]  
-      5 c1 [a\u0080b]  
-      6 quote [a"b]    
+      5 quote [a"b]    
 
 ---
 
@@ -152,4 +151,15 @@
         x              
         <chr+lbl>      
       1 backslash [a\b]
+
+---
+
+    Code
+      x <- labelled(c("c1"), c(`ab` = "c1"))
+      tibble::tibble(x)
+    Output
+      # A tibble: 1 x 1
+        x            
+        <chr+lbl>    
+      1 c1 [a\u0080b]
 
