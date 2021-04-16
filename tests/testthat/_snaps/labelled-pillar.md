@@ -144,18 +144,24 @@
 
     Code
       # https://github.com/r-lib/rlang/issues/1160
-      x <- labelled(c("backslash"), c(`a\b` = "backslash"))
+      x <- "backslash"
+      label <- x
+      names(label) <- "a\\b"
+      x <- labelled(x, label)
       tibble::tibble(x)
     Output
       # A tibble: 1 x 1
-        x              
-        <chr+lbl>      
-      1 backslash [a\b]
+        x               
+        <chr+lbl>       
+      1 backslash [a\\b]
 
 ---
 
     Code
-      x <- labelled(c("c1"), c(`ab` = "c1"))
+      x <- "c1"
+      label <- x
+      names(label) <- "a\u0080b"
+      x <- labelled(x, label)
       tibble::tibble(x)
     Output
       # A tibble: 1 x 1

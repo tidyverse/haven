@@ -57,19 +57,19 @@ test_that("pillar", {
 
   expect_snapshot({
     "https://github.com/r-lib/rlang/issues/1160"
-    x <- labelled(
-      c("backslash"),
-      c("a\\b" = "backslash")
-    )
+    x <- "backslash"
+    label <- x
+    names(label) <- "a\\b"
+    x <- labelled(x, label)
     tibble::tibble(x)
   })
 
   skip_on_os("windows")
   expect_snapshot({
-    x <- labelled(
-      c("c1"),
-      c("a\u0080b" = "c1")
-    )
+    x <- "c1"
+    label <- x
+    names(label) <- "a\u0080b"
+    x <- labelled(x, label)
     tibble::tibble(x)
   })
 })
