@@ -100,7 +100,7 @@
         <a class="navbar-brand" href="../index.html">haven</a>
         <div class="info hidden-xs hidden-sm">
           <span class="partof">part of the <a href="https://tidyverse.org">tidyverse</a></span>
-          <span class="version version-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.0.9000</span>
+          <span class="version version-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.1</span>
         </div>
       </div>
     </div>
@@ -182,9 +182,9 @@
       <small>Source: <a href='https://github.com/tidyverse/haven/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="haven-development-version" class="section level1">
-<h1 class="page-header" data-toc-text="development version">
-<a href="#haven-development-version" class="anchor"></a>haven (development version)<small> Unreleased </small>
+    <div id="haven-241" class="section level1">
+<h1 class="page-header" data-toc-text="2.4.1">
+<a href="#haven-241" class="anchor" aria-hidden="true"></a>haven 2.4.1<small> Unreleased </small>
 </h1>
 <ul>
 <li>Fix buglet when combining <code><a href="../reference/labelled.html">labelled()</a></code> with identical labels.</li>
@@ -192,11 +192,11 @@
 </div>
     <div id="haven-240" class="section level1">
 <h1 class="page-header" data-toc-text="2.4.0">
-<a href="#haven-240" class="anchor"></a>haven 2.4.0<small> 2021-04-14 </small>
+<a href="#haven-240" class="anchor" aria-hidden="true"></a>haven 2.4.0<small> 2021-04-14 </small>
 </h1>
 <div id="new-features" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-features" class="anchor"></a>New features</h2>
+<a href="#new-features" class="anchor" aria-hidden="true"></a>New features</h2>
 <ul>
 <li><p><code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> gains full vctrs support thanks to the hard work of <a href='https://github.com/gorcha'>@gorcha</a> (<a href='https://github.com/tidyverse/haven/issues/527'>#527</a>, <a href='https://github.com/tidyverse/haven/issues/534'>#534</a>, <a href='https://github.com/tidyverse/haven/issues/538'>#538</a>, <a href='https://github.com/tidyverse/haven/issues/557'>#557</a>). This means that they should now work seamlessly in dplyr 1.0.0, tidyr 1.0.0 and other packages that use vctrs.</p></li>
 <li><p><code><a href="../reference/labelled.html">labelled()</a></code> vectors are more permissive when concatenating; output labels will be a combination of the left-hand and the right-hand side, preferring values assigned to the left-hand side (<a href='https://github.com/tidyverse/haven/issues/543'>#543</a>).</p></li>
@@ -205,7 +205,7 @@
 </div>
 <div id="minor-improvements-and-bug-fixes" class="section level2">
 <h2 class="hasAnchor">
-<a href="#minor-improvements-and-bug-fixes" class="anchor"></a>Minor improvements and bug fixes</h2>
+<a href="#minor-improvements-and-bug-fixes" class="anchor" aria-hidden="true"></a>Minor improvements and bug fixes</h2>
 <ul>
 <li><p>Updated to ReadStat 1.1.5. Most importantly this includes support for SAS binary compression.</p></li>
 <li><p><code><a href="../reference/as_factor.html">as_factor(levels = "values")</a></code> preserves values of unlabelled elements (<a href='https://github.com/tidyverse/haven/issues/570'>#570</a>).</p></li>
@@ -219,7 +219,7 @@
 </div>
     <div id="haven-231" class="section level1">
 <h1 class="page-header" data-toc-text="2.3.1">
-<a href="#haven-231" class="anchor"></a>haven 2.3.1<small> 2020-06-01 </small>
+<a href="#haven-231" class="anchor" aria-hidden="true"></a>haven 2.3.1<small> 2020-06-01 </small>
 </h1>
 <ul>
 <li><p>Add missing methods so <code><a href="https://rdrr.io/r/stats/median.html" class="external-link">median()</a></code>, <code><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> work once more (<a href='https://github.com/tidyverse/haven/issues/520'>#520</a>).</p></li>
@@ -228,7 +228,7 @@
 </div>
     <div id="haven-230" class="section level1">
 <h1 class="page-header" data-toc-text="2.3.0">
-<a href="#haven-230" class="anchor"></a>haven 2.3.0<small> 2020-05-24 </small>
+<a href="#haven-230" class="anchor" aria-hidden="true"></a>haven 2.3.0<small> 2020-05-24 </small>
 </h1>
 <ul>
 <li><p><code><a href="../reference/labelled.html">labelled()</a></code> gains the necessary support to work seemlessly in dplyr 1.0.0, tidyr 1.0.0, and other packages that use vctrs (<a href='https://github.com/mikmart'>@mikmart</a>, <a href='https://github.com/tidyverse/haven/issues/496'>#496</a>).</p></li>
@@ -238,11 +238,11 @@
 </div>
     <div id="haven-220" class="section level1">
 <h1 class="page-header" data-toc-text="2.2.0">
-<a href="#haven-220" class="anchor"></a>haven 2.2.0<small> 2019-11-08 </small>
+<a href="#haven-220" class="anchor" aria-hidden="true"></a>haven 2.2.0<small> 2019-11-08 </small>
 </h1>
 <div id="partial-reading" class="section level2">
 <h2 class="hasAnchor">
-<a href="#partial-reading" class="anchor"></a>Partial reading</h2>
+<a href="#partial-reading" class="anchor" aria-hidden="true"></a>Partial reading</h2>
 <p>Thanks to the hard work of <a href='https://github.com/mikmart'>@mikmart</a>, all <code>read_*()</code> functions gain three new arguments that allow you to read in only part of a large file:</p>
 <ul>
 <li>
@@ -256,7 +256,7 @@
 </div>
 <div id="minor-improvements-and-bug-fixes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#minor-improvements-and-bug-fixes-1" class="anchor"></a>Minor improvements and bug fixes</h2>
+<a href="#minor-improvements-and-bug-fixes-1" class="anchor" aria-hidden="true"></a>Minor improvements and bug fixes</h2>
 <ul>
 <li><p><code><a href="../reference/as_factor.html">as_factor()</a></code> allows non-unique labels when <code>levels = "label"</code>. This fixes a particularly annoying printing bug (<a href='https://github.com/tidyverse/haven/issues/424'>#424</a>, <a href='https://github.com/gergness'>@gergness</a>)</p></li>
 <li><p><code><a href="../reference/read_sas.html">read_sas()</a></code> now supports (IS|E|B)8601(DT|DA|TM) date/time formats (<a href='https://github.com/mikmart'>@mikmart</a>).</p></li>
@@ -269,7 +269,7 @@
 </div>
     <div id="haven-211" class="section level1">
 <h1 class="page-header" data-toc-text="2.1.1">
-<a href="#haven-211" class="anchor"></a>haven 2.1.1<small> 2019-07-04 </small>
+<a href="#haven-211" class="anchor" aria-hidden="true"></a>haven 2.1.1<small> 2019-07-04 </small>
 </h1>
 <ul>
 <li>Fixes for R CMD check</li>
@@ -277,18 +277,18 @@
 </div>
     <div id="haven-210" class="section level1">
 <h1 class="page-header" data-toc-text="2.1.0">
-<a href="#haven-210" class="anchor"></a>haven 2.1.0<small> 2019-02-19 </small>
+<a href="#haven-210" class="anchor" aria-hidden="true"></a>haven 2.1.0<small> 2019-02-19 </small>
 </h1>
 <div id="improved-labelling" class="section level2">
 <h2 class="hasAnchor">
-<a href="#improved-labelling" class="anchor"></a>Improved labelling</h2>
+<a href="#improved-labelling" class="anchor" aria-hidden="true"></a>Improved labelling</h2>
 <p><code>labelled</code> objects get pretty printing that shows the labels and NA values when inside of a <code>tbl_df</code>. Turn this behaviour off with behavior using <code><a href="https://rdrr.io/r/base/options.html" class="external-link">option(haven.show_pillar_labels = FALSE)</a></code> (<a href='https://github.com/tidyverse/haven/issues/340'>#340</a>, <a href='https://github.com/gergness'>@gergness</a>).</p>
 <p><code><a href="../reference/labelled.html">labelled()</a></code> and <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> now allow <code>NULL</code> labels. This makes both classes more flexible, allowing you to use them for their other attributes (<a href='https://github.com/tidyverse/haven/issues/219'>#219</a>).</p>
 <p><code><a href="../reference/labelled.html">labelled()</a></code> tests that value labels are unique (<a href='https://github.com/larmarange'>@larmarange</a>, <a href='https://github.com/tidyverse/haven/issues/364'>#364</a>)</p>
 </div>
 <div id="minor-improvements-and-bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#minor-improvements-and-bug-fixes-2" class="anchor"></a>Minor improvements and bug fixes</h2>
+<a href="#minor-improvements-and-bug-fixes-2" class="anchor" aria-hidden="true"></a>Minor improvements and bug fixes</h2>
 <ul>
 <li>
 <p><code><a href="../reference/as_factor.html">as_factor()</a></code>:</p>
@@ -326,11 +326,11 @@
 </div>
     <div id="haven-200" class="section level1">
 <h1 class="page-header" data-toc-text="2.0.0">
-<a href="#haven-200" class="anchor"></a>haven 2.0.0<small> 2018-11-21 </small>
+<a href="#haven-200" class="anchor" aria-hidden="true"></a>haven 2.0.0<small> 2018-11-21 </small>
 </h1>
 <div id="breaking-changes" class="section level2">
 <h2 class="hasAnchor">
-<a href="#breaking-changes" class="anchor"></a>BREAKING CHANGES</h2>
+<a href="#breaking-changes" class="anchor" aria-hidden="true"></a>BREAKING CHANGES</h2>
 <ul>
 <li>
 <p><code><a href="../reference/labelled.html">labelled()</a></code> and <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> now produce objects with class “haven_labelled” and “haven_labelled_spss”. Previously, the “labelled” class name clashed with the labelled class defined by Hmisc (<a href='https://github.com/tidyverse/haven/issues/329'>#329</a>).</p>
@@ -340,7 +340,7 @@
 </div>
 <div id="minor-improvements" class="section level2">
 <h2 class="hasAnchor">
-<a href="#minor-improvements" class="anchor"></a>Minor improvements</h2>
+<a href="#minor-improvements" class="anchor" aria-hidden="true"></a>Minor improvements</h2>
 <ul>
 <li>
 <p><code><a href="../reference/labelled.html">labelled()</a></code> and <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> now support adding the <code>label</code> attribute to the resulting object. The <code>label</code> is a short, human-readable description of the object, and is now also used when printing, and can be easily removed using the new <code><a href="../reference/zap_label.html">zap_label()</a></code> function. (<a href='https://github.com/tidyverse/haven/issues/362'>#362</a>, <a href='https://github.com/huftis'>@huftis</a>)</p>
@@ -351,7 +351,7 @@
 </div>
     <div id="haven-112" class="section level1">
 <h1 class="page-header" data-toc-text="1.1.2">
-<a href="#haven-112" class="anchor"></a>haven 1.1.2<small> 2018-06-27 </small>
+<a href="#haven-112" class="anchor" aria-hidden="true"></a>haven 1.1.2<small> 2018-06-27 </small>
 </h1>
 <ul>
 <li><p>haven can read and write non-ASCII paths in R 3.5 (<a href='https://github.com/tidyverse/haven/issues/371'>#371</a>).</p></li>
@@ -374,7 +374,7 @@
 </div>
     <div id="haven-111" class="section level1">
 <h1 class="page-header" data-toc-text="1.1.1">
-<a href="#haven-111" class="anchor"></a>haven 1.1.1<small> 2018-01-18 </small>
+<a href="#haven-111" class="anchor" aria-hidden="true"></a>haven 1.1.1<small> 2018-01-18 </small>
 </h1>
 <ul>
 <li>
@@ -398,7 +398,7 @@
 </div>
     <div id="haven-110" class="section level1">
 <h1 class="page-header" data-toc-text="1.1.0">
-<a href="#haven-110" class="anchor"></a>haven 1.1.0<small> 2017-07-09 </small>
+<a href="#haven-110" class="anchor" aria-hidden="true"></a>haven 1.1.0<small> 2017-07-09 </small>
 </h1>
 <ul>
 <li>
@@ -425,7 +425,7 @@
 </div>
     <div id="haven-100" class="section level1">
 <h1 class="page-header" data-toc-text="1.0.0">
-<a href="#haven-100" class="anchor"></a>haven 1.0.0<small> 2016-09-23 </small>
+<a href="#haven-100" class="anchor" aria-hidden="true"></a>haven 1.0.0<small> 2016-09-23 </small>
 </h1>
 <ul>
 <li><p>The ReadStat library is stored in a subdirectory of <code>src</code> (<a href='https://github.com/tidyverse/haven/issues/209'>#209</a>, <a href='https://github.com/krlmlr'>@krlmlr</a>).</p></li>
@@ -469,7 +469,7 @@
 </div>
     <div id="haven-020" class="section level1">
 <h1 class="page-header" data-toc-text="0.2.0">
-<a href="#haven-020" class="anchor"></a>haven 0.2.0<small> 2015-04-09 </small>
+<a href="#haven-020" class="anchor" aria-hidden="true"></a>haven 0.2.0<small> 2015-04-09 </small>
 </h1>
 <ul>
 <li><p>fixed a bug in <code>as_factor.labelled</code>, which generated <na>’s and wrong labels for integer labels.</na></p></li>
@@ -486,7 +486,7 @@
 </div>
     <div id="haven-011" class="section level1">
 <h1 class="page-header" data-toc-text="0.1.1">
-<a href="#haven-011" class="anchor"></a>haven 0.1.1<small> 2015-03-03 </small>
+<a href="#haven-011" class="anchor" aria-hidden="true"></a>haven 0.1.1<small> 2015-03-03 </small>
 </h1>
 <ul>
 <li>Fixed memory initialisation problems found by valgrind.</li>
