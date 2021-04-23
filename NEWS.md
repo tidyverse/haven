@@ -1,3 +1,5 @@
+# haven (development version)
+
 # haven 2.4.1
 
 * Fix buglet when combining `labelled()` with identical labels.
