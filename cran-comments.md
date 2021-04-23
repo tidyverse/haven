@@ -7,17 +7,4 @@
 
 ## revdepcheck results
 
-We checked 88 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
-
- * We saw 1 new problems
- * We failed to check 0 packages
-
-Issues with CRAN packages are summarised below.
-
-### New problems
-(This reports the first line of each new failure)
-
-* duawranglr
-  checking tests ... ERROR
-  I submitted a fix to the maintainer, and they have submitted to CRAN.
-
+I did not run the revdep checks because this is a tiny fix that shouldn't affect existing code.
