@@ -40,7 +40,7 @@
 #' zap_labels(x)
 labelled <- function(x = double(), labels = NULL, label = NULL) {
   x <- vec_data(x)
-  labels <- vec_cast_named(labels, x, x_arg = "labels", to_arg = "x")
+  labels <- vec_cast_named(vec_data(labels), x, x_arg = "labels", to_arg = "x")
   validate_labelled(new_labelled(x, labels = labels, label = label))
 }
 
