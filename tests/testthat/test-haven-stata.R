@@ -164,6 +164,7 @@ test_that("can write labelled with NULL labels", {
   chr <- labelled(c("a", "b"), NULL)
 
   expect_equal(roundtrip_var(int, "dta"), c(1L, 2L))
+  expect_equal(roundtrip_var(num, "dta"), c(1L, 2L))
   expect_equal(roundtrip_var(chr, "dta"), c("a", "b"))
 })
 

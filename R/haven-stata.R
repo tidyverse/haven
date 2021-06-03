@@ -139,6 +139,10 @@ validate_dta_label <- function(label) {
 # helpers -----------------------------------------------------------------
 
 has_non_integer_labels <- function(x) {
+  if (is.null(attr(x, "labels"))) {
+    return(FALSE)
+  }
+
   if (!is.labelled(x)) {
     return(FALSE)
   }
