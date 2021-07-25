@@ -152,7 +152,7 @@
 <li><p>SPSS and SAS can label numeric and character values, not just integer values.</p></li>
 <li><p>The value do not need to be exhaustive. It is common to label the special missing values (e.g. <code>.D</code> = did not respond, <code>.N</code> = not applicable), while leaving other values as is.</p></li>
 </ul>
-<p>Value labels in SAS are a little different again. In SAS, labels are just special case of general formats. Formats include currencies and dates, but user-defined just assigns labels to individual values (including special missings value). Formats have names and existing independently of the variables they are associated with. You create a named format with <code>PROC FORMAT</code> and then associated with variables in a <code>DATA</code> step (the names of character formats thealways start with <code><a href="https://rdrr.io/r/base/Extract.html" class="external-link">$</a></code>).</p>
+<p>Value labels in SAS are a little different again. In SAS, labels are just special case of general formats. Formats include currencies and dates, but user-defined just assigns labels to individual values (including special missings value). Formats have names and existing independently of the variables they are associated with. You create a named format with <code>PROC FORMAT</code> and then associated with variables in a <code>DATA</code> step (the names of character formats thealways start with <code>$</code>).</p>
 <div id="labelled" class="section level3">
 <h3 class="hasAnchor">
 <a href="#labelled" class="anchor" aria-hidden="true"></a><code>labelled()</code>
@@ -165,7 +165,7 @@
 <span class="op">)</span>
 <span class="va">x1</span>
 <span class="co">#&gt; &lt;labelled&lt;integer&gt;[5]&gt;</span>
-<span class="co">#&gt; [1] 5 2 4 3 1</span>
+<span class="co">#&gt; [1] 5 4 2 1 3</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Labels:</span>
 <span class="co">#&gt;  value label</span>
@@ -187,10 +187,10 @@
 <p>The goal of haven is not to provide a labelled vector that you can use everywhere in your analysis. The goal is to provide an intermediate datastructure that you can convert into a regular R data frame. You can do this by either converting to a factor or stripping the labels:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
-<span class="co">#&gt; [1] Bad  2    4    3    Good</span>
+<span class="co">#&gt; [1] Bad  4    2    Good 3   </span>
 <span class="co">#&gt; Levels: Good 2 3 4 Bad</span>
 <span class="fu"><a href="../reference/zap_labels.html">zap_labels</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
-<span class="co">#&gt; [1] 5 2 4 3 1</span>
+<span class="co">#&gt; [1] 5 4 2 1 3</span>
 
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span>
 <span class="co">#&gt; [1] Male   Female Female Female Male  </span>
@@ -204,33 +204,33 @@
 <span class="co">#&gt; Warning: `data_frame()` was deprecated in tibble 1.1.0.</span>
 <span class="co">#&gt; Please use `tibble()` instead.</span>
 <span class="va">df</span>
-<span class="co">#&gt; # A tibble: 5 x 3</span>
+<span class="co">#&gt; # A tibble: 5 × 3</span>
 <span class="co">#&gt;          x1 x2             z</span>
 <span class="co">#&gt;   &lt;int+lbl&gt; &lt;chr+lbl&gt;  &lt;int&gt;</span>
 <span class="co">#&gt; 1  5 [Bad]  M [Male]       1</span>
-<span class="co">#&gt; 2  2        F [Female]     2</span>
-<span class="co">#&gt; 3  4        F [Female]     3</span>
-<span class="co">#&gt; 4  3        F [Female]     4</span>
-<span class="co">#&gt; 5  1 [Good] M [Male]       5</span>
+<span class="co">#&gt; 2  4        F [Female]     2</span>
+<span class="co">#&gt; 3  2        F [Female]     3</span>
+<span class="co">#&gt; 4  1 [Good] F [Female]     4</span>
+<span class="co">#&gt; 5  3        M [Male]       5</span>
 
 <span class="fu"><a href="../reference/zap_labels.html">zap_labels</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 5 x 3</span>
+<span class="co">#&gt; # A tibble: 5 × 3</span>
 <span class="co">#&gt;      x1 x2        z</span>
 <span class="co">#&gt;   &lt;int&gt; &lt;chr&gt; &lt;int&gt;</span>
 <span class="co">#&gt; 1     5 M         1</span>
-<span class="co">#&gt; 2     2 F         2</span>
-<span class="co">#&gt; 3     4 F         3</span>
-<span class="co">#&gt; 4     3 F         4</span>
-<span class="co">#&gt; 5     1 M         5</span>
+<span class="co">#&gt; 2     4 F         2</span>
+<span class="co">#&gt; 3     2 F         3</span>
+<span class="co">#&gt; 4     1 F         4</span>
+<span class="co">#&gt; 5     3 M         5</span>
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 5 x 3</span>
+<span class="co">#&gt; # A tibble: 5 × 3</span>
 <span class="co">#&gt;   x1    x2         z</span>
 <span class="co">#&gt;   &lt;fct&gt; &lt;fct&gt;  &lt;int&gt;</span>
 <span class="co">#&gt; 1 Bad   Male       1</span>
-<span class="co">#&gt; 2 2     Female     2</span>
-<span class="co">#&gt; 3 4     Female     3</span>
-<span class="co">#&gt; 4 3     Female     4</span>
-<span class="co">#&gt; 5 Good  Male       5</span></code></pre></div>
+<span class="co">#&gt; 2 4     Female     2</span>
+<span class="co">#&gt; 3 2     Female     3</span>
+<span class="co">#&gt; 4 Good  Female     4</span>
+<span class="co">#&gt; 5 3     Male       5</span></code></pre></div>
 </div>
 </div>
 <div id="missing-values" class="section level2">

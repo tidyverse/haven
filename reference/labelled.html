@@ -201,9 +201,9 @@ expect you'll coerce to a standard R class (e.g. a <code><a href='https://rdrr.i
 soon after importing.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>labelled</span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/double.html'>double</a></span><span class='op'>(</span><span class='op'>)</span>, labels <span class='op'>=</span> <span class='cn'>NULL</span>, label <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>labelled</span><span class='op'>(</span>x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/double.html'>double</a></span><span class='op'>(</span><span class='op'>)</span>, labels <span class='op'>=</span> <span class='cn'>NULL</span>, label <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span>
 
-<span class='fu'>is.labelled</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></pre>
+<span class='fu'>is.labelled</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -227,42 +227,48 @@ of the values might be labelled.</p></td>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>s1</span> <span class='op'>&lt;-</span> <span class='fu'>labelled</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='st'>"M"</span>, Female <span class='op'>=</span> <span class='st'>"F"</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>s2</span> <span class='op'>&lt;-</span> <span class='fu'>labelled</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='fl'>1</span>, Female <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>s3</span> <span class='op'>&lt;-</span> <span class='fu'>labelled</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='fl'>1</span>, Female <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,
-               label<span class='op'>=</span><span class='st'>"Assigned sex at birth"</span><span class='op'>)</span>
-
-<span class='co'># Unfortunately it's not possible to make as.factor work for labelled objects</span>
-<span class='co'># so instead use as_factor. This works for all types of labelled vectors.</span>
-<span class='fu'><a href='as_factor.html'>as_factor</a></span><span class='op'>(</span><span class='va'>s1</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] Male   Male   Female
-#&gt; Levels: Female Male</div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span><span class='op'>(</span><span class='va'>s1</span>, levels <span class='op'>=</span> <span class='st'>"values"</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] M M F
-#&gt; Levels: M F</div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span><span class='op'>(</span><span class='va'>s2</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] Male   Male   Female
-#&gt; Levels: Male Female</div><div class='input'>
-<span class='co'># Other statistical software supports multiple types of missing values</span>
-<span class='va'>s3</span> <span class='op'>&lt;-</span> <span class='fu'>labelled</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span>, <span class='st'>"X"</span>, <span class='st'>"N/A"</span><span class='op'>)</span>,
-  <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='st'>"M"</span>, Female <span class='op'>=</span> <span class='st'>"F"</span>, Refused <span class='op'>=</span> <span class='st'>"X"</span>, <span class='st'>"Not applicable"</span> <span class='op'>=</span> <span class='st'>"N/A"</span><span class='op'>)</span>
-<span class='op'>)</span>
-<span class='va'>s3</span>
-</div><div class='output co'>#&gt; &lt;labelled&lt;character&gt;[5]&gt;
-#&gt; [1] M   M   F   X   N/A
-#&gt; 
-#&gt; Labels:
-#&gt;  value          label
-#&gt;      M           Male
-#&gt;      F         Female
-#&gt;      X        Refused
-#&gt;    N/A Not applicable</div><div class='input'><span class='fu'><a href='as_factor.html'>as_factor</a></span><span class='op'>(</span><span class='va'>s3</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1] Male           Male           Female         Refused        Not applicable
-#&gt; Levels: Female Male Not applicable Refused</div><div class='input'>
-<span class='co'># Often when you have a partially labelled numeric vector, labelled values</span>
-<span class='co'># are special types of missing. Use zap_labels to replace labels with missing</span>
-<span class='co'># values</span>
-<span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'>labelled</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>10</span>, <span class='fl'>9</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Unknown <span class='op'>=</span> <span class='fl'>9</span>, Refused <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span>
-<span class='fu'><a href='zap_labels.html'>zap_labels</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; [1]  1  2  1  2 10  9</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>s1</span> <span class='op'>&lt;-</span> <span class='fu'>labelled</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='st'>"M"</span>, Female <span class='op'>=</span> <span class='st'>"F"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>s2</span> <span class='op'>&lt;-</span> <span class='fu'>labelled</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='fl'>1</span>, Female <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>s3</span> <span class='op'>&lt;-</span> <span class='fu'>labelled</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='fl'>1</span>, Female <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span>,</span>
+<span class='r-in'>               label<span class='op'>=</span><span class='st'>"Assigned sex at birth"</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Unfortunately it's not possible to make as.factor work for labelled objects</span></span>
+<span class='r-in'><span class='co'># so instead use as_factor. This works for all types of labelled vectors.</span></span>
+<span class='r-in'><span class='fu'><a href='as_factor.html'>as_factor</a></span><span class='op'>(</span><span class='va'>s1</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] Male   Male   Female</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Levels: Female Male</span>
+<span class='r-in'><span class='fu'><a href='as_factor.html'>as_factor</a></span><span class='op'>(</span><span class='va'>s1</span>, levels <span class='op'>=</span> <span class='st'>"values"</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] M M F</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Levels: M F</span>
+<span class='r-in'><span class='fu'><a href='as_factor.html'>as_factor</a></span><span class='op'>(</span><span class='va'>s2</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] Male   Male   Female</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Levels: Male Female</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Other statistical software supports multiple types of missing values</span></span>
+<span class='r-in'><span class='va'>s3</span> <span class='op'>&lt;-</span> <span class='fu'>labelled</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span>, <span class='st'>"X"</span>, <span class='st'>"N/A"</span><span class='op'>)</span>,</span>
+<span class='r-in'>  <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='st'>"M"</span>, Female <span class='op'>=</span> <span class='st'>"F"</span>, Refused <span class='op'>=</span> <span class='st'>"X"</span>, <span class='st'>"Not applicable"</span> <span class='op'>=</span> <span class='st'>"N/A"</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>s3</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> &lt;labelled&lt;character&gt;[5]&gt;</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] M   M   F   X   N/A</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Labels:</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  value          label</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      M           Male</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      F         Female</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      X        Refused</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>    N/A Not applicable</span>
+<span class='r-in'><span class='fu'><a href='as_factor.html'>as_factor</a></span><span class='op'>(</span><span class='va'>s3</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1] Male           Male           Female         Refused        Not applicable</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Levels: Female Male Not applicable Refused</span>
+<span class='r-in'></span>
+<span class='r-in'><span class='co'># Often when you have a partially labelled numeric vector, labelled values</span></span>
+<span class='r-in'><span class='co'># are special types of missing. Use zap_labels to replace labels with missing</span></span>
+<span class='r-in'><span class='co'># values</span></span>
+<span class='r-in'><span class='va'>x</span> <span class='op'>&lt;-</span> <span class='fu'>labelled</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>10</span>, <span class='fl'>9</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Unknown <span class='op'>=</span> <span class='fl'>9</span>, Refused <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='fu'><a href='zap_labels.html'>zap_labels</a></span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> [1]  1  2  1  2 10  9</span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

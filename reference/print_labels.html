@@ -193,7 +193,7 @@ a newly imported dataset." />
 a newly imported dataset.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>print_labels</span><span class='op'>(</span><span class='va'>x</span>, name <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+    <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>print_labels</span><span class='op'>(</span><span class='va'>x</span>, name <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -210,23 +210,24 @@ a newly imported dataset.</p>
 
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='va'>s1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='st'>"M"</span>, Female <span class='op'>=</span> <span class='st'>"F"</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>s2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='fl'>1</span>, Female <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span>
-<span class='va'>labelled_df</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span><span class='va'>s1</span>, <span class='va'>s2</span><span class='op'>)</span>
-
-<span class='kw'>for</span> <span class='op'>(</span><span class='va'>var</span> <span class='kw'>in</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>labelled_df</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
-  <span class='fu'>print_labels</span><span class='op'>(</span><span class='va'>labelled_df</span><span class='op'>[[</span><span class='va'>var</span><span class='op'>]</span><span class='op'>]</span>, <span class='va'>var</span><span class='op'>)</span>
-<span class='op'>}</span>
-</div><div class='output co'>#&gt; 
-#&gt; Labels:s1
-#&gt;  value  label
-#&gt;      M   Male
-#&gt;      F Female
-#&gt; 
-#&gt; Labels:s2
-#&gt;  value  label
-#&gt;      1   Male
-#&gt;      2 Female</div></pre>
+    <div class="ref-examples sourceCode"><pre class='sourceCode r'><code><span class='r-in'><span class='va'>s1</span> <span class='op'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='st'>"M"</span>, Female <span class='op'>=</span> <span class='st'>"F"</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>s2</span> <span class='op'>&lt;-</span> <span class='fu'><a href='labelled.html'>labelled</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>2</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span>Male <span class='op'>=</span> <span class='fl'>1</span>, Female <span class='op'>=</span> <span class='fl'>2</span><span class='op'>)</span><span class='op'>)</span></span>
+<span class='r-in'><span class='va'>labelled_df</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='fu'>::</span><span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span><span class='va'>s1</span>, <span class='va'>s2</span><span class='op'>)</span></span>
+<span class='r-in'></span>
+<span class='r-in'><span class='kw'>for</span> <span class='op'>(</span><span class='va'>var</span> <span class='kw'>in</span> <span class='fu'><a href='https://rdrr.io/r/base/names.html'>names</a></span><span class='op'>(</span><span class='va'>labelled_df</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span></span>
+<span class='r-in'>  <span class='fu'>print_labels</span><span class='op'>(</span><span class='va'>labelled_df</span><span class='op'>[[</span><span class='va'>var</span><span class='op'>]</span><span class='op'>]</span>, <span class='va'>var</span><span class='op'>)</span></span>
+<span class='r-in'><span class='op'>}</span></span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Labels:s1</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  value  label</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      M   Male</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      F Female</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> </span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span> Labels:s2</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>  value  label</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      1   Male</span>
+<span class='r-out co'><span class='r-pr'>#&gt;</span>      2 Female</span>
+</code></pre></div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
