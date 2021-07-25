@@ -140,8 +140,8 @@ test_that("can select columns when a catalog file is present", {
 })
 
 test_that("using cols_only warns about deprecation, but works", {
-  out <- expect_warning(
-    read_sas(test_path("sas/hadley.sas7bdat"), cols_only = "id"),
+  expect_warning(
+    out <- read_sas(test_path("sas/hadley.sas7bdat"), cols_only = "id"),
     "is deprecated"
   )
   expect_named(out, "id")
