@@ -363,8 +363,7 @@ public:
       } else if (readstat_value_is_system_missing(value)) {
         col[obs_index] = NA_STRING;
       } else if (str_value == NULL) {
-        const char empty_string[1] = { '\0' };
-        col[obs_index] = cpp11::r_string(empty_string);
+        col[obs_index] = cpp11::r_string("");
       } else {
         col[obs_index] = cpp11::r_string(str_value);
       }
