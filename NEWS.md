@@ -1,5 +1,7 @@
 # haven (development version)
 
+* `write_dta()` now allows variable names up to 32 characters (@sbae, #605).
+
 * Fix issue with `read_dta()` crashing R when StrL variables with missing values
   were present (@gorcha, #594, #600, #608).
 
