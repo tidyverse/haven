@@ -1,7 +1,7 @@
 # haven (development version)
 
 * Fix issue with `read_dta()` crashing R when StrL variables with missing values
-were present (@gorcha, #600, #608).
+  were present (@gorcha, #594, #600, #608).
 
 # haven 2.4.1
 
