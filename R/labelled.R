@@ -111,7 +111,7 @@ median.haven_labelled <- function(x, na.rm = TRUE, ...) {
 #' @export
 quantile.haven_labelled <- function(x, ...) {
   if (is.character(x)) {
-    abort("Can't compute median of labelled<character>")
+    abort("Can't compute quantile of labelled<character>")
   }
   quantile(vec_data(x), ...)
 }

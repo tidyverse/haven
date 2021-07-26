@@ -58,10 +58,10 @@ test_that("formats roundtrip", {
   write_sav(df, tmp)
   df2 <- read_sav(tmp)
 
-  expect_equal(df$a, df$a)
-  expect_equal(df$b, df$b)
-  expect_equal(df$c, df$c)
-  expect_equal(df$d, df$d)
+  expect_equal(df$a, df2$a)
+  expect_equal(df$b, df2$b)
+  expect_equal(df$c, df2$c)
+  expect_equal(df$d, df2$d)
 })
 
 test_that("widths roundtrip", {
@@ -78,10 +78,10 @@ test_that("widths roundtrip", {
   write_sav(df, tmp)
   df2 <- read_sav(tmp)
 
-  expect_equal(df$a, df$a)
-  expect_equal(df$b, df$b)
-  expect_equal(df$c, df$c)
-  expect_equal(df$d, df$d)
+  expect_equal(df$a, zap_formats(df2$a))
+  expect_equal(df$b, zap_formats(df2$b))
+  expect_equal(df$c, zap_formats(df2$c))
+  expect_equal(df$d, zap_formats(df2$d))
 })
 
 test_that("only selected columns are read", {
