@@ -1,5 +1,8 @@
 # haven (development version)
 
+* Fix issue with `read_dta()` crashing R when StrL variables with missing values
+  were present (@gorcha, #594, #600, #608).
+
 * The buglet fixed in 2.4.1 when combining `labelled()` with identical labels
 has been fixed in `labelled_spss()` (@gorcha, #599).
 

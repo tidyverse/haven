@@ -354,6 +354,7 @@ public:
     case READSTAT_TYPE_STRING:
     {
       cpp11::writable::strings col(output_[var_index]);
+      const char* str_value = readstat_string_value(value);
 
       if (readstat_value_is_tagged_missing(value)) {
         col[obs_index] = NA_STRING;
@@ -361,8 +362,10 @@ public:
         col[obs_index] = NA_STRING;
       } else if (readstat_value_is_system_missing(value)) {
         col[obs_index] = NA_STRING;
+      } else if (str_value == NULL) {
+        col[obs_index] = cpp11::r_string("");
       } else {
-        col[obs_index] = cpp11::r_string(readstat_string_value(value));
+        col[obs_index] = cpp11::r_string(str_value);
       }
       break;
     }
