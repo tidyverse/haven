@@ -3,6 +3,8 @@
 * `write_dta()` now correctly handles "labelled"-class numeric (double) variables 
    that don't have value labels (@jmobrien, #606, #609).
 
+* `write_dta()` now allows variable names up to 32 characters (@sbae, #605).
+
 * Fix issue with `read_dta()` crashing R when StrL variables with missing values
   were present (@gorcha, #594, #600, #608).
 
