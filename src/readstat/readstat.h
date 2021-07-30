@@ -123,6 +123,10 @@ typedef struct readstat_metadata_s {
     unsigned int is64bit:1;
 } readstat_metadata_t;
 
+/* If the row count is unknown (e.g. it's an XPORT or POR file, or an SAV
+ * file created with non-conforming software), then readstat_get_row_count
+ * returns -1.
+ */
 int readstat_get_row_count(readstat_metadata_t *metadata);
 int readstat_get_var_count(readstat_metadata_t *metadata);
 time_t readstat_get_creation_time(readstat_metadata_t *metadata);
@@ -201,9 +205,9 @@ typedef struct readstat_variable_s {
 } readstat_variable_t;
 
 typedef struct readstat_schema_entry_s {
-    int                 row;
-    int                 col;
-    int                 len;
+    uint32_t            row;
+    uint32_t            col;
+    uint32_t            len;
     int                 skip;
     readstat_variable_t variable;
     char                labelset[32];
@@ -212,8 +216,8 @@ typedef struct readstat_schema_entry_s {
 
 typedef struct readstat_schema_s {
     char                    filename[255];
-    int                     rows_per_observation;
-    int                     cols_per_observation;
+    uint32_t                rows_per_observation;
+    uint32_t                cols_per_observation;
     int                     first_line;
     int                     entry_count;
     char                    field_delimiter;
@@ -298,7 +302,7 @@ typedef int (*readstat_progress_handler)(double progress, void *ctx);
 #if defined(_MSC_VER)
 #include <BaseTsd.h>
 typedef SSIZE_T ssize_t;
-typedef _off_t readstat_off_t;
+typedef __int64 readstat_off_t;
 #elif defined _WIN32 || defined __CYGWIN__
 typedef _off64_t readstat_off_t;
 #elif defined _AIX

@@ -1,5 +1,7 @@
 # haven (development version)
 
+* Updated to ReadStat 1.1.6.
+
 * `write_dta()` now correctly handles "labelled"-class numeric (double) variables 
    that don't have value labels (@jmobrien, #606, #609).
 

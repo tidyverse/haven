@@ -1,3 +1,36 @@
+New in 1.1.6:
+
+    * Migrate to GitHub Actions
+    * Regenerate parsers with Ragel 7 and update build script
+    * SAS7BDAT reader: Improved large file support on Windows #226
+    * SAV reader: Skip null bytes in UTF-8 data https://github.com/tidyverse/haven/issues/560
+    * SAV reader: Fix hang (oss-fuzz/23485)
+    * DTA reader: Disallow str0 type
+    * DTA reader: Fix encoding error when garbage values are present beyond the end of a string
+    * Command file readers: Fix integer overflow (oss-fuzz/15778)
+    * `extract_metadata`: Implement duration support #223 (thanks to @basgys)
+    * Support for SAS files created with SAS Visual Forecaster #232
+    * Report format widths for date/time SAS formats #233
+    * Document the meaning of a -1 return value from `readstat_get_row_count` #234
+    * Fix SAS file creation / modification times on Windows #238 #240
+
+New in 1.1.5:
+
+    * Support for building with MSVC #214 (thanks to @zebrys and @jonathon-love)
+    * CLI tools: Support non-ASCII file paths on Windows #200 #216 (thanks to @zebrys)
+    * DTA reader: Ignore bad timestamps
+    * DTA writer: Fix memory leak
+    * DTA writer: Improved support for empty value labels #219
+    * POR reader: Improved support for date/time formats #160
+    * SAS7BDAT reader: Added support for reading the dataset label #180 #213 (thanks to @reikoch)
+    * SAS7BDAT reader: Improved detection of compressed files
+    * SAS7BDAT reader: Improved bounds checking OSS-Fuzz/28312
+    * SAS7BDAT reader: Support for more character encodings
+    * SAV reader: Tolerate illegal lowercase variable names #217
+    * SAV reader: Better support for non-UTF-8 variable names
+    * SAV reader: Fix format widths for very long strings https://github.com/Roche/pyreadstat/issues/77
+    * SAV reader: Fix undefined behavior with negative row counts OSS-Fuzz/23423
+
 New in 1.1.4:
 
     * SAS7BDAT reader: Add support for binary-compressed files #21
