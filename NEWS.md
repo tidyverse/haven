@@ -1,19 +1,17 @@
 # haven (development version)
 
-* Updated to ReadStat 1.1.7 RC (Fixes #620).
+* Updated to ReadStat 1.1.7 RC (#620).
+
+* `read_dta()` no longer crashes if it sees StrL variables with missing values
+  (@gorcha, #594, #600, #608).
 
 * `write_dta()` now correctly handles "labelled"-class numeric (double) variables 
    that don't have value labels (@jmobrien, #606, #609).
 
 * `write_dta()` now allows variable names up to 32 characters (@sbae, #605).
 
-* Fix issue with `read_dta()` crashing R when StrL variables with missing values
-  were present (@gorcha, #594, #600, #608).
-
-* The buglet fixed in 2.4.1 when combining `labelled()` with identical labels
-has been fixed in `labelled_spss()` (@gorcha, #599).
-
-* Examples in `zap_label()` now demonstrate removing the label attribute (@jmbarbone, #597)
+* Can now correctly combine `labelled_spss()` with identical labels 
+  (@gorcha, #599).
 
 # haven 2.4.1
 
