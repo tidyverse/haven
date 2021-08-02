@@ -188,12 +188,11 @@
     <div id="haven-development-version" class="section level1">
 <h1 class="page-header" data-toc-text="development version">
 <a href="#haven-development-version" class="anchor" aria-hidden="true"></a>haven (development version)<small> Unreleased </small></h1>
-<ul><li><p>Updated to ReadStat 1.1.7 RC (Fixes <a href='https://github.com/tidyverse/haven/issues/620'>#620</a>).</p></li>
+<ul><li><p>Updated to ReadStat 1.1.7 RC (<a href='https://github.com/tidyverse/haven/issues/620'>#620</a>).</p></li>
+<li><p><code><a href="../reference/read_dta.html">read_dta()</a></code> no longer crashes if it sees StrL variables with missing values (<a href='https://github.com/gorcha'>@gorcha</a>, <a href='https://github.com/tidyverse/haven/issues/594'>#594</a>, <a href='https://github.com/tidyverse/haven/issues/600'>#600</a>, <a href='https://github.com/tidyverse/haven/issues/608'>#608</a>).</p></li>
 <li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> now correctly handles “labelled”-class numeric (double) variables that don’t have value labels (<a href='https://github.com/jmobrien'>@jmobrien</a>, <a href='https://github.com/tidyverse/haven/issues/606'>#606</a>, <a href='https://github.com/tidyverse/haven/issues/609'>#609</a>).</p></li>
 <li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> now allows variable names up to 32 characters (<a href='https://github.com/sbae'>@sbae</a>, <a href='https://github.com/tidyverse/haven/issues/605'>#605</a>).</p></li>
-<li><p>Fix issue with <code><a href="../reference/read_dta.html">read_dta()</a></code> crashing R when StrL variables with missing values were present (<a href='https://github.com/gorcha'>@gorcha</a>, <a href='https://github.com/tidyverse/haven/issues/594'>#594</a>, <a href='https://github.com/tidyverse/haven/issues/600'>#600</a>, <a href='https://github.com/tidyverse/haven/issues/608'>#608</a>).</p></li>
-<li><p>The buglet fixed in 2.4.1 when combining <code><a href="../reference/labelled.html">labelled()</a></code> with identical labels has been fixed in <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> (<a href='https://github.com/gorcha'>@gorcha</a>, <a href='https://github.com/tidyverse/haven/issues/599'>#599</a>).</p></li>
-<li><p>Examples in <code><a href="../reference/zap_label.html">zap_label()</a></code> now demonstrate removing the label attribute (<a href='https://github.com/jmbarbone'>@jmbarbone</a>, <a href='https://github.com/tidyverse/haven/issues/597'>#597</a>)</p></li>
+<li><p>Can now correctly combine <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> with identical labels (<a href='https://github.com/gorcha'>@gorcha</a>, <a href='https://github.com/tidyverse/haven/issues/599'>#599</a>).</p></li>
 </ul></div>
     <div id="haven-241" class="section level1">
 <h1 class="page-header" data-toc-text="2.4.1">

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Zap labels — zap_labels • haven</title>
+<title>Zap value labels — zap_labels • haven</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -49,13 +49,11 @@
 
 
 
-<meta property="og:title" content="Zap labels — zap_labels" />
-<meta property="og:description" content="Removes labels, leaving unlabelled vectors as is. Use this if you want to
-simply drop all labels from a data frame. Zapping labels from
-labelled_spss() also removes user-defined missing values,
-replacing all with NAs.
-This function removes value labels; use zap_label() to remove variable
-labels." />
+<meta property="og:title" content="Zap value labels — zap_labels" />
+<meta property="og:description" content="Removes value labels, leaving unlabelled vectors as is. Use this if you
+want to simply drop all labels from a data frame.
+Zapping labels from labelled_spss() also removes user-defined missing
+values, replacing with standard NAs." />
 <meta property="og:image" content="https://haven.tidyverse.org/logo.png" />
 <meta name="twitter:card" content="summary" />
 
@@ -187,18 +185,16 @@ labels." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Zap labels</h1>
+    <h1>Zap value labels</h1>
     <small class="dont-index">Source: <a href='https://github.com/tidyverse/haven/blob/master/R/zap_labels.R'><code>R/zap_labels.R</code></a></small>
     <div class="hidden name"><code>zap_labels.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Removes labels, leaving unlabelled vectors as is. Use this if you want to
-simply drop all <code>labels</code> from a data frame. Zapping labels from
-<code><a href='labelled_spss.html'>labelled_spss()</a></code> also removes user-defined missing values,
-replacing all with <code>NA</code>s.</p>
-<p>This function removes value labels; use <code><a href='zap_label.html'>zap_label()</a></code> to remove variable
-labels.</p>
+    <p>Removes value labels, leaving unlabelled vectors as is. Use this if you
+want to simply drop all <code>labels</code> from a data frame.</p>
+<p>Zapping labels from <code><a href='labelled_spss.html'>labelled_spss()</a></code> also removes user-defined missing
+values, replacing with standard <code>NA</code>s.</p>
     </div>
 
     <div class="ref-usage sourceCode"><pre class='sourceCode r'><code><span class='fu'>zap_labels</span><span class='op'>(</span><span class='va'>x</span><span class='op'>)</span></code></pre></div>
@@ -214,7 +210,8 @@ labels.</p>
 
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p>Other zappers: 
+    <div class='dont-index'><p><code><a href='zap_label.html'>zap_label()</a></code> to remove variable labels.</p>
+<p>Other zappers: 
 <code><a href='zap_empty.html'>zap_empty</a>()</code>,
 <code><a href='zap_formats.html'>zap_formats</a>()</code>,
 <code><a href='zap_label.html'>zap_label</a>()</code>,
