@@ -10,18 +10,19 @@
 #' @family zappers
 #' @export
 #' @examples
-#' x1 <- labelled(1:5, c(good = 1, bad = 5))
+#' x1 <- labelled(1:5, c(good = 1, bad = 5), label = "rating")
 #' x1
 #' zap_label(x1)
 #'
-#' x2 <- labelled_spss(c(1:4, 9), c(good = 1, bad = 5), na_values = 9)
+#' x2 <- labelled_spss(c(1:4, 9), label = "rating", na_values = 9)
 #' x2
 #' zap_label(x2)
 #'
 #' # zap_label also works with data frames
 #' df <- tibble::tibble(x1, x2)
-#' df
-#' zap_label(df)
+#' lapply(df, identity)         # label not shown in data.frame print
+#' zdf <- zap_label(df)
+#' lapply(zdf, identity)        # label removed from each column
 zap_label <- function(x) {
   UseMethod("zap_label")
 }

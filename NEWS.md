@@ -13,6 +13,8 @@
 * The buglet fixed in 2.4.1 when combining `labelled()` with identical labels
 has been fixed in `labelled_spss()` (@gorcha, #599).
 
+* Examples in `zap_label()` now demonstrate removing the label attribute (@jmbarbone, #597)
+
 # haven 2.4.1
 
 * Fix buglet when combining `labelled()` with identical labels.
