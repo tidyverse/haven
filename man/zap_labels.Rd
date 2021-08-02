@@ -2,7 +2,7 @@
 % Please edit documentation in R/zap_labels.R
 \name{zap_labels}
 \alias{zap_labels}
-\title{Zap labels}
+\title{Zap value labels}
 \usage{
 zap_labels(x)
 }
@@ -10,13 +10,11 @@ zap_labels(x)
 \item{x}{A vector or data frame}
 }
 \description{
-Removes labels, leaving unlabelled vectors as is. Use this if you want to
-simply drop all \code{labels} from a data frame. Zapping labels from
-\code{\link[=labelled_spss]{labelled_spss()}} also removes user-defined missing values,
-replacing all with \code{NA}s.
+Removes value labels, leaving unlabelled vectors as is. Use this if you
+want to simply drop all \code{labels} from a data frame.
 
-This function removes value labels; use \code{\link[=zap_label]{zap_label()}} to remove variable
-labels.
+Zapping labels from \code{\link[=labelled_spss]{labelled_spss()}} also removes user-defined missing
+values, replacing with standard \code{NA}s.
 }
 \examples{
 x1 <- labelled(1:5, c(good = 1, bad = 5))
@@ -33,6 +31,8 @@ df
 zap_labels(df)
 }
 \seealso{
+\code{\link[=zap_label]{zap_label()}} to remove variable labels.
+
 Other zappers: 
 \code{\link{zap_empty}()},
 \code{\link{zap_formats}()},
