@@ -7,4 +7,4 @@
 
 ## revdepcheck results
 
-I did not run the revdep checks because this is a tiny fix that shouldn't affect existing code.
+I did not run the revdep checks because this release only contains bug fixes.
