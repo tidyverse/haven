@@ -13,6 +13,9 @@
 * Can now correctly combine `labelled_spss()` with identical labels 
   (@gorcha, #599).
 
+* @gorcha is now a haven author in recognition of his significant and sustained
+  contributions.
+
 # haven 2.4.1
 
 * Fix buglet when combining `labelled()` with identical labels.
