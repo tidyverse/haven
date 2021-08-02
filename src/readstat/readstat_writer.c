@@ -19,10 +19,10 @@ static int readstat_compare_string_refs(const void *elem1, const void *elem2) {
     readstat_string_ref_t *ref1 = *(readstat_string_ref_t **)elem1;
     readstat_string_ref_t *ref2 = *(readstat_string_ref_t **)elem2;
 
-    if (ref1->first_v == ref2->first_v)
-        return ref1->first_o - ref2->first_o;
+    if (ref1->first_o == ref2->first_o)
+        return ref1->first_v - ref2->first_v;
 
-    return ref1->first_v - ref2->first_v;
+    return ref1->first_o - ref2->first_o;
 }
 
 readstat_string_ref_t *readstat_string_ref_init(const char *string) {
