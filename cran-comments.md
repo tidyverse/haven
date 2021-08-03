@@ -7,4 +7,4 @@
 
 ## revdepcheck results
 
-I did not run the revdep checks because this release only contains bug fixes.
+This release fixes a compilation issue on Solaris.
