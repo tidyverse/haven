@@ -1,6 +1,3 @@
-
-#define _XOPEN_SOURCE 700 /* for strnlen */
-
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
@@ -8,6 +5,16 @@
 #include <string.h>
 #include <inttypes.h>
 #include <sys/types.h>
+
+#if !defined(_POSIX_VERSION) || _POSIX_VERSION < 200809L
+size_t strnlen(const char* s, size_t maxlen) {
+  const char* end;
+  end = memchr(s, '\0', maxlen);
+  if (end == NULL)
+    return maxlen;
+  return end - s;
+}
+#endif
 
 #include "../readstat.h"
 #include "../readstat_bits.h"
