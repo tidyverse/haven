@@ -214,6 +214,12 @@ test_that("spss labelleds are round tripped", {
       labels = c(no = 1, yes = 2, unknown = 9),
       na_values = 9,
       na_range = c(80, 90)
+    ),
+    x_int = labelled_spss(
+      c(1L, 2L, 1L, 9L),
+      labels = c(no = 1, yes = 2, unknown = 9),
+      na_values = 9,
+      na_range = c(80, 90)
     )
   )
 
@@ -223,11 +229,16 @@ test_that("spss labelleds are round tripped", {
   df2 <- read_sav(path)
   expect_s3_class(df2$x, "haven_labelled")
   expect_equal(as.double(df2$x), c(1, 2, 1, NA))
+  expect_s3_class(df2$x_int, "haven_labelled")
+  expect_equal(as.integer(df2$x_int), c(1, 2, 1, NA))
 
   df3 <- read_sav(path, user_na = TRUE)
   expect_s3_class(df3$x, "haven_labelled_spss")
   expect_equal(attr(df3$x, "na_values"), attr(df$x, "na_values"))
   expect_equal(attr(df3$x, "na_range"), attr(df$x, "na_range"))
+  expect_s3_class(df3$x_int, "haven_labelled_spss")
+  expect_equal(attr(df3$x_int, "na_values"), attr(df$x_int, "na_values"))
+  expect_equal(attr(df3$x_int, "na_range"), attr(df$x_int, "na_range"))
 })
 
 test_that("spss string labelleds are round tripped", {

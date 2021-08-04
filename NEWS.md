@@ -1,5 +1,8 @@
 # haven (development version)
 
+* `write_sav()` successfully writes user missing values and ranges for
+  `labelled()` integer vectors (@gorcha, #596).
+
 # haven 2.4.3
 
 * Fix build failure on Solaris.
