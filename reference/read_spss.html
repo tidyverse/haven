@@ -216,7 +216,7 @@ file extension.</p>
   .name_repair <span class='op'>=</span> <span class='st'>"unique"</span>
 <span class='op'>)</span>
 
-<span class='fu'>write_sav</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>path</span>, compress <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='fu'>write_sav</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>path</span>, compress <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"byte"</span>, <span class='st'>"none"</span>, <span class='st'>"zsav"</span><span class='op'>)</span><span class='op'>)</span>
 
 <span class='fu'>read_spss</span><span class='op'>(</span>
   <span class='va'>file</span>,
@@ -298,8 +298,16 @@ to enforce them.</p></td>
     </tr>
     <tr>
       <th>compress</th>
-      <td><p>If <code>TRUE</code>, will compress the file, resulting in a <code>.zsav</code>
-file.  Otherwise the <code>.sav</code> file will be bytecode compressed.</p></td>
+      <td><p>Compression type to use:</p><ul>
+<li><p>"byte": the default, uses byte compression.</p></li>
+<li><p>"none": no compression. This is useful for software that has issues with
+byte compressed <code>.sav</code> files (e.g. SAS).</p></li>
+<li><p>"zsav": uses zlib compression and produces a <code>.zsav</code> file. zlib
+compression is supported by SPSS version 21.0 and above.</p></li>
+</ul>
+
+<p><code>TRUE</code> and <code>FALSE</code> can be used for backwards compatibility, and correspond
+to the "zsav" and "none" options respectively.</p></td>
     </tr>
     </table>
 
