@@ -66,9 +66,25 @@ read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max =
 
 #' @export
 #' @rdname read_spss
-#' @param compress If `TRUE`, will compress the file, resulting in a `.zsav`
-#'   file.  Otherwise the `.sav` file will be bytecode compressed.
-write_sav <- function(data, path, compress = FALSE) {
+#' @param compress Compression type to use:
+#'
+#'   * "byte": the default, uses byte compression.
+#'   * "none": no compression. This is useful for software that has issues with
+#'     byte compressed `.sav` files (e.g. SAS).
+#'   * "zsav": uses zlib compression and produces a `.zsav` file. zlib
+#'     compression is supported by SPSS version 21.0 and above.
+#'
+#'   `TRUE` and `FALSE` can be used for backwards compatibility, and correspond
+#'   to the "zsav" and "none" options respectively.
+write_sav <- function(data, path, compress = c("byte", "none", "zsav")) {
+  if (isTRUE(compress)) {
+    compress <- "zsav"
+  } else if (isFALSE(compress)) {
+    compress <- "none"
+  } else {
+    compress <- arg_match(compress)
+  }
+
   data <- validate_sav(data)
   write_sav_(data, normalizePath(path, mustWork = FALSE), compress = compress)
   invisible(data)

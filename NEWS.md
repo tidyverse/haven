@@ -1,5 +1,10 @@
 # haven (development version)
 
+* The `compress` argument for `write_sav()` now supports all 3 SPSS compression
+  modes specified as a character string - "byte", "none" and "zsav" (#614).
+  `TRUE` and `FALSE` can be used for backwards compatibility, and correspond to
+  the "zsav" and "none" options respectively.
+
 * @gorcha is now a haven author in recognition of his significant and sustained
   contributions.
 

@@ -298,3 +298,11 @@ test_that("works with empty factors", {
   expect_equal(max_level_length(x), 0)
 })
 
+# compression roundtrips --------------------------------------------------
+
+test_that("all compression types roundtrip successfully", {
+  df <- tibble::tibble(x = 1:10)
+  expect_equal(roundtrip_sav(df, compress = "byte"), df)
+  expect_equal(roundtrip_sav(df, compress = "none"), df)
+  expect_equal(roundtrip_sav(df, compress = "zsav"), df)
+})

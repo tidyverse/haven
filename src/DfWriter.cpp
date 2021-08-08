@@ -411,10 +411,12 @@ ssize_t data_writer(const void *data, size_t len, void *ctx) {
 }
 
 [[cpp11::register]]
-void write_sav_(cpp11::list data, cpp11::strings path, bool compress) {
+void write_sav_(cpp11::list data, cpp11::strings path, std::string compress) {
   Writer writer(HAVEN_SAV, data, path);
-  if (compress)
+  if (compress == "zsav")
     writer.setCompression(READSTAT_COMPRESS_BINARY);
+  else if (compress == "none")
+    writer.setCompression(READSTAT_COMPRESS_NONE);
   else
     writer.setCompression(READSTAT_COMPRESS_ROWS);
   writer.write();

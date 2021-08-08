@@ -75,10 +75,10 @@ extern "C" SEXP _haven_df_parse_por_raw(SEXP spec, SEXP encoding, SEXP user_na, 
   END_CPP11
 }
 // DfWriter.cpp
-void write_sav_(cpp11::list data, cpp11::strings path, bool compress);
+void write_sav_(cpp11::list data, cpp11::strings path, std::string compress);
 extern "C" SEXP _haven_write_sav_(SEXP data, SEXP path, SEXP compress) {
   BEGIN_CPP11
-    write_sav_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<bool>>(compress));
+    write_sav_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<std::string>>(compress));
     return R_NilValue;
   END_CPP11
 }
