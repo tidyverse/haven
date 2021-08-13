@@ -436,9 +436,10 @@ void write_sas_(cpp11::list data, cpp11::strings path) {
 }
 
 [[cpp11::register]]
-void write_xpt_(cpp11::list data, cpp11::strings path, int version, std::string name) {
+void write_xpt_(cpp11::list data, cpp11::strings path, int version, std::string name, cpp11::sexp label) {
   Writer writer(HAVEN_XPT, data, path);
   writer.setVersion(version);
   writer.setName(name);
+  writer.setFileLabel(label);
   writer.write();
 }

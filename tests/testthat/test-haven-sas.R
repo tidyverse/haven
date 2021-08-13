@@ -232,3 +232,14 @@ test_that("invalid files generate informative errors", {
     write_xpt(mtcars, file.path(tempdir(), " temp.xpt"))
   })
 })
+
+test_that("can roundtrip file labels", {
+  df <- tibble(x = 1)
+  expect_null(attr(roundtrip_xpt(df), "label"))
+  expect_equal(attr(roundtrip_xpt(df, label = "abcd"), "label"), "abcd")
+
+  attr(df, "label") <- "abc"
+  expect_equal(attr(roundtrip_xpt(df), "label"), "abc")
+  expect_equal(attr(roundtrip_xpt(df, label = "abcd"), "label"), "abcd")
+  expect_null(attr(roundtrip_xpt(df, label = NULL), "label"))
+})

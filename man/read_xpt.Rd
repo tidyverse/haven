@@ -13,7 +13,7 @@ read_xpt(
   .name_repair = "unique"
 )
 
-write_xpt(data, path, version = 8, name = NULL)
+write_xpt(data, path, version = 8, name = NULL, label = attr(data, "label"))
 }
 \arguments{
 \item{file}{Either a path to a file, a connection, or literal data
@@ -65,6 +65,12 @@ to enforce them.}
 \item{name}{Member name to record in file. Defaults to file name sans
 extension. Must be <= 8 characters for version 5, and <= 32 characters
 for version 8.}
+
+\item{label}{Dataset label to use, or \code{NULL}. Defaults to the value stored in
+the "label" attribute of \code{data}.
+
+Note that although SAS itself supports data set labels up to 256 characters
+long, data set labels in SAS transport files must be <= 40 characters.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
