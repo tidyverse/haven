@@ -69,14 +69,17 @@ for version 8.}
 \item{label}{Dataset label to use, or \code{NULL}. Defaults to the value stored in
 the "label" attribute of \code{data}.
 
-Note that although SAS itself supports data set labels up to 256 characters
-long, data set labels in SAS transport files must be <= 40 characters.}
+Note that although SAS itself supports dataset labels up to 256 characters
+long, dataset labels in SAS transport files must be <= 40 characters.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
 
 Variable labels are stored in the "label" attribute of each variable.
 It is not printed on the console, but the RStudio viewer will show it.
+
+If a dataset label is defined, it will be stored in the "label" attribute
+of the tibble.
 
 \code{write_xpt()} returns the input \code{data} invisibly.
 }

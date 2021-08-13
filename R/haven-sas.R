@@ -87,6 +87,9 @@ write_sas <- function(data, path) {
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #'
+#'   If a dataset label is defined, it will be stored in the "label" attribute
+#'   of the tibble.
+#'
 #'   `write_xpt()` returns the input `data` invisibly.
 #' @export
 #' @examples
@@ -115,8 +118,8 @@ read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repai
 #' @param label Dataset label to use, or `NULL`. Defaults to the value stored in
 #'   the "label" attribute of `data`.
 #'
-#'   Note that although SAS itself supports data set labels up to 256 characters
-#'   long, data set labels in SAS transport files must be <= 40 characters.
+#'   Note that although SAS itself supports dataset labels up to 256 characters
+#'   long, dataset labels in SAS transport files must be <= 40 characters.
 write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "label")) {
   stopifnot(version %in% c(5, 8))
 
