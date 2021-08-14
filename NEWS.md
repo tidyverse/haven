@@ -1,5 +1,8 @@
 # haven (development version)
 
+* Fix bug in output timezone conversion that was causing variable labels and
+  other variable attributes to disappear (#624).
+
 * The `compress` argument for `write_sav()` now supports all 3 SPSS compression
   modes specified as a character string - "byte", "none" and "zsav" (#614).
   `TRUE` and `FALSE` can be used for backwards compatibility, and correspond to

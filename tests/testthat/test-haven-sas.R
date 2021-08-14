@@ -176,11 +176,17 @@ test_that("can write labelled with NULL labels", {
 
 test_that("can roundtrip date times", {
   x1 <- c(as.Date("2010-01-01"), NA)
-  x2 <- as.POSIXct(x1)
-  attr(x2, "tzone") <- "UTC"
-
   expect_equal(roundtrip_var(x1, "sas"), x1)
-  expect_equal(roundtrip_var(x2, "sas"), x2)
+
+  # converted to same time in UTC
+  x2 <- as.POSIXct("2010-01-01 09:00", tz = "Pacific/Auckland")
+  expect_equal(
+    roundtrip_var(x2, "sas"),
+    as.POSIXct("2010-01-01 09:00", tz = "UTC")
+  )
+
+  attr(x2, "label") <- "abc"
+  expect_equal(attr(roundtrip_var(x2, "sas"), "label"), "abc")
 })
 
 test_that("can roundtrip format attribute", {

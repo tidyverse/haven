@@ -114,6 +114,9 @@ test_that("can roundtrip date times", {
     roundtrip_var(x2, "dta"),
     as.POSIXct("2010-01-01 09:00", tz = "UTC")
   )
+
+  attr(x2, "label") <- "abc"
+  expect_equal(attr(roundtrip_var(x2, "dta"), "label"), "abc")
 })
 
 test_that("can roundtrip tagged NAs", {
