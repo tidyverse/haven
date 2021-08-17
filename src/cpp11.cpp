@@ -99,10 +99,10 @@ extern "C" SEXP _haven_write_sas_(SEXP data, SEXP path) {
   END_CPP11
 }
 // DfWriter.cpp
-void write_xpt_(cpp11::list data, cpp11::strings path, int version, std::string name);
-extern "C" SEXP _haven_write_xpt_(SEXP data, SEXP path, SEXP version, SEXP name) {
+void write_xpt_(cpp11::list data, cpp11::strings path, int version, std::string name, cpp11::sexp label);
+extern "C" SEXP _haven_write_xpt_(SEXP data, SEXP path, SEXP version, SEXP name, SEXP label) {
   BEGIN_CPP11
-    write_xpt_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<int>>(version), cpp11::as_cpp<cpp11::decay_t<std::string>>(name));
+    write_xpt_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<int>>(version), cpp11::as_cpp<cpp11::decay_t<std::string>>(name), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(label));
     return R_NilValue;
   END_CPP11
 }
@@ -122,7 +122,7 @@ extern SEXP _haven_df_parse_xpt_raw(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _haven_write_dta_(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _haven_write_sas_(SEXP, SEXP);
 extern SEXP _haven_write_sav_(SEXP, SEXP, SEXP);
-extern SEXP _haven_write_xpt_(SEXP, SEXP, SEXP, SEXP);
+extern SEXP _haven_write_xpt_(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP is_tagged_na_(SEXP, SEXP);
 extern SEXP na_tag_(SEXP);
 extern SEXP tagged_na_(SEXP);
@@ -141,7 +141,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_haven_write_dta_",        (DL_FUNC) &_haven_write_dta_,        4},
     {"_haven_write_sas_",        (DL_FUNC) &_haven_write_sas_,        2},
     {"_haven_write_sav_",        (DL_FUNC) &_haven_write_sav_,        3},
-    {"_haven_write_xpt_",        (DL_FUNC) &_haven_write_xpt_,        4},
+    {"_haven_write_xpt_",        (DL_FUNC) &_haven_write_xpt_,        5},
     {"is_tagged_na_",            (DL_FUNC) &is_tagged_na_,            2},
     {"na_tag_",                  (DL_FUNC) &na_tag_,                  1},
     {"tagged_na_",               (DL_FUNC) &tagged_na_,               1},

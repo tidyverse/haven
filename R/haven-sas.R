@@ -87,6 +87,9 @@ write_sas <- function(data, path) {
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #'
+#'   If a dataset label is defined, it will be stored in the "label" attribute
+#'   of the tibble.
+#'
 #'   `write_xpt()` returns the input `data` invisibly.
 #' @export
 #' @examples
@@ -112,7 +115,12 @@ read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repai
 #' @param name Member name to record in file. Defaults to file name sans
 #'   extension. Must be <= 8 characters for version 5, and <= 32 characters
 #'   for version 8.
-write_xpt <- function(data, path, version = 8, name = NULL) {
+#' @param label Dataset label to use, or `NULL`. Defaults to the value stored in
+#'   the "label" attribute of `data`.
+#'
+#'   Note that although SAS itself supports dataset labels up to 256 characters
+#'   long, dataset labels in SAS transport files must be <= 40 characters.
+write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "label")) {
   stopifnot(version %in% c(5, 8))
 
   if (is.null(name)) {
@@ -125,7 +133,8 @@ write_xpt <- function(data, path, version = 8, name = NULL) {
     data,
     normalizePath(path, mustWork = FALSE),
     version = version,
-    name = name
+    name = name,
+    label = label
   )
   invisible(data)
 }
@@ -151,5 +160,15 @@ validate_xpt_name <- function(name, version) {
     }
   }
   name
+}
+
+validate_xpt_label <- function(label) {
+  if (!is.null(label)) {
+    stopifnot(is.character(label), length(label) == 1)
+
+    if (nchar(label) > 40) {
+      stop("`label` must be 40 characters or fewer", call. = FALSE)
+    }
+  }
 }
 

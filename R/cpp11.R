@@ -52,6 +52,6 @@ write_sas_ <- function(data, path) {
   invisible(.Call(`_haven_write_sas_`, data, path))
 }
 
-write_xpt_ <- function(data, path, version, name) {
-  invisible(.Call(`_haven_write_xpt_`, data, path, version, name))
+write_xpt_ <- function(data, path, version, name, label) {
+  invisible(.Call(`_haven_write_xpt_`, data, path, version, name, label))
 }

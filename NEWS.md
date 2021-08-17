@@ -1,5 +1,8 @@
 # haven (development version)
 
+* `write_xpt()` can now write dataset labels with the `label` argument,  which
+  defaults to the `label` attribute of the input data frame, if present (#562).
+
 * The `compress` argument for `write_sav()` now supports all 3 SPSS compression
   modes specified as a character string - "byte", "none" and "zsav" (#614).
   `TRUE` and `FALSE` can be used for backwards compatibility, and correspond to
