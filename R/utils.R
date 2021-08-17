@@ -14,7 +14,7 @@ force_utc <- function(x) {
   } else {
     x_attr <- attributes(x)
     x <- as.POSIXct(format(x, usetz = FALSE), tz = "UTC", format = "%Y-%m-%d %H:%M:%S")
-    attr_miss <- setdiff(names(x_attr), names(attributes(x)))
+    attr_miss <- setdiff(names(x_attr), c(names(attributes(x)), "names"))
     attributes(x)[attr_miss] <- x_attr[attr_miss]
     x
   }
