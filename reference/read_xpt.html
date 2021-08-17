@@ -201,7 +201,7 @@ of the data to the FDA.</p>
   .name_repair <span class='op'>=</span> <span class='st'>"unique"</span>
 <span class='op'>)</span>
 
-<span class='fu'>write_xpt</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>path</span>, version <span class='op'>=</span> <span class='fl'>8</span>, name <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></code></pre></div>
+<span class='fu'>write_xpt</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>path</span>, version <span class='op'>=</span> <span class='fl'>8</span>, name <span class='op'>=</span> <span class='cn'>NULL</span>, label <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/attr.html'>attr</a></span><span class='op'>(</span><span class='va'>data</span>, <span class='st'>"label"</span><span class='op'>)</span><span class='op'>)</span></code></pre></div>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -270,6 +270,13 @@ to enforce them.</p></td>
 extension. Must be &lt;= 8 characters for version 5, and &lt;= 32 characters
 for version 8.</p></td>
     </tr>
+    <tr>
+      <th>label</th>
+      <td><p>Dataset label to use, or <code>NULL</code>. Defaults to the value stored in
+the "label" attribute of <code>data</code>.</p>
+<p>Note that although SAS itself supports dataset labels up to 256 characters
+long, dataset labels in SAS transport files must be &lt;= 40 characters.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -277,6 +284,8 @@ for version 8.</p></td>
     <p>A tibble, data frame variant with nice defaults.</p>
 <p>Variable labels are stored in the "label" attribute of each variable.
 It is not printed on the console, but the RStudio viewer will show it.</p>
+<p>If a dataset label is defined, it will be stored in the "label" attribute
+of the tibble.</p>
 <p><code>write_xpt()</code> returns the input <code>data</code> invisibly.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
