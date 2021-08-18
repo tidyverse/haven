@@ -10,6 +10,9 @@ Authors@R:
              family = "Miller",
              role = c("aut", "cph"),
              comment = "Author of included ReadStat code"),
+      person(given = "Danny",
+             family = "Smith",
+             role = "aut"),
       person(given = "RStudio",
              role = c("cph", "fnd")))
 Description: Import foreign statistical formats into R via the embedded

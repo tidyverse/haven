@@ -1,7 +1,18 @@
 # haven (development version)
 
 * `write_sav()` successfully writes user missing values and ranges for
-  `labelled()` integer vectors (@gorcha, #596).
+  `labelled()` integer vectors (#596).
+
+* `write_xpt()` can now write dataset labels with the `label` argument,  which
+  defaults to the `label` attribute of the input data frame, if present (#562).
+
+* The `compress` argument for `write_sav()` now supports all 3 SPSS compression
+  modes specified as a character string - "byte", "none" and "zsav" (#614).
+  `TRUE` and `FALSE` can be used for backwards compatibility, and correspond to
+  the "zsav" and "none" options respectively.
+
+* @gorcha is now a haven author in recognition of his significant and sustained
+  contributions.
 
 # haven 2.4.3
 
@@ -13,7 +24,7 @@
 
 * `read_dta()` no longer crashes if it sees StrL variables with missing values
   (@gorcha, #594, #600, #608).
-urlchecker::url_check()
+
 * `write_dta()` now correctly handles "labelled"-class numeric (double) variables 
    that don't have value labels (@jmobrien, #606, #609).
 

@@ -27,6 +27,7 @@ Useful links:
 Authors:
 \itemize{
   \item Evan Miller (Author of included ReadStat code) [copyright holder]
+  \item Danny Smith
 }
 
 Other contributors:
