@@ -1,5 +1,8 @@
 # haven (development version)
 
+* Fix bug in output timezone conversion that was causing variable labels and
+  other variable attributes to disappear (#624).
+
 * `write_sav()` successfully writes user missing values and ranges for
   `labelled()` integer vectors (#596).
 
