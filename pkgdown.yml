@@ -4,7 +4,7 @@ pkgdown_sha: ce9781a15c7ea07df9fb17a11295ba4abec0b54b
 articles:
   datetimes: datetimes.html
   semantics: semantics.html
-last_built: 2021-08-18T02:21Z
+last_built: 2021-08-18T13:38Z
 urls:
   reference: https://haven.tidyverse.org/reference
   article: https://haven.tidyverse.org/articles

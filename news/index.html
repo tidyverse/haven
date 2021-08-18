@@ -188,7 +188,8 @@
     <div id="haven-development-version" class="section level1">
 <h1 class="page-header" data-toc-text="development version">
 <a href="#haven-development-version" class="anchor" aria-hidden="true"></a>haven (development version)<small> Unreleased </small></h1>
-<ul><li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> successfully writes user missing values and ranges for <code><a href="../reference/labelled.html">labelled()</a></code> integer vectors (<a href='https://github.com/tidyverse/haven/issues/596'>#596</a>).</p></li>
+<ul><li><p>Fix bug in output timezone conversion that was causing variable labels and other variable attributes to disappear (<a href='https://github.com/tidyverse/haven/issues/624'>#624</a>).</p></li>
+<li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> successfully writes user missing values and ranges for <code><a href="../reference/labelled.html">labelled()</a></code> integer vectors (<a href='https://github.com/tidyverse/haven/issues/596'>#596</a>).</p></li>
 <li><p><code><a href="../reference/read_xpt.html">write_xpt()</a></code> can now write dataset labels with the <code>label</code> argument, which defaults to the <code>label</code> attribute of the input data frame, if present (<a href='https://github.com/tidyverse/haven/issues/562'>#562</a>).</p></li>
 <li><p>The <code>compress</code> argument for <code><a href="../reference/read_spss.html">write_sav()</a></code> now supports all 3 SPSS compression modes specified as a character string - “byte”, “none” and “zsav” (<a href='https://github.com/tidyverse/haven/issues/614'>#614</a>). <code>TRUE</code> and <code>FALSE</code> can be used for backwards compatibility, and correspond to the “zsav” and “none” options respectively.</p></li>
 <li><p>@gorcha is now a haven author in recognition of his significant and sustained contributions.</p></li>
