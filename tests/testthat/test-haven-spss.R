@@ -210,7 +210,7 @@ test_that("labelleds are round tripped", {
 test_that("spss labelleds are round tripped", {
   df <- tibble(
     x = labelled_spss(
-      c(1, 2, 1, 9),
+      c(1, 2, 1, 9, 80, 85, 90),
       labels = c(no = 1, yes = 2, unknown = 9),
       na_values = 9,
       na_range = c(80, 90)
@@ -222,13 +222,58 @@ test_that("spss labelleds are round tripped", {
 
   df2 <- read_sav(path)
   expect_s3_class(df2$x, "haven_labelled")
-  expect_equal(as.double(df2$x), c(1, 2, 1, NA))
+  expect_equal(as.double(df2$x), c(1, 2, 1, NA, NA, NA, NA))
 
   df3 <- read_sav(path, user_na = TRUE)
   expect_s3_class(df3$x, "haven_labelled_spss")
   expect_equal(attr(df3$x, "na_values"), attr(df$x, "na_values"))
   expect_equal(attr(df3$x, "na_range"), attr(df$x, "na_range"))
 })
+
+test_that("spss integer labelleds are round tripped", {
+  df <- tibble(
+    x = labelled_spss(
+      c(1L, 2L, 1L, 9L, 80L, 85L, 90L),
+      labels = c(no = 1, yes = 2, unknown = 9),
+      na_values = 9,
+      na_range = c(80, 90)
+    )
+  )
+
+  path <- tempfile()
+  write_sav(df, path)
+
+  df2 <- read_sav(path)
+  expect_s3_class(df2$x, "haven_labelled")
+  expect_equal(as.integer(df2$x), c(1, 2, 1, NA, NA, NA, NA))
+
+  df3 <- read_sav(path, user_na = TRUE)
+  expect_s3_class(df3$x, "haven_labelled_spss")
+  expect_equal(attr(df3$x, "na_values"), attr(df$x, "na_values"))
+  expect_equal(attr(df3$x, "na_range"), attr(df$x, "na_range"))
+})
+
+
+test_that("na_range roundtrips successfully with mismatched type", {
+  x_vec = 1:10
+  x_na = c(1, 10)
+  df <- tibble(
+    x_int_int   = labelled_spss(as.integer(x_vec), na_range = as.integer(x_na)),
+    x_int_real  = labelled_spss(as.integer(x_vec), na_range = as.numeric(x_na)),
+    x_real_real = labelled_spss(as.numeric(x_vec), na_range = as.numeric(x_na)),
+    x_real_int  = labelled_spss(as.numeric(x_vec), na_range = as.integer(x_na))
+  )
+
+  path <- tempfile()
+  write_sav(df, path)
+  df2 <- read_sav(path, user_na = TRUE)
+
+  expect_equal(attr(df2$x_int_int, "na_range"), attr(df$x_int_int, "na_range"))
+  expect_equal(attr(df2$x_int_real, "na_range"), attr(df$x_int_real, "na_range"))
+  expect_equal(attr(df2$x_real_real, "na_range"), attr(df$x_real_real, "na_range"))
+  expect_equal(attr(df2$x_real_int, "na_range"), attr(df$x_real_int, "na_range"))
+})
+
 
 test_that("spss string labelleds are round tripped", {
   df <- tibble(

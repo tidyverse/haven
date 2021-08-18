@@ -266,6 +266,23 @@ public:
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(x));
+
+    if (Rf_inherits(x, "haven_labelled_spss")) {
+      SEXP na_range = x.attr("na_range");
+      if (TYPEOF(na_range) == REALSXP && Rf_length(na_range) == 2) {
+        readstat_variable_add_missing_double_range(var, REAL(na_range)[0], REAL(na_range)[1]);
+      } else if (TYPEOF(na_range) == INTSXP && Rf_length(na_range) == 2) {
+        readstat_variable_add_missing_double_range(var, INTEGER(na_range)[0], INTEGER(na_range)[1]);
+      }
+
+      SEXP na_values = x.attr("na_values");
+      if (TYPEOF(na_values) == INTSXP) {
+        int n = Rf_length(na_values);
+        for (int i = 0; i < n; ++i) {
+          readstat_variable_add_missing_double_value(var, INTEGER(na_values)[i]);
+        }
+      }
+    }
     return readstat_validate_variable(writer_, var);
   }
 
@@ -300,6 +317,8 @@ public:
       SEXP na_range = x.attr("na_range");
       if (TYPEOF(na_range) == REALSXP && Rf_length(na_range) == 2) {
         readstat_variable_add_missing_double_range(var, REAL(na_range)[0], REAL(na_range)[1]);
+      } else if (TYPEOF(na_range) == INTSXP && Rf_length(na_range) == 2) {
+        readstat_variable_add_missing_double_range(var, INTEGER(na_range)[0], INTEGER(na_range)[1]);
       }
 
       SEXP na_values = x.attr("na_values");

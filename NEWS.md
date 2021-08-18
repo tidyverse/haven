@@ -1,5 +1,8 @@
 # haven (development version)
 
+* `write_sav()` successfully writes user missing values and ranges for
+  `labelled()` integer vectors (#596).
+
 * `write_xpt()` can now write dataset labels with the `label` argument,  which
   defaults to the `label` attribute of the input data frame, if present (#562).
 
