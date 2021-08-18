@@ -13,7 +13,7 @@ read_xpt(
   .name_repair = "unique"
 )
 
-write_xpt(data, path, version = 8, name = NULL)
+write_xpt(data, path, version = 8, name = NULL, label = attr(data, "label"))
 }
 \arguments{
 \item{file}{Either a path to a file, a connection, or literal data
@@ -65,12 +65,21 @@ to enforce them.}
 \item{name}{Member name to record in file. Defaults to file name sans
 extension. Must be <= 8 characters for version 5, and <= 32 characters
 for version 8.}
+
+\item{label}{Dataset label to use, or \code{NULL}. Defaults to the value stored in
+the "label" attribute of \code{data}.
+
+Note that although SAS itself supports dataset labels up to 256 characters
+long, dataset labels in SAS transport files must be <= 40 characters.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
 
 Variable labels are stored in the "label" attribute of each variable.
 It is not printed on the console, but the RStudio viewer will show it.
+
+If a dataset label is defined, it will be stored in the "label" attribute
+of the tibble.
 
 \code{write_xpt()} returns the input \code{data} invisibly.
 }
