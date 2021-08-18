@@ -269,8 +269,6 @@ public:
 
     if (Rf_inherits(x, "haven_labelled_spss")) {
       SEXP na_range = x.attr("na_range");
-      // We have to allow for both REAL and INTEGER here, since na_range cannot
-      // be cast to the vector type
       if (TYPEOF(na_range) == REALSXP && Rf_length(na_range) == 2) {
         readstat_variable_add_missing_double_range(var, REAL(na_range)[0], REAL(na_range)[1]);
       } else if (TYPEOF(na_range) == INTSXP && Rf_length(na_range) == 2) {
@@ -317,8 +315,6 @@ public:
 
     if (Rf_inherits(x, "haven_labelled_spss")) {
       SEXP na_range = x.attr("na_range");
-      // We have to allow for both REAL and INTEGER here, since na_range cannot
-      // be cast to the vector type
       if (TYPEOF(na_range) == REALSXP && Rf_length(na_range) == 2) {
         readstat_variable_add_missing_double_range(var, REAL(na_range)[0], REAL(na_range)[1]);
       } else if (TYPEOF(na_range) == INTSXP && Rf_length(na_range) == 2) {
