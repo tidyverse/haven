@@ -147,6 +147,20 @@ test_that("using cols_only warns about deprecation, but works", {
   expect_named(out, "id")
 })
 
+# read_sas_chunked --------------------------------------------------------
+
+test_that('chunked import with filter returns identical results to regular import with filter', {
+
+  chunk_test_file <- test_path("sas/hadley.sas7bdat")
+  unchunked <- read_sas(chunk_test_file)
+  unchunked <- unchunked[unchunked$gender == 'f', ]
+  gender_callback <- function(x){ x[x$gender == 'f', ] }
+  chunked = read_sas_chunked(chunk_test_file, chunk_size = 1, callback = gender_callback)
+
+  expect_identical(chunked, unchunked)
+
+})
+
 # write_sas ---------------------------------------------------------------
 
 test_that("can roundtrip basic types", {
