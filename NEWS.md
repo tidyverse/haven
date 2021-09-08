@@ -1,5 +1,9 @@
 # haven (development version)
 
+* POSIXct and POSIXlt values with no time component (e.g. "2010-01-01") were
+  being converted to `NA` when attempting to convert the output timezone to UTC.
+  These now output successfully (#634).
+
 * Fix bug in output timezone conversion that was causing variable labels and
   other variable attributes to disappear (#624).
 
