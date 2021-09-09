@@ -165,13 +165,12 @@
 <span class="op">)</span>
 <span class="va">x1</span>
 <span class="co">#&gt; &lt;labelled&lt;integer&gt;[5]&gt;</span>
-<span class="co">#&gt; [1] 4 2 3 1 5</span>
+<span class="co">#&gt; [1] 3 2 4 1 5</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Labels:</span>
 <span class="co">#&gt;  value label</span>
 <span class="co">#&gt;      1  Good</span>
 <span class="co">#&gt;      5   Bad</span>
-
 <span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelled.html">labelled</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"M"</span><span class="op">)</span>, 
   <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Male <span class="op">=</span> <span class="st">"M"</span>, Female <span class="op">=</span> <span class="st">"F"</span><span class="op">)</span>
@@ -187,11 +186,10 @@
 <p>The goal of haven is not to provide a labelled vector that you can use everywhere in your analysis. The goal is to provide an intermediate datastructure that you can convert into a regular R data frame. You can do this by either converting to a factor or stripping the labels:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
-<span class="co">#&gt; [1] 4    2    3    Good Bad </span>
+<span class="co">#&gt; [1] 3    2    4    Good Bad </span>
 <span class="co">#&gt; Levels: Good 2 3 4 Bad</span>
 <span class="fu"><a href="../reference/zap_labels.html">zap_labels</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
-<span class="co">#&gt; [1] 4 2 3 1 5</span>
-
+<span class="co">#&gt; [1] 3 2 4 1 5</span>
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span>
 <span class="co">#&gt; [1] Male   Female Female Female Male  </span>
 <span class="co">#&gt; Levels: Female Male</span>
@@ -203,32 +201,33 @@
 <code class="sourceCode R"><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html" class="external-link">data_frame</a></span><span class="op">(</span><span class="va">x1</span>, <span class="va">x2</span>, z <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>
 <span class="co">#&gt; Warning: `data_frame()` was deprecated in tibble 1.1.0.</span>
 <span class="co">#&gt; Please use `tibble()` instead.</span>
+<span class="co">#&gt; This warning is displayed once every 8 hours.</span>
+<span class="co">#&gt; Call `lifecycle::last_warnings()` to see where this warning was generated.</span>
 <span class="va">df</span>
 <span class="co">#&gt; # A tibble: 5 × 3</span>
 <span class="co">#&gt;          x1 x2             z</span>
 <span class="co">#&gt;   &lt;int+lbl&gt; &lt;chr+lbl&gt;  &lt;int&gt;</span>
-<span class="co">#&gt; 1  4        M [Male]       1</span>
+<span class="co">#&gt; 1  3        M [Male]       1</span>
 <span class="co">#&gt; 2  2        F [Female]     2</span>
-<span class="co">#&gt; 3  3        F [Female]     3</span>
+<span class="co">#&gt; 3  4        F [Female]     3</span>
 <span class="co">#&gt; 4  1 [Good] F [Female]     4</span>
 <span class="co">#&gt; 5  5 [Bad]  M [Male]       5</span>
-
 <span class="fu"><a href="../reference/zap_labels.html">zap_labels</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
 <span class="co">#&gt; # A tibble: 5 × 3</span>
 <span class="co">#&gt;      x1 x2        z</span>
 <span class="co">#&gt;   &lt;int&gt; &lt;chr&gt; &lt;int&gt;</span>
-<span class="co">#&gt; 1     4 M         1</span>
+<span class="co">#&gt; 1     3 M         1</span>
 <span class="co">#&gt; 2     2 F         2</span>
-<span class="co">#&gt; 3     3 F         3</span>
+<span class="co">#&gt; 3     4 F         3</span>
 <span class="co">#&gt; 4     1 F         4</span>
 <span class="co">#&gt; 5     5 M         5</span>
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
 <span class="co">#&gt; # A tibble: 5 × 3</span>
 <span class="co">#&gt;   x1    x2         z</span>
 <span class="co">#&gt;   &lt;fct&gt; &lt;fct&gt;  &lt;int&gt;</span>
-<span class="co">#&gt; 1 4     Male       1</span>
+<span class="co">#&gt; 1 3     Male       1</span>
 <span class="co">#&gt; 2 2     Female     2</span>
-<span class="co">#&gt; 3 3     Female     3</span>
+<span class="co">#&gt; 3 4     Female     3</span>
 <span class="co">#&gt; 4 Good  Female     4</span>
 <span class="co">#&gt; 5 Bad   Male       5</span></code></pre></div>
 </div>
@@ -268,7 +267,6 @@
 <span class="co">#&gt; [1] FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE</span>
 <span class="fu"><a href="../reference/tagged_na.html">is_tagged_na</a></span><span class="op">(</span><span class="va">x</span>, <span class="st">"a"</span><span class="op">)</span>
 <span class="co">#&gt; [1] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE</span>
-
 <span class="fu"><a href="../reference/tagged_na.html">na_tag</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
 <span class="co">#&gt; [1] NA  NA  NA  "a" "z" NA  NA  NA</span></code></pre></div>
 <p>My expectation is that tagged missings are most often used in conjuction with labels (described below), so labelled vectors print the tags for you, and <code><a href="../reference/as_factor.html">as_factor()</a></code> knows how to relabel:</p>
@@ -282,7 +280,6 @@
 <span class="co">#&gt;  value    label</span>
 <span class="co">#&gt;  NA(a) Not home</span>
 <span class="co">#&gt;  NA(z)  Refused</span>
-
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>
 <span class="co">#&gt; [1] 1        2        3        Not home Refused  3        2        1       </span>
 <span class="co">#&gt; Levels: 1 2 3 Not home Refused</span></code></pre></div>
