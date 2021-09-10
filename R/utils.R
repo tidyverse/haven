@@ -8,6 +8,11 @@ vec_cast_named <- function(x, to, ...) {
   stats::setNames(vec_cast(x, to, ...), names(x))
 }
 
+# TODO: remove when minimum R version >= 3.5
+if (getRversion() < 3.5) {
+  isFALSE <- function(x) is.logical(x) && length(x) == 1L && !is.na(x) && !x
+}
+
 force_utc <- function(x) {
   if (identical(attr(x, "tzone"), "UTC")) {
     x
