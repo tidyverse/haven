@@ -1,5 +1,8 @@
 # haven (development version)
 
+* `zap_labels()` gains a `user_na` argument to control whether user-defined
+  missing values are converted to `NA` or left as is (#638).
+
 * POSIXct and POSIXlt values with no time component (e.g. "2010-01-01") were
   being converted to `NA` when attempting to convert the output timezone to UTC.
   These now output successfully (#634).
