@@ -3,14 +3,11 @@
 \name{zap_labels}
 \alias{zap_labels}
 \alias{zap_labels.haven_labelled_spss}
-\alias{zap_labels.data.frame}
 \title{Zap value labels}
 \usage{
 zap_labels(x, ...)
 
-\method{zap_labels}{haven_labelled_spss}(x, user_na = FALSE, ...)
-
-\method{zap_labels}{data.frame}(x, user_na = FALSE, ...)
+\method{zap_labels}{haven_labelled_spss}(x, ..., user_na = FALSE)
 }
 \arguments{
 \item{x}{A vector or data frame}

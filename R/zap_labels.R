@@ -51,7 +51,7 @@ zap_labels.haven_labelled <- function(x, ...) {
 
 #' @rdname zap_labels
 #' @export
-zap_labels.haven_labelled_spss <- function(x, user_na = FALSE, ...) {
+zap_labels.haven_labelled_spss <- function(x, ..., user_na = FALSE) {
   if (isFALSE(user_na)) {
     x[is.na(x)] <- NA
   }
@@ -65,9 +65,8 @@ zap_labels.haven_labelled_spss <- function(x, user_na = FALSE, ...) {
 }
 
 
-#' @rdname zap_labels
 #' @export
-zap_labels.data.frame <- function(x, user_na = FALSE, ...) {
-  x[] <- lapply(x, zap_labels, user_na = user_na, ...)
+zap_labels.data.frame <- function(x, ...) {
+  x[] <- lapply(x, zap_labels, ...)
   x
 }
