@@ -109,6 +109,18 @@ read_spss <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max 
 validate_sav <- function(data) {
   stopifnot(is.data.frame(data))
 
+  #check unique column names 
+  col_names <- names(data)
+  unique_colnames <- unique(tolower(names(data)))
+  if(length(col_names) != length(unique_colnames)){
+    stop(
+      "SPSS requires unique column names\n",
+      "column(s) \"", paste(col_names[duplicated(tolower(col_names))], collapse = "\" \""), "\" not unique\n", 
+      "reminder: SPSS is not case sensitive"
+    )
+
+  }
+
   # Check factor lengths
   level_lengths <- vapply(data, max_level_length, integer(1))
 
