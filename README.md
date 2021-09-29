@@ -7,8 +7,7 @@
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/haven)](https://cran.r-project.org/package=haven)
-[![R build
-status](https://github.com/tidyverse/haven/workflows/R-CMD-check/badge.svg)](https://github.com/tidyverse/haven/actions)
+[![R-CMD-check](https://github.com/tidyverse/haven/workflows/R-CMD-check/badge.svg)](https://github.com/tidyverse/haven/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/tidyverse/haven/branch/master/graph/badge.svg)](https://codecov.io/gh/tidyverse/haven?branch=master)
 <!-- badges: end -->
