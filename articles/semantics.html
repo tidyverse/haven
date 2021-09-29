@@ -35,8 +35,6 @@
 </script>
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -51,13 +49,19 @@
       <div class="navbar-brand-container">
         <a class="navbar-brand" href="../index.html">haven</a>
         <div class="info hidden-xs hidden-sm">
-          <span class="partof">part of the <a href="https://tidyverse.org" class="external-link">tidyverse</a></span>
+          <span class="partof">part of the <a href="https://tidyverse.org">tidyverse</a></span>
           <span class="version version-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.4.3.9000</span>
         </div>
       </div>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="../index.html">
+    <span class="fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -85,28 +89,28 @@
   <ul class="dropdown-menu" role="menu">
 <li class="dropdown-header">Releases</li>
     <li>
-      <a href="https://www.tidyverse.org/blog/2021/04/haven-2-4-0/" class="external-link">Version 2.4.0</a>
+      <a href="https://www.tidyverse.org/blog/2021/04/haven-2-4-0/">Version 2.4.0</a>
     </li>
     <li>
-      <a href="https://www.tidyverse.org/blog/2020/06/haven-2-3-0/" class="external-link">Version 2.3.0</a>
+      <a href="https://www.tidyverse.org/blog/2020/06/haven-2-3-0/">Version 2.3.0</a>
     </li>
     <li>
-      <a href="https://www.tidyverse.org/articles/2019/11/haven-2-2-0/" class="external-link">Version 2.2.0</a>
+      <a href="https://www.tidyverse.org/articles/2019/11/haven-2-2-0/">Version 2.2.0</a>
     </li>
     <li>
-      <a href="https://www.tidyverse.org/articles/2019/02/haven-2-1-0/" class="external-link">Version 2.1.0</a>
+      <a href="https://www.tidyverse.org/articles/2019/02/haven-2-1-0/">Version 2.1.0</a>
     </li>
     <li>
-      <a href="https://www.tidyverse.org/articles/2019/01/haven-2-0-0/" class="external-link">Version 2.0.0</a>
+      <a href="https://www.tidyverse.org/articles/2019/01/haven-2-0-0/">Version 2.0.0</a>
     </li>
     <li>
-      <a href="https://www.tidyverse.org/articles/2018/06/haven-1-1-2/" class="external-link">Version 1.1.2</a>
+      <a href="https://www.tidyverse.org/articles/2018/06/haven-1-1-2/">Version 1.1.2</a>
     </li>
     <li>
-      <a href="https://blog.rstudio.com/2016/10/04/haven-1-0-0/" class="external-link">Version 1.0.0</a>
+      <a href="https://blog.rstudio.com/2016/10/04/haven-1-0-0/">Version 1.0.0</a>
     </li>
     <li>
-      <a href="https://blog.rstudio.org/2015/03/04/haven-0-1-0/" class="external-link">Version 0.1.0</a>
+      <a href="https://blog.rstudio.org/2015/03/04/haven-0-1-0/">Version 0.1.0</a>
     </li>
     <li class="divider">
     <li>
@@ -115,7 +119,7 @@
   </ul>
 </li>
         <li>
-  <a href="https://github.com/tidyverse/haven/" class="external-link">
+  <a href="https://github.com/tidyverse/haven/">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -136,7 +140,7 @@
       <h1 data-toc-skip>Conversion semantics</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/tidyverse/haven/blob/master/vignettes/semantics.Rmd" class="external-link"><code>vignettes/semantics.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/tidyverse/haven/blob/master/vignettes/semantics.Rmd"><code>vignettes/semantics.Rmd</code></a></small>
       <div class="hidden name"><code>semantics.Rmd</code></div>
 
     </div>
@@ -146,34 +150,35 @@
 <p>There are some differences between the way that R, SAS, SPSS, and Stata represented labelled data and missing values. While SAS, SPSS, and Stata share some obvious similarities, R is little different. This vignette explores the differences, and shows you how haven bridges the gap.</p>
 <div id="value-labels" class="section level2">
 <h2 class="hasAnchor">
-<a href="#value-labels" class="anchor" aria-hidden="true"></a>Value labels</h2>
+<a href="#value-labels" class="anchor"></a>Value labels</h2>
 <p>Base R has one data type that effectively maintains a mapping between integers and character labels: the factor. This however, is not the primary use of factors: they are instead designed to automatically generate useful contrasts for linear models. Factors differ from the labelled values provided by the other tools in important ways:</p>
 <ul>
 <li><p>SPSS and SAS can label numeric and character values, not just integer values.</p></li>
 <li><p>The value do not need to be exhaustive. It is common to label the special missing values (e.g. <code>.D</code> = did not respond, <code>.N</code> = not applicable), while leaving other values as is.</p></li>
 </ul>
-<p>Value labels in SAS are a little different again. In SAS, labels are just special case of general formats. Formats include currencies and dates, but user-defined just assigns labels to individual values (including special missings value). Formats have names and existing independently of the variables they are associated with. You create a named format with <code>PROC FORMAT</code> and then associated with variables in a <code>DATA</code> step (the names of character formats thealways start with <code>$</code>).</p>
+<p>Value labels in SAS are a little different again. In SAS, labels are just special case of general formats. Formats include currencies and dates, but user-defined just assigns labels to individual values (including special missings value). Formats have names and existing independently of the variables they are associated with. You create a named format with <code>PROC FORMAT</code> and then associated with variables in a <code>DATA</code> step (the names of character formats thealways start with <code><a href="https://rdrr.io/r/base/Extract.html">$</a></code>).</p>
 <div id="labelled" class="section level3">
 <h3 class="hasAnchor">
-<a href="#labelled" class="anchor" aria-hidden="true"></a><code>labelled()</code>
+<a href="#labelled" class="anchor"></a><code>labelled()</code>
 </h3>
 <p>To allow you to import labelled vectors into R, haven provides the S3 labelled class, created with <code><a href="../reference/labelled.html">labelled()</a></code>. This class allows you to associated arbitrary labels with numeric or character vectors:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">x1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelled.html">labelled</a></span><span class="op">(</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>, 
-  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Good <span class="op">=</span> <span class="fl">1</span>, Bad <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>, 
+  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Good <span class="op">=</span> <span class="fl">1</span>, Bad <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
 <span class="op">)</span>
 <span class="va">x1</span>
 <span class="co">#&gt; &lt;labelled&lt;integer&gt;[5]&gt;</span>
-<span class="co">#&gt; [1] 4 2 5 3 1</span>
+<span class="co">#&gt; [1] 1 3 5 2 4</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Labels:</span>
 <span class="co">#&gt;  value label</span>
 <span class="co">#&gt;      1  Good</span>
 <span class="co">#&gt;      5   Bad</span>
+
 <span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelled.html">labelled</a></span><span class="op">(</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"M"</span><span class="op">)</span>, 
-  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Male <span class="op">=</span> <span class="st">"M"</span>, Female <span class="op">=</span> <span class="st">"F"</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"M"</span><span class="op">)</span>, 
+  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Male <span class="op">=</span> <span class="st">"M"</span>, Female <span class="op">=</span> <span class="st">"F"</span><span class="op">)</span>
 <span class="op">)</span>
 <span class="va">x2</span>
 <span class="co">#&gt; &lt;labelled&lt;character&gt;[5]&gt;</span>
@@ -186,10 +191,11 @@
 <p>The goal of haven is not to provide a labelled vector that you can use everywhere in your analysis. The goal is to provide an intermediate datastructure that you can convert into a regular R data frame. You can do this by either converting to a factor or stripping the labels:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
-<span class="co">#&gt; [1] 4    2    Bad  3    Good</span>
+<span class="co">#&gt; [1] Good 3    Bad  2    4   </span>
 <span class="co">#&gt; Levels: Good 2 3 4 Bad</span>
 <span class="fu"><a href="../reference/zap_labels.html">zap_labels</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
-<span class="co">#&gt; [1] 4 2 5 3 1</span>
+<span class="co">#&gt; [1] 1 3 5 2 4</span>
+
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span>
 <span class="co">#&gt; [1] Male   Female Female Female Male  </span>
 <span class="co">#&gt; Levels: Female Male</span>
@@ -198,43 +204,44 @@
 <p>See the documentation for <code><a href="../reference/as_factor.html">as_factor()</a></code> for more options to control exactly what the factor uses for levels.</p>
 <p>Both <code><a href="../reference/as_factor.html">as_factor()</a></code> and <code><a href="../reference/zap_labels.html">zap_labels()</a></code> have data frame methods if you want to apply the same strategy to every column in a data frame:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html" class="external-link">data_frame</a></span><span class="op">(</span><span class="va">x1</span>, <span class="va">x2</span>, z <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html">data_frame</a></span><span class="op">(</span><span class="va">x1</span>, <span class="va">x2</span>, z <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>
 <span class="co">#&gt; Warning: `data_frame()` was deprecated in tibble 1.1.0.</span>
 <span class="co">#&gt; Please use `tibble()` instead.</span>
 <span class="co">#&gt; This warning is displayed once every 8 hours.</span>
-<span class="co">#&gt; Call `lifecycle::last_warnings()` to see where this warning was generated.</span>
+<span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</span>
 <span class="va">df</span>
 <span class="co">#&gt; # A tibble: 5 × 3</span>
 <span class="co">#&gt;          x1 x2             z</span>
 <span class="co">#&gt;   &lt;int+lbl&gt; &lt;chr+lbl&gt;  &lt;int&gt;</span>
-<span class="co">#&gt; 1  4        M [Male]       1</span>
-<span class="co">#&gt; 2  2        F [Female]     2</span>
+<span class="co">#&gt; 1  1 [Good] M [Male]       1</span>
+<span class="co">#&gt; 2  3        F [Female]     2</span>
 <span class="co">#&gt; 3  5 [Bad]  F [Female]     3</span>
-<span class="co">#&gt; 4  3        F [Female]     4</span>
-<span class="co">#&gt; 5  1 [Good] M [Male]       5</span>
+<span class="co">#&gt; 4  2        F [Female]     4</span>
+<span class="co">#&gt; 5  4        M [Male]       5</span>
+
 <span class="fu"><a href="../reference/zap_labels.html">zap_labels</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
 <span class="co">#&gt; # A tibble: 5 × 3</span>
 <span class="co">#&gt;      x1 x2        z</span>
 <span class="co">#&gt;   &lt;int&gt; &lt;chr&gt; &lt;int&gt;</span>
-<span class="co">#&gt; 1     4 M         1</span>
-<span class="co">#&gt; 2     2 F         2</span>
+<span class="co">#&gt; 1     1 M         1</span>
+<span class="co">#&gt; 2     3 F         2</span>
 <span class="co">#&gt; 3     5 F         3</span>
-<span class="co">#&gt; 4     3 F         4</span>
-<span class="co">#&gt; 5     1 M         5</span>
+<span class="co">#&gt; 4     2 F         4</span>
+<span class="co">#&gt; 5     4 M         5</span>
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
 <span class="co">#&gt; # A tibble: 5 × 3</span>
 <span class="co">#&gt;   x1    x2         z</span>
 <span class="co">#&gt;   &lt;fct&gt; &lt;fct&gt;  &lt;int&gt;</span>
-<span class="co">#&gt; 1 4     Male       1</span>
-<span class="co">#&gt; 2 2     Female     2</span>
+<span class="co">#&gt; 1 Good  Male       1</span>
+<span class="co">#&gt; 2 3     Female     2</span>
 <span class="co">#&gt; 3 Bad   Female     3</span>
-<span class="co">#&gt; 4 3     Female     4</span>
-<span class="co">#&gt; 5 Good  Male       5</span></code></pre></div>
+<span class="co">#&gt; 4 2     Female     4</span>
+<span class="co">#&gt; 5 4     Male       5</span></code></pre></div>
 </div>
 </div>
 <div id="missing-values" class="section level2">
 <h2 class="hasAnchor">
-<a href="#missing-values" class="anchor" aria-hidden="true"></a>Missing values</h2>
+<a href="#missing-values" class="anchor"></a>Missing values</h2>
 <p>All three tools provide a global “system missing value” which is displayed as <code>.</code>. This is roughly equivalent to R’s <code>NA</code>, although neither Stata nor SAS propagate missingness in numeric comparisons: SAS treats the missing value as the smallest possible number (i.e. <code>-inf</code>), and Stata treats it as the largest possible number (i.e. <code>inf</code>).</p>
 <p>Each tool also provides a mechanism for recording multiple types of missingness:</p>
 <ul>
@@ -250,11 +257,11 @@
 </ul>
 <div id="tagged-missing-values" class="section level3">
 <h3 class="hasAnchor">
-<a href="#tagged-missing-values" class="anchor" aria-hidden="true"></a>Tagged missing values</h3>
+<a href="#tagged-missing-values" class="anchor"></a>Tagged missing values</h3>
 <p>To support Stata’s extended and SAS’s special missing value, haven implements a tagged NA. It does this by taking advantage of the internal structure of a floating point NA. That allows these values to behave identical to NA in regular R operations, while still preserving the value of the tag.</p>
 <p>The R interface for creating with tagged NAs is a little clunky because generally they’ll be created by haven for you. But you can create your own with <code><a href="../reference/tagged_na.html">tagged_na()</a></code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fu"><a href="../reference/tagged_na.html">tagged_na</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"z"</span><span class="op">)</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">1</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="fu"><a href="../reference/tagged_na.html">tagged_na</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"z"</span><span class="op">)</span>, <span class="fl">3</span><span class="op">:</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">x</span>
 <span class="co">#&gt; [1]  1  2  3 NA NA  3  2  1</span></code></pre></div>
 <p>Note these tagged NAs behave identically to regular NAs, even when printing. To see their tags, use <code><a href="../reference/tagged_na.html">print_tagged_na()</a></code>:</p>
@@ -267,11 +274,12 @@
 <span class="co">#&gt; [1] FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE</span>
 <span class="fu"><a href="../reference/tagged_na.html">is_tagged_na</a></span><span class="op">(</span><span class="va">x</span>, <span class="st">"a"</span><span class="op">)</span>
 <span class="co">#&gt; [1] FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE</span>
+
 <span class="fu"><a href="../reference/tagged_na.html">na_tag</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
 <span class="co">#&gt; [1] NA  NA  NA  "a" "z" NA  NA  NA</span></code></pre></div>
 <p>My expectation is that tagged missings are most often used in conjuction with labels (described below), so labelled vectors print the tags for you, and <code><a href="../reference/as_factor.html">as_factor()</a></code> knows how to relabel:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelled.html">labelled</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Not home"</span> <span class="op">=</span> <span class="fu"><a href="../reference/tagged_na.html">tagged_na</a></span><span class="op">(</span><span class="st">"a"</span><span class="op">)</span>, <span class="st">"Refused"</span> <span class="op">=</span> <span class="fu"><a href="../reference/tagged_na.html">tagged_na</a></span><span class="op">(</span><span class="st">"z"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelled.html">labelled</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Not home"</span> <span class="op">=</span> <span class="fu"><a href="../reference/tagged_na.html">tagged_na</a></span><span class="op">(</span><span class="st">"a"</span><span class="op">)</span>, <span class="st">"Refused"</span> <span class="op">=</span> <span class="fu"><a href="../reference/tagged_na.html">tagged_na</a></span><span class="op">(</span><span class="st">"z"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
 <span class="va">y</span>
 <span class="co">#&gt; &lt;labelled&lt;double&gt;[8]&gt;</span>
 <span class="co">#&gt; [1]     1     2     3 NA(a) NA(z)     3     2     1</span>
@@ -280,17 +288,18 @@
 <span class="co">#&gt;  value    label</span>
 <span class="co">#&gt;  NA(a) Not home</span>
 <span class="co">#&gt;  NA(z)  Refused</span>
+
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>
 <span class="co">#&gt; [1] 1        2        3        Not home Refused  3        2        1       </span>
 <span class="co">#&gt; Levels: 1 2 3 Not home Refused</span></code></pre></div>
 </div>
 <div id="user-defined-missing-values" class="section level3">
 <h3 class="hasAnchor">
-<a href="#user-defined-missing-values" class="anchor" aria-hidden="true"></a>User defined missing values</h3>
+<a href="#user-defined-missing-values" class="anchor"></a>User defined missing values</h3>
 <p>SPSS’s user-defined values work differently to SAS and Stata. Each column can have either up to three distinct values that are considered as missing, or a range. Haven provides <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> as a subclass of <code><a href="../reference/labelled.html">labelled()</a></code> to model these additional user-defined missings.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">x1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelled_spss.html">labelled_spss</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">99</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Missing <span class="op">=</span> <span class="fl">99</span><span class="op">)</span>, na_value <span class="op">=</span> <span class="fl">99</span><span class="op">)</span>
-<span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelled_spss.html">labelled_spss</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">99</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Missing <span class="op">=</span> <span class="fl">99</span><span class="op">)</span>, na_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">90</span>, <span class="cn">Inf</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">x1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelled_spss.html">labelled_spss</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">99</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Missing <span class="op">=</span> <span class="fl">99</span><span class="op">)</span>, na_value <span class="op">=</span> <span class="fl">99</span><span class="op">)</span>
+<span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/labelled_spss.html">labelled_spss</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>, <span class="fl">99</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Missing <span class="op">=</span> <span class="fl">99</span><span class="op">)</span>, na_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">90</span>, <span class="cn">Inf</span><span class="op">)</span><span class="op">)</span>
 
 <span class="va">x1</span>
 <span class="co">#&gt; &lt;labelled_spss&lt;double&gt;[11]&gt;</span>
@@ -310,16 +319,16 @@
 <span class="co">#&gt;     99 Missing</span></code></pre></div>
 <p>These objects are somewhat dangerous to work with in R because most R functions don’t know those values are missing:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
 <span class="co">#&gt; [1] 14</span></code></pre></div>
 <p>Because of that danger, the default behaviour of <code><a href="../reference/read_spss.html">read_spss()</a></code> is to return regular labelled objects where user-defined missing values have been converted to <code>NA</code>s. To get <code><a href="../reference/read_spss.html">read_spss()</a></code> to return <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> objects, you’ll need to set <code>user_na = TRUE</code>.</p>
-<p>I’ve defined an <code><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na()</a></code> method so you can find them yourself:</p>
+<p>I’ve defined an <code><a href="https://rdrr.io/r/base/NA.html">is.na()</a></code> method so you can find them yourself:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
 <span class="co">#&gt;  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE</span></code></pre></div>
 <p>And the presence of that method does mean many functions with an <code>na.rm</code> argument will work correctly:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x1</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x1</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt; [1] 14</span></code></pre></div>
 <p>But generally you should either convert to a factor, convert to regular missing vaues, or strip the all the labels:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -351,13 +360,13 @@
 
 
       <footer><div class="tidyverse">
-  <p>haven is a part of the <strong>tidyverse</strong>, an ecosystem of packages designed with common APIs and a shared philosophy. Learn more at <a href="https://tidyverse.org" class="external-link">tidyverse.org</a>.</p>
+  <p>haven is a part of the <strong>tidyverse</strong>, an ecosystem of packages designed with common APIs and a shared philosophy. Learn more at <a href="https://tidyverse.org">tidyverse.org</a>.</p>
 </div>
 
 <div class="author">
   <p>
-    Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.gorcha.org" class="external-link">Danny Smith</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.
-    Site built by <a href="https://pkgdown.r-lib.org" class="external-link">pkgdown</a>.
+    Developed by <a href="http://hadley.nz">Hadley Wickham</a>, <a href="http://www.evanmiller.org">Evan Miller</a>, <a href="https://www.gorcha.org">Danny Smith</a>, <a href="https://www.rstudio.com"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>.
+    Site built by <a href="https://pkgdown.r-lib.org">pkgdown</a>.
   </p>
 </div>
 
@@ -366,8 +375,6 @@
 
   
 
-
-  
 
   </body>
 </html>
