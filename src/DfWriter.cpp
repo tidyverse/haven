@@ -355,7 +355,7 @@ public:
     }
 
     int user_width = userWidth(x);
-    int max_length = 0;
+    int max_length = 1;
     for (int i = 0; i < x.size(); ++i) {
       int length = strlen(string_utf8(x, i));
       if (length > max_length)
