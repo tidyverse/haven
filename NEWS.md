@@ -2,6 +2,13 @@
 
 * Updated to ReadStat 1.1.8 RC (#650).
 
+* When writing files, the minimum width for character variables is now 1. This
+  fixes issues with statistical software reading blank character variables with
+  width 0 (#650).
+
+* All `write_` functions can now write custom variable widths by setting the
+  `width` attribute (#650).
+
 * POSIXct and POSIXlt values with no time component (e.g. "2010-01-01") were
   being converted to `NA` when attempting to convert the output timezone to UTC.
   These now output successfully (#634).
