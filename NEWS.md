@@ -1,5 +1,7 @@
 # haven (development version)
 
+* Updated to ReadStat 1.1.8 RC (#650).
+
 * POSIXct and POSIXlt values with no time component (e.g. "2010-01-01") were
   being converted to `NA` when attempting to convert the output timezone to UTC.
   These now output successfully (#634).

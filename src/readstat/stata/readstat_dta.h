@@ -20,6 +20,10 @@ typedef struct dta_header64_s {
     uint64_t         nobs;
 } dta_header64_t;
 
+/* Some compilers will pack the elements, but still round up
+ * the total size of the structure. So use macros in place of
+ * sizeof(dta_117_strl_header_t)/sizeof(dta_118_strl_header_t).
+ */
 typedef struct dta_117_strl_header_s {
     uint32_t        v;
     uint32_t        o;
@@ -27,12 +31,16 @@ typedef struct dta_117_strl_header_s {
     int32_t         len;
 } dta_117_strl_header_t;
 
+#define SIZEOF_DTA_117_STRL_HEADER_T 13
+
 typedef struct dta_118_strl_header_s {
     uint32_t        v;
     uint64_t        o;
     unsigned char   type;
     int32_t         len;
 } dta_118_strl_header_t;
+
+#define SIZEOF_DTA_118_STRL_HEADER_T 17
 
 #pragma pack(pop)
 
