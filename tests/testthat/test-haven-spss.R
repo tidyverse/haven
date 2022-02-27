@@ -340,7 +340,15 @@ test_that("complain about invalid variable names", {
     write_sav(df, tempfile())
 
     names(df) <- c(paste(rep("a", 65), collapse = ""),
-                   paste(rep("百", 22), collapse = ""))
+                   paste(rep("b", 65), collapse = ""))
+    write_sav(df, tempfile())
+  })
+
+  # Windows fails this snapshot because of issues with unicode support
+  skip_on_os("windows")
+  expect_snapshot(error = TRUE, {
+    names(df) <- c(paste(rep("\U044D", 33), collapse = ""),
+                   paste(rep("\U767E", 22), collapse = ""))
     write_sav(df, tempfile())
   })
 })

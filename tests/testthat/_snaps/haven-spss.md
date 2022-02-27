@@ -17,9 +17,18 @@
       SPSS does not allow duplicate variable names. Note that variable names are case-insensitive in SPSS.
       Problems: `a`, `A`
     Code
-      names(df) <- c(paste(rep("a", 65), collapse = ""), paste(rep("百", 22),
+      names(df) <- c(paste(rep("a", 65), collapse = ""), paste(rep("b", 65),
       collapse = ""))
       write_sav(df, tempfile())
     Error <simpleError>
-      The following variable names are not valid SPSS variables: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, `百百百百百百百百百百百百百百百百百百百百百百`
+      The following variable names are not valid SPSS variables: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`
+
+---
+
+    Code
+      names(df) <- c(paste(rep("э", 33), collapse = ""), paste(rep("百", 22),
+      collapse = ""))
+      write_sav(df, tempfile())
+    Error <simpleError>
+      The following variable names are not valid SPSS variables: `эээээээээээээээээээээээээээээээээ`, `百百百百百百百百百百百百百百百百百百百百百百`
 
