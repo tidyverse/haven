@@ -1,5 +1,7 @@
 # haven (development version)
 
+* vctrs casting and coercion generics now do less work when working with two identical `labelled()` vectors. This significantly improves performance when working with `labelled()` vectors in grouped data frames (#658).
+
 * POSIXct and POSIXlt values with no time component (e.g. "2010-01-01") were
   being converted to `NA` when attempting to convert the output timezone to UTC.
   These now output successfully (#634).
