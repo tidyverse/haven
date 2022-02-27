@@ -1,5 +1,9 @@
 # haven (development version)
 
+* `write_sav()` now checks for case-insensitive duplicate variable names
+  (@juansebastianl, #641) and verifies that variable names are valid SPSS
+  variables.
+
 * POSIXct and POSIXlt values with no time component (e.g. "2010-01-01") were
   being converted to `NA` when attempting to convert the output timezone to UTC.
   These now output successfully (#634).

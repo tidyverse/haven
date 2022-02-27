@@ -334,6 +334,17 @@ test_that("complain about long factor labels", {
   })
 })
 
+test_that("complain about invalid variable names", {
+  expect_snapshot(error = TRUE, {
+    df <- data.frame(a = 1, A = 1)
+    write_sav(df, tempfile())
+
+    names(df) <- c(paste(rep("a", 65), collapse = ""),
+                   paste(rep("百", 22), collapse = ""))
+    write_sav(df, tempfile())
+  })
+})
+
 # max_level_lengths -------------------------------------------------------
 
 test_that("works with NA levels", {

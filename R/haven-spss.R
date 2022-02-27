@@ -109,6 +109,31 @@ read_spss <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max 
 validate_sav <- function(data) {
   stopifnot(is.data.frame(data))
 
+  # Check variable names
+  bad_name <- !grepl("^[[:alpha:]@]", names(data))
+  bad_length <- nchar(names(data), type = "bytes") > 64
+  bad_vars <- bad_length || bad_name
+  if (any(bad_vars)) {
+    stop(
+      "The following variable names are not valid SPSS variables: ",
+      var_names(data, bad_vars),
+      call. = FALSE
+    )
+  }
+
+  # Check variable name duplication
+  dupe_vars <- duplicated(tolower(names(data))) |
+    duplicated(tolower(names(data)), fromLast = TRUE)
+  if (any(dupe_vars)) {
+    stop(
+      "SPSS does not allow duplicate variable names. ",
+      "Note that variable names are case-insensitive in SPSS.\n",
+      "Problems: ",
+      var_names(data, dupe_vars),
+      call. = FALSE
+    )
+  }
+
   # Check factor lengths
   level_lengths <- vapply(data, max_level_length, integer(1))
 
