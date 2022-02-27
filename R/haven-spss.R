@@ -112,7 +112,7 @@ validate_sav <- function(data) {
   # Check variable names
   bad_name <- !grepl("^[[:alpha:]@]", names(data))
   bad_length <- nchar(names(data), type = "bytes") > 64
-  bad_vars <- bad_length || bad_name
+  bad_vars <- bad_length | bad_name
   if (any(bad_vars)) {
     stop(
       "The following variable names are not valid SPSS variables: ",
