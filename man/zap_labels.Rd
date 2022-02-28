@@ -2,19 +2,29 @@
 % Please edit documentation in R/zap_labels.R
 \name{zap_labels}
 \alias{zap_labels}
+\alias{zap_labels.haven_labelled_spss}
 \title{Zap value labels}
 \usage{
-zap_labels(x)
+zap_labels(x, ...)
+
+\method{zap_labels}{haven_labelled_spss}(x, ..., user_na = FALSE)
 }
 \arguments{
 \item{x}{A vector or data frame}
+
+\item{...}{Other arguments passed down to method.}
+
+\item{user_na}{If \code{FALSE}, the default, \code{zap_labels()} will convert
+\code{\link[=labelled_spss]{labelled_spss()}} user-defined missing values to \code{NA}. If \code{TRUE} they
+will be treated like normal values.}
 }
 \description{
 Removes value labels, leaving unlabelled vectors as is. Use this if you
 want to simply drop all \code{labels} from a data frame.
 
 Zapping labels from \code{\link[=labelled_spss]{labelled_spss()}} also removes user-defined missing
-values, replacing with standard \code{NA}s.
+values by default, replacing with standard \code{NA}s. Use the \code{user_na} argument
+to override this behaviour.
 }
 \examples{
 x1 <- labelled(1:5, c(good = 1, bad = 5))
@@ -24,6 +34,9 @@ zap_labels(x1)
 x2 <- labelled_spss(c(1:4, 9), c(good = 1, bad = 5), na_values = 9)
 x2
 zap_labels(x2)
+
+# Keep the user defined missing values
+zap_labels(x2, user_na = TRUE)
 
 # zap_labels also works with data frames
 df <- tibble::tibble(x1, x2)
