@@ -110,28 +110,25 @@ validate_sav <- function(data) {
   stopifnot(is.data.frame(data))
 
   # Check variable names
-  bad_name <- !grepl("^[[:alpha:]@]", names(data))
+  bad_name <- !grepl("^[[:alpha:]@]", names(data), perl = TRUE)
   bad_length <- nchar(names(data), type = "bytes") > 64
   bad_vars <- bad_length | bad_name
   if (any(bad_vars)) {
-    stop(
-      "The following variable names are not valid SPSS variables: ",
-      var_names(data, bad_vars),
-      call. = FALSE
-    )
+    abort(c(
+      "Variables in `data` must have valid SPSS variable names.",
+      x = paste("Problems:", var_names(data, bad_vars))
+    ))
   }
 
   # Check variable name duplication
   dupe_vars <- duplicated(tolower(names(data))) |
     duplicated(tolower(names(data)), fromLast = TRUE)
   if (any(dupe_vars)) {
-    stop(
-      "SPSS does not allow duplicate variable names. ",
-      "Note that variable names are case-insensitive in SPSS.\n",
-      "Problems: ",
-      var_names(data, dupe_vars),
-      call. = FALSE
-    )
+    abort(c(
+      "SPSS does not allow duplicate variable names.",
+      i = "Variable names are case-insensitive in SPSS.",
+      x = paste("Problems:", var_names(data, dupe_vars))
+    ))
   }
 
   # Check factor lengths

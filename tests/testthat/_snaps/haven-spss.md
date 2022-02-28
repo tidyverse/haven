@@ -13,22 +13,15 @@
     Code
       df <- data.frame(a = 1, A = 1)
       write_sav(df, tempfile())
-    Error <simpleError>
-      SPSS does not allow duplicate variable names. Note that variable names are case-insensitive in SPSS.
-      Problems: `a`, `A`
+    Error <rlang_error>
+      SPSS does not allow duplicate variable names.
+      i Variable names are case-insensitive in SPSS.
+      x Problems: `a`, `A`
     Code
       names(df) <- c(paste(rep("a", 65), collapse = ""), paste(rep("b", 65),
       collapse = ""))
       write_sav(df, tempfile())
-    Error <simpleError>
-      The following variable names are not valid SPSS variables: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`
-
----
-
-    Code
-      names(df) <- c(paste(rep("э", 33), collapse = ""), paste(rep("百", 22),
-      collapse = ""))
-      write_sav(df, tempfile())
-    Error <simpleError>
-      The following variable names are not valid SPSS variables: `эээээээээээээээээээээээээээээээээ`, `百百百百百百百百百百百百百百百百百百百百百百`
+    Error <rlang_error>
+      Variables in `data` must have valid SPSS variable names.
+      x Problems: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`
 

@@ -345,8 +345,8 @@ test_that("complain about invalid variable names", {
   })
 
   # Windows fails this snapshot because of issues with unicode support
-  skip_on_os("windows")
-  expect_snapshot(error = TRUE, {
+  expect_error({
+    df <- data.frame(a = 1, A = 1)
     names(df) <- c(paste(rep("\U044D", 33), collapse = ""),
                    paste(rep("\U767E", 22), collapse = ""))
     write_sav(df, tempfile())
