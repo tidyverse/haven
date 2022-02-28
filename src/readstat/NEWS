@@ -1,3 +1,21 @@
+New in 1.1.8:
+
+    * XPT reader/writer: Improved support for format strings #257 #258
+    * SAV/DTA writers: Improved checking of non-ASCII characters #256
+    * Build: Link to libm on GNU systems #255
+    * SAS commands: Support more syntax
+    * SPSS commands: Make file names optional
+
+New in 1.1.7:
+
+    * SAV writer: Permit missing ranges for integer variables #251
+    * SAV writer: Fix format-truncation warning #247
+    * DTA reader/writer: Improved support for string refs on older platforms
+    * DTA reader: Fix incorrect ordering in StrL comparison functions #248
+    * SAS7BDAT writer: Improved support for tagged missing values on big-endian platforms
+    * SAS readers: Allow header sizes up to 16MiB #249
+    * Visual Studio: Fix paths to make them consistent between x86 and x64 archs #242
+
 New in 1.1.6:
 
     * Migrate to GitHub Actions

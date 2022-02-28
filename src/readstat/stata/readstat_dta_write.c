@@ -279,7 +279,7 @@ static readstat_error_t dta_validate_name_chars(const char *name, int unicode) {
     /* TODO check Unicode class */
     int j;
     for (j=0; name[j]; j++) {
-        if ((name[j] > 0 || !unicode) && name[j] != '_' &&
+        if (((unsigned char)name[j] < 0x80 || !unicode) && name[j] != '_' &&
                 !(name[j] >= 'a' && name[j] <= 'z') &&
                 !(name[j] >= 'A' && name[j] <= 'Z') &&
                 !(name[j] >= '0' && name[j] <= '9')) {
@@ -287,7 +287,7 @@ static readstat_error_t dta_validate_name_chars(const char *name, int unicode) {
         }
     }
     char first_char = name[0];
-    if ((first_char > 0 || !unicode) && first_char != '_' &&
+    if (((unsigned char)first_char < 0x80 || !unicode) && first_char != '_' &&
             !(first_char >= 'a' && first_char <= 'z') &&
             !(first_char >= 'A' && first_char <= 'Z')) {
         return READSTAT_ERROR_NAME_BEGINS_WITH_ILLEGAL_CHARACTER;
@@ -594,7 +594,7 @@ static readstat_error_t dta_117_emit_strl_header(readstat_writer_t *writer, read
         .len = ref->len
     };
 
-    return readstat_write_bytes(writer, &header, sizeof(dta_117_strl_header_t));
+    return readstat_write_bytes(writer, &header, SIZEOF_DTA_117_STRL_HEADER_T);
 }
 
 static readstat_error_t dta_118_emit_strl_header(readstat_writer_t *writer, readstat_string_ref_t *ref) {
@@ -605,7 +605,7 @@ static readstat_error_t dta_118_emit_strl_header(readstat_writer_t *writer, read
         .len = ref->len
     };
 
-    return readstat_write_bytes(writer, &header, sizeof(dta_118_strl_header_t));
+    return readstat_write_bytes(writer, &header, SIZEOF_DTA_118_STRL_HEADER_T);
 }
 
 static readstat_error_t dta_emit_strls(readstat_writer_t *writer, dta_ctx_t *ctx) {
@@ -1067,9 +1067,9 @@ static size_t dta_measure_strls(readstat_writer_t *writer, dta_ctx_t *ctx) {
     for (i=0; i<writer->string_refs_count; i++) {
         readstat_string_ref_t *ref = writer->string_refs[i];
         if (ctx->strl_o_len > 4) {
-            strls_len += 20 + ref->len;
+            strls_len += sizeof("GSO") - 1 + SIZEOF_DTA_118_STRL_HEADER_T + ref->len;
         } else {
-            strls_len += 16 + ref->len;
+            strls_len += sizeof("GSO") - 1 + SIZEOF_DTA_117_STRL_HEADER_T + ref->len;
         }
     }
 

@@ -367,7 +367,7 @@ static readstat_error_t dta_117_read_strl(dta_ctx_t *ctx, dta_strl_t *strl) {
     readstat_io_t *io = ctx->io;
     dta_117_strl_header_t header;
 
-    if (io->read(&header, sizeof(header), io->io_ctx) != sizeof(dta_117_strl_header_t)) {
+    if (io->read(&header, SIZEOF_DTA_117_STRL_HEADER_T, io->io_ctx) != SIZEOF_DTA_117_STRL_HEADER_T) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
@@ -386,7 +386,7 @@ static readstat_error_t dta_118_read_strl(dta_ctx_t *ctx, dta_strl_t *strl) {
     readstat_io_t *io = ctx->io;
     dta_118_strl_header_t header;
 
-    if (io->read(&header, sizeof(header), io->io_ctx) != sizeof(dta_118_strl_header_t)) {
+    if (io->read(&header, SIZEOF_DTA_118_STRL_HEADER_T, io->io_ctx) != SIZEOF_DTA_118_STRL_HEADER_T) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
