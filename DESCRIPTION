@@ -1,20 +1,13 @@
 Package: haven
 Title: Import and Export 'SPSS', 'Stata' and 'SAS' Files
 Version: 2.4.3.9000
-Authors@R: 
-    c(person(given = "Hadley",
-             family = "Wickham",
-             role = c("aut", "cre"),
-             email = "hadley@rstudio.com"),
-      person(given = "Evan",
-             family = "Miller",
-             role = c("aut", "cph"),
-             comment = "Author of included ReadStat code"),
-      person(given = "Danny",
-             family = "Smith",
-             role = "aut"),
-      person(given = "RStudio",
-             role = c("cph", "fnd")))
+Authors@R: c(
+    person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
+    person("Evan", "Miller", role = c("aut", "cph"),
+           comment = "Author of included ReadStat code"),
+    person("Danny", "Smith", role = "aut"),
+    person("RStudio", role = c("cph", "fnd"))
+  )
 Description: Import foreign statistical formats into R via the embedded
     'ReadStat' C library, <https://github.com/WizardMac/ReadStat>.
 License: MIT + file LICENSE
@@ -50,4 +43,5 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-SystemRequirements: GNU make, C++11, zlib: zlib1g-dev (deb), zlib-devel (rpm)
+SystemRequirements: GNU make, C++11, zlib: zlib1g-dev (deb), zlib-devel
+    (rpm)
