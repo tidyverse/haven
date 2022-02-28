@@ -232,7 +232,7 @@ vec_ptype2.haven_labelled.character <- vec_ptype2.haven_labelled.double
 vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "", y_arg = "") {
   # Use x as the prototype if the input vectors have matching metadata
   if (identical(attributes(x), attributes(y)))
-    return(vec_slice(x, 0L))
+    return(x)
 
   data_type <- vec_ptype2(vec_data(x), vec_data(y), ..., x_arg = x_arg, y_arg = y_arg)
 
