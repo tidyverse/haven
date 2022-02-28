@@ -1,10 +1,12 @@
 url: https://haven.tidyverse.org
 
 template:
+  bootstrap: 5
   package: tidytemplate
 
-home:
-  strip_header: true
+  includes:
+    in_header: |
+      <script defer data-domain="haven.tidyverse.org,all.tidyverse.org" src="https://plausible.io/js/plausible.js"></script>
 
 authors:
   Evan Miller:
