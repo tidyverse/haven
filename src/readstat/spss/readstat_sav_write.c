@@ -1236,7 +1236,7 @@ static readstat_error_t sav_validate_name_chars(const char *name, int unicode) {
         if (name[j] == ' ')
             return READSTAT_ERROR_NAME_CONTAINS_ILLEGAL_CHARACTER;
 
-        if ((name[j] > 0 || !unicode) && name[j] != '@' &&
+        if (((unsigned char)name[j] < 0x80 || !unicode) && name[j] != '@' &&
                 name[j] != '.' && name[j] != '_' &&
                 name[j] != '$' && name[j] != '#' &&
                 !(name[j] >= 'a' && name[j] <= 'z') &&
@@ -1246,7 +1246,7 @@ static readstat_error_t sav_validate_name_chars(const char *name, int unicode) {
         }
     }
     char first_char = name[0];
-    if ((first_char > 0 || !unicode) && first_char != '@' &&
+    if (((unsigned char)first_char < 0x80 || !unicode) && first_char != '@' &&
             !(first_char >= 'a' && first_char <= 'z') &&
             !(first_char >= 'A' && first_char <= 'Z')) {
         return READSTAT_ERROR_NAME_BEGINS_WITH_ILLEGAL_CHARACTER;
@@ -1304,7 +1304,7 @@ static sav_varnames_t *sav_varnames_init(readstat_writer_t *writer) {
             shortname[k] = toupper(shortname[k]);
         }
         if (ck_str_hash_lookup(shortname, table)) {
-            snprintf(shortname, sizeof(varnames[0].shortname), "V%d_A", i+1);
+            snprintf(shortname, sizeof(varnames[0].shortname), "V%d_A", ((unsigned int)i+1)%100000);
         }
         ck_str_hash_insert(shortname, r_variable, table);
 

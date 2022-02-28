@@ -35,6 +35,12 @@ typedef struct xport_namestr_s {
 } xport_namestr_t;
 #pragma pack(pop)
 
+typedef struct xport_format_s {
+    char         name[32];
+    int          width;
+    int          decimals;
+} xport_format_t;
+
 #define XPORT_MIN_DOUBLE_SIZE   3
 #define XPORT_MAX_DOUBLE_SIZE   8
 

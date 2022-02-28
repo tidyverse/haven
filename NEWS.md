@@ -1,5 +1,7 @@
 # haven (development version)
 
+* Updated to ReadStat 1.1.8 RC (#650).
+
 * `zap_labels()` gains a `user_na` argument to control whether user-defined
   missing values are converted to `NA` or left as is (#638).
 
