@@ -288,16 +288,16 @@ static readstat_error_t xport_construct_format(char *dst, size_t dst_len,
         return retval;
     }
 
-    if (!format[0]) {
-        *dst = '\0';
-    } else if (decimals) {
-        snprintf(dst, dst_len, "%s%d.%d",
-                format, width, decimals);
-    } else if (width) {
-        snprintf(dst, dst_len, "%s%d",
-                format, width);
-    } else {
-        snprintf(dst, dst_len, "%s", format);
+    char *pos = dst;
+    *dst = '\0';
+    if (format[0]) {
+        pos += snprintf(dst, dst_len, "%s", format);
+    }
+    if (width) {
+        pos += snprintf(pos, dst_len-(pos-dst), "%d", width);
+    }
+    if (decimals) {
+        pos += snprintf(pos, dst_len-(pos-dst), ".%d", decimals);
     }
 
     free(format);
@@ -372,12 +372,12 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
     uint16_t labeldef[5];
     int i;
     char *name = NULL;
+    char *label = NULL;
     char *format = NULL;
     char *informat = NULL;
-    char *label = NULL;
 
     for (i=0; i<label_count; i++) {
-        int index, name_len, format_len, informat_len, label_len;
+        int index, name_len, label_len, format_len, informat_len;
         if (read_bytes(ctx, labeldef, sizeof(labeldef)) != sizeof(labeldef)) {
             retval = READSTAT_ERROR_READ;
             goto cleanup;
@@ -386,15 +386,15 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
         if (machine_is_little_endian()) {
             index = byteswap2(labeldef[0]);
             name_len = byteswap2(labeldef[1]);
-            format_len = byteswap2(labeldef[2]);
-            informat_len = byteswap2(labeldef[3]);
-            label_len = byteswap2(labeldef[4]);
+            label_len = byteswap2(labeldef[2]);
+            format_len = byteswap2(labeldef[3]);
+            informat_len = byteswap2(labeldef[4]);
         } else {
             index = labeldef[0];
             name_len = labeldef[1];
-            format_len = labeldef[2];
-            informat_len = labeldef[3];
-            label_len = labeldef[4];
+            label_len = labeldef[2];
+            format_len = labeldef[3];
+            informat_len = labeldef[4];
         }
 
         if (index > ctx->var_count || index == 0) {
@@ -403,16 +403,16 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
         }
 
         name = realloc(name, name_len + 1);
+        label = realloc(label, label_len + 1);
         format = realloc(format, format_len + 1);
         informat = realloc(informat, informat_len + 1);
-        label = realloc(label, label_len + 1);
 
         readstat_variable_t *variable = ctx->variables[index-1];
 
         if (read_bytes(ctx, name, name_len) != name_len ||
+                read_bytes(ctx, label, label_len) != label_len ||
                 read_bytes(ctx, format, format_len) != format_len ||
-                read_bytes(ctx, informat, informat_len) != informat_len ||
-                read_bytes(ctx, label, label_len) != label_len) {
+                read_bytes(ctx, informat, informat_len) != informat_len) {
             retval = READSTAT_ERROR_READ;
             goto cleanup;
         }
@@ -427,8 +427,8 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
         if (retval != READSTAT_OK)
             goto cleanup;
 
-        retval = xport_construct_format(variable->format, sizeof(variable->format),
-                format, format_len, variable->display_width, variable->decimals);
+        retval = readstat_convert(variable->format, sizeof(variable->format),
+                format, format_len, ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
     }
