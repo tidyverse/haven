@@ -2,6 +2,13 @@
 
 * Updated to ReadStat 1.1.8 RC (#650).
 
+* All `write_` functions can now write custom variable widths by setting the
+  `width` attribute (#650).
+
+* When writing files, the minimum width for character variables is now 1. This
+  fixes issues with statistical software reading blank character variables with
+  width 0 (#650).
+
 * `write_sav()` now checks for case-insensitive duplicate variable names
   (@juansebastianl, #641) and verifies that variable names are valid SPSS
   variables.

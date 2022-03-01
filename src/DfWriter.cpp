@@ -49,6 +49,16 @@ inline int displayWidth(cpp11::sexp x) {
   return 0;
 }
 
+inline int userWidth(cpp11::sexp x) {
+  cpp11::sexp user_width_obj(x.attr("width"));
+  switch(TYPEOF(user_width_obj)) {
+  case INTSXP:
+    return INTEGER(user_width_obj)[0];
+  case REALSXP:
+    return REAL(user_width_obj)[0];
+  }
+  return 0;
+}
 
 class Writer {
   FileExt ext_;
@@ -260,7 +270,7 @@ public:
     }
 
     readstat_variable_t* var =
-      readstat_add_variable(writer_, name, READSTAT_TYPE_INT32, 0);
+      readstat_add_variable(writer_, name, READSTAT_TYPE_INT32, userWidth(x));
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
@@ -305,7 +315,7 @@ public:
     }
 
     readstat_variable_t* var =
-      readstat_add_variable(writer_, name, READSTAT_TYPE_DOUBLE, 0);
+      readstat_add_variable(writer_, name, READSTAT_TYPE_DOUBLE, userWidth(x));
 
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
@@ -343,15 +353,24 @@ public:
       for (int i = 0; i < values.size(); ++i)
         readstat_label_string_value(labelSet, string_utf8(values, i), string_utf8(labels, i));
     }
-    int max_length = 0;
+
+    int user_width = userWidth(x);
+    int max_length = 1;
     for (int i = 0; i < x.size(); ++i) {
       int length = strlen(string_utf8(x, i));
       if (length > max_length)
         max_length = length;
     }
+    if (max_length > user_width) {
+      if (user_width > 0) {
+        cpp11::warning("Column `%s` contains string values longer than user width %d. Width set to %d to accommodate.", name, user_width, max_length);
+      }
+      user_width = max_length;
+    }
+
 
     readstat_variable_t* var =
-      readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, max_length);
+      readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, user_width);
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);

@@ -249,3 +249,23 @@ test_that("can roundtrip file labels", {
   expect_equal(attr(roundtrip_xpt(df, label = "abcd"), "label"), "abcd")
   expect_null(attr(roundtrip_xpt(df, label = NULL), "label"))
 })
+
+test_that("can roundtrip format attribute", {
+  df <- tibble(
+    char_var = structure("Hello!", format.sas = "$CHAR"),
+    long_char = structure("111111111111111", format.sas = "$CHAR10"),
+    date_var = structure(Sys.Date(), format.sas = "DATE9"),
+    a = structure(100.12345, format.sas = "10.3"),
+    b = structure(100.12345, format.sas = "10"),
+    c = structure(100.12345, format.sas = "F10.3"),
+    d = structure(100.12345, format.sas = "F10"),
+    e = structure(100.12345, format.sas = "COMMA10.3")
+  )
+
+  path <- tempfile()
+
+  write_xpt(df, path)
+  out <- read_xpt(path)
+
+  expect_identical(df, out)
+})
