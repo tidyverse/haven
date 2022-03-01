@@ -18,3 +18,11 @@ test_that("replaces user-defined missings for spss", {
   x <- labelled_spss(1:5, c(a = 1), na_values = c(2, 4))
   expect_equal(zap_labels(x), c(1, NA, 3, NA, 5))
 })
+
+test_that("keeps user-defined missings for spss if user_na = TRUE", {
+  x <- labelled_spss(1:5, c(a = 1), na_values = c(2, 4))
+  expect_equal(zap_labels(x, user_na = TRUE), 1:5)
+
+  df <- tibble::tibble(x = 1:10, y = labelled_spss(10:1, c("good" = 1), na_values = 10))
+  expect_equal(zap_labels(df, user_na = TRUE)$y, 10:1)
+})

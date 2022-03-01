@@ -7,6 +7,7 @@
 #include "../readstat_writer.h"
 #include "readstat_sas.h"
 #include "readstat_xport.h"
+#include "readstat_xport_parse_format.h"
 #include "ieee.h"
 
 #define XPORT_DEFAULT_VERISON   8
@@ -107,21 +108,22 @@ static readstat_error_t xport_write_variables(readstat_writer_t *writer) {
         copypad(namestr.nlabel, sizeof(namestr.nlabel), variable->label);
 
         if (variable->format[0]) {
-            int decimals = 0;
-            int width = 0;
-            char name[24];
+            xport_format_t format; 
 
-            sscanf(variable->format, "%s%d.%d", name, &width, &decimals);
+            retval = xport_parse_format(variable->format, strlen(variable->format),
+                    &format, NULL, NULL);
+            if (retval != READSTAT_OK)
+                goto cleanup;
 
-            copypad(namestr.nform, sizeof(namestr.nform), name);
-            namestr.nfl = width;
-            namestr.nfd = decimals;
+            copypad(namestr.nform, sizeof(namestr.nform), format.name);
+            namestr.nfl = format.width;
+            namestr.nfd = format.decimals;
 
-            copypad(namestr.niform, sizeof(namestr.niform), name);
-            namestr.nifl = width;
-            namestr.nifd = decimals;
+            copypad(namestr.niform, sizeof(namestr.niform), format.name);
+            namestr.nifl = format.width;
+            namestr.nifd = format.decimals;
 
-            if (strlen(name) > 8) {
+            if (strlen(format.name) > 8) {
                 any_has_long_format = 1;
                 needs_long_record = 1;
             }
@@ -173,31 +175,27 @@ static readstat_error_t xport_write_variables(readstat_writer_t *writer) {
             readstat_variable_t *variable = readstat_get_variable(writer, i);
             size_t label_len = strlen(variable->label);
             size_t name_len = strlen(variable->name);
+            size_t format_len = strlen(variable->format);
             int has_long_label = 0;
             int has_long_format = 0;
-            int format_len = 0;
-            char format_name[24];
-            memset(format_name, 0, sizeof(format_name));
 
             has_long_label = (label_len > 40);
 
             if (variable->format[0]) {
-                int decimals = 2;
-                int width = 8;
+                xport_format_t format; 
 
-                int matches = sscanf(variable->format, "%s%d.%d", format_name, &width, &decimals);
-                if (matches < 1) {
-                    retval = READSTAT_ERROR_BAD_FORMAT_STRING;
+                retval = xport_parse_format(variable->format, strlen(variable->format),
+                        &format, NULL, NULL);
+                if (retval != READSTAT_OK)
                     goto cleanup;
-                }
-                format_len = strlen(format_name);
-                if (format_len > 8) {
+
+                if (strlen(format.name) > 8) {
                     has_long_format = 1;
                 }
             }
 
             if (has_long_format) {
-                uint16_t labeldef[5] = { i+1, name_len, format_len, format_len, label_len };
+                uint16_t labeldef[5] = { i+1, name_len, label_len, format_len, format_len };
 
                 if (machine_is_little_endian()) {
                     labeldef[0] = byteswap2(labeldef[0]);
@@ -215,15 +213,15 @@ static readstat_error_t xport_write_variables(readstat_writer_t *writer) {
                 if (retval != READSTAT_OK)
                     goto cleanup;
 
-                retval = readstat_write_string(writer, format_name);
-                if (retval != READSTAT_OK)
-                    goto cleanup;
-
-                retval = readstat_write_string(writer, format_name);
-                if (retval != READSTAT_OK)
-                    goto cleanup;
-
                 retval = readstat_write_string(writer, variable->label);
+                if (retval != READSTAT_OK)
+                    goto cleanup;
+
+                retval = readstat_write_string(writer, variable->format);
+                if (retval != READSTAT_OK)
+                    goto cleanup;
+
+                retval = readstat_write_string(writer, variable->format);
                 if (retval != READSTAT_OK)
                     goto cleanup;
 

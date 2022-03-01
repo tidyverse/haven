@@ -115,6 +115,7 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
         action handle_var {
             readstat_schema_entry_t *entry = readstat_schema_find_or_create_entry(schema, varname);
             entry->variable.type = var_type;
+            entry->variable.storage_width = var_len;
             entry->row = var_row;
             entry->col = var_col;
             entry->len = var_len;
@@ -205,12 +206,12 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
                                         | "(" | ")" | quoted_string
                                         )+ ".";
 
-        file_handle_cmd = "FILE"i whitespace+ "HANDLE"i whitespace+ identifier whitespace+ slash_args whitespace* ".";
+        file_handle_cmd = "FILE"i whitespace+ "HANDLE"i whitespace+ (identifier whitespace+)? slash_args whitespace* ".";
 
         save_cmd = "SAVE"i whitespace+ ( "OUTFILE"i | "DICTIONARY"i ) whitespace* "="? whitespace* quoted_string "/"? whitespace* ("/" whitespace* "COMPRESSED" whitespace*)? ".";
         
         data_list_arg = ( "RECORD"i ("S"i)? whitespace* "=" whitespace* integer |
-                         "FILE"i whitespace* "=" whitespace* (quoted_string | identifier) |
+                         "FILE"i whitespace* "=" whitespace* (quoted_string | identifier)? |
                          "TABLE"i | "FIXED"i );
         data_list_args = data_list_arg (whitespace+ data_list_arg)*;
         

@@ -652,7 +652,7 @@ static readstat_error_t sas7bdat_write_missing_tagged_raw(void *row, const reads
     } nan_value;
 
     nan_value.dval = NAN;
-    nan_value.chars[5] = ~tag;
+    nan_value.chars[machine_is_little_endian() ? 5 : 2] = ~tag;
     return sas7bdat_write_double(row, var, nan_value.dval);
 }
 
