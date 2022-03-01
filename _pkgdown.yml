@@ -8,6 +8,9 @@ template:
     in_header: |
       <script defer data-domain="haven.tidyverse.org,all.tidyverse.org" src="https://plausible.io/js/plausible.js"></script>
 
+development:
+  mode: auto
+
 authors:
   Evan Miller:
     href: http://www.evanmiller.org
