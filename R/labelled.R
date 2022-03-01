@@ -230,6 +230,10 @@ vec_ptype2.haven_labelled.character <- vec_ptype2.haven_labelled.double
 
 #' @export
 vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "", y_arg = "") {
+  # Use x as the prototype if the input vectors have matching metadata
+  if (identical(attributes(x), attributes(y)))
+    return(x)
+
   data_type <- vec_ptype2(vec_data(x), vec_data(y), ..., x_arg = x_arg, y_arg = y_arg)
 
   # Prefer labels from LHS
@@ -259,6 +263,10 @@ vec_cast.character.haven_labelled <- function(x, to, ...) {
 
 #' @export
 vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_arg = "") {
+  # Don't perform any processing if the input vectors have matching metadata
+  if (identical(attributes(x), attributes(to)))
+    return(x)
+
   out_data <- vec_cast(vec_data(x), vec_data(to), ..., x_arg = x_arg, to_arg = to_arg)
 
   x_labels <- attr(x, "labels")
