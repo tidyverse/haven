@@ -9,6 +9,9 @@
 * All `write_` functions can now write custom variable widths by setting the
   `width` attribute (#650).
 
+* `zap_labels()` gains a `user_na` argument to control whether user-defined
+  missing values are converted to `NA` or left as is (#638).
+
 * POSIXct and POSIXlt values with no time component (e.g. "2010-01-01") were
   being converted to `NA` when attempting to convert the output timezone to UTC.
   These now output successfully (#634).
@@ -337,7 +340,7 @@ This also brings with it a deprecation: `cols_only` in `read_sas()` has been dep
   user missing values from SPSS. These can either be a set of distinct
   values, or for numeric vectors, a range. `zap_labels()` strips labels,
   and replaces user-defined missing values with `NA`. New `zap_missing()`
-  just replaces user-defined missing vlaues with `NA`. 
+  just replaces user-defined missing values with `NA`. 
   
     `labelled_spss()` is potentially dangerous to work with in R because
     base functions don't know about `labelled_spss()` functions so will 

@@ -1,6 +1,11 @@
-include Makevars
+CFILES = $(wildcard *.c readstat/*.c readstat/sas/*.c readstat/spss/*.c readstat/stata/*.c)
+CPPFILES = $(wildcard *.cpp)
 
-# This is also defined in Makevars, but somehow the definition from there is not used
+SOURCES = $(CFILES) $(CPPFILES)
+
 OBJECTS = $(CFILES:.c=.o) $(CPPFILES:.cpp=.o)
+
+PKG_CFLAGS = -Ireadstat -DHAVE_ZLIB
+PKG_CXXFLAGS = -Ireadstat -DHAVE_ZLIB
 
 PKG_LIBS=-lRiconv -lz
