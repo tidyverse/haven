@@ -14,7 +14,7 @@ Stata are handled in R."><meta property="og:image" content="https://haven.tidyve
     
     <a class="navbar-brand me-2" href="../index.html">haven</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,9 +108,9 @@ be automatically uncompressed. Files starting with <code>http://</code>,
 <code>https://</code>, <code>ftp://</code>, or <code>ftps://</code> will be automatically
 downloaded. Remote gz files can also be automatically downloaded and
 decompressed.</p>
-<p>Literal data is most useful for examples and tests. To be recognised as a
-path, it must be wrapped with <code><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I()</a></code>, be a string containing at least one
-new line, or be a vector containing at least one string with a new line.</p>
+<p>Literal data is most useful for examples and tests. It must contain at
+least one new line to be recognised as data (instead of a path) or be a
+vector of greater than length 1.</p>
 <p>Using a value of <code><a href="https://readr.tidyverse.org/reference/clipboard.html" class="external-link">clipboard()</a></code> will read from the system clipboard.</p></dd>
 <dt>encoding</dt>
 <dd><p>The character encoding used for the file. Generally,
@@ -231,7 +231,7 @@ value unless the value was incorrectly recorded in the source file.</p>
    </div>
   <footer><div class="container">
   <div class="pkgdown-footer-left">
-  <p></p><p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.gorcha.org" class="external-link">Danny Smith</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
+  <p></p><p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -35,7 +35,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">haven</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,7 +125,7 @@
 <span class="op">)</span>
 <span class="va">x1</span>
 <span class="co">#&gt; &lt;labelled&lt;integer&gt;[5]&gt;</span>
-<span class="co">#&gt; [1] 3 1 5 4 2</span>
+<span class="co">#&gt; [1] 5 4 3 1 2</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Labels:</span>
 <span class="co">#&gt;  value label</span>
@@ -147,10 +147,10 @@
 <p>The goal of haven is not to provide a labelled vector that you can use everywhere in your analysis. The goal is to provide an intermediate datastructure that you can convert into a regular R data frame. You can do this by either converting to a factor or stripping the labels:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
-<span class="co">#&gt; [1] 3    Good Bad  4    2   </span>
+<span class="co">#&gt; [1] Bad  4    3    Good 2   </span>
 <span class="co">#&gt; Levels: Good 2 3 4 Bad</span>
 <span class="fu"><a href="../reference/zap_labels.html">zap_labels</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
-<span class="co">#&gt; [1] 3 1 5 4 2</span>
+<span class="co">#&gt; [1] 5 4 3 1 2</span>
 
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span>
 <span class="co">#&gt; [1] Male   Female Female Female Male  </span>
@@ -169,29 +169,29 @@
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span>
 <span class="co">#&gt;          x1 x2             z</span>
 <span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int+lbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr+lbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  3        M<span style="color: #949494;"> [Male]</span>       1</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  1<span style="color: #949494;"> [Good]</span> F<span style="color: #949494;"> [Female]</span>     2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  5<span style="color: #949494;"> [Bad]</span>  F<span style="color: #949494;"> [Female]</span>     3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  4        F<span style="color: #949494;"> [Female]</span>     4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  5<span style="color: #949494;"> [Bad]</span>  M<span style="color: #949494;"> [Male]</span>       1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  4        F<span style="color: #949494;"> [Female]</span>     2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  3        F<span style="color: #949494;"> [Female]</span>     3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  1<span style="color: #949494;"> [Good]</span> F<span style="color: #949494;"> [Female]</span>     4</span>
 <span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  2        M<span style="color: #949494;"> [Male]</span>       5</span>
 
 <span class="fu"><a href="../reference/zap_labels.html">zap_labels</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span>
 <span class="co">#&gt;      x1 x2        z</span>
 <span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     3 M         1</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     1 F         2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     5 F         3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">4</span>     4 F         4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     5 M         1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     4 F         2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     3 F         3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span>     1 F         4</span>
 <span class="co">#&gt; <span style="color: #BCBCBC;">5</span>     2 M         5</span>
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span>
 <span class="co">#&gt;   x1    x2         z</span>
 <span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 3     Male       1</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Good  Female     2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Bad   Female     3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 4     Female     4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Bad   Male       1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 4     Female     2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 3     Female     3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Good  Female     4</span>
 <span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2     Male       5</span></code></pre></div>
 </div>
 </div>
@@ -314,7 +314,7 @@
   <footer><div class="container">
   <div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.gorcha.org" class="external-link">Danny Smith</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
+<p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

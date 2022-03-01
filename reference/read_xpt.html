@@ -12,7 +12,7 @@ of the data to the FDA."><meta property="og:image" content="https://haven.tidyve
     
     <a class="navbar-brand me-2" href="../index.html">haven</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,7 @@ of the data to the FDA.</p>
   .name_repair <span class="op">=</span> <span class="st">"unique"</span>
 <span class="op">)</span>
 
-<span class="fu">write_xpt</span><span class="op">(</span><span class="va">data</span>, <span class="va">path</span>, version <span class="op">=</span> <span class="fl">8</span>, name <span class="op">=</span> <span class="cn">NULL</span>, label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">data</span>, <span class="st">"label"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu">write_xpt</span><span class="op">(</span><span class="va">data</span>, <span class="va">path</span>, version <span class="op">=</span> <span class="fl">8</span>, name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -95,9 +95,9 @@ be automatically uncompressed. Files starting with <code>http://</code>,
 <code>https://</code>, <code>ftp://</code>, or <code>ftps://</code> will be automatically
 downloaded. Remote gz files can also be automatically downloaded and
 decompressed.</p>
-<p>Literal data is most useful for examples and tests. To be recognised as a
-path, it must be wrapped with <code><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I()</a></code>, be a string containing at least one
-new line, or be a vector containing at least one string with a new line.</p>
+<p>Literal data is most useful for examples and tests. It must contain at
+least one new line to be recognised as data (instead of a path) or be a
+vector of greater than length 1.</p>
 <p>Using a value of <code><a href="https://readr.tidyverse.org/reference/clipboard.html" class="external-link">clipboard()</a></code> will read from the system clipboard.</p></dd>
 <dt>col_select</dt>
 <dd><p>One or more selection expressions, like in
@@ -130,19 +130,12 @@ to enforce them.</p></dd>
 <dd><p>Member name to record in file. Defaults to file name sans
 extension. Must be &lt;= 8 characters for version 5, and &lt;= 32 characters
 for version 8.</p></dd>
-<dt>label</dt>
-<dd><p>Dataset label to use, or <code>NULL</code>. Defaults to the value stored in
-the "label" attribute of <code>data</code>.</p>
-<p>Note that although SAS itself supports dataset labels up to 256 characters
-long, dataset labels in SAS transport files must be &lt;= 40 characters.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tibble, data frame variant with nice defaults.
 Variable labels are stored in the "label" attribute of each variable.
 It is not printed on the console, but the RStudio viewer will show it.
-If a dataset label is defined, it will be stored in the "label" attribute
-of the tibble.
 <code>write_xpt()</code> returns the input <code>data</code> invisibly.</p>
     </div>
 
@@ -174,7 +167,7 @@ of the tibble.
    </div>
   <footer><div class="container">
   <div class="pkgdown-footer-left">
-  <p></p><p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.gorcha.org" class="external-link">Danny Smith</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
+  <p></p><p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

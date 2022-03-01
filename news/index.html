@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">haven</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,24 +65,13 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="haven-development-version">haven (development version)<a class="anchor" aria-label="anchor" href="#haven-development-version"></a></h2>
-<ul><li><p>Updated to ReadStat 1.1.8 RC (<a href="https://github.com/tidyverse/haven/issues/650" class="external-link">#650</a>).</p></li>
-<li><p><code><a href="../reference/zap_labels.html">zap_labels()</a></code> gains a <code>user_na</code> argument to control whether user-defined missing values are converted to <code>NA</code> or left as is (<a href="https://github.com/tidyverse/haven/issues/638" class="external-link">#638</a>).</p></li>
-<li><p>POSIXct and POSIXlt values with no time component (e.g. “2010-01-01”) were being converted to <code>NA</code> when attempting to convert the output timezone to UTC. These now output successfully (<a href="https://github.com/tidyverse/haven/issues/634" class="external-link">#634</a>).</p></li>
-<li><p>Fix bug in output timezone conversion that was causing variable labels and other variable attributes to disappear (<a href="https://github.com/tidyverse/haven/issues/624" class="external-link">#624</a>).</p></li>
-<li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> successfully writes user missing values and ranges for <code><a href="../reference/labelled.html">labelled()</a></code> integer vectors (<a href="https://github.com/tidyverse/haven/issues/596" class="external-link">#596</a>).</p></li>
-<li><p><code><a href="../reference/read_xpt.html">write_xpt()</a></code> can now write dataset labels with the <code>label</code> argument, which defaults to the <code>label</code> attribute of the input data frame, if present (<a href="https://github.com/tidyverse/haven/issues/562" class="external-link">#562</a>).</p></li>
-<li><p>The <code>compress</code> argument for <code><a href="../reference/read_spss.html">write_sav()</a></code> now supports all 3 SPSS compression modes specified as a character string - “byte”, “none” and “zsav” (<a href="https://github.com/tidyverse/haven/issues/614" class="external-link">#614</a>). <code>TRUE</code> and <code>FALSE</code> can be used for backwards compatibility, and correspond to the “zsav” and “none” options respectively.</p></li>
-<li><p>@gorcha is now a haven author in recognition of his significant and sustained contributions.</p></li>
-</ul></div>
-    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.4.3" id="haven-243">haven 2.4.3<a class="anchor" aria-label="anchor" href="#haven-243"></a></h2><p class="text-muted">CRAN release: 2021-08-04</p>
 <ul><li>Fix build failure on Solaris.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.4.2" id="haven-242">haven 2.4.2<a class="anchor" aria-label="anchor" href="#haven-242"></a></h2><p class="text-muted">CRAN release: 2021-08-02</p>
 <ul><li><p>Updated to ReadStat 1.1.7 RC (<a href="https://github.com/tidyverse/haven/issues/620" class="external-link">#620</a>).</p></li>
-<li><p><code><a href="../reference/read_dta.html">read_dta()</a></code> no longer crashes if it sees StrL variables with missing values (<a href="https://github.com/gorcha" class="external-link">@gorcha</a>, <a href="https://github.com/tidyverse/haven/issues/594" class="external-link">#594</a>, <a href="https://github.com/tidyverse/haven/issues/600" class="external-link">#600</a>, <a href="https://github.com/tidyverse/haven/issues/608" class="external-link">#608</a>).</p></li>
+<li><p><code><a href="../reference/read_dta.html">read_dta()</a></code> no longer crashes if it sees StrL variables with missing values (<a href="https://github.com/gorcha" class="external-link">@gorcha</a>, <a href="https://github.com/tidyverse/haven/issues/594" class="external-link">#594</a>, <a href="https://github.com/tidyverse/haven/issues/600" class="external-link">#600</a>, <a href="https://github.com/tidyverse/haven/issues/608" class="external-link">#608</a>). urlchecker::url_check()</p></li>
 <li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> now correctly handles “labelled”-class numeric (double) variables that don’t have value labels (<a href="https://github.com/jmobrien" class="external-link">@jmobrien</a>, <a href="https://github.com/tidyverse/haven/issues/606" class="external-link">#606</a>, <a href="https://github.com/tidyverse/haven/issues/609" class="external-link">#609</a>).</p></li>
 <li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> now allows variable names up to 32 characters (<a href="https://github.com/sbae" class="external-link">@sbae</a>, <a href="https://github.com/tidyverse/haven/issues/605" class="external-link">#605</a>).</p></li>
 <li><p>Can now correctly combine <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> with identical labels (<a href="https://github.com/gorcha" class="external-link">@gorcha</a>, <a href="https://github.com/tidyverse/haven/issues/599" class="external-link">#599</a>).</p></li>
@@ -276,7 +265,7 @@
 <li><p>Added support for reading file “label” and “notes”. These are not currently printed, but are stored in the attributes if you need to access them (<a href="https://github.com/tidyverse/haven/issues/186" class="external-link">#186</a>).</p></li>
 <li><p>Added support for “tagged” missing values (in Stata these are called “extended” and in SAS these are called “special”) which carry an extra byte of information: a character label from “a” to “z”. The downside of this change is that all integer columns are now converted to doubles, to support the encoding of the tag in the payload of a NaN.</p></li>
 <li>
-<p>New <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> is a subclass of <code><a href="../reference/labelled.html">labelled()</a></code> that can model user missing values from SPSS. These can either be a set of distinct values, or for numeric vectors, a range. <code><a href="../reference/zap_labels.html">zap_labels()</a></code> strips labels, and replaces user-defined missing values with <code>NA</code>. New <code><a href="../reference/zap_missing.html">zap_missing()</a></code> just replaces user-defined missing values with <code>NA</code>.</p>
+<p>New <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> is a subclass of <code><a href="../reference/labelled.html">labelled()</a></code> that can model user missing values from SPSS. These can either be a set of distinct values, or for numeric vectors, a range. <code><a href="../reference/zap_labels.html">zap_labels()</a></code> strips labels, and replaces user-defined missing values with <code>NA</code>. New <code><a href="../reference/zap_missing.html">zap_missing()</a></code> just replaces user-defined missing vlaues with <code>NA</code>.</p>
 <p><code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> is potentially dangerous to work with in R because base functions don’t know about <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> functions so will return the wrong result in the presence of user-defined missing values. For this reason, they will only be created by <code><a href="../reference/read_spss.html">read_spss()</a></code> when <code>user_na = TRUE</code> (normally user-defined missings are converted to NA).</p>
 </li>
 <li><p><code><a href="../reference/as_factor.html">as_factor()</a></code> no longer drops the <code>label</code> attribute (variable label) when used (<a href="https://github.com/tidyverse/haven/issues/177" class="external-link">#177</a>, <a href="https://github.com/itsdalmo" class="external-link">@itsdalmo</a>).</p></li>
@@ -322,7 +311,7 @@
    </div>
   <footer><div class="container">
   <div class="pkgdown-footer-left">
-  <p></p><p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.gorcha.org" class="external-link">Danny Smith</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
+  <p></p><p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

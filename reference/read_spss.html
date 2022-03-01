@@ -16,7 +16,7 @@ file extension."><meta property="og:image" content="https://haven.tidyverse.org/
     
     <a class="navbar-brand me-2" href="../index.html">haven</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,7 +99,7 @@ file extension.</p>
   .name_repair <span class="op">=</span> <span class="st">"unique"</span>
 <span class="op">)</span>
 
-<span class="fu">write_sav</span><span class="op">(</span><span class="va">data</span>, <span class="va">path</span>, compress <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"byte"</span>, <span class="st">"none"</span>, <span class="st">"zsav"</span><span class="op">)</span><span class="op">)</span>
+<span class="fu">write_sav</span><span class="op">(</span><span class="va">data</span>, <span class="va">path</span>, compress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 
 <span class="fu">read_spss</span><span class="op">(</span>
   <span class="va">file</span>,
@@ -121,9 +121,9 @@ be automatically uncompressed. Files starting with <code>http://</code>,
 <code>https://</code>, <code>ftp://</code>, or <code>ftps://</code> will be automatically
 downloaded. Remote gz files can also be automatically downloaded and
 decompressed.</p>
-<p>Literal data is most useful for examples and tests. To be recognised as a
-path, it must be wrapped with <code><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">I()</a></code>, be a string containing at least one
-new line, or be a vector containing at least one string with a new line.</p>
+<p>Literal data is most useful for examples and tests. It must contain at
+least one new line to be recognised as data (instead of a path) or be a
+vector of greater than length 1.</p>
 <p>Using a value of <code><a href="https://readr.tidyverse.org/reference/clipboard.html" class="external-link">clipboard()</a></code> will read from the system clipboard.</p></dd>
 <dt>encoding</dt>
 <dd><p>The character encoding used for the file. The default,
@@ -159,13 +159,8 @@ to enforce them.</p></dd>
 <dt>path</dt>
 <dd><p>Path to a file where the data will be written.</p></dd>
 <dt>compress</dt>
-<dd><p>Compression type to use:</p><ul><li><p>"byte": the default, uses byte compression.</p></li>
-<li><p>"none": no compression. This is useful for software that has issues with
-byte compressed <code>.sav</code> files (e.g. SAS).</p></li>
-<li><p>"zsav": uses zlib compression and produces a <code>.zsav</code> file. zlib
-compression is supported by SPSS version 21.0 and above.</p></li>
-</ul><p><code>TRUE</code> and <code>FALSE</code> can be used for backwards compatibility, and correspond
-to the "zsav" and "none" options respectively.</p></dd>
+<dd><p>If <code>TRUE</code>, will compress the file, resulting in a <code>.zsav</code>
+file.  Otherwise the <code>.sav</code> file will be bytecode compressed.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -226,7 +221,7 @@ SPSS are handled in R.</p>
    </div>
   <footer><div class="container">
   <div class="pkgdown-footer-left">
-  <p></p><p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.gorcha.org" class="external-link">Danny Smith</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
+  <p></p><p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
