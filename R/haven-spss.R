@@ -110,9 +110,14 @@ validate_sav <- function(data) {
   stopifnot(is.data.frame(data))
 
   # Check variable names
-  bad_name <- !grepl("^[[:alpha:]@]", names(data), perl = TRUE)
+  bad_name <- !grepl("^[[:alpha:]@]([[:alnum:]._$#@]*[[:alnum:]_$#@])?$", names(data), perl = TRUE)
+  reserved_keyword <-
+    toupper(names(data)) %in% c(
+      "ALL", "AND", "BY", "EQ", "GE", "GT", "LE",
+      "LT", "NE", "NOT", "OR", "TO", "WITH"
+    )
   bad_length <- nchar(names(data), type = "bytes") > 64
-  bad_vars <- bad_length | bad_name
+  bad_vars <- bad_length | bad_name | reserved_keyword
   if (any(bad_vars)) {
     abort(c(
       "Variables in `data` must have valid SPSS variable names.",
