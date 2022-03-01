@@ -2,6 +2,10 @@
 
 * Updated to ReadStat 1.1.8 RC (#650).
 
+* `write_sav()` now checks for case-insensitive duplicate variable names
+  (@juansebastianl, #641) and verifies that variable names are valid SPSS
+  variables.
+
 * `zap_labels()` gains a `user_na` argument to control whether user-defined
   missing values are converted to `NA` or left as is (#638).
 

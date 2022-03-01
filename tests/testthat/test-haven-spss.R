@@ -334,6 +334,32 @@ test_that("complain about long factor labels", {
   })
 })
 
+test_that("complain about invalid variable names", {
+  expect_snapshot(error = TRUE, {
+    df <- data.frame(a = 1, A = 1, b = 1)
+    write_sav(df, tempfile())
+
+    names(df) <- c("$var", "A._$@#1", "a.")
+    write_sav(df, tempfile())
+
+    names(df) <- c("ALL", "eq", "b")
+    write_sav(df, tempfile())
+
+    names(df) <- c(paste(rep("a", 65), collapse = ""),
+                   paste(rep("b", 65), collapse = ""),
+                   "c")
+    write_sav(df, tempfile())
+  })
+
+  # Windows fails if this is a snapshot because of issues with unicode support
+  expect_error({
+    df <- data.frame(a = 1, A = 1)
+    names(df) <- c(paste(rep("\U044D", 33), collapse = ""),
+                   paste(rep("\U767E", 22), collapse = ""))
+    write_sav(df, tempfile())
+  }, regexp = "Variables in `data` must have valid SPSS variable names")
+})
+
 # max_level_lengths -------------------------------------------------------
 
 test_that("works with NA levels", {
