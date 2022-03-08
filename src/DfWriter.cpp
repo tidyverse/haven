@@ -380,6 +380,12 @@ public:
     readstat_variable_t* var;
     if (ext_ == HAVEN_DTA && version_ >= 117 && user_width >= 500) {
       var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING_REF, user_width);
+      for (int i = 0; i < x.size(); ++i) {
+        const char* val = string_utf8(x, i);
+        if (!string_ref_.count(val)) {
+          string_ref_[val] = readstat_add_string_ref(writer_, val);
+        }
+      }
     } else {
       var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, user_width);
     }
@@ -440,13 +446,7 @@ public:
     if (is_missing) {
       return readstat_insert_missing_value(writer_, var);
     } else if (var->type == READSTAT_TYPE_STRING_REF) {
-      // readstat_string_ref_t* ref;
-      // if (string_ref_.count(val)) {
-      //   ref = string_ref_[val];
-      // } else {
-      //   ref = string_ref_[val] = readstat_add_string_ref(writer_, val);
-      // }
-      return readstat_insert_string_ref(writer_, var, readstat_add_string_ref(writer_, val));
+      return readstat_insert_string_ref(writer_, var, string_ref_[val]);
     } else {
       return readstat_insert_string_value(writer_, var, val);
     }
