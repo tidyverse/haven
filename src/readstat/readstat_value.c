@@ -85,13 +85,13 @@ char readstat_int8_value(readstat_value_t value) {
         return 0;
 
     if (value.type == READSTAT_TYPE_DOUBLE)
-        return value.v.double_value;
+        return (char)value.v.double_value;
     if (value.type == READSTAT_TYPE_FLOAT)
-        return value.v.float_value;
+        return (char)value.v.float_value;
     if (value.type == READSTAT_TYPE_INT32)
-        return value.v.i32_value;
+        return (char)value.v.i32_value;
     if (value.type == READSTAT_TYPE_INT16)
-        return value.v.i16_value;
+        return (char)value.v.i16_value;
     if (value.type == READSTAT_TYPE_INT8)
         return value.v.i8_value;
 
@@ -103,11 +103,11 @@ int16_t readstat_int16_value(readstat_value_t value) {
         return 0;
 
     if (value.type == READSTAT_TYPE_DOUBLE)
-        return value.v.double_value;
+        return (int16_t)value.v.double_value;
     if (value.type == READSTAT_TYPE_FLOAT)
-        return value.v.float_value;
+        return (int16_t)value.v.float_value;
     if (value.type == READSTAT_TYPE_INT32)
-        return value.v.i32_value;
+        return (int16_t)value.v.i32_value;
     if (value.type == READSTAT_TYPE_INT16)
         return value.v.i16_value;
     if (value.type == READSTAT_TYPE_INT8)
@@ -121,9 +121,9 @@ int32_t readstat_int32_value(readstat_value_t value) {
         return 0;
 
     if (value.type == READSTAT_TYPE_DOUBLE)
-        return value.v.double_value;
+        return (int32_t)value.v.double_value;
     if (value.type == READSTAT_TYPE_FLOAT)
-        return value.v.float_value;
+        return (int32_t)value.v.float_value;
     if (value.type == READSTAT_TYPE_INT32)
         return value.v.i32_value;
     if (value.type == READSTAT_TYPE_INT16)
@@ -139,7 +139,7 @@ float readstat_float_value(readstat_value_t value) {
         return NAN;
 
     if (value.type == READSTAT_TYPE_DOUBLE)
-        return value.v.double_value;
+        return (float)value.v.double_value;
     if (value.type == READSTAT_TYPE_FLOAT)
         return value.v.float_value;
     if (value.type == READSTAT_TYPE_INT32)

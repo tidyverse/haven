@@ -26,7 +26,7 @@ read_por(
   .name_repair = "unique"
 )
 
-write_sav(data, path, compress = FALSE)
+write_sav(data, path, compress = c("byte", "none", "zsav"))
 
 read_spss(
   file,
@@ -47,9 +47,9 @@ be automatically uncompressed. Files starting with \verb{http://},
 downloaded. Remote gz files can also be automatically downloaded and
 decompressed.
 
-Literal data is most useful for examples and tests. It must contain at
-least one new line to be recognised as data (instead of a path) or be a
-vector of greater than length 1.
+Literal data is most useful for examples and tests. To be recognised as a
+path, it must be wrapped with \code{I()}, be a string containing at least one
+new line, or be a vector containing at least one string with a new line.
 
 Using a value of \code{\link[readr:clipboard]{clipboard()}} will read from the system clipboard.}
 
@@ -90,8 +90,17 @@ to enforce them.}
 
 \item{path}{Path to a file where the data will be written.}
 
-\item{compress}{If \code{TRUE}, will compress the file, resulting in a \code{.zsav}
-file.  Otherwise the \code{.sav} file will be bytecode compressed.}
+\item{compress}{Compression type to use:
+\itemize{
+\item "byte": the default, uses byte compression.
+\item "none": no compression. This is useful for software that has issues with
+byte compressed \code{.sav} files (e.g. SAS).
+\item "zsav": uses zlib compression and produces a \code{.zsav} file. zlib
+compression is supported by SPSS version 21.0 and above.
+}
+
+\code{TRUE} and \code{FALSE} can be used for backwards compatibility, and correspond
+to the "zsav" and "none" options respectively.}
 }
 \value{
 A tibble, data frame variant with nice defaults.

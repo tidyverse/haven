@@ -58,10 +58,10 @@ test_that("formats roundtrip", {
   write_sav(df, tmp)
   df2 <- read_sav(tmp)
 
-  expect_equal(df$a, df$a)
-  expect_equal(df$b, df$b)
-  expect_equal(df$c, df$c)
-  expect_equal(df$d, df$d)
+  expect_equal(df$a, df2$a)
+  expect_equal(df$b, df2$b)
+  expect_equal(df$c, df2$c)
+  expect_equal(df$d, df2$d)
 })
 
 test_that("widths roundtrip", {
@@ -78,10 +78,10 @@ test_that("widths roundtrip", {
   write_sav(df, tmp)
   df2 <- read_sav(tmp)
 
-  expect_equal(df$a, df$a)
-  expect_equal(df$b, df$b)
-  expect_equal(df$c, df$c)
-  expect_equal(df$d, df$d)
+  expect_equal(df$a, zap_formats(df2$a))
+  expect_equal(df$b, zap_formats(df2$b))
+  expect_equal(df$c, zap_formats(df2$c))
+  expect_equal(df$d, zap_formats(df2$d))
 })
 
 test_that("only selected columns are read", {
@@ -166,11 +166,17 @@ test_that("can roundtrip missing values (as much as possible)", {
 
 test_that("can roundtrip date times", {
   x1 <- c(as.Date("2010-01-01"), NA)
-  x2 <- as.POSIXct(x1)
-  attr(x2, "tzone") <- "UTC"
-
   expect_equal(roundtrip_var(x1, "sav"), x1)
-  expect_equal(roundtrip_var(x2, "sav"), x2)
+
+  # converted to same time in UTC
+  x2 <- as.POSIXct("2010-01-01 09:00", tz = "Pacific/Auckland")
+  expect_equal(
+    roundtrip_var(x2, "sav"),
+    as.POSIXct("2010-01-01 09:00", tz = "UTC")
+  )
+
+  attr(x2, "label") <- "abc"
+  expect_equal(attr(roundtrip_var(x2, "sav"), "label"), "abc")
 })
 
 test_that("can roundtrip times", {
@@ -210,7 +216,7 @@ test_that("labelleds are round tripped", {
 test_that("spss labelleds are round tripped", {
   df <- tibble(
     x = labelled_spss(
-      c(1, 2, 1, 9),
+      c(1, 2, 1, 9, 80, 85, 90),
       labels = c(no = 1, yes = 2, unknown = 9),
       na_values = 9,
       na_range = c(80, 90)
@@ -222,13 +228,58 @@ test_that("spss labelleds are round tripped", {
 
   df2 <- read_sav(path)
   expect_s3_class(df2$x, "haven_labelled")
-  expect_equal(as.double(df2$x), c(1, 2, 1, NA))
+  expect_equal(as.double(df2$x), c(1, 2, 1, NA, NA, NA, NA))
 
   df3 <- read_sav(path, user_na = TRUE)
   expect_s3_class(df3$x, "haven_labelled_spss")
   expect_equal(attr(df3$x, "na_values"), attr(df$x, "na_values"))
   expect_equal(attr(df3$x, "na_range"), attr(df$x, "na_range"))
 })
+
+test_that("spss integer labelleds are round tripped", {
+  df <- tibble(
+    x = labelled_spss(
+      c(1L, 2L, 1L, 9L, 80L, 85L, 90L),
+      labels = c(no = 1, yes = 2, unknown = 9),
+      na_values = 9,
+      na_range = c(80, 90)
+    )
+  )
+
+  path <- tempfile()
+  write_sav(df, path)
+
+  df2 <- read_sav(path)
+  expect_s3_class(df2$x, "haven_labelled")
+  expect_equal(as.integer(df2$x), c(1, 2, 1, NA, NA, NA, NA))
+
+  df3 <- read_sav(path, user_na = TRUE)
+  expect_s3_class(df3$x, "haven_labelled_spss")
+  expect_equal(attr(df3$x, "na_values"), attr(df$x, "na_values"))
+  expect_equal(attr(df3$x, "na_range"), attr(df$x, "na_range"))
+})
+
+
+test_that("na_range roundtrips successfully with mismatched type", {
+  x_vec = 1:10
+  x_na = c(1, 10)
+  df <- tibble(
+    x_int_int   = labelled_spss(as.integer(x_vec), na_range = as.integer(x_na)),
+    x_int_real  = labelled_spss(as.integer(x_vec), na_range = as.numeric(x_na)),
+    x_real_real = labelled_spss(as.numeric(x_vec), na_range = as.numeric(x_na)),
+    x_real_int  = labelled_spss(as.numeric(x_vec), na_range = as.integer(x_na))
+  )
+
+  path <- tempfile()
+  write_sav(df, path)
+  df2 <- read_sav(path, user_na = TRUE)
+
+  expect_equal(attr(df2$x_int_int, "na_range"), attr(df$x_int_int, "na_range"))
+  expect_equal(attr(df2$x_int_real, "na_range"), attr(df$x_int_real, "na_range"))
+  expect_equal(attr(df2$x_real_real, "na_range"), attr(df$x_real_real, "na_range"))
+  expect_equal(attr(df2$x_real_int, "na_range"), attr(df$x_real_int, "na_range"))
+})
+
 
 test_that("spss string labelleds are round tripped", {
   df <- tibble(
@@ -283,6 +334,32 @@ test_that("complain about long factor labels", {
   })
 })
 
+test_that("complain about invalid variable names", {
+  expect_snapshot(error = TRUE, {
+    df <- data.frame(a = 1, A = 1, b = 1)
+    write_sav(df, tempfile())
+
+    names(df) <- c("$var", "A._$@#1", "a.")
+    write_sav(df, tempfile())
+
+    names(df) <- c("ALL", "eq", "b")
+    write_sav(df, tempfile())
+
+    names(df) <- c(paste(rep("a", 65), collapse = ""),
+                   paste(rep("b", 65), collapse = ""),
+                   "c")
+    write_sav(df, tempfile())
+  })
+
+  # Windows fails if this is a snapshot because of issues with unicode support
+  expect_error({
+    df <- data.frame(a = 1, A = 1)
+    names(df) <- c(paste(rep("\U044D", 33), collapse = ""),
+                   paste(rep("\U767E", 22), collapse = ""))
+    write_sav(df, tempfile())
+  }, regexp = "Variables in `data` must have valid SPSS variable names")
+})
+
 # max_level_lengths -------------------------------------------------------
 
 test_that("works with NA levels", {
@@ -298,3 +375,11 @@ test_that("works with empty factors", {
   expect_equal(max_level_length(x), 0)
 })
 
+# compression roundtrips --------------------------------------------------
+
+test_that("all compression types roundtrip successfully", {
+  df <- tibble::tibble(x = 1:10)
+  expect_equal(roundtrip_sav(df, compress = "byte"), df)
+  expect_equal(roundtrip_sav(df, compress = "none"), df)
+  expect_equal(roundtrip_sav(df, compress = "zsav"), df)
+})

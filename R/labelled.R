@@ -111,7 +111,7 @@ median.haven_labelled <- function(x, na.rm = TRUE, ...) {
 #' @export
 quantile.haven_labelled <- function(x, ...) {
   if (is.character(x)) {
-    abort("Can't compute median of labelled<character>")
+    abort("Can't compute quantile of labelled<character>")
   }
   quantile(vec_data(x), ...)
 }
@@ -230,12 +230,16 @@ vec_ptype2.haven_labelled.character <- vec_ptype2.haven_labelled.double
 
 #' @export
 vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "", y_arg = "") {
+  # Use x as the prototype if the input vectors have matching metadata
+  if (identical(attributes(x), attributes(y)))
+    return(x)
+
   data_type <- vec_ptype2(vec_data(x), vec_data(y), ..., x_arg = x_arg, y_arg = y_arg)
 
   # Prefer labels from LHS
   x_labels <- vec_cast_named(attr(x, "labels"), data_type, x_arg = x_arg)
   y_labels <- vec_cast_named(attr(y, "labels"), data_type, x_arg = y_arg)
-  labels <- c(x_labels, y_labels[setdiff(names(y_labels), names(x_labels))])
+  labels <- c(x_labels, y_labels[!y_labels %in% x_labels])
 
   # Prefer labels from LHS
   label <- attr(x, "label", exact = TRUE) %||% attr(y, "label", exact = TRUE)
@@ -259,6 +263,10 @@ vec_cast.character.haven_labelled <- function(x, to, ...) {
 
 #' @export
 vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_arg = "") {
+  # Don't perform any processing if the input vectors have matching metadata
+  if (identical(attributes(x), attributes(to)))
+    return(x)
+
   out_data <- vec_cast(vec_data(x), vec_data(to), ..., x_arg = x_arg, to_arg = to_arg)
 
   x_labels <- attr(x, "labels")

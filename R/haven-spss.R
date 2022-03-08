@@ -66,9 +66,25 @@ read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max =
 
 #' @export
 #' @rdname read_spss
-#' @param compress If `TRUE`, will compress the file, resulting in a `.zsav`
-#'   file.  Otherwise the `.sav` file will be bytecode compressed.
-write_sav <- function(data, path, compress = FALSE) {
+#' @param compress Compression type to use:
+#'
+#'   * "byte": the default, uses byte compression.
+#'   * "none": no compression. This is useful for software that has issues with
+#'     byte compressed `.sav` files (e.g. SAS).
+#'   * "zsav": uses zlib compression and produces a `.zsav` file. zlib
+#'     compression is supported by SPSS version 21.0 and above.
+#'
+#'   `TRUE` and `FALSE` can be used for backwards compatibility, and correspond
+#'   to the "zsav" and "none" options respectively.
+write_sav <- function(data, path, compress = c("byte", "none", "zsav")) {
+  if (isTRUE(compress)) {
+    compress <- "zsav"
+  } else if (isFALSE(compress)) {
+    compress <- "none"
+  } else {
+    compress <- arg_match(compress)
+  }
+
   data <- validate_sav(data)
   write_sav_(data, normalizePath(path, mustWork = FALSE), compress = compress)
   invisible(data)
@@ -92,6 +108,33 @@ read_spss <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max 
 
 validate_sav <- function(data) {
   stopifnot(is.data.frame(data))
+
+  # Check variable names
+  bad_name <- !grepl("^[[:alpha:]@]([[:alnum:]._$#@]*[[:alnum:]_$#@])?$", names(data), perl = TRUE)
+  reserved_keyword <-
+    toupper(names(data)) %in% c(
+      "ALL", "AND", "BY", "EQ", "GE", "GT", "LE",
+      "LT", "NE", "NOT", "OR", "TO", "WITH"
+    )
+  bad_length <- nchar(names(data), type = "bytes") > 64
+  bad_vars <- bad_length | bad_name | reserved_keyword
+  if (any(bad_vars)) {
+    abort(c(
+      "Variables in `data` must have valid SPSS variable names.",
+      x = paste("Problems:", var_names(data, bad_vars))
+    ))
+  }
+
+  # Check variable name duplication
+  dupe_vars <- duplicated(tolower(names(data))) |
+    duplicated(tolower(names(data)), fromLast = TRUE)
+  if (any(dupe_vars)) {
+    abort(c(
+      "SPSS does not allow duplicate variable names.",
+      i = "Variable names are case-insensitive in SPSS.",
+      x = paste("Problems:", var_names(data, dupe_vars))
+    ))
+  }
 
   # Check factor lengths
   level_lengths <- vapply(data, max_level_length, integer(1))

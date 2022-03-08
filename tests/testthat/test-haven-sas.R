@@ -140,8 +140,8 @@ test_that("can select columns when a catalog file is present", {
 })
 
 test_that("using cols_only warns about deprecation, but works", {
-  out <- expect_warning(
-    read_sas(test_path("sas/hadley.sas7bdat"), cols_only = "id"),
+  expect_warning(
+    out <- read_sas(test_path("sas/hadley.sas7bdat"), cols_only = "id"),
     "is deprecated"
   )
   expect_named(out, "id")
@@ -176,11 +176,17 @@ test_that("can write labelled with NULL labels", {
 
 test_that("can roundtrip date times", {
   x1 <- c(as.Date("2010-01-01"), NA)
-  x2 <- as.POSIXct(x1)
-  attr(x2, "tzone") <- "UTC"
-
   expect_equal(roundtrip_var(x1, "sas"), x1)
-  expect_equal(roundtrip_var(x2, "sas"), x2)
+
+  # converted to same time in UTC
+  x2 <- as.POSIXct("2010-01-01 09:00", tz = "Pacific/Auckland")
+  expect_equal(
+    roundtrip_var(x2, "sas"),
+    as.POSIXct("2010-01-01 09:00", tz = "UTC")
+  )
+
+  attr(x2, "label") <- "abc"
+  expect_equal(attr(roundtrip_var(x2, "sas"), "label"), "abc")
 })
 
 test_that("can roundtrip format attribute", {
@@ -231,4 +237,35 @@ test_that("invalid files generate informative errors", {
   expect_snapshot(error = TRUE, {
     write_xpt(mtcars, file.path(tempdir(), " temp.xpt"))
   })
+})
+
+test_that("can roundtrip file labels", {
+  df <- tibble(x = 1)
+  expect_null(attr(roundtrip_xpt(df), "label"))
+  expect_equal(attr(roundtrip_xpt(df, label = "abcd"), "label"), "abcd")
+
+  attr(df, "label") <- "abc"
+  expect_equal(attr(roundtrip_xpt(df), "label"), "abc")
+  expect_equal(attr(roundtrip_xpt(df, label = "abcd"), "label"), "abcd")
+  expect_null(attr(roundtrip_xpt(df, label = NULL), "label"))
+})
+
+test_that("can roundtrip format attribute", {
+  df <- tibble(
+    char_var = structure("Hello!", format.sas = "$CHAR"),
+    long_char = structure("111111111111111", format.sas = "$CHAR10"),
+    date_var = structure(Sys.Date(), format.sas = "DATE9"),
+    a = structure(100.12345, format.sas = "10.3"),
+    b = structure(100.12345, format.sas = "10"),
+    c = structure(100.12345, format.sas = "F10.3"),
+    d = structure(100.12345, format.sas = "F10"),
+    e = structure(100.12345, format.sas = "COMMA10.3")
+  )
+
+  path <- tempfile()
+
+  write_xpt(df, path)
+  out <- read_xpt(path)
+
+  expect_identical(df, out)
 })

@@ -1,42 +1,112 @@
 # haven (development version)
 
+* Updated to ReadStat 1.1.8 RC (#650).
+
 * `write_dta()` now uses strL when strings are 500 characters or longer (#437). 
 
-* Date-times are no longer forced to UTC, but instead converted to the 
-  equivalent UTC (#555). This should ensure that you see the same date-time 
-  in R and in Stata/SPSS/SAS.
+* All `write_` functions can now write custom variable widths by setting the
+  `width` attribute (#650).
 
-* `write_dta()` now correctly writes tagged NAs (including tagged NAs in
-  labels) (#583).
+* When writing files, the minimum width for character variables is now 1. This
+  fixes issues with statistical software reading blank character variables with
+  width 0 (#650).
+
+* `write_sav()` now checks for case-insensitive duplicate variable names
+  (@juansebastianl, #641) and verifies that variable names are valid SPSS
+  variables.
+
+* `zap_labels()` gains a `user_na` argument to control whether user-defined
+  missing values are converted to `NA` or left as is (#638).
+
+* vctrs casting and coercion generics now do less work when working with two
+  identical `labelled()` vectors. This significantly improves performance when
+  working with `labelled()` vectors in grouped data frames (#658).
+
+* POSIXct and POSIXlt values with no time component (e.g. "2010-01-01") were
+  being converted to `NA` when attempting to convert the output timezone to UTC.
+  These now output successfully (#634).
+
+* Fix bug in output timezone conversion that was causing variable labels and
+  other variable attributes to disappear (#624).
+
+* `write_sav()` successfully writes user missing values and ranges for
+  `labelled()` integer vectors (#596).
+
+* `write_xpt()` can now write dataset labels with the `label` argument,  which
+  defaults to the `label` attribute of the input data frame, if present (#562).
+
+* The `compress` argument for `write_sav()` now supports all 3 SPSS compression
+  modes specified as a character string - "byte", "none" and "zsav" (#614).
+  `TRUE` and `FALSE` can be used for backwards compatibility, and correspond to
+  the "zsav" and "none" options respectively.
+
+* @gorcha is now a haven author in recognition of his significant and sustained
+  contributions.
+
+# haven 2.4.3
+
+* Fix build failure on Solaris.
+
+# haven 2.4.2
+
+* Updated to ReadStat 1.1.7 RC (#620).
+
+* `read_dta()` no longer crashes if it sees StrL variables with missing values
+  (@gorcha, #594, #600, #608).
+
+* `write_dta()` now correctly handles "labelled"-class numeric (double) variables 
+   that don't have value labels (@jmobrien, #606, #609).
+
+* `write_dta()` now allows variable names up to 32 characters (@sbae, #605).
+
+* Can now correctly combine `labelled_spss()` with identical labels 
+  (@gorcha, #599).
+
+# haven 2.4.1
+
+* Fix buglet when combining `labelled()` with identical labels.
+
+# haven 2.4.0
+
+## New features
+
+* `labelled_spss()` gains full vctrs support thanks to the hard work of @gorcha
+  (#527, #534, #538, #557). This means that they should now work seamlessly
+  in dplyr 1.0.0, tidyr 1.0.0 and other packages that use vctrs. 
 
 * `labelled()` vectors are more permissive when concatenating; output labels 
   will be a combination of the left-hand and the right-hand side, preferring
   values assigned to the left-hand side (#543).
 
+* Date-times are no longer forced to UTC, but instead converted to the 
+  equivalent UTC (#555). This should ensure that you see the same date-time 
+  in R and in Stata/SPSS/SAS.
+   
+## Minor improvements and bug fixes
+
+* Updated to ReadStat 1.1.5. Most importantly this includes support for
+  SAS binary compression.
+
+* `as_factor(levels = "values")` preserves values of unlabelled elements (#570).
+
 * `labelled_spss()` is a little stricter: it prevents `na_range` and `na_value`
   from containing missing values, and ensures that `na_range` is in the correct
   order (#574).
 
-* `as_factor(levels = "values")` preserves values of unlabelled elements (#570).
+* `read_spss()` now reads NA values and ranges of character variables (#409).
 
-* `labelled_spss()` now supports character data with NA values and ranges (#409).
+* `write_dta()` now correctly writes tagged NAs (including tagged NAs in
+  labels) (#583) and once again validates length of variables names (#485).
 
-* Validation failures now provide more details about the source of the problem
+* `write_*()` now validate file and variable metadata with ReadStat. This 
+  should prevent many invalid files from being written (#408). Additionally,
+  validation failures now provide more details about the source of the problem 
   (e.g. the column name of the problem) (#463).
 
-* Restore validation for length of Stata variables (#485).
-
-* All writers now validate file and variable metadata with ReadStat. This 
-  should prevent many invalid files from being written (#408). 
-
-* Updated to ReadStat 1.1.5. Most importantly this includes support for
-  SAS binary compression.
-  
-* Add vctrs support for `labelled_spss()` vectors (@gorcha, #527, #534, #538, #557).
-
-* `write_sav(..., compress=FALSE)` now uses SPSS Bytecode compression instead
-  of the rarely-used uncompressed mode.  `compress=TRUE` continues to use the new
-  (and not universally supported, but more compact) ZLIB format. (@oliverbock, #544)
+* `write_sav(compress = FALSE)` now uses SPSS bytecode compression instead of 
+  the rarely-used uncompressed mode. `compress = TRUE` continues to use the 
+  newer (and not universally supported, but more compact) zlib format 
+  (@oliverbock, #544).
 
 # haven 2.3.1
 
@@ -280,7 +350,7 @@ This also brings with it a deprecation: `cols_only` in `read_sas()` has been dep
   user missing values from SPSS. These can either be a set of distinct
   values, or for numeric vectors, a range. `zap_labels()` strips labels,
   and replaces user-defined missing values with `NA`. New `zap_missing()`
-  just replaces user-defined missing vlaues with `NA`. 
+  just replaces user-defined missing values with `NA`. 
   
     `labelled_spss()` is potentially dangerous to work with in R because
     base functions don't know about `labelled_spss()` functions so will 

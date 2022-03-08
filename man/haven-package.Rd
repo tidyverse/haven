@@ -8,14 +8,13 @@
 \description{
 \if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
 
-Import foreign statistical formats into R via the
-    embedded 'ReadStat' C library,
-    <https://github.com/WizardMac/ReadStat>.
+Import foreign statistical formats into R via the embedded
+    'ReadStat' C library, <https://github.com/WizardMac/ReadStat>.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{http://haven.tidyverse.org}
+  \item \url{https://haven.tidyverse.org}
   \item \url{https://github.com/tidyverse/haven}
   \item \url{https://github.com/WizardMac/ReadStat}
   \item Report bugs at \url{https://github.com/tidyverse/haven/issues}
@@ -28,6 +27,7 @@ Useful links:
 Authors:
 \itemize{
   \item Evan Miller (Author of included ReadStat code) [copyright holder]
+  \item Danny Smith
 }
 
 Other contributors:
