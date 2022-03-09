@@ -604,8 +604,8 @@ readstat_error_t readstat_insert_string_ref(readstat_writer_t *writer, const rea
         return READSTAT_ERROR_STRING_REFS_NOT_SUPPORTED;
 
     if (ref && ref->first_o == -1 && ref->first_v == -1) {
-        ref->first_o = writer->current_row;
-        ref->first_v = variable->index;
+        ref->first_o = writer->current_row + 1;
+        ref->first_v = variable->index + 1;
     }
 
     return writer->callbacks.write_string_ref(&writer->row[variable->offset], variable, ref);
