@@ -24,7 +24,13 @@ read_stata(
   .name_repair = "unique"
 )
 
-write_dta(data, path, version = 14, label = attr(data, "label"))
+write_dta(
+  data,
+  path,
+  version = 14,
+  label = attr(data, "label"),
+  strl_threshold = 2045
+)
 }
 \arguments{
 \item{file}{Either a path to a file, a connection, or literal data
@@ -79,6 +85,12 @@ to enforce them.}
 
 \item{label}{Dataset label to use, or \code{NULL}. Defaults to the value stored in
 the "label" attribute of \code{data}. Must be <= 80 characters.}
+
+\item{strl_threshold}{Any character vectors with a maximum length greater
+than \code{strl_threshold} bytes will be stored as a long string (strL) instead
+of a standard string (str#) variable if \code{version} >= 13. This defaults to
+2045, the maximum length of str# variables. See the Stata \href{https://www.stata.com/features/overview/long-strings/}{long string}
+documentation for more details.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
@@ -96,9 +108,9 @@ Currently haven can read and write logical, integer, numeric, character
 and factors. See \code{\link[=labelled]{labelled()}} for how labelled variables in
 Stata are handled in R.
 
-Character vectors will be stored as \code{strL} if any components are 500
-bytes or longer (and \code{version} >= 13); otherwise they will be stored
-as the appropriate \code{str#}.
+Character vectors will be stored as \code{strL} if any components are
+\code{strl_threshold} bytes or longer (and \code{version} >= 13); otherwise they will
+be stored as the appropriate \code{str#}.
 }
 \section{Character encoding}{
 

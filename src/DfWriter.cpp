@@ -65,6 +65,7 @@ class Writer {
   FileExt ext_;
   FileVendor vendor_;
   int version_;
+  int strl_threshold_;
   std::unordered_map<const char*, readstat_string_ref_t*> string_ref_;
 
   cpp11::list x_;
@@ -108,6 +109,10 @@ public:
       return;
 
     readstat_writer_set_file_label(writer_, string_utf8(label, 0));
+  }
+
+  void setStrLThreshold(int strl_threshold) {
+    strl_threshold_ = strl_threshold;
   }
 
   void write() {
@@ -378,7 +383,7 @@ public:
     // strL is that it can't be used as a join key but this seems unlikely for
     // very long strings.
     readstat_variable_t* var;
-    if (ext_ == HAVEN_DTA && version_ >= 117 && user_width >= 500) {
+    if (ext_ == HAVEN_DTA && version_ >= 117 && user_width >= strl_threshold_) {
       var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING_REF, user_width);
       for (int i = 0; i < x.size(); ++i) {
         const char* val = string_utf8(x, i);
@@ -482,10 +487,11 @@ void write_sav_(cpp11::list data, cpp11::strings path, std::string compress) {
 }
 
 [[cpp11::register]]
-void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label) {
+void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label, int strl_threshold) {
   Writer writer(HAVEN_DTA, data, path);
   writer.setVersion(version);
   writer.setFileLabel(label);
+  writer.setStrLThreshold(strl_threshold);
   writer.write();
 }
 

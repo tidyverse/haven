@@ -44,8 +44,8 @@ write_sav_ <- function(data, path, compress) {
   invisible(.Call(`_haven_write_sav_`, data, path, compress))
 }
 
-write_dta_ <- function(data, path, version, label) {
-  invisible(.Call(`_haven_write_dta_`, data, path, version, label))
+write_dta_ <- function(data, path, version, label, strl_threshold) {
+  invisible(.Call(`_haven_write_dta_`, data, path, version, label, strl_threshold))
 }
 
 write_sas_ <- function(data, path) {

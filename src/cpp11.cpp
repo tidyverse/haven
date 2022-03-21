@@ -84,10 +84,10 @@ extern "C" SEXP _haven_write_sav_(SEXP data, SEXP path, SEXP compress) {
   END_CPP11
 }
 // DfWriter.cpp
-void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label);
-extern "C" SEXP _haven_write_dta_(SEXP data, SEXP path, SEXP version, SEXP label) {
+void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label, int strl_threshold);
+extern "C" SEXP _haven_write_dta_(SEXP data, SEXP path, SEXP version, SEXP label, SEXP strl_threshold) {
   BEGIN_CPP11
-    write_dta_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<int>>(version), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(label));
+    write_dta_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<int>>(version), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(label), cpp11::as_cpp<cpp11::decay_t<int>>(strl_threshold));
     return R_NilValue;
   END_CPP11
 }
@@ -125,7 +125,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_haven_df_parse_sav_raw",  (DL_FUNC) &_haven_df_parse_sav_raw,  7},
     {"_haven_df_parse_xpt_file", (DL_FUNC) &_haven_df_parse_xpt_file, 5},
     {"_haven_df_parse_xpt_raw",  (DL_FUNC) &_haven_df_parse_xpt_raw,  5},
-    {"_haven_write_dta_",        (DL_FUNC) &_haven_write_dta_,        4},
+    {"_haven_write_dta_",        (DL_FUNC) &_haven_write_dta_,        5},
     {"_haven_write_sas_",        (DL_FUNC) &_haven_write_sas_,        2},
     {"_haven_write_sav_",        (DL_FUNC) &_haven_write_sav_,        3},
     {"_haven_write_xpt_",        (DL_FUNC) &_haven_write_xpt_,        5},
