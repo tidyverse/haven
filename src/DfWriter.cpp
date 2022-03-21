@@ -383,7 +383,7 @@ public:
     // strL is that it can't be used as a join key but this seems unlikely for
     // very long strings.
     readstat_variable_t* var;
-    if (ext_ == HAVEN_DTA && version_ >= 117 && user_width >= strl_threshold_) {
+    if (ext_ == HAVEN_DTA && version_ >= 117 && user_width > strl_threshold_) {
       var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING_REF, user_width);
       for (int i = 0; i < x.size(); ++i) {
         const char* val = string_utf8(x, i);
