@@ -3,6 +3,7 @@
 
 #include "haven_types.h"
 #include "cpp11/declarations.hpp"
+#include <R_ext/Visibility.h>
 
 // DfReader.cpp
 cpp11::list df_parse_sas_file(cpp11::list spec_b7dat, cpp11::list spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
@@ -109,20 +110,6 @@ extern "C" SEXP _haven_write_xpt_(SEXP data, SEXP path, SEXP version, SEXP name,
 
 extern "C" {
 /* .Call calls */
-extern SEXP _haven_df_parse_dta_file(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_dta_raw(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_por_file(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_por_raw(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_sas_file(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_sas_raw(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_sav_file(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_sav_raw(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_xpt_file(SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_xpt_raw(SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_write_dta_(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_write_sas_(SEXP, SEXP);
-extern SEXP _haven_write_sav_(SEXP, SEXP, SEXP);
-extern SEXP _haven_write_xpt_(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP is_tagged_na_(SEXP, SEXP);
 extern SEXP na_tag_(SEXP);
 extern SEXP tagged_na_(SEXP);
@@ -149,7 +136,7 @@ static const R_CallMethodDef CallEntries[] = {
 };
 }
 
-extern "C" void R_init_haven(DllInfo* dll){
+extern "C" attribute_visible void R_init_haven(DllInfo* dll){
   R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
   R_useDynamicSymbols(dll, FALSE);
   R_forceSymbols(dll, TRUE);
