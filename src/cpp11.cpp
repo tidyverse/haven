@@ -3,6 +3,7 @@
 
 #include "haven_types.h"
 #include "cpp11/declarations.hpp"
+#include <R_ext/Visibility.h>
 
 // DfReader.cpp
 cpp11::list df_parse_sas_file(cpp11::list spec_b7dat, cpp11::list spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
@@ -83,10 +84,10 @@ extern "C" SEXP _haven_write_sav_(SEXP data, SEXP path, SEXP compress) {
   END_CPP11
 }
 // DfWriter.cpp
-void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label);
-extern "C" SEXP _haven_write_dta_(SEXP data, SEXP path, SEXP version, SEXP label) {
+void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label, int strl_threshold);
+extern "C" SEXP _haven_write_dta_(SEXP data, SEXP path, SEXP version, SEXP label, SEXP strl_threshold) {
   BEGIN_CPP11
-    write_dta_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<int>>(version), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(label));
+    write_dta_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<int>>(version), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(label), cpp11::as_cpp<cpp11::decay_t<int>>(strl_threshold));
     return R_NilValue;
   END_CPP11
 }
@@ -109,20 +110,6 @@ extern "C" SEXP _haven_write_xpt_(SEXP data, SEXP path, SEXP version, SEXP name,
 
 extern "C" {
 /* .Call calls */
-extern SEXP _haven_df_parse_dta_file(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_dta_raw(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_por_file(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_por_raw(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_sas_file(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_sas_raw(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_sav_file(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_sav_raw(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_xpt_file(SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_df_parse_xpt_raw(SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_write_dta_(SEXP, SEXP, SEXP, SEXP);
-extern SEXP _haven_write_sas_(SEXP, SEXP);
-extern SEXP _haven_write_sav_(SEXP, SEXP, SEXP);
-extern SEXP _haven_write_xpt_(SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP is_tagged_na_(SEXP, SEXP);
 extern SEXP na_tag_(SEXP);
 extern SEXP tagged_na_(SEXP);
@@ -138,7 +125,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_haven_df_parse_sav_raw",  (DL_FUNC) &_haven_df_parse_sav_raw,  7},
     {"_haven_df_parse_xpt_file", (DL_FUNC) &_haven_df_parse_xpt_file, 5},
     {"_haven_df_parse_xpt_raw",  (DL_FUNC) &_haven_df_parse_xpt_raw,  5},
-    {"_haven_write_dta_",        (DL_FUNC) &_haven_write_dta_,        4},
+    {"_haven_write_dta_",        (DL_FUNC) &_haven_write_dta_,        5},
     {"_haven_write_sas_",        (DL_FUNC) &_haven_write_sas_,        2},
     {"_haven_write_sav_",        (DL_FUNC) &_haven_write_sav_,        3},
     {"_haven_write_xpt_",        (DL_FUNC) &_haven_write_xpt_,        5},
@@ -149,7 +136,7 @@ static const R_CallMethodDef CallEntries[] = {
 };
 }
 
-extern "C" void R_init_haven(DllInfo* dll){
+extern "C" attribute_visible void R_init_haven(DllInfo* dll){
   R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
   R_useDynamicSymbols(dll, FALSE);
   R_forceSymbols(dll, TRUE);

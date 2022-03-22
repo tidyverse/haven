@@ -235,3 +235,16 @@ test_that("can't write non-integer labels (#401)", {
     write_dta(df, tempfile())
   })
 })
+
+test_that("can roundtrip long strings (strL)", {
+  long_string <- function(n, m) {
+    do.call("paste0", replicate(m, sample(LETTERS, n, TRUE), simplify = FALSE))
+  }
+
+  x <- long_string(10, 400)
+  expect_equal(roundtrip_var(x, "dta"), x)
+  x <- long_string(10, 1000)
+  expect_equal(roundtrip_var(x, "dta"), x)
+  x <- long_string(10, 3000)
+  expect_equal(roundtrip_var(x, "dta"), x)
+})

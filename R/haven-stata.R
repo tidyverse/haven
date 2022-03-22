@@ -1,8 +1,13 @@
 #' Read and write Stata DTA files
 #'
+#' @description
 #' Currently haven can read and write logical, integer, numeric, character
 #' and factors. See [labelled()] for how labelled variables in
 #' Stata are handled in R.
+#'
+#' Character vectors will be stored as `strL` if any components are
+#' `strl_threshold` bytes or longer (and `version` >= 13); otherwise they will
+#' be stored as the appropriate `str#`.
 #'
 #' @section Character encoding:
 #' Prior to Stata 14, files did not declare a text encoding, and the
@@ -64,13 +69,20 @@ read_stata <- read_dta
 #' @param version File version to use. Supports versions 8-15.
 #' @param label Dataset label to use, or `NULL`. Defaults to the value stored in
 #'   the "label" attribute of `data`. Must be <= 80 characters.
-write_dta <- function(data, path, version = 14, label = attr(data, "label")) {
+#' @param strl_threshold Any character vectors with a maximum length greater
+#'   than `strl_threshold` bytes will be stored as a long string (strL) instead
+#'   of a standard string (str#) variable if `version` >= 13. This defaults to
+#'   2045, the maximum length of str# variables. See the Stata [long
+#'   string](https://www.stata.com/features/overview/long-strings/)
+#'   documentation for more details.
+write_dta <- function(data, path, version = 14, label = attr(data, "label"), strl_threshold = 2045) {
   data <- validate_dta(data, version = version)
   validate_dta_label(label)
   write_dta_(data,
     normalizePath(path, mustWork = FALSE),
     version = stata_file_format(version),
-    label = label
+    label = label,
+    strl_threshold = validate_strl_threshold(strl_threshold)
   )
   invisible(data)
 }
@@ -93,6 +105,16 @@ stata_file_format <- function(version) {
     113
   } else {
     stop("Version ", version, " not currently supported", call. = FALSE)
+  }
+}
+
+validate_strl_threshold <- function(strl_threshold) {
+  stopifnot(is.numeric(strl_threshold), length(strl_threshold) == 1)
+
+  if (strl_threshold < 0 || strl_threshold > 2045) {
+    2045
+  } else {
+    strl_threshold
   }
 }
 

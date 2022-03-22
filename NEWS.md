@@ -2,6 +2,11 @@
 
 * Updated to ReadStat 1.1.8 RC (#650).
 
+* `write_dta()` now uses strL when strings are too long to be stored in an str#
+  variable (#437). strL is used when strings are longer than 2045 characters by
+  default, which matches Stata's behaviour, but this can be reduced with the
+  `strl_threshold` argument.
+
 * All `write_` functions can now write custom variable widths by setting the
   `width` attribute (#650).
 
