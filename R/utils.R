@@ -19,7 +19,7 @@ combine_labels <- function(x_labels, y_labels, x_arg, y_arg) {
     problems <- x_common[names(x_common) != names(y_common)]
     if (length(problems) > 0) {
       problems_msg <- paste(problems[1:min(length(problems), 10)], collapse = ", ")
-      if (length(problems_msg) > 10)
+      if (length(problems) > 10)
         problems_msg <- paste0(problems_msg, ", ...")
 
       warn(c(

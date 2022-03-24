@@ -61,3 +61,9 @@
     i Labels for these values will be taken from `..1`.
     x Values: 1, 2
 
+---
+
+    `..1` and `..2` have conflicting value labels.
+    i Labels for these values will be taken from `..1`.
+    x Values: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ...
+
