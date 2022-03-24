@@ -145,21 +145,33 @@ test_that("can combine names", {
 })
 
 test_that("take labels from LHS", {
-  expect_equal(
-    vec_c(
-      labelled(1, labels = c(Good = 1, Bad = 5)),
-      labelled(5, labels = c(Bad = 1, Good = 5)),
-    ),
-    labelled(c(1, 5), labels = c(Good = 1, Bad = 5))
-  )
+  expect_snapshot_warning({
+    expect_equal(
+      vec_c(
+        labelled(1, labels = c(Good = 1, Bad = 5)),
+        labelled(5, labels = c(Bad = 1, Good = 5)),
+      ),
+      labelled(c(1, 5), labels = c(Good = 1, Bad = 5))
+    )
+  })
 
-  expect_equal(
-    vec_c(
-      labelled(1, labels = c(Good = 1)),
-      labelled(5, labels = c(Bad = 1)),
-    ),
-    labelled(c(1, 5), labels = c(Good = 1))
-  )
+  expect_snapshot_warning({
+    expect_equal(
+      vec_c(
+        labelled(1, labels = c(Good = 1)),
+        labelled(5, labels = c(Bad = 1)),
+      ),
+      labelled(c(1, 5), labels = c(Good = 1))
+    )
+  })
+})
+
+test_that("warn only for conflicting labels", {
+  expect_snapshot_warning({
+    x <- labelled(1:2, c(Yes = 1, No = 2))
+    y <- labelled(1:2, c(Female = 1, Male = 2, Other = 3))
+    c(x, y)
+  })
 })
 
 test_that("combining picks label from the left", {
