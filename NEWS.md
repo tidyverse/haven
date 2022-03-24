@@ -2,6 +2,9 @@
 
 * Updated to ReadStat 1.1.8 RC (#650).
 
+* `labelled()` vectors now throw a warning when combining two vectors with
+  conflicting labels (#667).
+
 * `write_dta()` now uses strL when strings are too long to be stored in an str#
   variable (#437). strL is used when strings are longer than 2045 characters by
   default, which matches Stata's behaviour, but this can be reduced with the
