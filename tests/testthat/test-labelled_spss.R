@@ -181,8 +181,8 @@ test_that("take labels from LHS", {
 
 test_that("warn only for conflicting labels", {
   expect_snapshot_warning({
-    x <- labelled(1:2, c(Yes = 1, No = 2))
-    y <- labelled(1:2, c(Female = 1, Male = 2, Other = 3))
+    x <- labelled_spss(1:2, c(Yes = 1, No = 2))
+    y <- labelled_spss(1:2, c(Female = 1, Male = 2, Other = 3))
     c(x, y)
   })
 })
