@@ -106,7 +106,7 @@ levels.haven_labelled <- function(x) {
 #' @export
 median.haven_labelled <- function(x, na.rm = TRUE, ...) {
   if (is.character(x)) {
-    abort("Can't compute median of labelled<character>")
+    abort("Can't compute median of `labelled<character>`.")
   }
   median(vec_data(x), na.rm = TRUE, ...)
 }
@@ -115,7 +115,7 @@ median.haven_labelled <- function(x, na.rm = TRUE, ...) {
 #' @export
 quantile.haven_labelled <- function(x, ...) {
   if (is.character(x)) {
-    abort("Can't compute quantile of labelled<character>")
+    abort("Can't compute quantile of `labelled<character>`.")
   }
   quantile(vec_data(x), ...)
 }
@@ -185,7 +185,7 @@ obj_print_footer.haven_labelled <- function(x, ...) {
 #' }
 print_labels <- function(x, name = NULL) {
   if (!is.labelled(x)) {
-    stop("x must be a labelled vector", call. = FALSE)
+    abort("`x` must be a labelled vector.")
   }
   labels <- attr(x, "labels")
   if (length(labels) == 0) {
