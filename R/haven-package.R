@@ -5,7 +5,8 @@
 ## usethis namespace: start
 #' @import rlang
 #' @import vctrs
-#' @importFrom tibble tibble
 #' @importFrom hms hms
+#' @importFrom lifecycle deprecated
+#' @importFrom tibble tibble
 ## usethis namespace: end
 NULL

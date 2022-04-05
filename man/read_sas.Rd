@@ -13,7 +13,7 @@ read_sas(
   col_select = NULL,
   skip = 0L,
   n_max = Inf,
-  cols_only = "DEPRECATED",
+  cols_only = deprecated(),
   .name_repair = "unique"
 )
 
@@ -37,7 +37,8 @@ specified columns will be read from \code{data_file}.}
 
 \item{n_max}{Maximum number of lines to read.}
 
-\item{cols_only}{\strong{Deprecated}: Use \code{col_select} instead.}
+\item{cols_only}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{cols_only} is no longer
+supported; use \code{col_select} instead.}
 
 \item{.name_repair}{Treatment of problematic column names:
 \itemize{

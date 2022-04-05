@@ -19,6 +19,7 @@ Depends:
 Imports: 
     forcats (>= 0.2.0),
     hms,
+    lifecycle,
     methods,
     readr (>= 0.1.0),
     rlang (>= 0.4.0),

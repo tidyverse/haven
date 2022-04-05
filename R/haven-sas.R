@@ -19,7 +19,8 @@
 #'   specified columns will be read from `data_file`.
 #' @param skip Number of lines to skip before reading data.
 #' @param n_max Maximum number of lines to read.
-#' @param cols_only **Deprecated**: Use `col_select` instead.
+#' @param cols_only `r lifecycle::badge("deprecated")` `cols_only` is no longer
+#'   supported; use `col_select` instead.
 #' @return A tibble, data frame variant with nice defaults.
 #'
 #'   Variable labels are stored in the "label" attribute of each variable. It is
@@ -32,10 +33,10 @@
 #' read_sas(path)
 read_sas <- function(data_file, catalog_file = NULL,
                      encoding = NULL, catalog_encoding = encoding,
-                     col_select = NULL, skip = 0L, n_max = Inf, cols_only = "DEPRECATED",
+                     col_select = NULL, skip = 0L, n_max = Inf, cols_only = deprecated(),
                      .name_repair = "unique") {
-  if (!missing(cols_only)) {
-    warning("`cols_only` is deprecated. Please use `col_select` instead.", call. = FALSE)
+  if (lifecycle::is_present(cols_only)) {
+    lifecycle::deprecate_warn("2.2.0", "read_sas(cols_only)", "read_sas(col_select)")
     stopifnot(is.character(cols_only)) # used to only work with a char vector
 
     # guarantee a quosure to keep NULL and tidyselect logic clean downstream
