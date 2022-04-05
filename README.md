@@ -7,9 +7,9 @@
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/haven)](https://cran.r-project.org/package=haven)
-[![R-CMD-check](https://github.com/tidyverse/haven/workflows/R-CMD-check/badge.svg)](https://github.com/tidyverse/haven/actions)
+[![R-CMD-check](https://github.com/tidyverse/haven/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidyverse/haven/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
-coverage](https://codecov.io/gh/tidyverse/haven/branch/master/graph/badge.svg)](https://codecov.io/gh/tidyverse/haven?branch=master)
+coverage](https://codecov.io/gh/tidyverse/haven/branch/main/graph/badge.svg)](https://app.codecov.io/gh/tidyverse/haven?branch=main)
 <!-- badges: end -->
 
 ## Overview
