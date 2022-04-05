@@ -8,6 +8,31 @@ vec_cast_named <- function(x, to, ...) {
   stats::setNames(vec_cast(x, to, ...), names(x))
 }
 
+combine_labels <- function(x_labels, y_labels, x_arg, y_arg) {
+  x_common <- x_labels[x_labels %in% y_labels]
+  y_common <- y_labels[y_labels %in% x_labels]
+
+  if (length(x_common) > 0) {
+    x_common <- x_common[order(x_common)]
+    y_common <- y_common[order(y_common)]
+
+    problems <- x_common[names(x_common) != names(y_common)]
+    if (length(problems) > 0) {
+      problems_msg <- paste(problems[1:min(length(problems), 10)], collapse = ", ")
+      if (length(problems) > 10)
+        problems_msg <- paste0(problems_msg, ", ...")
+
+      warn(c(
+        paste0("`", x_arg, "` and `", y_arg, "` have conflicting value labels."),
+        i = paste0("Labels for these values will be taken from `", x_arg, "`."),
+        x = paste("Values:", problems_msg)
+      ))
+    }
+  }
+
+  c(x_labels, y_labels[!y_labels %in% x_labels])
+}
+
 # TODO: remove when minimum R version >= 3.5
 if (getRversion() < 3.5) {
   isFALSE <- function(x) is.logical(x) && length(x) == 1L && !is.na(x) && !x
