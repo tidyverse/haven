@@ -38,8 +38,12 @@ three distinct values, or for numeric vectors a range.
 x1 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_values = c(9, 10))
 is.na(x1)
 
-x2 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf),
-                    label = "Quality rating")
+x2 <- labelled_spss(
+  1:10,
+  c(Good = 1, Bad = 8),
+  na_range = c(9, Inf),
+  label = "Quality rating"
+)
 is.na(x2)
 
 # Print data and metadata

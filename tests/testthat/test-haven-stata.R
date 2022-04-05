@@ -120,10 +120,10 @@ test_that("can roundtrip date times", {
 })
 
 test_that("can roundtrip tagged NAs", {
-  x <- c(1, 2, tagged_na('a', 'b'), NA)
+  x <- c(1, 2, tagged_na("a", "b"), NA)
   expect_equal(roundtrip_var(x, "dta"), x)
 
-  tags <- tagged_na('a', 'b')
+  tags <- tagged_na("a", "b")
   y <- labelled(
     c(1, 2, 1, tags[1], tags[2]),
     c("ABC" = tags[1], "DEF" = tags[2])
@@ -215,7 +215,7 @@ test_that("can roundtrip file labels", {
 })
 
 test_that("invalid files generate informative errors", {
-  expect_snapshot(error = TRUE,{
+  expect_snapshot(error = TRUE, {
     long <- paste(rep("a", 100), collapse = "")
     write_dta(data.frame(x = 1), tempfile(), label = long)
 

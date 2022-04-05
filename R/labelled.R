@@ -17,8 +17,11 @@
 #' @examples
 #' s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
 #' s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
-#' s3 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2),
-#'                label="Assigned sex at birth")
+#' s3 <- labelled(
+#'   c(1, 1, 2),
+#'   c(Male = 1, Female = 2),
+#'   label = "Assigned sex at birth"
+#' )
 #'
 #' # Unfortunately it's not possible to make as.factor work for labelled objects
 #' # so instead use as_factor. This works for all types of labelled vectors.
@@ -27,7 +30,8 @@
 #' as_factor(s2)
 #'
 #' # Other statistical software supports multiple types of missing values
-#' s3 <- labelled(c("M", "M", "F", "X", "N/A"),
+#' s3 <- labelled(
+#'   c("M", "M", "F", "X", "N/A"),
 #'   c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A")
 #' )
 #' s3
@@ -142,9 +146,9 @@ obj_print_header.haven_labelled <- function(x, ...) {
 # Convenience function for getting the label with
 # with a prefix (if label is not empty), used for
 # printing 'label' and 'labelled_spss' vectors
-get_labeltext <- function(x, prefix=": ") {
-  label = attr(x, "label", exact = TRUE)
-  if(!is.null(label)) {
+get_labeltext <- function(x, prefix = ": ") {
+  label <- attr(x, "label", exact = TRUE)
+  if (!is.null(label)) {
     paste0(prefix, label)
   }
 }
@@ -231,8 +235,9 @@ vec_ptype2.haven_labelled.character <- vec_ptype2.haven_labelled.double
 #' @export
 vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "", y_arg = "") {
   # Use x as the prototype if the input vectors have matching metadata
-  if (identical(attributes(x), attributes(y)))
+  if (identical(attributes(x), attributes(y))) {
     return(x)
+  }
 
   data_type <- vec_ptype2(vec_data(x), vec_data(y), ..., x_arg = x_arg, y_arg = y_arg)
 
@@ -264,8 +269,9 @@ vec_cast.character.haven_labelled <- function(x, to, ...) {
 #' @export
 vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_arg = "") {
   # Don't perform any processing if the input vectors have matching metadata
-  if (identical(attributes(x), attributes(to)))
+  if (identical(attributes(x), attributes(to))) {
     return(x)
+  }
 
   out_data <- vec_cast(vec_data(x), vec_data(to), ..., x_arg = x_arg, to_arg = to_arg)
 
@@ -350,5 +356,3 @@ vec_arith.numeric.haven_labelled <- function(op, x, y, ...) {
 vec_math.haven_labelled <- function(.fn, .x, ...) {
   vec_math_base(.fn, .x, ...)
 }
-
-

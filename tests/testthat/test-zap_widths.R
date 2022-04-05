@@ -12,4 +12,3 @@ test_that("can zap width attribute from vector in data frame", {
 
   expect_null(attributes(out$x))
 })
-

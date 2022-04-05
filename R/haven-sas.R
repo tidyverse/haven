@@ -33,8 +33,7 @@
 read_sas <- function(data_file, catalog_file = NULL,
                      encoding = NULL, catalog_encoding = encoding,
                      col_select = NULL, skip = 0L, n_max = Inf, cols_only = "DEPRECATED",
-                     .name_repair = "unique"
-  ) {
+                     .name_repair = "unique") {
   if (!missing(cols_only)) {
     warning("`cols_only` is deprecated. Please use `col_select` instead.", call. = FALSE)
     stopifnot(is.character(cols_only)) # used to only work with a char vector
@@ -96,8 +95,7 @@ write_sas <- function(data, path) {
 #' tmp <- tempfile(fileext = ".xpt")
 #' write_xpt(mtcars, tmp)
 #' read_xpt(tmp)
-read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique"
-) {
+read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
   cols_skip <- skip_cols(read_xpt, {{ col_select }}, file)
   n_max <- validate_n_max(n_max)
 
@@ -153,7 +151,6 @@ validate_xpt_name <- function(name, version) {
     if (nchar(name) > 8) {
       stop("`name` must be 8 characters or fewer", call. = FALSE)
     }
-
   } else {
     if (nchar(name) > 32) {
       stop("`name` must be 32 characters or fewer", call. = FALSE)
@@ -171,4 +168,3 @@ validate_xpt_label <- function(label) {
     }
   }
 }
-

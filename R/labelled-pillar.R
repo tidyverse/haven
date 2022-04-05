@@ -1,10 +1,8 @@
 
 # Dynamically exported, see zzz.R
-pillar_shaft.haven_labelled <- function(
-  x,
-  show_labels = getOption("haven.show_pillar_labels", TRUE),
-  ...
-) {
+pillar_shaft.haven_labelled <- function(x,
+                                        show_labels = getOption("haven.show_pillar_labels", TRUE),
+                                        ...) {
   if (!isTRUE(show_labels) | !pillar_print_pkgs_available()) {
     return(pillar::pillar_shaft(unclass(x)))
   }
@@ -138,7 +136,7 @@ format.pillar_shaft_haven_labelled_num <- function(x, width, ...) {
   vfull <- x$val$disp_full
   lbl_wid <- pmax(0, x$lbl$wid_short - vfull$rhs_ws)
 
-  if (width >= max(vfull$lhs_ws +vfull$main_wid + lbl_wid)) {
+  if (width >= max(vfull$lhs_ws + vfull$main_wid + lbl_wid)) {
     lbl_width <- width - (vfull$lhs_ws + vfull$main_wid)
     lbl <- str_trunc(x$lbl$disp_full, lbl_width, subtle = TRUE)
     out <- paste_with_align(vfull$main_txt, lbl, vfull$lhs_ws, vfull$rhs_ws)

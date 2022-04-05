@@ -22,12 +22,16 @@ test_that("labels must have names", {
 })
 
 test_that("label must be length 1 character or missing", {
-  expect_error(labelled(1, c(female=1)), NA)
-    expect_error(labelled(1, c(female=1), label = "foo"), NA)
-  expect_error(labelled(1, c(female=1), label = 1),
-               "character vector of length one")
-  expect_error(labelled(1, c(female=1), label = c("foo", "bar")),
-               "character vector of length one")
+  expect_error(labelled(1, c(female = 1)), NA)
+  expect_error(labelled(1, c(female = 1), label = "foo"), NA)
+  expect_error(
+    labelled(1, c(female = 1), label = 1),
+    "character vector of length one"
+  )
+  expect_error(
+    labelled(1, c(female = 1), label = c("foo", "bar")),
+    "character vector of length one"
+  )
 })
 
 test_that("labels must be unique", {

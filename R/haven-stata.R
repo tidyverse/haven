@@ -177,7 +177,9 @@ has_non_integer_labels <- function(x) {
 }
 # Adapted from rlang
 is_integerish <- function(x) {
-  if (!typeof(x) %in% c("double", "integer")) return(FALSE)
+  if (!typeof(x) %in% c("double", "integer")) {
+    return(FALSE)
+  }
 
   missing_elts <- is.na(x)
   finite_elts <- is.finite(x) | missing_elts

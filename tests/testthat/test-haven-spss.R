@@ -261,8 +261,8 @@ test_that("spss integer labelleds are round tripped", {
 
 
 test_that("na_range roundtrips successfully with mismatched type", {
-  x_vec = 1:10
-  x_na = c(1, 10)
+  x_vec <- 1:10
+  x_na <- c(1, 10)
   df <- tibble(
     x_int_int   = labelled_spss(as.integer(x_vec), na_range = as.integer(x_na)),
     x_int_real  = labelled_spss(as.integer(x_vec), na_range = as.numeric(x_na)),
@@ -345,19 +345,26 @@ test_that("complain about invalid variable names", {
     names(df) <- c("ALL", "eq", "b")
     write_sav(df, tempfile())
 
-    names(df) <- c(paste(rep("a", 65), collapse = ""),
-                   paste(rep("b", 65), collapse = ""),
-                   "c")
+    names(df) <- c(
+      paste(rep("a", 65), collapse = ""),
+      paste(rep("b", 65), collapse = ""),
+      "c"
+    )
     write_sav(df, tempfile())
   })
 
   # Windows fails if this is a snapshot because of issues with unicode support
-  expect_error({
-    df <- data.frame(a = 1, A = 1)
-    names(df) <- c(paste(rep("\U044D", 33), collapse = ""),
-                   paste(rep("\U767E", 22), collapse = ""))
-    write_sav(df, tempfile())
-  }, regexp = "Variables in `data` must have valid SPSS variable names")
+  expect_error(
+    {
+      df <- data.frame(a = 1, A = 1)
+      names(df) <- c(
+        paste(rep("\U044D", 33), collapse = ""),
+        paste(rep("\U767E", 22), collapse = "")
+      )
+      write_sav(df, tempfile())
+    },
+    regexp = "Variables in `data` must have valid SPSS variable names"
+  )
 })
 
 # max_level_lengths -------------------------------------------------------
