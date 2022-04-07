@@ -100,7 +100,7 @@ test_that("throws informative error on bad row limit", {
   }
 
   expect_error(rows_with_limit(1:5), "must have length 1")
-  expect_error(rows_with_limit("foo"), "must be numeric")
+  expect_error(rows_with_limit("foo"), "must be <numeric>")
 })
 
 # Column selection --------------------------------------------------------

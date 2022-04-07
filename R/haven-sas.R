@@ -19,7 +19,8 @@
 #'   specified columns will be read from `data_file`.
 #' @param skip Number of lines to skip before reading data.
 #' @param n_max Maximum number of lines to read.
-#' @param cols_only **Deprecated**: Use `col_select` instead.
+#' @param cols_only `r lifecycle::badge("deprecated")` `cols_only` is no longer
+#'   supported; use `col_select` instead.
 #' @return A tibble, data frame variant with nice defaults.
 #'
 #'   Variable labels are stored in the "label" attribute of each variable. It is
@@ -32,11 +33,10 @@
 #' read_sas(path)
 read_sas <- function(data_file, catalog_file = NULL,
                      encoding = NULL, catalog_encoding = encoding,
-                     col_select = NULL, skip = 0L, n_max = Inf, cols_only = "DEPRECATED",
-                     .name_repair = "unique"
-  ) {
-  if (!missing(cols_only)) {
-    warning("`cols_only` is deprecated. Please use `col_select` instead.", call. = FALSE)
+                     col_select = NULL, skip = 0L, n_max = Inf, cols_only = deprecated(),
+                     .name_repair = "unique") {
+  if (lifecycle::is_present(cols_only)) {
+    lifecycle::deprecate_warn("2.2.0", "read_sas(cols_only)", "read_sas(col_select)")
     stopifnot(is.character(cols_only)) # used to only work with a char vector
 
     # guarantee a quosure to keep NULL and tidyselect logic clean downstream
@@ -62,7 +62,7 @@ read_sas <- function(data_file, catalog_file = NULL,
   switch(class(spec_data)[1],
     source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max, rows_skip = skip, name_repair = .name_repair),
     source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max, rows_skip = skip, name_repair = .name_repair),
-    stop("This kind of input is not handled", call. = FALSE)
+    cli_abort("This kind of input is not handled.")
   )
 }
 
@@ -96,8 +96,7 @@ write_sas <- function(data, path) {
 #' tmp <- tempfile(fileext = ".xpt")
 #' write_xpt(mtcars, tmp)
 #' read_xpt(tmp)
-read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique"
-) {
+read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
   cols_skip <- skip_cols(read_xpt, {{ col_select }}, file)
   n_max <- validate_n_max(n_max)
 
@@ -105,7 +104,7 @@ read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repai
   switch(class(spec)[1],
     source_file = df_parse_xpt_file(spec, cols_skip, n_max, skip, name_repair = .name_repair),
     source_raw = df_parse_xpt_raw(spec, cols_skip, n_max, skip, name_repair = .name_repair),
-    stop("This kind of input is not handled", call. = FALSE)
+    cli_abort("This kind of input is not handled.")
   )
 }
 
@@ -121,12 +120,15 @@ read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repai
 #'   Note that although SAS itself supports dataset labels up to 256 characters
 #'   long, dataset labels in SAS transport files must be <= 40 characters.
 write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "label")) {
-  stopifnot(version %in% c(5, 8))
+  if (!version %in% c(5, 8)) {
+    cli_abort("SAS transport file version {.val {version}} is not currently supported.")
+  }
 
   if (is.null(name)) {
     name <- tools::file_path_sans_ext(basename(path))
   }
   name <- validate_xpt_name(name, version)
+  label <- validate_xpt_label(label)
 
   data <- validate_sas(data)
   write_xpt_(
@@ -148,27 +150,26 @@ validate_sas <- function(data) {
   adjust_tz(data)
 }
 
-validate_xpt_name <- function(name, version) {
+validate_xpt_name <- function(name, version, call = caller_env()) {
   if (version == 5) {
     if (nchar(name) > 8) {
-      stop("`name` must be 8 characters or fewer", call. = FALSE)
+      cli_abort("{.arg name} must be 8 characters or fewer.", call = call)
     }
-
   } else {
     if (nchar(name) > 32) {
-      stop("`name` must be 32 characters or fewer", call. = FALSE)
+      cli_abort("{.arg name} must be 32 characters or fewer.", call = call)
     }
   }
   name
 }
 
-validate_xpt_label <- function(label) {
+validate_xpt_label <- function(label, call = caller_env()) {
   if (!is.null(label)) {
     stopifnot(is.character(label), length(label) == 1)
 
     if (nchar(label) > 40) {
-      stop("`label` must be 40 characters or fewer", call. = FALSE)
+      cli_abort("{.arg label} must be 40 characters or fewer.", call = call)
     }
   }
+  label
 }
-

@@ -15,10 +15,12 @@ URL: https://haven.tidyverse.org, https://github.com/tidyverse/haven,
     https://github.com/WizardMac/ReadStat
 BugReports: https://github.com/tidyverse/haven/issues
 Depends: 
-    R (>= 3.2)
+    R (>= 3.4)
 Imports: 
+    cli (>= 3.0.0),
     forcats (>= 0.2.0),
     hms,
+    lifecycle,
     methods,
     readr (>= 0.1.0),
     rlang (>= 0.4.0),
@@ -26,7 +28,6 @@ Imports:
     tidyselect,
     vctrs (>= 0.3.0)
 Suggests: 
-    cli,
     covr,
     crayon,
     fs,

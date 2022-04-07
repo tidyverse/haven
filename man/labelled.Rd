@@ -30,8 +30,11 @@ soon after importing.
 \examples{
 s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
 s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
-s3 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2),
-               label="Assigned sex at birth")
+s3 <- labelled(
+  c(1, 1, 2),
+  c(Male = 1, Female = 2),
+  label = "Assigned sex at birth"
+)
 
 # Unfortunately it's not possible to make as.factor work for labelled objects
 # so instead use as_factor. This works for all types of labelled vectors.
@@ -40,7 +43,8 @@ as_factor(s1, levels = "values")
 as_factor(s2)
 
 # Other statistical software supports multiple types of missing values
-s3 <- labelled(c("M", "M", "F", "X", "N/A"),
+s3 <- labelled(
+  c("M", "M", "F", "X", "N/A"),
   c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A")
 )
 s3

@@ -10,12 +10,12 @@ test_that("zap_label returns variables not of class('labelled') unmodified", {
 })
 
 test_that("zap_label is correctly applied to every column in data frame", {
-  y1_label <- labelled(10:1, c("good" = 1), label="foo")
+  y1_label <- labelled(10:1, c("good" = 1), label = "foo")
   y1_nolabel <- labelled(10:1, c("good" = 1))
-  y2_label <- labelled(1:10, c("bad" = 2), label="bar")
+  y2_label <- labelled(1:10, c("bad" = 2), label = "bar")
   y2_nolabel <- labelled(1:10, c("bad" = 2))
 
-  df <- tibble::tibble(x = 1:10, y1=y1_label, y2=y2_label)
+  df <- tibble::tibble(x = 1:10, y1 = y1_label, y2 = y2_label)
   df_zapped <- zap_label(df)
 
   expect_equal(ncol(df_zapped), ncol(df))

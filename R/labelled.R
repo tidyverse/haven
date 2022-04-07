@@ -17,8 +17,11 @@
 #' @examples
 #' s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
 #' s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
-#' s3 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2),
-#'                label="Assigned sex at birth")
+#' s3 <- labelled(
+#'   c(1, 1, 2),
+#'   c(Male = 1, Female = 2),
+#'   label = "Assigned sex at birth"
+#' )
 #'
 #' # Unfortunately it's not possible to make as.factor work for labelled objects
 #' # so instead use as_factor. This works for all types of labelled vectors.
@@ -27,7 +30,8 @@
 #' as_factor(s2)
 #'
 #' # Other statistical software supports multiple types of missing values
-#' s3 <- labelled(c("M", "M", "F", "X", "N/A"),
+#' s3 <- labelled(
+#'   c("M", "M", "F", "X", "N/A"),
 #'   c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A")
 #' )
 #' s3
@@ -47,13 +51,13 @@ labelled <- function(x = double(), labels = NULL, label = NULL) {
 new_labelled <- function(x = double(), labels = NULL, label = NULL,
                          ..., class = character()) {
   if (!is.numeric(x) && !is.character(x)) {
-    abort("`x` must be a numeric or a character vector.")
+    cli_abort("{.arg x} must be a numeric or a character vector.")
   }
   if (!is.null(labels) && !vec_is(labels, x)) {
-    abort("`labels` must be same type as `x`.")
+    cli_abort("{.arg labels} must be the same type as {.arg x}.")
   }
   if (!is.null(label) && (!is.character(label) || length(label) != 1)) {
-    abort("`label` must be a character vector of length one.")
+    cli_abort("{.arg label} must be a character vector of length one.")
   }
 
   new_vctr(x,
@@ -72,10 +76,10 @@ validate_labelled <- function(x) {
   }
 
   if (is.null(names(labels))) {
-    abort("`labels` must have names.")
+    cli_abort("{.arg labels} must have names.")
   }
   if (any(duplicated(stats::na.omit(labels)))) {
-    abort("`labels` must be unique.")
+    cli_abort("{.arg labels} must be unique.")
   }
 
   x
@@ -102,7 +106,7 @@ levels.haven_labelled <- function(x) {
 #' @export
 median.haven_labelled <- function(x, na.rm = TRUE, ...) {
   if (is.character(x)) {
-    abort("Can't compute median of labelled<character>")
+    cli_abort("Can't compute median of {.cls labelled<character>}.")
   }
   median(vec_data(x), na.rm = TRUE, ...)
 }
@@ -111,7 +115,7 @@ median.haven_labelled <- function(x, na.rm = TRUE, ...) {
 #' @export
 quantile.haven_labelled <- function(x, ...) {
   if (is.character(x)) {
-    abort("Can't compute quantile of labelled<character>")
+    cli_abort("Can't compute quantile of {.cls labelled<character>}.")
   }
   quantile(vec_data(x), ...)
 }
@@ -142,9 +146,9 @@ obj_print_header.haven_labelled <- function(x, ...) {
 # Convenience function for getting the label with
 # with a prefix (if label is not empty), used for
 # printing 'label' and 'labelled_spss' vectors
-get_labeltext <- function(x, prefix=": ") {
-  label = attr(x, "label", exact = TRUE)
-  if(!is.null(label)) {
+get_labeltext <- function(x, prefix = ": ") {
+  label <- attr(x, "label", exact = TRUE)
+  if (!is.null(label)) {
     paste0(prefix, label)
   }
 }
@@ -181,7 +185,7 @@ obj_print_footer.haven_labelled <- function(x, ...) {
 #' }
 print_labels <- function(x, name = NULL) {
   if (!is.labelled(x)) {
-    stop("x must be a labelled vector", call. = FALSE)
+    cli_abort("{.arg x} must be a labelled vector.")
   }
   labels <- attr(x, "labels")
   if (length(labels) == 0) {
@@ -231,8 +235,9 @@ vec_ptype2.haven_labelled.character <- vec_ptype2.haven_labelled.double
 #' @export
 vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "", y_arg = "") {
   # Use x as the prototype if the input vectors have matching metadata
-  if (identical(attributes(x), attributes(y)))
+  if (identical(attributes(x), attributes(y))) {
     return(x)
+  }
 
   data_type <- vec_ptype2(vec_data(x), vec_data(y), ..., x_arg = x_arg, y_arg = y_arg)
 
@@ -264,8 +269,9 @@ vec_cast.character.haven_labelled <- function(x, to, ...) {
 #' @export
 vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_arg = "") {
   # Don't perform any processing if the input vectors have matching metadata
-  if (identical(attributes(x), attributes(to)))
+  if (identical(attributes(x), attributes(to))) {
     return(x)
+  }
 
   out_data <- vec_cast(vec_data(x), vec_data(to), ..., x_arg = x_arg, to_arg = to_arg)
 
@@ -350,5 +356,3 @@ vec_arith.numeric.haven_labelled <- function(op, x, y, ...) {
 vec_math.haven_labelled <- function(.fn, .x, ...) {
   vec_math_base(.fn, .x, ...)
 }
-
-

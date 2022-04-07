@@ -22,12 +22,16 @@ test_that("labels must have names", {
 })
 
 test_that("label must be length 1 character or missing", {
-  expect_error(labelled(1, c(female=1)), NA)
-    expect_error(labelled(1, c(female=1), label = "foo"), NA)
-  expect_error(labelled(1, c(female=1), label = 1),
-               "character vector of length one")
-  expect_error(labelled(1, c(female=1), label = c("foo", "bar")),
-               "character vector of length one")
+  expect_error(labelled(1, c(female = 1)), NA)
+  expect_error(labelled(1, c(female = 1), label = "foo"), NA)
+  expect_error(
+    labelled(1, c(female = 1), label = 1),
+    "character vector of length one"
+  )
+  expect_error(
+    labelled(1, c(female = 1), label = c("foo", "bar")),
+    "character vector of length one"
+  )
 })
 
 test_that("labels must be unique", {
@@ -174,8 +178,8 @@ test_that("warn only for conflicting labels", {
   })
 
   expect_snapshot_warning({
-    x <- labelled(1:2, c(a=1,b=2,c=3,d=4,e=5,f=6,g=7,h=8,i=9,j=10,k=11))
-    y <- labelled(1:2, c(A=1,B=2,C=3,D=4,E=5,F=6,G=7,H=8,I=9,J=10,K=11))
+    x <- labelled(1:2, c(a = 1, b = 2, c = 3, d = 4, e = 5, f = 6, g = 7, h = 8, i = 9, j = 10, k = 11))
+    y <- labelled(1:2, c(A = 1, B = 2, C = 3, D = 4, E = 5, F = 6, G = 7, H = 8, I = 9, J = 10, K = 11))
     c(x, y)
   })
 })

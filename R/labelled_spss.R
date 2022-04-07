@@ -15,15 +15,18 @@
 #' x1 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_values = c(9, 10))
 #' is.na(x1)
 #'
-#' x2 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_range = c(9, Inf),
-#'                     label = "Quality rating")
+#' x2 <- labelled_spss(
+#'   1:10,
+#'   c(Good = 1, Bad = 8),
+#'   na_range = c(9, Inf),
+#'   label = "Quality rating"
+#' )
 #' is.na(x2)
 #'
 #' # Print data and metadata
 #' x2
 labelled_spss <- function(x = double(), labels = NULL, na_values = NULL,
                           na_range = NULL, label = NULL) {
-
   x <- vec_data(x)
   na_values <- vec_cast_named(na_values, x, x_arg = "na_values", to_arg = "x")
   labelled <- labelled(x, labels = labels, label = label)
@@ -39,20 +42,20 @@ labelled_spss <- function(x = double(), labels = NULL, na_values = NULL,
 
 new_labelled_spss <- function(x, labels, na_values, na_range, label) {
   if (!is.null(na_values) && any(is.na(na_values))) {
-    abort("`na_values` can not contain missing values.")
+    cli_abort("{.arg na_values} can not contain missing values.")
   }
 
   if (!is.null(na_range)) {
     type_ok <- (is.character(x) && is.character(na_range)) ||
       (is.numeric(x) && is.numeric(na_range))
     if (!type_ok || length(na_range) != 2) {
-      abort("`na_range` must be a vector of length two the same type as `x`.")
+      cli_abort("{.arg na_range} must be a vector of length two the same type as {.arg x}.")
     }
     if (any(is.na(na_range))) {
-      abort("`na_range` can not contain missing values.")
+      cli_abort("{.arg na_range} can not contain missing values.")
     }
     if (na_range[1] >= na_range[2]) {
-      abort("`na_range` must be in ascending order.")
+      cli_abort("{.arg na_range} must be in ascending order.")
     }
   }
 
@@ -135,8 +138,9 @@ vec_ptype2.haven_labelled_spss.character <- vec_ptype2.haven_labelled_spss.doubl
 #' @export
 vec_ptype2.haven_labelled_spss.haven_labelled_spss <- function(x, y, ..., x_arg = "", y_arg = "") {
   # Use x as the prototype if the input vectors have matching metadata
-  if (identical(attributes(x), attributes(y)))
+  if (identical(attributes(x), attributes(y))) {
     return(x)
+  }
 
   data_type <- vec_ptype2(vec_data(x), vec_data(y), ..., x_arg = x_arg, y_arg = y_arg)
 
@@ -154,7 +158,7 @@ vec_ptype2.haven_labelled_spss.haven_labelled_spss <- function(x, y, ..., x_arg 
   # Ignore user defined missings and return a standard haven_labelled if
   # there are mismatches between the missing attributes
   if (!identical(x_na_values, y_na_values) ||
-      !identical(attr(x, "na_range"), attr(y, "na_range"))) {
+    !identical(attr(x, "na_range"), attr(y, "na_range"))) {
     new_labelled(data_type, labels = labels, label = label)
   } else {
     new_labelled_spss(
@@ -162,7 +166,8 @@ vec_ptype2.haven_labelled_spss.haven_labelled_spss <- function(x, y, ..., x_arg 
       labels = labels,
       na_values = x_na_values,
       na_range = attr(x, "na_range"),
-      label = label)
+      label = label
+    )
   }
 }
 
@@ -188,8 +193,9 @@ vec_cast.character.haven_labelled_spss <- function(x, to, ...) {
 #' @export
 vec_cast.haven_labelled_spss.haven_labelled_spss <- function(x, to, ..., x_arg = "", to_arg = "") {
   # Don't perform any processing if the input vectors have matching metadata
-  if (identical(attributes(x), attributes(to)))
+  if (identical(attributes(x), attributes(to))) {
     return(x)
+  }
 
   out_data <- vec_cast(vec_data(x), vec_data(to), ..., x_arg = x_arg, to_arg = to_arg)
 
@@ -234,13 +240,15 @@ vec_cast.haven_labelled_spss.haven_labelled_spss <- function(x, to, ..., x_arg =
   if (!is.null(to_na_range) | !is.null(to_na_values)) {
     lossy <- x %in% x_na_values
 
-    if (!is.null(x_na_range))
+    if (!is.null(x_na_range)) {
       lossy <- lossy | (vec_data(x) >= x_na_range[1] & vec_data(x) <= x_na_range[2])
+    }
 
-    if (!is.null(to_na_range))
+    if (!is.null(to_na_range)) {
       lossy <- lossy & !(vec_data(x) >= to_na_range[1] & vec_data(x) <= to_na_range[2])
-    else if (!is.null(to_na_values))
+    } else if (!is.null(to_na_values)) {
       lossy <- lossy & !x %in% to_na_values
+    }
 
     maybe_lossy_cast(out, x, to, lossy,
       x_arg = x_arg,

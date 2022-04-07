@@ -122,7 +122,7 @@ SEXP is_tagged_na_(SEXP x, SEXP tag_) {
     check_tag = '\0';
   } else if (TYPEOF(tag_) == STRSXP) {
     if (Rf_length(tag_) != 1)
-      Rf_errorcall(R_NilValue, "`tag` must be a character vector of length 1");
+      Rf_errorcall(R_NilValue, "`tag` must be a character vector of length one.");
     has_tag = true;
     check_tag = first_char(STRING_ELT(tag_, 0));
   } else {
