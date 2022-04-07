@@ -1,21 +1,11 @@
 # haven (development version)
 
-* Updated to ReadStat 1.1.8 RC (#650).
+## New author
 
-* Errors and warnings now use `cli_abort()` and `cli_warning()`. cli >= 3.0.0
-  has been added to imports to support this change (#661).
-  
-* R 3.4 is now the minimum supported version, in line with [tidyverse  policy](https://www.tidyverse.org/blog/2019/04/r-version-support/).
+* @gorcha is now a haven author in recognition of his significant and sustained
+  contributions.
 
-* haven now uses the lifecycle package to manage deprecations.
-
-* `labelled()` vectors now throw a warning when combining two vectors with
-  conflicting labels (#667).
-
-* `write_dta()` now uses strL when strings are too long to be stored in an str#
-  variable (#437). strL is used when strings are longer than 2045 characters by
-  default, which matches Stata's behaviour, but this can be reduced with the
-  `strl_threshold` argument.
+## File writing improvements
 
 * All `write_` functions can now write custom variable widths by setting the
   `width` attribute (#650).
@@ -24,16 +14,25 @@
   fixes issues with statistical software reading blank character variables with
   width 0 (#650).
 
+* `write_dta()` now uses strL when strings are too long to be stored in an str#
+  variable (#437). strL is used when strings are longer than 2045 characters by
+  default, which matches Stata's behaviour, but this can be reduced with the
+  `strl_threshold` argument.
+
+* `write_xpt()` can now write dataset labels with the `label` argument,  which
+  defaults to the `label` attribute of the input data frame, if present (#562).
+  
 * `write_sav()` now checks for case-insensitive duplicate variable names
   (@juansebastianl, #641) and verifies that variable names are valid SPSS
   variables.
 
-* `zap_labels()` gains a `user_na` argument to control whether user-defined
-  missing values are converted to `NA` or left as is (#638).
+* The `compress` argument for `write_sav()` now supports all 3 SPSS compression
+  modes specified as a character string - "byte", "none" and "zsav" (#614).
+  `TRUE` and `FALSE` can be used for backwards compatibility, and correspond to
+  the "zsav" and "none" options respectively.
 
-* vctrs casting and coercion generics now do less work when working with two
-  identical `labelled()` vectors. This significantly improves performance when
-  working with `labelled()` vectors in grouped data frames (#658).
+* `write_sav()` successfully writes user missing values and ranges for
+  `labelled()` integer vectors (#596).
 
 * POSIXct and POSIXlt values with no time component (e.g. "2010-01-01") were
   being converted to `NA` when attempting to convert the output timezone to UTC.
@@ -42,19 +41,32 @@
 * Fix bug in output timezone conversion that was causing variable labels and
   other variable attributes to disappear (#624).
 
-* `write_sav()` successfully writes user missing values and ranges for
-  `labelled()` integer vectors (#596).
+## Other improvements and fixes
 
-* `write_xpt()` can now write dataset labels with the `label` argument,  which
-  defaults to the `label` attribute of the input data frame, if present (#562).
+* Updated to ReadStat 1.1.8 RC.
 
-* The `compress` argument for `write_sav()` now supports all 3 SPSS compression
-  modes specified as a character string - "byte", "none" and "zsav" (#614).
-  `TRUE` and `FALSE` can be used for backwards compatibility, and correspond to
-  the "zsav" and "none" options respectively.
+  * Fix bug when writing formats to XPT files (#650).
+  * Fix off by one error in indexing for strL variables (#437).
 
-* @gorcha is now a haven author in recognition of his significant and sustained
-  contributions.
+* `labelled()` vectors now throw a warning when combining two vectors with
+  conflicting labels (#667).
+
+* `zap_labels()` gains a `user_na` argument to control whether user-defined
+  missing values are converted to `NA` or left as is (#638).
+
+* vctrs casting and coercion generics now do less work when working with two
+  identical `labelled()` vectors. This significantly improves performance when
+  working with `labelled()` vectors in grouped data frames (#658).
+
+* Errors and warnings now use `cli_abort()` and `cli_warning()` (#661).
+
+## Dependency changes
+
+* R 3.4 is now the minimum supported version, in line with [tidyverse  policy](https://www.tidyverse.org/blog/2019/04/r-version-support/).
+
+* cli >= 3.0.0 has been added to Imports to support new error messaging.
+  
+* lifecycle has been added to Imports, and is now used to manage deprecations.
 
 # haven 2.4.3
 
