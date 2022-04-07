@@ -2,6 +2,13 @@
 
 * Updated to ReadStat 1.1.8 RC (#650).
 
+* Errors and warnings now use `cli_abort()` and `cli_warning()`. cli >= 3.0.0
+  has been added to imports to support this change (#661).
+  
+* R 3.4 is now the minimum supported version, in line with [tidyverse  policy](https://www.tidyverse.org/blog/2019/04/r-version-support/).
+
+* haven now uses the lifecycle package to manage deprecations.
+
 * `labelled()` vectors now throw a warning when combining two vectors with
   conflicting labels (#667).
 
