@@ -67,6 +67,9 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="haven-development-version">haven (development version)<a class="anchor" aria-label="anchor" href="#haven-development-version"></a></h2>
 <ul><li><p>Updated to ReadStat 1.1.8 RC (<a href="https://github.com/tidyverse/haven/issues/650" class="external-link">#650</a>).</p></li>
+<li><p>Errors and warnings now use <code>cli_abort()</code> and <code>cli_warning()</code>. cli &gt;= 3.0.0 has been added to imports to support this change (<a href="https://github.com/tidyverse/haven/issues/661" class="external-link">#661</a>).</p></li>
+<li><p>R 3.4 is now the minimum supported version, in line with <a href="https://www.tidyverse.org/blog/2019/04/r-version-support/" class="external-link">tidyverse policy</a>.</p></li>
+<li><p>haven now uses the lifecycle package to manage deprecations.</p></li>
 <li><p><code><a href="../reference/labelled.html">labelled()</a></code> vectors now throw a warning when combining two vectors with conflicting labels (<a href="https://github.com/tidyverse/haven/issues/667" class="external-link">#667</a>).</p></li>
 <li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> now uses strL when strings are too long to be stored in an str# variable (<a href="https://github.com/tidyverse/haven/issues/437" class="external-link">#437</a>). strL is used when strings are longer than 2045 characters by default, which matches Stata’s behaviour, but this can be reduced with the <code>strl_threshold</code> argument.</p></li>
 <li><p>All <code>write_</code> functions can now write custom variable widths by setting the <code>width</code> attribute (<a href="https://github.com/tidyverse/haven/issues/650" class="external-link">#650</a>).</p></li>

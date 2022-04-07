@@ -85,7 +85,7 @@ and only works for limited datasets.</p>
   col_select <span class="op">=</span> <span class="cn">NULL</span>,
   skip <span class="op">=</span> <span class="fl">0L</span>,
   n_max <span class="op">=</span> <span class="cn">Inf</span>,
-  cols_only <span class="op">=</span> <span class="st">"DEPRECATED"</span>,
+  cols_only <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span>,
   .name_repair <span class="op">=</span> <span class="st">"unique"</span>
 <span class="op">)</span>
 
@@ -112,7 +112,8 @@ specified columns will be read from <code>data_file</code>.</p></dd>
 <dt>n_max</dt>
 <dd><p>Maximum number of lines to read.</p></dd>
 <dt>cols_only</dt>
-<dd><p><strong>Deprecated</strong>: Use <code>col_select</code> instead.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> <code>cols_only</code> is no longer
+supported; use <code>col_select</code> instead.</p></dd>
 <dt>.name_repair</dt>
 <dd><p>Treatment of problematic column names:</p><ul><li><p><code>"minimal"</code>: No name repair or checks, beyond basic existence,</p></li>
 <li><p><code>"unique"</code>: Make sure names are unique and not empty,</p></li>
