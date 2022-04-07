@@ -66,24 +66,41 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="haven-development-version">haven (development version)<a class="anchor" aria-label="anchor" href="#haven-development-version"></a></h2>
-<ul><li><p>Updated to ReadStat 1.1.8 RC (<a href="https://github.com/tidyverse/haven/issues/650" class="external-link">#650</a>).</p></li>
-<li><p>Errors and warnings now use <code>cli_abort()</code> and <code>cli_warning()</code>. cli &gt;= 3.0.0 has been added to imports to support this change (<a href="https://github.com/tidyverse/haven/issues/661" class="external-link">#661</a>).</p></li>
-<li><p>R 3.4 is now the minimum supported version, in line with <a href="https://www.tidyverse.org/blog/2019/04/r-version-support/" class="external-link">tidyverse policy</a>.</p></li>
-<li><p>haven now uses the lifecycle package to manage deprecations.</p></li>
-<li><p><code><a href="../reference/labelled.html">labelled()</a></code> vectors now throw a warning when combining two vectors with conflicting labels (<a href="https://github.com/tidyverse/haven/issues/667" class="external-link">#667</a>).</p></li>
-<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> now uses strL when strings are too long to be stored in an str# variable (<a href="https://github.com/tidyverse/haven/issues/437" class="external-link">#437</a>). strL is used when strings are longer than 2045 characters by default, which matches Stata’s behaviour, but this can be reduced with the <code>strl_threshold</code> argument.</p></li>
-<li><p>All <code>write_</code> functions can now write custom variable widths by setting the <code>width</code> attribute (<a href="https://github.com/tidyverse/haven/issues/650" class="external-link">#650</a>).</p></li>
+<div class="section level3">
+<h3 id="new-author-development-version">New author<a class="anchor" aria-label="anchor" href="#new-author-development-version"></a></h3>
+<ul><li>@gorcha is now a haven author in recognition of his significant and sustained contributions.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="file-writing-improvements-development-version">File writing improvements<a class="anchor" aria-label="anchor" href="#file-writing-improvements-development-version"></a></h3>
+<ul><li><p>All <code>write_</code> functions can now write custom variable widths by setting the <code>width</code> attribute (<a href="https://github.com/tidyverse/haven/issues/650" class="external-link">#650</a>).</p></li>
 <li><p>When writing files, the minimum width for character variables is now 1. This fixes issues with statistical software reading blank character variables with width 0 (<a href="https://github.com/tidyverse/haven/issues/650" class="external-link">#650</a>).</p></li>
+<li><p><code><a href="../reference/read_dta.html">write_dta()</a></code> now uses strL when strings are too long to be stored in an str# variable (<a href="https://github.com/tidyverse/haven/issues/437" class="external-link">#437</a>). strL is used when strings are longer than 2045 characters by default, which matches Stata’s behaviour, but this can be reduced with the <code>strl_threshold</code> argument.</p></li>
+<li><p><code><a href="../reference/read_xpt.html">write_xpt()</a></code> can now write dataset labels with the <code>label</code> argument, which defaults to the <code>label</code> attribute of the input data frame, if present (<a href="https://github.com/tidyverse/haven/issues/562" class="external-link">#562</a>).</p></li>
 <li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> now checks for case-insensitive duplicate variable names (<a href="https://github.com/juansebastianl" class="external-link">@juansebastianl</a>, <a href="https://github.com/tidyverse/haven/issues/641" class="external-link">#641</a>) and verifies that variable names are valid SPSS variables.</p></li>
-<li><p><code><a href="../reference/zap_labels.html">zap_labels()</a></code> gains a <code>user_na</code> argument to control whether user-defined missing values are converted to <code>NA</code> or left as is (<a href="https://github.com/tidyverse/haven/issues/638" class="external-link">#638</a>).</p></li>
-<li><p>vctrs casting and coercion generics now do less work when working with two identical <code><a href="../reference/labelled.html">labelled()</a></code> vectors. This significantly improves performance when working with <code><a href="../reference/labelled.html">labelled()</a></code> vectors in grouped data frames (<a href="https://github.com/tidyverse/haven/issues/658" class="external-link">#658</a>).</p></li>
+<li><p>The <code>compress</code> argument for <code><a href="../reference/read_spss.html">write_sav()</a></code> now supports all 3 SPSS compression modes specified as a character string - “byte”, “none” and “zsav” (<a href="https://github.com/tidyverse/haven/issues/614" class="external-link">#614</a>). <code>TRUE</code> and <code>FALSE</code> can be used for backwards compatibility, and correspond to the “zsav” and “none” options respectively.</p></li>
+<li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> successfully writes user missing values and ranges for <code><a href="../reference/labelled.html">labelled()</a></code> integer vectors (<a href="https://github.com/tidyverse/haven/issues/596" class="external-link">#596</a>).</p></li>
 <li><p>POSIXct and POSIXlt values with no time component (e.g. “2010-01-01”) were being converted to <code>NA</code> when attempting to convert the output timezone to UTC. These now output successfully (<a href="https://github.com/tidyverse/haven/issues/634" class="external-link">#634</a>).</p></li>
 <li><p>Fix bug in output timezone conversion that was causing variable labels and other variable attributes to disappear (<a href="https://github.com/tidyverse/haven/issues/624" class="external-link">#624</a>).</p></li>
-<li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> successfully writes user missing values and ranges for <code><a href="../reference/labelled.html">labelled()</a></code> integer vectors (<a href="https://github.com/tidyverse/haven/issues/596" class="external-link">#596</a>).</p></li>
-<li><p><code><a href="../reference/read_xpt.html">write_xpt()</a></code> can now write dataset labels with the <code>label</code> argument, which defaults to the <code>label</code> attribute of the input data frame, if present (<a href="https://github.com/tidyverse/haven/issues/562" class="external-link">#562</a>).</p></li>
-<li><p>The <code>compress</code> argument for <code><a href="../reference/read_spss.html">write_sav()</a></code> now supports all 3 SPSS compression modes specified as a character string - “byte”, “none” and “zsav” (<a href="https://github.com/tidyverse/haven/issues/614" class="external-link">#614</a>). <code>TRUE</code> and <code>FALSE</code> can be used for backwards compatibility, and correspond to the “zsav” and “none” options respectively.</p></li>
-<li><p>@gorcha is now a haven author in recognition of his significant and sustained contributions.</p></li>
 </ul></div>
+<div class="section level3">
+<h3 id="other-improvements-and-fixes-development-version">Other improvements and fixes<a class="anchor" aria-label="anchor" href="#other-improvements-and-fixes-development-version"></a></h3>
+<ul><li>
+<p>Updated to ReadStat 1.1.8 RC.</p>
+<ul><li>Fix bug when writing formats to XPT files (<a href="https://github.com/tidyverse/haven/issues/650" class="external-link">#650</a>).</li>
+<li>Fix off by one error in indexing for strL variables (<a href="https://github.com/tidyverse/haven/issues/437" class="external-link">#437</a>).</li>
+</ul></li>
+<li><p><code><a href="../reference/labelled.html">labelled()</a></code> vectors now throw a warning when combining two vectors with conflicting labels (<a href="https://github.com/tidyverse/haven/issues/667" class="external-link">#667</a>).</p></li>
+<li><p><code><a href="../reference/zap_labels.html">zap_labels()</a></code> gains a <code>user_na</code> argument to control whether user-defined missing values are converted to <code>NA</code> or left as is (<a href="https://github.com/tidyverse/haven/issues/638" class="external-link">#638</a>).</p></li>
+<li><p>vctrs casting and coercion generics now do less work when working with two identical <code><a href="../reference/labelled.html">labelled()</a></code> vectors. This significantly improves performance when working with <code><a href="../reference/labelled.html">labelled()</a></code> vectors in grouped data frames (<a href="https://github.com/tidyverse/haven/issues/658" class="external-link">#658</a>).</p></li>
+<li><p>Errors and warnings now use <code>cli_abort()</code> and <code>cli_warning()</code> (<a href="https://github.com/tidyverse/haven/issues/661" class="external-link">#661</a>).</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="dependency-changes-development-version">Dependency changes<a class="anchor" aria-label="anchor" href="#dependency-changes-development-version"></a></h3>
+<ul><li><p>R 3.4 is now the minimum supported version, in line with <a href="https://www.tidyverse.org/blog/2019/04/r-version-support/" class="external-link">tidyverse policy</a>.</p></li>
+<li><p>cli &gt;= 3.0.0 has been added to Imports to support new error messaging.</p></li>
+<li><p>lifecycle has been added to Imports, and is now used to manage deprecations.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.4.3" id="haven-243">haven 2.4.3<a class="anchor" aria-label="anchor" href="#haven-243"></a></h2><p class="text-muted">CRAN release: 2021-08-04</p>
 <ul><li>Fix build failure on Solaris.</li>
