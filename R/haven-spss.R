@@ -46,7 +46,7 @@ read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, 
   switch(class(spec)[1],
     source_file = df_parse_sav_file(spec, encoding, user_na, cols_skip, n_max, skip, name_repair = .name_repair),
     source_raw = df_parse_sav_raw(spec, encoding, user_na, cols_skip, n_max, skip, name_repair = .name_repair),
-    abort("This kind of input is not handled.")
+    cli_abort("This kind of input is not handled.")
   )
 }
 
@@ -60,7 +60,7 @@ read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max =
   switch(class(spec)[1],
     source_file = df_parse_por_file(spec, encoding = "", user_na = user_na, cols_skip, n_max, skip, name_repair = .name_repair),
     source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na, cols_skip, n_max, skip, name_repair = .name_repair),
-    abort("This kind of input is not handled.")
+    cli_abort("This kind of input is not handled.")
   )
 }
 
@@ -102,7 +102,7 @@ read_spss <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max 
     sav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
     zsav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
     por = read_por(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
-    abort(paste0("Unknown extension '.", ext, "'."))
+    cli_abort("Unknown extension {.file .{ext}}.")
   )
 }
 
@@ -119,23 +119,27 @@ validate_sav <- function(data, call = caller_env()) {
   bad_length <- nchar(names(data), type = "bytes") > 64
   bad_vars <- bad_length | bad_name | reserved_keyword
   if (any(bad_vars)) {
-    abort(c(
-      "Variables in `data` must have valid SPSS variable names.",
-      x = paste("Problems:", var_names(data, bad_vars))
-    ),
-    call = call)
+    cli_abort(
+      c(
+        "Variables in {.arg data} must have valid SPSS variable names.",
+        x = "Problems: {.var {var_names(data, bad_vars)}}"
+      ),
+      call = call
+    )
   }
 
   # Check variable name duplication
   dupe_vars <- duplicated(tolower(names(data))) |
     duplicated(tolower(names(data)), fromLast = TRUE)
   if (any(dupe_vars)) {
-    abort(c(
-      "SPSS does not allow duplicate variable names.",
-      i = "Variable names are case-insensitive in SPSS.",
-      x = paste("Problems:", var_names(data, dupe_vars))
-    ),
-    call = call)
+    cli_abort(
+      c(
+        "SPSS does not allow duplicate variable names.",
+        i = "Variable names are case-insensitive in SPSS.",
+        x = "Problems: {.var {var_names(data, dupe_vars)}}"
+      ),
+      call = call
+    )
   }
 
   # Check factor lengths
@@ -143,11 +147,13 @@ validate_sav <- function(data, call = caller_env()) {
 
   bad_lengths <- level_lengths > 120
   if (any(bad_lengths)) {
-    abort(c(
-      "SPSS only supports levels with <= 120 characters.",
-      x = paste("Problems:", var_names(data, bad_lengths))
-    ),
-    call = call)
+    cli_abort(
+      c(
+        "SPSS only supports levels with <= 120 characters.",
+        x = "Problems: {.var {var_names(data, bad_lengths)}}"
+      ),
+      call = call
+    )
   }
 
   adjust_tz(data)

@@ -62,7 +62,7 @@ read_sas <- function(data_file, catalog_file = NULL,
   switch(class(spec_data)[1],
     source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max, rows_skip = skip, name_repair = .name_repair),
     source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max, rows_skip = skip, name_repair = .name_repair),
-    abort("This kind of input is not handled.")
+    cli_abort("This kind of input is not handled.")
   )
 }
 
@@ -104,7 +104,7 @@ read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repai
   switch(class(spec)[1],
     source_file = df_parse_xpt_file(spec, cols_skip, n_max, skip, name_repair = .name_repair),
     source_raw = df_parse_xpt_raw(spec, cols_skip, n_max, skip, name_repair = .name_repair),
-    abort("This kind of input is not handled.")
+    cli_abort("This kind of input is not handled.")
   )
 }
 
@@ -121,7 +121,7 @@ read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repai
 #'   long, dataset labels in SAS transport files must be <= 40 characters.
 write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "label")) {
   if (!version %in% c(5, 8)) {
-    abort(paste0("SAS transport file version `", version, "` is not currently supported."))
+    cli_abort("SAS transport file version {.val {version}} is not currently supported.")
   }
 
   if (is.null(name)) {
@@ -153,11 +153,11 @@ validate_sas <- function(data) {
 validate_xpt_name <- function(name, version, call = caller_env()) {
   if (version == 5) {
     if (nchar(name) > 8) {
-      abort("`name` must be 8 characters or fewer.", call = call)
+      cli_abort("{.arg name} must be 8 characters or fewer.", call = call)
     }
   } else {
     if (nchar(name) > 32) {
-      abort("`name` must be 32 characters or fewer.", call = call)
+      cli_abort("{.arg name} must be 32 characters or fewer.", call = call)
     }
   }
   name
@@ -168,7 +168,7 @@ validate_xpt_label <- function(label, call = caller_env()) {
     stopifnot(is.character(label), length(label) == 1)
 
     if (nchar(label) > 40) {
-      abort("`label` must be 40 characters or fewer.", call = call)
+      cli_abort("{.arg label} must be 40 characters or fewer.", call = call)
     }
   }
   label

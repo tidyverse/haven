@@ -51,13 +51,13 @@ labelled <- function(x = double(), labels = NULL, label = NULL) {
 new_labelled <- function(x = double(), labels = NULL, label = NULL,
                          ..., class = character()) {
   if (!is.numeric(x) && !is.character(x)) {
-    abort("`x` must be a numeric or a character vector.")
+    cli_abort("{.arg x} must be a numeric or a character vector.")
   }
   if (!is.null(labels) && !vec_is(labels, x)) {
-    abort("`labels` must be same type as `x`.")
+    cli_abort("{.arg labels} must be the same type as {.arg x}.")
   }
   if (!is.null(label) && (!is.character(label) || length(label) != 1)) {
-    abort("`label` must be a character vector of length one.")
+    cli_abort("{.arg label} must be a character vector of length one.")
   }
 
   new_vctr(x,
@@ -76,10 +76,10 @@ validate_labelled <- function(x) {
   }
 
   if (is.null(names(labels))) {
-    abort("`labels` must have names.")
+    cli_abort("{.arg labels} must have names.")
   }
   if (any(duplicated(stats::na.omit(labels)))) {
-    abort("`labels` must be unique.")
+    cli_abort("{.arg labels} must be unique.")
   }
 
   x
@@ -106,7 +106,7 @@ levels.haven_labelled <- function(x) {
 #' @export
 median.haven_labelled <- function(x, na.rm = TRUE, ...) {
   if (is.character(x)) {
-    abort("Can't compute median of `labelled<character>`.")
+    cli_abort("Can't compute median of {.cls labelled<character>}.")
   }
   median(vec_data(x), na.rm = TRUE, ...)
 }
@@ -115,7 +115,7 @@ median.haven_labelled <- function(x, na.rm = TRUE, ...) {
 #' @export
 quantile.haven_labelled <- function(x, ...) {
   if (is.character(x)) {
-    abort("Can't compute quantile of `labelled<character>`.")
+    cli_abort("Can't compute quantile of {.cls labelled<character>}.")
   }
   quantile(vec_data(x), ...)
 }
@@ -185,7 +185,7 @@ obj_print_footer.haven_labelled <- function(x, ...) {
 #' }
 print_labels <- function(x, name = NULL) {
   if (!is.labelled(x)) {
-    abort("`x` must be a labelled vector.")
+    cli_abort("{.arg x} must be a labelled vector.")
   }
   labels <- attr(x, "labels")
   if (length(labels) == 0) {

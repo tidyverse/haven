@@ -18,15 +18,12 @@ combine_labels <- function(x_labels, y_labels, x_arg, y_arg) {
 
     problems <- x_common[names(x_common) != names(y_common)]
     if (length(problems) > 0) {
-      problems_msg <- paste(problems[1:min(length(problems), 10)], collapse = ", ")
-      if (length(problems) > 10) {
-        problems_msg <- paste0(problems_msg, ", ...")
-      }
+      problems <- cli::cli_vec(problems, list(vec_trunc = 10))
 
-      warn(c(
-        paste0("`", x_arg, "` and `", y_arg, "` have conflicting value labels."),
-        i = paste0("Labels for these values will be taken from `", x_arg, "`."),
-        x = paste("Values:", problems_msg)
+      cli_warn(c(
+        "{.var {x_arg}} and {.var {y_arg}} have conflicting value labels.",
+        i = "Labels for these values will be taken from {.var {x_arg}}.",
+        x = "Values: {.val {problems}}"
       ))
     }
   }
@@ -62,7 +59,7 @@ skip_cols <- function(reader, col_select = NULL, ..., call = caller_env()) {
   sels <- tidyselect::vars_select(cols, !!col_select)
 
   if (length(sels) == 0) {
-    abort("Can't find any columns matching `col_select` in data.", call = call)
+    cli_abort("Can't find any columns matching {.arg col_select} in data.", call = call)
   }
 
   setdiff(cols, sels)
@@ -70,11 +67,11 @@ skip_cols <- function(reader, col_select = NULL, ..., call = caller_env()) {
 
 validate_n_max <- function(n, call = caller_env()) {
   if (!is.numeric(n) && !is.na(n)) {
-    abort(paste0("`n_max` must be numeric, not ", class(n)[1], "."), call = call)
+    cli_abort("{.arg n_max} must be {.cls numeric}, not {.cls {class(n)[1]}}.", call = call)
   }
 
   if (length(n) != 1) {
-    abort(paste0("`n_max` must have length 1, not ", length(n), "."), call = call)
+    cli_abort("{.arg n_max} must have length 1, not {length(n)}.", call = call)
   }
 
   if (is.na(n) || is.infinite(n) || n < 0) {
@@ -88,4 +85,8 @@ adjust_tz <- function(df) {
   datetime <- vapply(df, inherits, "POSIXt", FUN.VALUE = logical(1))
   df[datetime] <- lapply(df[datetime], force_utc)
   df
+}
+
+var_names <- function(data, i) {
+  names(data)[i]
 }

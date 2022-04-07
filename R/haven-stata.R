@@ -56,7 +56,7 @@ read_dta <- function(file, encoding = NULL, col_select = NULL, skip = 0, n_max =
   switch(class(spec)[1],
     source_file = df_parse_dta_file(spec, encoding, cols_skip, n_max, skip, name_repair = .name_repair),
     source_raw = df_parse_dta_raw(spec, encoding, cols_skip, n_max, skip, name_repair = .name_repair),
-    abort("This kind of input is not handled.")
+    cli_abort("This kind of input is not handled.")
   )
 }
 
@@ -104,7 +104,7 @@ stata_file_format <- function(version, call = caller_env()) {
   } else if (version %in% c(8L, 9L)) {
     113
   } else {
-    abort(paste0("Stata version `", version, "` is not currently supported."), call = call)
+    cli_abort("Stata version {.val {version}} is not currently supported.", call = call)
   }
 }
 
@@ -126,21 +126,25 @@ validate_dta <- function(data, version, call = caller_env()) {
   bad_length <- nchar(names(data)) > 32
   bad_vars <- if (version >= 14) bad_length else bad_length | bad_name
   if (any(bad_vars)) {
-    abort(c(
-      "Variables in `data` must have valid Stata variable names.",
-      x = paste("Problems:", var_names(data, bad_vars))
-    ),
-    call = call)
+    cli_abort(
+      c(
+        "Variables in {.arg data} must have valid Stata variable names.",
+        x = "Problems: {.var {var_names(data, bad_vars)}}"
+      ),
+      call = call
+    )
   }
 
   # Check double vectors can only have labelled integers
   bad_labels <- vapply(data, has_non_integer_labels, logical(1))
   if (any(bad_labels)) {
-    abort(c(
-      "Stata only supports labelling with integer variables.",
-      x = paste("Problems:", var_names(data, bad_labels))
-    ),
-    call = call)
+    cli_abort(
+      c(
+        "Stata only supports labelling with integer variables.",
+        x = "Problems: {.var {var_names(data, bad_labels)}}"
+      ),
+      call = call
+    )
   }
 
   adjust_tz(data)
@@ -151,7 +155,7 @@ validate_dta_label <- function(label, call = caller_env()) {
     stopifnot(is.character(label), length(label) == 1)
 
     if (nchar(label) > 80) {
-      abort("`label` must be 80 characters or fewer.", call = call)
+      cli_abort("{.arg label} must be 80 characters or fewer.", call = call)
     }
   }
 }
@@ -189,9 +193,4 @@ is_integerish <- function(x) {
 
   x_finite <- x[finite_elts & !missing_elts]
   all(x_finite == as.integer(x_finite))
-}
-
-var_names <- function(data, i) {
-  x <- names(data)[i]
-  paste(encodeString(x, quote = "`"), collapse = ", ")
 }

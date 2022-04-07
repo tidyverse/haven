@@ -53,7 +53,7 @@
 
     `..1` and `..2` have conflicting value labels.
     i Labels for these values will be taken from `..1`.
-    x Values: 1, 5
+    x Values: 1 and 5
 
 ---
 
@@ -65,7 +65,7 @@
 
     `..1` and `..2` have conflicting value labels.
     i Labels for these values will be taken from `..1`.
-    x Values: 1, 2
+    x Values: 1 and 2
 
 ---
 

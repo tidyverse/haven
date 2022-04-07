@@ -42,20 +42,20 @@ labelled_spss <- function(x = double(), labels = NULL, na_values = NULL,
 
 new_labelled_spss <- function(x, labels, na_values, na_range, label) {
   if (!is.null(na_values) && any(is.na(na_values))) {
-    abort("`na_values` can not contain missing values.")
+    cli_abort("{.arg na_values} can not contain missing values.")
   }
 
   if (!is.null(na_range)) {
     type_ok <- (is.character(x) && is.character(na_range)) ||
       (is.numeric(x) && is.numeric(na_range))
     if (!type_ok || length(na_range) != 2) {
-      abort("`na_range` must be a vector of length two the same type as `x`.")
+      cli_abort("{.arg na_range} must be a vector of length two the same type as {.arg x}.")
     }
     if (any(is.na(na_range))) {
-      abort("`na_range` can not contain missing values.")
+      cli_abort("{.arg na_range} can not contain missing values.")
     }
     if (na_range[1] >= na_range[2]) {
-      abort("`na_range` must be in ascending order.")
+      cli_abort("{.arg na_range} must be in ascending order.")
     }
   }
 
