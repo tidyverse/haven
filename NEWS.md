@@ -1,4 +1,4 @@
-# haven (development version)
+# haven 2.5.0
 
 ## New author
 
