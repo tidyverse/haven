@@ -15,8 +15,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><link href="../deps/_Source%20Sans%20Pro-0.4.0/font.css" rel="stylesheet">
-<link href="../deps/_Source%20Code%20Pro-0.4.0/font.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><link href="../deps/_Source%20Sans%20Pro-0.4.1/font.css" rel="stylesheet">
+<link href="../deps/_Source%20Code%20Pro-0.4.1/font.css" rel="stylesheet">
 <!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Conversion semantics">
@@ -35,7 +35,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">haven</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">2.5.0</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,7 +125,7 @@
 <span class="op">)</span>
 <span class="va">x1</span>
 <span class="co">#&gt; &lt;labelled&lt;integer&gt;[5]&gt;</span>
-<span class="co">#&gt; [1] 5 4 3 1 2</span>
+<span class="co">#&gt; [1] 2 5 4 3 1</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Labels:</span>
 <span class="co">#&gt;  value label</span>
@@ -147,10 +147,10 @@
 <p>The goal of haven is not to provide a labelled vector that you can use everywhere in your analysis. The goal is to provide an intermediate datastructure that you can convert into a regular R data frame. You can do this by either converting to a factor or stripping the labels:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
-<span class="co">#&gt; [1] Bad  4    3    Good 2   </span>
+<span class="co">#&gt; [1] 2    Bad  4    3    Good</span>
 <span class="co">#&gt; Levels: Good 2 3 4 Bad</span>
 <span class="fu"><a href="../reference/zap_labels.html">zap_labels</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>
-<span class="co">#&gt; [1] 5 4 3 1 2</span>
+<span class="co">#&gt; [1] 2 5 4 3 1</span>
 
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span>
 <span class="co">#&gt; [1] Male   Female Female Female Male  </span>
@@ -169,30 +169,30 @@
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span>
 <span class="co">#&gt;          x1 x2             z</span>
 <span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int+lbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr+lbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  5<span style="color: #949494;"> [Bad]</span>  M<span style="color: #949494;"> [Male]</span>       1</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  4        F<span style="color: #949494;"> [Female]</span>     2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  3        F<span style="color: #949494;"> [Female]</span>     3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  1<span style="color: #949494;"> [Good]</span> F<span style="color: #949494;"> [Female]</span>     4</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  2        M<span style="color: #949494;"> [Male]</span>       5</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span>  2        M<span style="color: #949494;"> [Male]</span>       1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span>  5<span style="color: #949494;"> [Bad]</span>  F<span style="color: #949494;"> [Female]</span>     2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span>  4        F<span style="color: #949494;"> [Female]</span>     3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span>  3        F<span style="color: #949494;"> [Female]</span>     4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span>  1<span style="color: #949494;"> [Good]</span> M<span style="color: #949494;"> [Male]</span>       5</span>
 
 <span class="fu"><a href="../reference/zap_labels.html">zap_labels</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span>
 <span class="co">#&gt;      x1 x2        z</span>
 <span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     5 M         1</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     4 F         2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     3 F         3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">4</span>     1 F         4</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">5</span>     2 M         5</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     2 M         1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span>     5 F         2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span>     4 F         3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span>     3 F         4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span>     1 M         5</span>
 <span class="fu"><a href="../reference/as_factor.html">as_factor</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
 <span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span>
 <span class="co">#&gt;   x1    x2         z</span>
 <span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Bad   Male       1</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 4     Female     2</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 3     Female     3</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> Good  Female     4</span>
-<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 2     Male       5</span></code></pre></div>
+<span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 2     Male       1</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Bad   Female     2</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 4     Female     3</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3     Female     4</span>
+<span class="co">#&gt; <span style="color: #BCBCBC;">5</span> Good  Male       5</span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -314,7 +314,7 @@
   <footer><div class="container">
   <div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
+<p>Developed by <a href="http://hadley.nz" class="external-link">Hadley Wickham</a>, <a href="http://www.evanmiller.org" class="external-link">Evan Miller</a>, <a href="https://www.gorcha.org" class="external-link">Danny Smith</a>, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
