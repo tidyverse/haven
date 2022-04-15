@@ -21,3 +21,4 @@
 ^.vscode$
 ^configure\.log$
 ^src/Makevars$
+^CRAN-SUBMISSION$
