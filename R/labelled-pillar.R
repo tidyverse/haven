@@ -145,7 +145,7 @@ format.pillar_shaft_haven_labelled_num <- function(x, width, ...) {
     lbl <- str_trunc(x$lbl$disp_full, lbl_width, subtle = TRUE)
     out <- paste_with_align(vshort$main_txt, lbl, vshort$lhs_ws, vshort$rhs_ws)
   }
-  pillar::new_ornament(out, width = width, align = "right")
+  pillar::new_ornament(out, width = width, align = "left")
 }
 
 #' @export
