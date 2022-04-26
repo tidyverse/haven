@@ -1,5 +1,8 @@
 # haven (development version)
 
+* All `labelled()` vectors now have left-aligned column headers when printing
+  in tibbles for better alignment with labels (#676).
+
 # haven 2.5.0
 
 ## New author
