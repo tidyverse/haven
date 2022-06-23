@@ -6,73 +6,73 @@
 #include <R_ext/Visibility.h>
 
 // DfReader.cpp
-cpp11::list df_parse_sas_file(cpp11::list spec_b7dat, cpp11::list spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+cpp11::list df_parse_sas_file(cpp11::list spec_b7dat, cpp11::list spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, cpp11::sexp name_repair);
 extern "C" SEXP _haven_df_parse_sas_file(SEXP spec_b7dat, SEXP spec_b7cat, SEXP encoding, SEXP catalog_encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_sas_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7dat), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7cat), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<std::string>>(catalog_encoding), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<std::string>>(name_repair)));
+    return cpp11::as_sexp(df_parse_sas_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7dat), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7cat), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<std::string>>(catalog_encoding), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(name_repair)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_sas_raw(cpp11::list spec_b7dat, cpp11::list spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+cpp11::list df_parse_sas_raw(cpp11::list spec_b7dat, cpp11::list spec_b7cat, std::string encoding, std::string catalog_encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, cpp11::sexp name_repair);
 extern "C" SEXP _haven_df_parse_sas_raw(SEXP spec_b7dat, SEXP spec_b7cat, SEXP encoding, SEXP catalog_encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_sas_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7dat), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7cat), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<std::string>>(catalog_encoding), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<std::string>>(name_repair)));
+    return cpp11::as_sexp(df_parse_sas_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7dat), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7cat), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<std::string>>(catalog_encoding), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(name_repair)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_xpt_file(cpp11::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+cpp11::list df_parse_xpt_file(cpp11::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, cpp11::sexp name_repair);
 extern "C" SEXP _haven_df_parse_xpt_file(SEXP spec, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_xpt_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<std::string>>(name_repair)));
+    return cpp11::as_sexp(df_parse_xpt_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(name_repair)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_xpt_raw(cpp11::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+cpp11::list df_parse_xpt_raw(cpp11::list spec, std::vector<std::string> cols_skip, long n_max, long rows_skip, cpp11::sexp name_repair);
 extern "C" SEXP _haven_df_parse_xpt_raw(SEXP spec, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_xpt_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<std::string>>(name_repair)));
+    return cpp11::as_sexp(df_parse_xpt_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(name_repair)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_dta_file(cpp11::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+cpp11::list df_parse_dta_file(cpp11::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, cpp11::sexp name_repair);
 extern "C" SEXP _haven_df_parse_dta_file(SEXP spec, SEXP encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_dta_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<std::string>>(name_repair)));
+    return cpp11::as_sexp(df_parse_dta_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(name_repair)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_dta_raw(cpp11::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+cpp11::list df_parse_dta_raw(cpp11::list spec, std::string encoding, std::vector<std::string> cols_skip, long n_max, long rows_skip, cpp11::sexp name_repair);
 extern "C" SEXP _haven_df_parse_dta_raw(SEXP spec, SEXP encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_dta_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<std::string>>(name_repair)));
+    return cpp11::as_sexp(df_parse_dta_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(name_repair)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_sav_file(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+cpp11::list df_parse_sav_file(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, cpp11::sexp name_repair);
 extern "C" SEXP _haven_df_parse_sav_file(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_sav_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<std::string>>(name_repair)));
+    return cpp11::as_sexp(df_parse_sav_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(name_repair)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_sav_raw(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+cpp11::list df_parse_sav_raw(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, cpp11::sexp name_repair);
 extern "C" SEXP _haven_df_parse_sav_raw(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_sav_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<std::string>>(name_repair)));
+    return cpp11::as_sexp(df_parse_sav_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(name_repair)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_por_file(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+cpp11::list df_parse_por_file(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, cpp11::sexp name_repair);
 extern "C" SEXP _haven_df_parse_por_file(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_por_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<std::string>>(name_repair)));
+    return cpp11::as_sexp(df_parse_por_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(name_repair)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_por_raw(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, std::string name_repair);
+cpp11::list df_parse_por_raw(cpp11::list spec, std::string encoding, bool user_na, std::vector<std::string> cols_skip, long n_max, long rows_skip, cpp11::sexp name_repair);
 extern "C" SEXP _haven_df_parse_por_raw(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip, SEXP name_repair) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_por_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<std::string>>(name_repair)));
+    return cpp11::as_sexp(df_parse_por_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<std::vector<std::string>>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(name_repair)));
   END_CPP11
 }
 // DfWriter.cpp

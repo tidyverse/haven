@@ -45,8 +45,13 @@ test_that("default name repair can be overridden", {
   path <- tempfile()
   write_sas(df, path)
 
-  expect_message(read_sas(path), "id...1")
-  expect_message(read_sas(path, .name_repair = "minimal"), NA)
+  expect_message(
+    expect_equal(names(read_sas(path)), c("id...1", "id...2")),
+    "id...1"
+  )
+  expect_equal(names(read_sas(path, .name_repair = "minimal")), c("id", "id"))
+  expect_equal(names(read_sas(path, .name_repair = make.names)), c("id", "id"))
+  expect_equal(names(read_sas(path, .name_repair = ~rep_len("a", length(.x)))), c("a", "a"))
 })
 
 test_that("connections are read", {
