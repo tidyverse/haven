@@ -98,23 +98,35 @@ and only works for limited datasets.</p>
     <dl><dt>data_file, catalog_file</dt>
 <dd><p>Path to data and catalog files. The files are
 processed with <code><a href="https://readr.tidyverse.org/reference/datasource.html" class="external-link">readr::datasource()</a></code>.</p></dd>
+
+
 <dt>encoding, catalog_encoding</dt>
 <dd><p>The character encoding used for the
 <code>data_file</code> and <code>catalog_encoding</code> respectively. A value of <code>NULL</code> uses the
 encoding specified in the file; use this argument to override it if it is
 incorrect.</p></dd>
+
+
 <dt>col_select</dt>
 <dd><p>One or more selection expressions, like in
 <code>dplyr::select()</code>. Use <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> to use more than one expression.
 See <code>?dplyr::select</code> for details on available selection options. Only the
 specified columns will be read from <code>data_file</code>.</p></dd>
+
+
 <dt>skip</dt>
 <dd><p>Number of lines to skip before reading data.</p></dd>
+
+
 <dt>n_max</dt>
 <dd><p>Maximum number of lines to read.</p></dd>
+
+
 <dt>cols_only</dt>
 <dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> <code>cols_only</code> is no longer
 supported; use <code>col_select</code> instead.</p></dd>
+
+
 <dt>.name_repair</dt>
 <dd><p>Treatment of problematic column names:</p><ul><li><p><code>"minimal"</code>: No name repair or checks, beyond basic existence,</p></li>
 <li><p><code>"unique"</code>: Make sure names are unique and not empty,</p></li>
@@ -127,17 +139,28 @@ for names in the style of base R).</p></li>
 </ul><p>This argument is passed on as <code>repair</code> to <code><a href="https://vctrs.r-lib.org/reference/vec_as_names.html" class="external-link">vctrs::vec_as_names()</a></code>.
 See there for more details on these terms and the strategies used
 to enforce them.</p></dd>
+
+
 <dt>data</dt>
 <dd><p>Data frame to write.</p></dd>
+
+
 <dt>path</dt>
 <dd><p>Path to file where the data will be written.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble, data frame variant with nice defaults.
-Variable labels are stored in the "label" attribute of each variable. It is
-not printed on the console, but the RStudio viewer will show it.
-<code>write_sas()</code> returns the input <code>data</code> invisibly.</p>
+    
+
+<p>A tibble, data frame variant with nice defaults.</p>
+
+
+<p>Variable labels are stored in the "label" attribute of each variable. It is
+not printed on the console, but the RStudio viewer will show it.</p>
+
+
+<p><code>write_sas()</code> returns the input <code>data</code> invisibly.</p>
     </div>
 
     <div class="section level2">
@@ -171,7 +194,7 @@ not printed on the console, but the RStudio viewer will show it.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
   </div></footer></body></html>
