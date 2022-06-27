@@ -2,6 +2,8 @@
 
 * All `labelled()` vectors now have left-aligned column headers when printing
   in tibbles for better alignment with labels (#676).
+  
+* The `write_` functions now accept functions as well as strings in the `.name_repair` argument in line with the documentation. Previously they only supported string values (#684).
 
 # haven 2.5.0
 
