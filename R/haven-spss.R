@@ -110,7 +110,7 @@ validate_sav <- function(data, call = caller_env()) {
   stopifnot(is.data.frame(data))
 
   # Check variable names
-  bad_name <- !grepl("^[[:alpha:]@]([[:alnum:]._$#@]*[[:alnum:]_$#@])?$", names(data), perl = TRUE)
+  bad_name <- !grepl("^[\\pL@]([\\pL\\pN\\pSc._$#@]*[\\pL\\pN\\pSc_$#@])?$", names(data), perl = TRUE)
   reserved_keyword <-
     toupper(names(data)) %in% c(
       "ALL", "AND", "BY", "EQ", "GE", "GT", "LE",

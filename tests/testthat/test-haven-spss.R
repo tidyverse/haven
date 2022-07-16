@@ -351,6 +351,9 @@ test_that("complain about invalid variable names", {
       "c"
     )
     write_sav(df, tempfile())
+
+    names(df) <- c("流水号",  "$性别",  "年龄.")
+    write_sav(df, tempfile())
   })
 
   # Windows fails if this is a snapshot because of issues with unicode support
@@ -365,6 +368,12 @@ test_that("complain about invalid variable names", {
     },
     regexp = "Variables in `data` must have valid SPSS variable names"
   )
+
+  # Check that non-latin characters are written successfully
+  df <- tibble::tibble("流水号" = 1:2)
+  out <- roundtrip_sav(df)
+
+  expect_identical(names(df), names(out))
 })
 
 # max_level_lengths -------------------------------------------------------

@@ -1,5 +1,8 @@
 # haven (development version)
 
+* Fix bug in `write_sav()` variable name validation causing it to treat all
+  non-ASCII characters as invalid (#689).
+
 * All `labelled()` vectors now have left-aligned column headers when printing
   in tibbles for better alignment with labels (#676).
   
