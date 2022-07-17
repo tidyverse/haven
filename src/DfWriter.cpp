@@ -66,7 +66,7 @@ class Writer {
   FileVendor vendor_;
   int version_;
   int strl_threshold_;
-  std::unordered_map<const char*, readstat_string_ref_t*> string_ref_;
+  std::unordered_map<std::string, readstat_string_ref_t*> string_ref_;
 
   cpp11::list x_;
   readstat_writer_t* writer_;
@@ -386,9 +386,9 @@ public:
     if (ext_ == HAVEN_DTA && version_ >= 117 && user_width > strl_threshold_) {
       var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING_REF, user_width);
       for (int i = 0; i < x.size(); ++i) {
-        const char* val = string_utf8(x, i);
+        std::string val(string_utf8(x, i));
         if (!string_ref_.count(val)) {
-          string_ref_[val] = readstat_add_string_ref(writer_, val);
+          string_ref_[val] = readstat_add_string_ref(writer_, val.c_str());
         }
       }
     } else {
@@ -451,7 +451,8 @@ public:
     if (is_missing) {
       return readstat_insert_missing_value(writer_, var);
     } else if (var->type == READSTAT_TYPE_STRING_REF) {
-      return readstat_insert_string_ref(writer_, var, string_ref_[val]);
+      std::string val_s(val);
+      return readstat_insert_string_ref(writer_, var, string_ref_[val_s]);
     } else {
       return readstat_insert_string_value(writer_, var, val);
     }
