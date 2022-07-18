@@ -110,7 +110,17 @@ validate_sav <- function(data, call = caller_env()) {
   stopifnot(is.data.frame(data))
 
   # Check variable names
-  bad_name <- !grepl("^[[:alpha:]@]([[:alnum:]._$#@]*[[:alnum:]_$#@])?$", names(data), perl = TRUE)
+  # https://www.ibm.com/docs/en/spss-statistics/28.0.0?topic=variables-variable-names
+  #
+  # SPSS variable names support non-ASCII characters.
+  # The first character must be a letter or @ symbol. After the first letter,
+  # SPSS ostensibly supports "letters, numbers, nonpunctuation characters, and a
+  # period". In practice it's hard to tell exactly what non-punctuation
+  # characters are supported.
+  #
+  # For simplicity, we allow characters with the Unicode properties
+  # letters (\pL), numbers (\pN) and currency symbols (\pSc).
+  bad_name <- !grepl("^[\\pL@]([\\pL\\pN\\pSc._$#@]*[\\pL\\pN\\pSc_$#@])?$", names(data), perl = TRUE)
   reserved_keyword <-
     toupper(names(data)) %in% c(
       "ALL", "AND", "BY", "EQ", "GE", "GT", "LE",
