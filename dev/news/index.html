@@ -67,9 +67,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="haven-development-version">haven (development version)<a class="anchor" aria-label="anchor" href="#haven-development-version"></a></h2>
-<ul><li><p>Fix bug in <code><a href="../reference/read_spss.html">write_sav()</a></code> variable name validation causing it to treat all non-ASCII characters as invalid (<a href="https://github.com/tidyverse/haven/issues/689" class="external-link">#689</a>).</p></li>
-<li><p>All <code><a href="../reference/labelled.html">labelled()</a></code> vectors now have left-aligned column headers when printing in tibbles for better alignment with labels (<a href="https://github.com/tidyverse/haven/issues/676" class="external-link">#676</a>).</p></li>
-<li><p>The <code>write_</code> functions now accept functions as well as strings in the <code>.name_repair</code> argument in line with the documentation. Previously they only supported string values (<a href="https://github.com/tidyverse/haven/issues/684" class="external-link">#684</a>).</p></li>
+<ul><li><p>All <code><a href="../reference/labelled.html">labelled()</a></code> vectors now have left-aligned column headers when printing in tibbles for better alignment with labels (<a href="https://github.com/tidyverse/haven/issues/676" class="external-link">#676</a>).</p></li>
+<li><p><code>write_*()</code> now accept functions as well as strings in the <code>.name_repair</code> argument in line with the documentation. Previously they only supported string values (<a href="https://github.com/tidyverse/haven/issues/684" class="external-link">#684</a>).</p></li>
+<li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> variable name validation no longer treats all non-ASCII characters as invalid (<a href="https://github.com/tidyverse/haven/issues/689" class="external-link">#689</a>).</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="2.5.0" id="haven-250">haven 2.5.0<a class="anchor" aria-label="anchor" href="#haven-250"></a></h2><p class="text-muted">CRAN release: 2022-04-15</p>
