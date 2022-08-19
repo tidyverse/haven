@@ -1,12 +1,14 @@
 # haven (development version)
 
-* Fix bug in `write_sav()` variable name validation causing it to treat all
-  non-ASCII characters as invalid (#689).
-
 * All `labelled()` vectors now have left-aligned column headers when printing
   in tibbles for better alignment with labels (#676).
   
-* The `write_` functions now accept functions as well as strings in the `.name_repair` argument in line with the documentation. Previously they only supported string values (#684).
+* `write_*()` now accept functions as well as strings in the 
+  `.name_repair` argument in line with the documentation. Previously they only 
+  supported string values (#684).
+
+* `write_sav()` variable name validation no longer treats all non-ASCII 
+  characters as invalid (#689).
 
 # haven 2.5.0
 
