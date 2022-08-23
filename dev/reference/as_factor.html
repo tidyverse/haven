@@ -16,7 +16,7 @@ it only affects labelled columns."><meta property="og:image" content="https://ha
     
     <a class="navbar-brand me-2" href="../index.html">haven</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">2.5.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">2.5.1.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -141,20 +141,20 @@ for backward compatibility.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Default method uses values where available</span></span></span>
 <span class="r-in"><span><span class="fu">as_factor</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 4    3    Good Bad  2    Good Bad  2    2    2   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 3    2    Bad  2    4    Bad  2    Good Bad  Good</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: Bad 2 3 4 Good</span>
 <span class="r-in"><span><span class="co"># You can also extract just the labels</span></span></span>
 <span class="r-in"><span><span class="fu">as_factor</span><span class="op">(</span><span class="va">x</span>, levels <span class="op">=</span> <span class="st">"labels"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] &lt;NA&gt; &lt;NA&gt; Good Bad  &lt;NA&gt; Good Bad  &lt;NA&gt; &lt;NA&gt; &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] &lt;NA&gt; &lt;NA&gt; Bad  &lt;NA&gt; &lt;NA&gt; Bad  &lt;NA&gt; Good Bad  Good</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: Bad Good</span>
 <span class="r-in"><span><span class="co"># Or just the values</span></span></span>
 <span class="r-in"><span><span class="fu">as_factor</span><span class="op">(</span><span class="va">x</span>, levels <span class="op">=</span> <span class="st">"values"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 4 3 5 1 2 5 1 2 2 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 3 2 1 2 4 1 2 5 1 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: 1 2 3 4 5</span>
 <span class="r-in"><span><span class="co"># Or combine value and label</span></span></span>
 <span class="r-in"><span><span class="fu">as_factor</span><span class="op">(</span><span class="va">x</span>, levels <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 4        3        [5] Good [1] Bad  2        [5] Good [1] Bad </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 2        2        2       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 3        2        [1] Bad  2        4        [1] Bad  2       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] [5] Good [1] Bad  [5] Good</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: [1] Bad 2 3 4 [5] Good</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># as_factor() will preserve SPSS missing values from values and ranges</span></span></span>
