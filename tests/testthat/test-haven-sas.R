@@ -274,3 +274,15 @@ test_that("can roundtrip format attribute", {
 
   expect_identical(df, out)
 })
+
+test_that("user width warns appropriately when data is wider than value", {
+  df <- tibble(
+    a = c("a", NA_character_),
+    b = c("b", "NA"),
+  )
+  attr(df$a, "width") <- 1
+  attr(df$b, "width") <- 1
+
+  path <- tempfile()
+  expect_snapshot(write_xpt(df, path))
+})
