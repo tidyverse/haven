@@ -187,8 +187,8 @@ test_that("warn only for conflicting labels", {
   })
 
   expect_snapshot_warning({
-    x <- labelled_spss(1:2, c(a = 1, b = 2, c = 3, d = 4, e = 5, f = 6, g = 7, h = 8, i = 9, j = 10, k = 11))
-    y <- labelled_spss(1:2, c(A = 1, B = 2, C = 3, D = 4, E = 5, F = 6, G = 7, H = 8, I = 9, J = 10, K = 11))
+    x <- labelled_spss(1:2, c(a = 1, b = 2, c = 3, d = 4, e = 5, f = 6, g = 7, h = 8, i = 9, j = 10, k = 11, l = 12))
+    y <- labelled_spss(1:2, c(A = 1, B = 2, C = 3, D = 4, E = 5, F = 6, G = 7, H = 8, I = 9, J = 10, K = 11, L = 12))
     c(x, y)
   })
 })

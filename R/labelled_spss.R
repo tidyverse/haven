@@ -74,6 +74,11 @@ vec_ptype_full.haven_labelled_spss <- function(x, ...) {
 }
 
 #' @export
+vec_ptype_abbr.haven_labelled_spss <- function(x, ...) {
+  paste0(vec_ptype_abbr(vec_data(x)), "+lbl")
+}
+
+#' @export
 obj_print_footer.haven_labelled_spss <- function(x, ...) {
   na_values <- attr(x, "na_values")
   if (!is.null(na_values)) {
