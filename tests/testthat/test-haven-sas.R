@@ -208,6 +208,23 @@ test_that("infinity gets converted to NA", {
   expect_equal(roundtrip_var(c(Inf, 0, -Inf), "sas"), c(NA, 0, NA))
 })
 
+test_that("invisibly returns original data unaltered", {
+  df <- data.frame(
+    x = structure(1:5, format.sas = "xyz"),
+    dt = seq(
+      as.POSIXct("2022-01-01 12:00:00", tz = "America/Chicago"),
+      by = "days",
+      length.out = 5
+    )
+  )
+
+  path <- tempfile()
+
+  df_returned <- write_sas(df, path)
+
+  expect_identical(df, df_returned)
+})
+
 # read_xpt ----------------------------------------------------------------
 
 test_that("can read date/times", {

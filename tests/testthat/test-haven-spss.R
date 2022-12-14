@@ -376,6 +376,23 @@ test_that("complain about invalid variable names", {
   expect_identical(names(df), names(out))
 })
 
+test_that("invisibly returns original data unaltered", {
+
+  df <- tibble(
+    x = 1:5,
+    dt = seq(
+      as.POSIXct("2022-01-01 12:00:00", tz = "America/Chicago"),
+      by = "days",
+      length.out = 5
+    )
+  )
+
+  path <- tempfile()
+  df_returned <- write_sav(df, path)
+
+  expect_identical(df, df_returned)
+})
+
 # max_level_lengths -------------------------------------------------------
 
 test_that("works with NA levels", {

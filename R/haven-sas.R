@@ -69,8 +69,9 @@ read_sas <- function(data_file, catalog_file = NULL,
 #' @export
 #' @rdname read_sas
 write_sas <- function(data, path) {
-  data <- validate_sas(data)
-  write_sas_(data, normalizePath(path, mustWork = FALSE))
+  validate_sas(data)
+  data_out <- adjust_tz(data)
+  write_sas_(data_out, normalizePath(path, mustWork = FALSE))
   invisible(data)
 }
 
@@ -130,9 +131,11 @@ write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "
   name <- validate_xpt_name(name, version)
   label <- validate_xpt_label(label)
 
-  data <- validate_sas(data)
+  validate_sas(data)
+  data_out <- adjust_tz(data)
+
   write_xpt_(
-    data,
+    data_out,
     normalizePath(path, mustWork = FALSE),
     version = version,
     name = name,
@@ -146,8 +149,6 @@ write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "
 
 validate_sas <- function(data) {
   stopifnot(is.data.frame(data))
-
-  adjust_tz(data)
 }
 
 validate_xpt_name <- function(name, version, call = caller_env()) {
