@@ -1,5 +1,8 @@
 # haven (development version)
 
+* Fixed issue in `write_*()` functions where invisible return of input data 
+  frame included unintended alteration of date/time variables. (@jmobrien, #702)
+
 * Fix bug in string variable width calculation that treated `NA` values as width
   2. `NA` values are now treated as blanks for width calculations (#699).
 
