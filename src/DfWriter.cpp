@@ -19,6 +19,14 @@ inline const bool string_is_missing(SEXP x, int i) {
   return STRING_ELT(x, i) == NA_STRING;
 }
 
+inline const int string_len_missing(SEXP x, int i) {
+  if (string_is_missing(x, i)) {
+    return 0;
+  } else {
+    return strlen(string_utf8(x, i));
+  }
+}
+
 
 inline readstat_measure_e measureType(SEXP x) {
   if (Rf_inherits(x, "ordered")) {
@@ -366,7 +374,7 @@ public:
     int user_width = userWidth(x);
     int max_length = 1;
     for (int i = 0; i < x.size(); ++i) {
-      int length = strlen(string_utf8(x, i));
+      int length = string_len_missing(x, i);
       if (length > max_length)
         max_length = length;
     }

@@ -1,5 +1,8 @@
 # haven (development version)
 
+* Fix bug in string variable width calculation that treated `NA` values as width
+  2. `NA` values are now treated as blanks for width calculations (#699).
+
 # haven 2.5.1
 
 * All `labelled()` vectors now have left-aligned column headers when printing
