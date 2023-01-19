@@ -38,22 +38,6 @@ test_that("tagged missings are read correctly", {
   expect_equal(na_tag(labels), c("a", "z"))
 })
 
-test_that("default name repair can be overridden", {
-  df <- data.frame(1:3, 1:3)
-  colnames(df) <- c("id", "id")
-
-  path <- tempfile()
-  write_sas(df, path)
-
-  expect_message(
-    expect_equal(names(read_sas(path)), c("id...1", "id...2")),
-    "id...1"
-  )
-  expect_equal(names(read_sas(path, .name_repair = "minimal")), c("id", "id"))
-  expect_equal(names(read_sas(path, .name_repair = make.names)), c("id", "id"))
-  expect_equal(names(read_sas(path, .name_repair = ~rep_len("a", length(.x)))), c("a", "a"))
-})
-
 test_that("connections are read", {
   file_conn <- file(test_path("sas/hadley.sas7bdat"))
   expect_identical(read_sas(file_conn), read_sas("sas/hadley.sas7bdat"))
@@ -150,62 +134,6 @@ test_that("using cols_only warns about deprecation, but works", {
     "is deprecated"
   )
   expect_named(out, "id")
-})
-
-# write_sas ---------------------------------------------------------------
-
-test_that("can roundtrip basic types", {
-  x <- runif(10)
-  expect_equal(roundtrip_var(x, "sas"), x)
-  expect_equal(roundtrip_var(1:10, "sas"), 1:10)
-  expect_equal(roundtrip_var(c(TRUE, FALSE), "sas"), c(1, 0))
-  expect_equal(roundtrip_var(letters, "sas"), letters)
-})
-
-test_that("can roundtrip missing values (as much as possible)", {
-  expect_equal(roundtrip_var(NA, "sas"), NA_integer_)
-  expect_equal(roundtrip_var(NA_real_, "sas"), NA_real_)
-  expect_equal(roundtrip_var(NA_integer_, "sas"), NA_integer_)
-  expect_equal(roundtrip_var(NA_character_, "sas"), "")
-})
-
-test_that("can write labelled with NULL labels", {
-  int <- labelled(c(1L, 2L), NULL)
-  num <- labelled(c(1, 2), NULL)
-  chr <- labelled(c("a", "b"), NULL)
-
-  expect_equal(roundtrip_var(int, "sas"), c(1L, 2L))
-  expect_equal(roundtrip_var(num, "sas"), c(1, 2))
-  expect_equal(roundtrip_var(chr, "sas"), c("a", "b"))
-})
-
-test_that("can roundtrip date times", {
-  x1 <- c(as.Date("2010-01-01"), NA)
-  expect_equal(roundtrip_var(x1, "sas"), x1)
-
-  # converted to same time in UTC
-  x2 <- as.POSIXct("2010-01-01 09:00", tz = "Pacific/Auckland")
-  expect_equal(
-    roundtrip_var(x2, "sas"),
-    as.POSIXct("2010-01-01 09:00", tz = "UTC")
-  )
-
-  attr(x2, "label") <- "abc"
-  expect_equal(attr(roundtrip_var(x2, "sas"), "label"), "abc")
-})
-
-test_that("can roundtrip format attribute", {
-  df <- data.frame(x = structure(1:5, format.sas = "xyz"))
-  path <- tempfile()
-
-  write_sas(df, path)
-  out <- read_sas(path)
-
-  expect_equal(df$x, out$x)
-})
-
-test_that("infinity gets converted to NA", {
-  expect_equal(roundtrip_var(c(Inf, 0, -Inf), "sas"), c(NA, 0, NA))
 })
 
 # read_xpt ----------------------------------------------------------------

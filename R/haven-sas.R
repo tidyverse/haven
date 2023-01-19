@@ -1,13 +1,10 @@
-#' Read and write SAS files
+#' Read SAS files
 #'
 #' `read_sas()` supports both sas7bdat files and the accompanying sas7bcat files
-#' that SAS uses to record value labels. `write_sas()` is currently experimental
-#' and only works for limited datasets.
+#' that SAS uses to record value labels.
 #'
 #' @param data_file,catalog_file Path to data and catalog files. The files are
 #'   processed with [readr::datasource()].
-#' @param data Data frame to write.
-#' @param path Path to file where the data will be written.
 #' @param encoding,catalog_encoding The character encoding used for the
 #'   `data_file` and `catalog_encoding` respectively. A value of `NULL` uses the
 #'   encoding specified in the file; use this argument to override it if it is
@@ -66,9 +63,24 @@ read_sas <- function(data_file, catalog_file = NULL,
   )
 }
 
+#' Write SAS files
+#'
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `write_sas()` creates sas7bdat files. Unfortunately the SAS file format is
+#' complex and undocumented, so `write_sas()` is unreliable and in most cases
+#' SAS will not read files that it produces.
+#'
+#' [write_xpt()] writes files in the open SAS transport format, which has
+#' limitations but will be reliably read by SAS.
+#'
+#' @param data Data frame to write.
+#' @param path Path to file where the data will be written.
+#' @keywords internal
 #' @export
-#' @rdname read_sas
 write_sas <- function(data, path) {
+  lifecycle::deprecate_warn("2.6.0", "write_sas()", "write_xpt()")
   data <- validate_sas(data)
   write_sas_(data, normalizePath(path, mustWork = FALSE))
   invisible(data)

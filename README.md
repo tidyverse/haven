@@ -20,27 +20,28 @@ statistical packages by wrapping the fantastic
 [Evan Miller](https://www.evanmiller.org). Haven is part of the
 [tidyverse](https://www.tidyverse.org/). Currently it supports:
 
--   **SAS**: `read_sas()` reads `.sas7bdat` + `.sas7bcat` files and
-    `read_xpt()` reads SAS transport files (version 5 and version 8).
+- **SAS**: `read_sas()` reads `.sas7bdat` + `.sas7bcat` files and
+  `read_xpt()` reads SAS transport files (versions 5 and 8).
+  `write_xpt()` writes SAS transport files (versions 5 and 8).
 
--   **SPSS**: `read_sav()` reads `.sav` files and `read_por()` reads the
-    older `.por` files. `write_sav()` writes `.sav` files.
+- **SPSS**: `read_sav()` reads `.sav` files and `read_por()` reads the
+  older `.por` files. `write_sav()` writes `.sav` files.
 
--   **Stata**: `read_dta()` reads `.dta` files (up to version 15).
-    `write_dta()` writes `.dta` files (versions 8-15).
+- **Stata**: `read_dta()` reads `.dta` files (up to version 15).
+  `write_dta()` writes `.dta` files (versions 8-15).
 
 The output objects:
 
--   Are [tibbles](https://github.com/tidyverse/tibble), which have a
-    better print method for very long and very wide files.
+- Are [tibbles](https://github.com/tidyverse/tibble), which have a
+  better print method for very long and very wide files.
 
--   Translate value labels into a new `labelled()` class, which
-    preserves the original semantics and can easily be coerced to
-    factors with `as_factor()`. Special missing values are preserved.
-    See `vignette("semantics")` for more details.
+- Translate value labels into a new `labelled()` class, which preserves
+  the original semantics and can easily be coerced to factors with
+  `as_factor()`. Special missing values are preserved. See
+  `vignette("semantics")` for more details.
 
--   Dates and times are converted to R date/time classes. Character
-    vectors are not converted to factors.
+- Dates and times are converted to R date/time classes. Character
+  vectors are not converted to factors.
 
 ## Installation
 
@@ -72,14 +73,14 @@ write_dta(mtcars, "mtcars.dta")
 
 ## Related work
 
--   [foreign](https://cran.r-project.org/package=foreign) reads from SAS
-    XPORT, SPSS, and Stata (up to version 12) files.
+- [foreign](https://cran.r-project.org/package=foreign) reads from SAS
+  XPORT, SPSS, and Stata (up to version 12) files.
 
--   [readstat13](https://cran.r-project.org/package=readstata13) reads
-    from and writes to all Stata file format versions.
+- [readstat13](https://cran.r-project.org/package=readstata13) reads
+  from and writes to all Stata file format versions.
 
--   [sas7bdat](https://cran.r-project.org/package=sas7bdat) reads from
-    SAS7BDAT files.
+- [sas7bdat](https://cran.r-project.org/package=sas7bdat) reads from
+  SAS7BDAT files.
 
 ## Code of Conduct
 
