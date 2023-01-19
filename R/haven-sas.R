@@ -149,6 +149,7 @@ write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "
 
 validate_sas <- function(data) {
   stopifnot(is.data.frame(data))
+  invisible(data)
 }
 
 validate_xpt_name <- function(name, version, call = caller_env()) {

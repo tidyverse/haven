@@ -166,6 +166,7 @@ validate_sav <- function(data, call = caller_env()) {
       call = call
     )
   }
+  invisible(data)
 }
 
 # Helpers -----------------------------------------------------------------

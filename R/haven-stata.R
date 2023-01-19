@@ -150,7 +150,7 @@ validate_dta <- function(data, version, call = caller_env()) {
       call = call
     )
   }
-
+  invisible(data)
 }
 
 validate_dta_label <- function(label, call = caller_env()) {
