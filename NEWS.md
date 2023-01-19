@@ -1,5 +1,11 @@
 # haven (development version)
 
+* The experimental `write_sas()` function has been deprecated (#224). The
+  sas7bdat file format is complex and undocumented, and as such writing SAS
+  files is not officially supported by ReadStat. `write_xpt()` should be used
+  instead - it produces files in the SAS transport format, which has
+  limitations but will be reliably read by SAS.
+
 * Fix bug in string variable width calculation that treated `NA` values as width
   2. `NA` values are now treated as blanks for width calculations (#699).
 
