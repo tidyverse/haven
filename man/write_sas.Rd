@@ -21,3 +21,4 @@ SAS will not read files that it produces.
 \code{\link[=write_xpt]{write_xpt()}} writes files in the open SAS transport format, which has
 limitations but will be reliably read by SAS.
 }
+\keyword{internal}

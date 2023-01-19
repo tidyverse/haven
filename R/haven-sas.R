@@ -77,6 +77,7 @@ read_sas <- function(data_file, catalog_file = NULL,
 #'
 #' @param data Data frame to write.
 #' @param path Path to file where the data will be written.
+#' @keywords internal
 #' @export
 write_sas <- function(data, path) {
   lifecycle::deprecate_warn("2.6.0", "write_sas()", "write_xpt()")
