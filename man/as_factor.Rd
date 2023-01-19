@@ -5,7 +5,7 @@
 \alias{as_factor.data.frame}
 \alias{as_factor.haven_labelled}
 \alias{as_factor.labelled}
-\title{Convert input to a factor.}
+\title{Convert labelled vectors to factors}
 \usage{
 \method{as_factor}{data.frame}(x, ..., only_labelled = TRUE)
 
@@ -43,10 +43,10 @@ Labels are sorted by value.
 \code{FALSE} (the default) create a regular (nominal) factor.}
 }
 \description{
-The base function \code{as.factor()} is not a generic, but this variant
-is. Methods are provided for factors, character vectors, labelled
-vectors, and data frames. By default, when applied to a data frame,
-it only affects \link{labelled} columns.
+The base function \code{as.factor()} is not a generic, but \code{\link[forcats:as_factor]{forcats::as_factor()}}
+is. haven provides \code{as_factor()} methods for \code{\link[=labelled]{labelled()}} and
+\code{\link[=labelled_spss]{labelled_spss()}} vectors, and data frames. By default, when applied to a
+data frame, it only affects labelled columns.
 }
 \details{
 Includes methods for both class \code{haven_labelled} and \code{labelled}
