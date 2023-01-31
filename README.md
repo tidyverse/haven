@@ -60,7 +60,7 @@ library(haven)
 
 # SAS
 read_sas("mtcars.sas7bdat")
-write_sas(mtcars, "mtcars.sas7bdat")
+write_xpt(mtcars, "mtcars.xpt")
 
 # SPSS
 read_sav("mtcars.sav")
