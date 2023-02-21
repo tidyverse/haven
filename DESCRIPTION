@@ -34,7 +34,8 @@ Suggests:
     knitr,
     pillar (>= 1.4.0),
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    utf8
 LinkingTo: 
     cpp11
 VignetteBuilder: 
