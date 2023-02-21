@@ -38,17 +38,6 @@ test_that("tagged missings are read correctly", {
   expect_equal(na_tag(labels), c("a", "z"))
 })
 
-test_that("default name repair can be overridden", {
-  df <- data.frame(1:3, 1:3)
-  colnames(df) <- c("id", "id")
-
-  path <- tempfile()
-  write_sas(df, path)
-
-  expect_message(read_sas(path), "id...1")
-  expect_message(read_sas(path, .name_repair = "minimal"), NA)
-})
-
 test_that("connections are read", {
   file_conn <- file(test_path("sas/hadley.sas7bdat"))
   expect_identical(read_sas(file_conn), read_sas("sas/hadley.sas7bdat"))
@@ -100,7 +89,7 @@ test_that("throws informative error on bad row limit", {
   }
 
   expect_error(rows_with_limit(1:5), "must have length 1")
-  expect_error(rows_with_limit("foo"), "must be numeric")
+  expect_error(rows_with_limit("foo"), "must be <numeric>")
 })
 
 # Column selection --------------------------------------------------------
@@ -140,61 +129,11 @@ test_that("can select columns when a catalog file is present", {
 })
 
 test_that("using cols_only warns about deprecation, but works", {
-  out <- expect_warning(
-    read_sas(test_path("sas/hadley.sas7bdat"), cols_only = "id"),
+  expect_warning(
+    out <- read_sas(test_path("sas/hadley.sas7bdat"), cols_only = "id"),
     "is deprecated"
   )
   expect_named(out, "id")
-})
-
-# write_sas ---------------------------------------------------------------
-
-test_that("can roundtrip basic types", {
-  x <- runif(10)
-  expect_equal(roundtrip_var(x, "sas"), x)
-  expect_equal(roundtrip_var(1:10, "sas"), 1:10)
-  expect_equal(roundtrip_var(c(TRUE, FALSE), "sas"), c(1, 0))
-  expect_equal(roundtrip_var(letters, "sas"), letters)
-})
-
-test_that("can roundtrip missing values (as much as possible)", {
-  expect_equal(roundtrip_var(NA, "sas"), NA_integer_)
-  expect_equal(roundtrip_var(NA_real_, "sas"), NA_real_)
-  expect_equal(roundtrip_var(NA_integer_, "sas"), NA_integer_)
-  expect_equal(roundtrip_var(NA_character_, "sas"), "")
-})
-
-test_that("can write labelled with NULL labels", {
-  int <- labelled(c(1L, 2L), NULL)
-  num <- labelled(c(1, 2), NULL)
-  chr <- labelled(c("a", "b"), NULL)
-
-  expect_equal(roundtrip_var(int, "sas"), c(1L, 2L))
-  expect_equal(roundtrip_var(num, "sas"), c(1, 2))
-  expect_equal(roundtrip_var(chr, "sas"), c("a", "b"))
-})
-
-test_that("can roundtrip date times", {
-  x1 <- c(as.Date("2010-01-01"), NA)
-  x2 <- as.POSIXct(x1)
-  attr(x2, "tzone") <- "UTC"
-
-  expect_equal(roundtrip_var(x1, "sas"), x1)
-  expect_equal(roundtrip_var(x2, "sas"), x2)
-})
-
-test_that("can roundtrip format attribute", {
-  df <- data.frame(x = structure(1:5, format.sas = "xyz"))
-  path <- tempfile()
-
-  write_sas(df, path)
-  out <- read_sas(path)
-
-  expect_equal(df$x, out$x)
-})
-
-test_that("infinity gets converted to NA", {
-  expect_equal(roundtrip_var(c(Inf, 0, -Inf), "sas"), c(NA, 0, NA))
 })
 
 # read_xpt ----------------------------------------------------------------
@@ -231,4 +170,47 @@ test_that("invalid files generate informative errors", {
   expect_snapshot(error = TRUE, {
     write_xpt(mtcars, file.path(tempdir(), " temp.xpt"))
   })
+})
+
+test_that("can roundtrip file labels", {
+  df <- tibble(x = 1)
+  expect_null(attr(roundtrip_xpt(df), "label"))
+  expect_equal(attr(roundtrip_xpt(df, label = "abcd"), "label"), "abcd")
+
+  attr(df, "label") <- "abc"
+  expect_equal(attr(roundtrip_xpt(df), "label"), "abc")
+  expect_equal(attr(roundtrip_xpt(df, label = "abcd"), "label"), "abcd")
+  expect_null(attr(roundtrip_xpt(df, label = NULL), "label"))
+})
+
+test_that("can roundtrip format attribute", {
+  df <- tibble(
+    char_var = structure("Hello!", format.sas = "$CHAR"),
+    long_char = structure("111111111111111", format.sas = "$CHAR10"),
+    date_var = structure(Sys.Date(), format.sas = "DATE9"),
+    a = structure(100.12345, format.sas = "10.3"),
+    b = structure(100.12345, format.sas = "10"),
+    c = structure(100.12345, format.sas = "F10.3"),
+    d = structure(100.12345, format.sas = "F10"),
+    e = structure(100.12345, format.sas = "COMMA10.3")
+  )
+
+  path <- tempfile()
+
+  write_xpt(df, path)
+  out <- read_xpt(path)
+
+  expect_identical(df, out)
+})
+
+test_that("user width warns appropriately when data is wider than value", {
+  df <- tibble(
+    a = c("a", NA_character_),
+    b = c("b", "NA"),
+  )
+  attr(df$a, "width") <- 1
+  attr(df$b, "width") <- 1
+
+  path <- tempfile()
+  expect_snapshot(write_xpt(df, path))
 })

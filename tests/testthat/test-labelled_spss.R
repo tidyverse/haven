@@ -4,12 +4,11 @@ test_that("constructor checks na_value", {
   expect_snapshot(error = TRUE, {
     labelled_spss(1:10, na_values = "a")
     labelled_spss(1:10, na_values = NA_integer_)
-
   })
 })
 
 test_that("constructor checks na_range", {
-  expect_snapshot(error = TRUE,{
+  expect_snapshot(error = TRUE, {
     labelled_spss(1:10, na_range = "a")
     labelled_spss(1:10, na_range = 1:3)
     labelled_spss(1:10, na_range = c(2, NA))
@@ -39,7 +38,8 @@ test_that("subsetting preserves attributes", {
 test_that("labels must be unique", {
   expect_error(
     labelled_spss(1, c(female = 1, male = 1), na_values = 9),
-    "must be unique")
+    "must be unique"
+  )
 })
 
 # is.na -------------------------------------------------------------------
@@ -157,14 +157,40 @@ test_that("can combine names", {
   expect_named(vec_c(x, c(y = 1L)), c("x", "y"))
 })
 
-test_that("strip labels if different", {
-  expect_equal(
-    vec_c(
-      labelled_spss(1, labels = c(Good = 1, Bad = 5)),
-      labelled_spss(5, labels = c(Bad = 1, Good = 5)),
-    ),
-    labelled_spss(c(1, 5), labels = c(Good = 1, Bad = 5))
-  )
+test_that("take labels from LHS", {
+  expect_snapshot_warning({
+    expect_equal(
+      vec_c(
+        labelled_spss(1, labels = c(Good = 1, Bad = 5)),
+        labelled_spss(5, labels = c(Bad = 1, Good = 5)),
+      ),
+      labelled_spss(c(1, 5), labels = c(Good = 1, Bad = 5))
+    )
+  })
+
+  expect_snapshot_warning({
+    expect_equal(
+      vec_c(
+        labelled_spss(1, labels = c(Good = 1)),
+        labelled_spss(5, labels = c(Bad = 1)),
+      ),
+      labelled_spss(c(1, 5), labels = c(Good = 1))
+    )
+  })
+})
+
+test_that("warn only for conflicting labels", {
+  expect_snapshot_warning({
+    x <- labelled_spss(1:2, c(Yes = 1, No = 2))
+    y <- labelled_spss(1:2, c(Female = 1, Male = 2, Other = 3))
+    c(x, y)
+  })
+
+  expect_snapshot_warning({
+    x <- labelled_spss(1:2, c(a = 1, b = 2, c = 3, d = 4, e = 5, f = 6, g = 7, h = 8, i = 9, j = 10, k = 11, l = 12))
+    y <- labelled_spss(1:2, c(A = 1, B = 2, C = 3, D = 4, E = 5, F = 6, G = 7, H = 8, I = 9, J = 10, K = 11, L = 12))
+    c(x, y)
+  })
 })
 
 test_that("strip user missing if different", {

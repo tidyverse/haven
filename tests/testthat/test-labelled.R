@@ -22,12 +22,16 @@ test_that("labels must have names", {
 })
 
 test_that("label must be length 1 character or missing", {
-  expect_error(labelled(1, c(female=1)), NA)
-    expect_error(labelled(1, c(female=1), label = "foo"), NA)
-  expect_error(labelled(1, c(female=1), label = 1),
-               "character vector of length one")
-  expect_error(labelled(1, c(female=1), label = c("foo", "bar")),
-               "character vector of length one")
+  expect_error(labelled(1, c(female = 1)), NA)
+  expect_error(labelled(1, c(female = 1), label = "foo"), NA)
+  expect_error(
+    labelled(1, c(female = 1), label = 1),
+    "character vector of length one"
+  )
+  expect_error(
+    labelled(1, c(female = 1), label = c("foo", "bar")),
+    "character vector of length one"
+  )
 })
 
 test_that("labels must be unique", {
@@ -145,13 +149,39 @@ test_that("can combine names", {
 })
 
 test_that("take labels from LHS", {
-  expect_equal(
-    vec_c(
-      labelled(1, labels = c(Good = 1, Bad = 5)),
-      labelled(5, labels = c(Bad = 1, Good = 5)),
-    ),
-    labelled(c(1, 5), labels = c(Good = 1, Bad = 5))
-  )
+  expect_snapshot_warning({
+    expect_equal(
+      vec_c(
+        labelled(1, labels = c(Good = 1, Bad = 5)),
+        labelled(5, labels = c(Bad = 1, Good = 5)),
+      ),
+      labelled(c(1, 5), labels = c(Good = 1, Bad = 5))
+    )
+  })
+
+  expect_snapshot_warning({
+    expect_equal(
+      vec_c(
+        labelled(1, labels = c(Good = 1)),
+        labelled(5, labels = c(Bad = 1)),
+      ),
+      labelled(c(1, 5), labels = c(Good = 1))
+    )
+  })
+})
+
+test_that("warn only for conflicting labels", {
+  expect_snapshot_warning({
+    x <- labelled(1:2, c(Yes = 1, No = 2))
+    y <- labelled(1:2, c(Female = 1, Male = 2, Other = 3))
+    c(x, y)
+  })
+
+  expect_snapshot_warning({
+    x <- labelled(1:2, c(a = 1, b = 2, c = 3, d = 4, e = 5, f = 6, g = 7, h = 8, i = 9, j = 10, k = 11, l = 12))
+    y <- labelled(1:2, c(A = 1, B = 2, C = 3, D = 4, E = 5, F = 6, G = 7, H = 8, I = 9, J = 10, K = 11, L = 12))
+    c(x, y)
+  })
 })
 
 test_that("combining picks label from the left", {

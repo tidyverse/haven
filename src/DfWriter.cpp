@@ -2,6 +2,7 @@
 #include "haven_types.h"
 #include "tagged_na.h"
 
+#include <unordered_map>
 #include "cpp11/doubles.hpp"
 #include "cpp11/strings.hpp"
 #include "cpp11/integers.hpp"
@@ -16,6 +17,14 @@ inline const char* string_utf8(SEXP x, int i) {
 
 inline const bool string_is_missing(SEXP x, int i) {
   return STRING_ELT(x, i) == NA_STRING;
+}
+
+inline const int string_len_missing(SEXP x, int i) {
+  if (string_is_missing(x, i)) {
+    return 0;
+  } else {
+    return strlen(string_utf8(x, i));
+  }
 }
 
 
@@ -49,17 +58,30 @@ inline int displayWidth(cpp11::sexp x) {
   return 0;
 }
 
+inline int userWidth(cpp11::sexp x) {
+  cpp11::sexp user_width_obj(x.attr("width"));
+  switch(TYPEOF(user_width_obj)) {
+  case INTSXP:
+    return INTEGER(user_width_obj)[0];
+  case REALSXP:
+    return REAL(user_width_obj)[0];
+  }
+  return 0;
+}
 
 class Writer {
   FileExt ext_;
   FileVendor vendor_;
+  int version_;
+  int strl_threshold_;
+  std::unordered_map<std::string, readstat_string_ref_t*> string_ref_;
 
   cpp11::list x_;
   readstat_writer_t* writer_;
   FILE* pOut_;
 
 public:
-  Writer(FileExt ext, cpp11::list x, cpp11::strings pathEnc): ext_(ext), vendor_(extVendor(ext)), x_(x) {
+  Writer(FileExt ext, cpp11::list x, cpp11::strings pathEnc): ext_(ext), vendor_(extVendor(ext)), version_(0), x_(x) {
     std::string path(Rf_translateChar(pathEnc[0]));
 
     pOut_ = fopen(path.c_str(), "wb");
@@ -82,6 +104,7 @@ public:
   }
 
   void setVersion(int version) {
+    version_ = version;
     readstat_writer_set_file_format_version(writer_, version);
   }
 
@@ -94,6 +117,10 @@ public:
       return;
 
     readstat_writer_set_file_label(writer_, string_utf8(label, 0));
+  }
+
+  void setStrLThreshold(int strl_threshold) {
+    strl_threshold_ = strl_threshold;
   }
 
   void write() {
@@ -260,12 +287,29 @@ public:
     }
 
     readstat_variable_t* var =
-      readstat_add_variable(writer_, name, READSTAT_TYPE_INT32, 0);
+      readstat_add_variable(writer_, name, READSTAT_TYPE_INT32, userWidth(x));
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
     readstat_variable_set_display_width(var, displayWidth(x));
+
+    if (Rf_inherits(x, "haven_labelled_spss")) {
+      SEXP na_range = x.attr("na_range");
+      if (TYPEOF(na_range) == REALSXP && Rf_length(na_range) == 2) {
+        readstat_variable_add_missing_double_range(var, REAL(na_range)[0], REAL(na_range)[1]);
+      } else if (TYPEOF(na_range) == INTSXP && Rf_length(na_range) == 2) {
+        readstat_variable_add_missing_double_range(var, INTEGER(na_range)[0], INTEGER(na_range)[1]);
+      }
+
+      SEXP na_values = x.attr("na_values");
+      if (TYPEOF(na_values) == INTSXP) {
+        int n = Rf_length(na_values);
+        for (int i = 0; i < n; ++i) {
+          readstat_variable_add_missing_double_value(var, INTEGER(na_values)[i]);
+        }
+      }
+    }
     return readstat_validate_variable(writer_, var);
   }
 
@@ -288,7 +332,7 @@ public:
     }
 
     readstat_variable_t* var =
-      readstat_add_variable(writer_, name, READSTAT_TYPE_DOUBLE, 0);
+      readstat_add_variable(writer_, name, READSTAT_TYPE_DOUBLE, userWidth(x));
 
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
@@ -300,6 +344,8 @@ public:
       SEXP na_range = x.attr("na_range");
       if (TYPEOF(na_range) == REALSXP && Rf_length(na_range) == 2) {
         readstat_variable_add_missing_double_range(var, REAL(na_range)[0], REAL(na_range)[1]);
+      } else if (TYPEOF(na_range) == INTSXP && Rf_length(na_range) == 2) {
+        readstat_variable_add_missing_double_range(var, INTEGER(na_range)[0], INTEGER(na_range)[1]);
       }
 
       SEXP na_values = x.attr("na_values");
@@ -324,15 +370,39 @@ public:
       for (int i = 0; i < values.size(); ++i)
         readstat_label_string_value(labelSet, string_utf8(values, i), string_utf8(labels, i));
     }
-    int max_length = 0;
+
+    int user_width = userWidth(x);
+    int max_length = 1;
     for (int i = 0; i < x.size(); ++i) {
-      int length = strlen(string_utf8(x, i));
+      int length = string_len_missing(x, i);
       if (length > max_length)
         max_length = length;
     }
+    if (max_length > user_width) {
+      if (user_width > 0) {
+        cpp11::warning("Column `%s` contains string values longer than user width %d. Width set to %d to accommodate.", name, user_width, max_length);
+      }
+      user_width = max_length;
+    }
 
-    readstat_variable_t* var =
-      readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, max_length);
+
+    // Use strL for "long" strings in stata. strL has an 80 byte overhead so
+    // we use it when it's likely to be more efficient. The main downside of
+    // strL is that it can't be used as a join key but this seems unlikely for
+    // very long strings.
+    readstat_variable_t* var;
+    if (ext_ == HAVEN_DTA && version_ >= 117 && user_width > strl_threshold_) {
+      var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING_REF, user_width);
+      for (int i = 0; i < x.size(); ++i) {
+        std::string val(string_utf8(x, i));
+        if (!string_ref_.count(val)) {
+          string_ref_[val] = readstat_add_string_ref(writer_, val.c_str());
+        }
+      }
+    } else {
+      var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, user_width);
+    }
+
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
@@ -388,6 +458,9 @@ public:
   readstat_error_t insertValue(readstat_variable_t* var, const char* val, bool is_missing) {
     if (is_missing) {
       return readstat_insert_missing_value(writer_, var);
+    } else if (var->type == READSTAT_TYPE_STRING_REF) {
+      std::string val_s(val);
+      return readstat_insert_string_ref(writer_, var, string_ref_[val_s]);
     } else {
       return readstat_insert_string_value(writer_, var, val);
     }
@@ -411,20 +484,23 @@ ssize_t data_writer(const void *data, size_t len, void *ctx) {
 }
 
 [[cpp11::register]]
-void write_sav_(cpp11::list data, cpp11::strings path, bool compress) {
+void write_sav_(cpp11::list data, cpp11::strings path, std::string compress) {
   Writer writer(HAVEN_SAV, data, path);
-  if (compress)
+  if (compress == "zsav")
     writer.setCompression(READSTAT_COMPRESS_BINARY);
+  else if (compress == "none")
+    writer.setCompression(READSTAT_COMPRESS_NONE);
   else
     writer.setCompression(READSTAT_COMPRESS_ROWS);
   writer.write();
 }
 
 [[cpp11::register]]
-void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label) {
+void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label, int strl_threshold) {
   Writer writer(HAVEN_DTA, data, path);
   writer.setVersion(version);
   writer.setFileLabel(label);
+  writer.setStrLThreshold(strl_threshold);
   writer.write();
 }
 
@@ -434,9 +510,10 @@ void write_sas_(cpp11::list data, cpp11::strings path) {
 }
 
 [[cpp11::register]]
-void write_xpt_(cpp11::list data, cpp11::strings path, int version, std::string name) {
+void write_xpt_(cpp11::list data, cpp11::strings path, int version, std::string name, cpp11::sexp label) {
   Writer writer(HAVEN_XPT, data, path);
   writer.setVersion(version);
   writer.setName(name);
+  writer.setFileLabel(label);
   writer.write();
 }

@@ -1,9 +1,9 @@
-#' Convert input to a factor.
+#' Convert labelled vectors to factors
 #'
-#' The base function `as.factor()` is not a generic, but this variant
-#' is. Methods are provided for factors, character vectors, labelled
-#' vectors, and data frames. By default, when applied to a data frame,
-#' it only affects [labelled] columns.
+#' The base function `as.factor()` is not a generic, but [forcats::as_factor()]
+#' is. haven provides `as_factor()` methods for [labelled()] and
+#' [labelled_spss()] vectors, and data frames. By default, when applied to a
+#' data frame, it only affects labelled columns.
 #'
 #' Includes methods for both class `haven_labelled` and `labelled`
 #' for backward compatibility.
@@ -60,7 +60,7 @@ as_factor.data.frame <- function(x, ..., only_labelled = TRUE) {
 #' @rdname as_factor
 #' @export
 as_factor.haven_labelled <- function(x, levels = c("default", "labels", "values", "both"),
-                               ordered = FALSE, ...) {
+                                     ordered = FALSE, ...) {
   levels <- match.arg(levels)
   label <- attr(x, "label", exact = TRUE)
   labels <- attr(x, "labels")

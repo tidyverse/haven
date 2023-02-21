@@ -2,15 +2,19 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <wchar.h>
-#if !defined(_MSC_VER)
-#   include <unistd.h>
-#endif
+
 #if defined _WIN32
 #   include <windows.h>
+#   include <io.h>
 #endif
 
-#include "readstat.h"
-#include "readstat_io_unistd.h"
+#if !defined(_MSC_VER)
+#   include <unistd.h>
+#else
+#define open _open
+#define read _read
+#define close _close
+#endif
 
 #if defined _WIN32 || defined __CYGWIN__
 #define UNISTD_OPEN_OPTIONS O_RDONLY | O_BINARY
@@ -20,13 +24,14 @@
 #define UNISTD_OPEN_OPTIONS O_RDONLY
 #endif
 
-#if defined _MSC_VER && defined WIN64
+#if defined _WIN32
 #define lseek _lseeki64
-#elif defined _MSC_VER
-#elif defined _WIN32 || defined _AIX
+#elif defined _AIX
 #define lseek lseek64
 #endif
 
+#include "readstat.h"
+#include "readstat_io_unistd.h"
 
 int open_with_unicode(const char *path, int options)
 {
@@ -102,7 +107,7 @@ readstat_error_t unistd_update_handler(long file_size,
         return READSTAT_OK;
 
     int fd = ((unistd_io_ctx_t*) io_ctx)->fd;
-    long current_offset = lseek(fd, 0, SEEK_CUR);
+    readstat_off_t current_offset = lseek(fd, 0, SEEK_CUR);
 
     if (current_offset == -1)
         return READSTAT_ERROR_SEEK;

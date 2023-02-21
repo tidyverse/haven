@@ -120,6 +120,10 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 248,   .name = "SHIFT_JISX0213" },
 };
 
+static time_t sas_epoch() {
+    return - 3653 * 86400; // seconds between 01-01-1960 and 01-01-1970
+}
+
 static time_t sas_convert_time(double time, time_t epoch) {
     time += epoch;
     if (isnan(time))
@@ -159,8 +163,7 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
     sas_header_end_t    header_end;
     int retval = READSTAT_OK;
     char error_buf[1024];
-    struct tm epoch_tm = { .tm_year = 60, .tm_mday = 1 };
-    time_t epoch = mktime(&epoch_tm);
+    time_t epoch = sas_epoch();
 
     if (io->read(&header_start, sizeof(sas_header_start_t), io->io_ctx) < sizeof(sas_header_start_t)) {
         retval = READSTAT_ERROR_READ;
@@ -251,7 +254,7 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
     }
-    if (hinfo->header_size > (1<<20) || hinfo->page_size > (1<<24)) {
+    if (hinfo->header_size > (1<<24) || hinfo->page_size > (1<<24)) {
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
     }
@@ -296,17 +299,27 @@ readstat_error_t sas_read_header(readstat_io_t *io, sas_header_info_t *hinfo,
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
-    int major, minor, revision;
-    if (sscanf(header_end.release, "%1d.%04dM%1d", &major, &minor, &revision) != 3) {
+    char major;
+    int minor, revision;
+    if (sscanf(header_end.release, "%c.%04dM%1d", &major, &minor, &revision) != 3) {
         retval = READSTAT_ERROR_PARSE;
         goto cleanup;
     }
 
-    hinfo->major_version = major;
+    if (major >= '1' && major <= '9') {
+        hinfo->major_version = major - '0';
+    } else if (major == 'V') {
+        // It appears that SAS Visual Forecaster reports the major version as "V"
+        // Treat it as version 9 for all intents and purposes
+        hinfo->major_version = 9;
+    } else {
+        retval = READSTAT_ERROR_PARSE;
+        goto cleanup;
+    }
     hinfo->minor_version = minor;
     hinfo->revision = revision;
 
-    if ((major == 8 || major == 9) && minor == 0 && revision == 0) {
+    if ((major == '8' || major == '9') && minor == 0 && revision == 0) {
         /* A bit of a hack, but most SAS installations are running a minor update */
         hinfo->vendor = READSTAT_VENDOR_STAT_TRANSFER;
     } else {
@@ -328,8 +341,7 @@ cleanup:
 
 readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *hinfo, sas_header_start_t header_start) {
     readstat_error_t retval = READSTAT_OK;
-    struct tm epoch_tm = { .tm_year = 60, .tm_mday = 1 };
-    time_t epoch = mktime(&epoch_tm);
+    time_t epoch = sas_epoch();
 
     memset(header_start.table_name, ' ', sizeof(header_start.table_name));
 

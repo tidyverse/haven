@@ -7,6 +7,7 @@
 #include <math.h>
 #include <float.h>
 #include <time.h>
+#include <limits.h>
 
 #include "../readstat.h"
 #include "../readstat_bits.h"
@@ -24,6 +25,7 @@
 #endif
 
 #define DATA_BUFFER_SIZE    65536
+#define VERY_LONG_STRING_MAX_LENGTH INT_MAX
 
 /* Others defined in table below */
 
@@ -690,6 +692,7 @@ static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len
     size_t raw_str_used = 0;
     int segment_offset = 0;
     int var_index = 0, col = 0;
+    int raw_str_is_utf8 = ctx->input_encoding && !strcmp(ctx->input_encoding, "UTF-8");
 
     while (data_offset < buffer_len && col < ctx->var_index && var_index < ctx->var_index) {
         spss_varinfo_t *col_info = ctx->varinfo[col];
@@ -701,8 +704,16 @@ static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len
         }
         if (var_info->type == READSTAT_TYPE_STRING) {
             if (raw_str_used + 8 <= ctx->raw_string_len) {
-                memcpy(ctx->raw_string + raw_str_used, &buffer[data_offset], 8);
-                raw_str_used += 8;
+                if (raw_str_is_utf8) {
+                    /* Skip null bytes, see https://github.com/tidyverse/haven/issues/560  */
+                    char c;
+                    for (int i=0; i<8; i++)
+                        if ((c = buffer[data_offset+i]))
+                            ctx->raw_string[raw_str_used++] = c;
+                } else {
+                    memcpy(ctx->raw_string + raw_str_used, &buffer[data_offset], 8);
+                    raw_str_used += 8;
+                }
             }
             if (++offset == col_info->width) {
                 if (++segment_offset < var_info->n_segments) {
@@ -1463,11 +1474,13 @@ cleanup:
     return retval;
 }
 
-static void sav_set_n_segments_and_var_count(sav_ctx_t *ctx) {
+static readstat_error_t sav_set_n_segments_and_var_count(sav_ctx_t *ctx) {
     int i;
     ctx->var_count = 0;
     for (i=0; i<ctx->var_index;) {
         spss_varinfo_t *info = ctx->varinfo[i];
+        if (info->string_length > VERY_LONG_STRING_MAX_LENGTH)
+            return READSTAT_ERROR_PARSE;
         if (info->string_length) {
             info->n_segments = (info->string_length + 251) / 252;
         }
@@ -1475,6 +1488,7 @@ static void sav_set_n_segments_and_var_count(sav_ctx_t *ctx) {
         i += info->n_segments;
     }
     ctx->variables = readstat_calloc(ctx->var_count, sizeof(readstat_variable_t *));
+    return READSTAT_OK;
 }
 
 static readstat_error_t sav_handle_variables(sav_ctx_t *ctx) {
@@ -1623,7 +1637,8 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
     if ((retval = sav_parse_records_pass2(ctx)) != READSTAT_OK)
         goto cleanup;
  
-    sav_set_n_segments_and_var_count(ctx);
+    if ((retval = sav_set_n_segments_and_var_count(ctx)) != READSTAT_OK)
+        goto cleanup;
 
     if (ctx->var_count == 0) {
         retval = READSTAT_ERROR_PARSE;

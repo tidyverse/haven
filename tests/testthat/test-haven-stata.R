@@ -114,13 +114,16 @@ test_that("can roundtrip date times", {
     roundtrip_var(x2, "dta"),
     as.POSIXct("2010-01-01 09:00", tz = "UTC")
   )
+
+  attr(x2, "label") <- "abc"
+  expect_equal(attr(roundtrip_var(x2, "dta"), "label"), "abc")
 })
 
 test_that("can roundtrip tagged NAs", {
-  x <- c(1, 2, tagged_na('a', 'b'), NA)
+  x <- c(1, 2, tagged_na("a", "b"), NA)
   expect_equal(roundtrip_var(x, "dta"), x)
 
-  tags <- tagged_na('a', 'b')
+  tags <- tagged_na("a", "b")
   y <- labelled(
     c(1, 2, 1, tags[1], tags[2]),
     c("ABC" = tags[1], "DEF" = tags[2])
@@ -164,6 +167,7 @@ test_that("can write labelled with NULL labels", {
   chr <- labelled(c("a", "b"), NULL)
 
   expect_equal(roundtrip_var(int, "dta"), c(1L, 2L))
+  expect_equal(roundtrip_var(num, "dta"), c(1L, 2L))
   expect_equal(roundtrip_var(chr, "dta"), c("a", "b"))
 })
 
@@ -211,7 +215,7 @@ test_that("can roundtrip file labels", {
 })
 
 test_that("invalid files generate informative errors", {
-  expect_snapshot(error = TRUE,{
+  expect_snapshot(error = TRUE, {
     long <- paste(rep("a", 100), collapse = "")
     write_dta(data.frame(x = 1), tempfile(), label = long)
 
@@ -230,4 +234,17 @@ test_that("can't write non-integer labels (#401)", {
     df <- data.frame(x = labelled(c(1, 2.5, 3), c("b" = 1.5)))
     write_dta(df, tempfile())
   })
+})
+
+test_that("can roundtrip long strings (strL)", {
+  long_string <- function(n, m) {
+    do.call("paste0", replicate(m, sample(LETTERS, n, TRUE), simplify = FALSE))
+  }
+
+  x <- long_string(10, 400)
+  expect_equal(roundtrip_var(x, "dta"), x)
+  x <- long_string(10, 1000)
+  expect_equal(roundtrip_var(x, "dta"), x)
+  x <- long_string(10, 3000)
+  expect_equal(roundtrip_var(x, "dta"), x)
 })

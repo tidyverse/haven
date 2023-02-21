@@ -10,3 +10,5 @@ revdep/library.noindex
 revdep/data.sqlite
 .httr-oauth
 .vscode/
+src/Makevars
+configure.log

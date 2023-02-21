@@ -46,7 +46,7 @@ read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, 
   switch(class(spec)[1],
     source_file = df_parse_sav_file(spec, encoding, user_na, cols_skip, n_max, skip, name_repair = .name_repair),
     source_raw = df_parse_sav_raw(spec, encoding, user_na, cols_skip, n_max, skip, name_repair = .name_repair),
-    stop("This kind of input is not handled", call. = FALSE)
+    cli_abort("This kind of input is not handled.")
   )
 }
 
@@ -60,15 +60,31 @@ read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max =
   switch(class(spec)[1],
     source_file = df_parse_por_file(spec, encoding = "", user_na = user_na, cols_skip, n_max, skip, name_repair = .name_repair),
     source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na, cols_skip, n_max, skip, name_repair = .name_repair),
-    stop("This kind of input is not handled", call. = FALSE)
+    cli_abort("This kind of input is not handled.")
   )
 }
 
 #' @export
 #' @rdname read_spss
-#' @param compress If `TRUE`, will compress the file, resulting in a `.zsav`
-#'   file.  Otherwise the `.sav` file will be bytecode compressed.
-write_sav <- function(data, path, compress = FALSE) {
+#' @param compress Compression type to use:
+#'
+#'   * "byte": the default, uses byte compression.
+#'   * "none": no compression. This is useful for software that has issues with
+#'     byte compressed `.sav` files (e.g. SAS).
+#'   * "zsav": uses zlib compression and produces a `.zsav` file. zlib
+#'     compression is supported by SPSS version 21.0 and above.
+#'
+#'   `TRUE` and `FALSE` can be used for backwards compatibility, and correspond
+#'   to the "zsav" and "none" options respectively.
+write_sav <- function(data, path, compress = c("byte", "none", "zsav")) {
+  if (isTRUE(compress)) {
+    compress <- "zsav"
+  } else if (isFALSE(compress)) {
+    compress <- "none"
+  } else {
+    compress <- arg_match(compress)
+  }
+
   data <- validate_sav(data)
   write_sav_(data, normalizePath(path, mustWork = FALSE), compress = compress)
   invisible(data)
@@ -86,22 +102,67 @@ read_spss <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max 
     sav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
     zsav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
     por = read_por(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
-    stop("Unknown extension '.", ext, "'", call. = FALSE)
+    cli_abort("Unknown extension {.file .{ext}}.")
   )
 }
 
-validate_sav <- function(data) {
+validate_sav <- function(data, call = caller_env()) {
   stopifnot(is.data.frame(data))
+
+  # Check variable names
+  # https://www.ibm.com/docs/en/spss-statistics/28.0.0?topic=variables-variable-names
+  #
+  # SPSS variable names support non-ASCII characters.
+  # The first character must be a letter or @ symbol. After the first letter,
+  # SPSS ostensibly supports "letters, numbers, nonpunctuation characters, and a
+  # period". In practice it's hard to tell exactly what non-punctuation
+  # characters are supported.
+  #
+  # For simplicity, we allow characters with the Unicode properties
+  # letters (\pL), numbers (\pN) and currency symbols (\pSc).
+  bad_name <- !grepl("^[\\pL@]([\\pL\\pN\\pSc._$#@]*[\\pL\\pN\\pSc_$#@])?$", names(data), perl = TRUE)
+  reserved_keyword <-
+    toupper(names(data)) %in% c(
+      "ALL", "AND", "BY", "EQ", "GE", "GT", "LE",
+      "LT", "NE", "NOT", "OR", "TO", "WITH"
+    )
+  bad_length <- nchar(names(data), type = "bytes") > 64
+  bad_vars <- bad_length | bad_name | reserved_keyword
+  if (any(bad_vars)) {
+    cli_abort(
+      c(
+        "Variables in {.arg data} must have valid SPSS variable names.",
+        x = "Problems: {.var {var_names(data, bad_vars)}}"
+      ),
+      call = call
+    )
+  }
+
+  # Check variable name duplication
+  dupe_vars <- duplicated(tolower(names(data))) |
+    duplicated(tolower(names(data)), fromLast = TRUE)
+  if (any(dupe_vars)) {
+    cli_abort(
+      c(
+        "SPSS does not allow duplicate variable names.",
+        i = "Variable names are case-insensitive in SPSS.",
+        x = "Problems: {.var {var_names(data, dupe_vars)}}"
+      ),
+      call = call
+    )
+  }
 
   # Check factor lengths
   level_lengths <- vapply(data, max_level_length, integer(1))
 
   bad_lengths <- level_lengths > 120
   if (any(bad_lengths)) {
-    stop(
-      "SPSS only supports levels with <= 120 characters\n",
-      "Problems: ", var_names(data, bad_lengths),
-      call. = FALSE
+    cli_abort(
+      c(
+        "SPSS only supports levels with <= 120 characters.",
+        x = "Problems: {.var {var_names(data, bad_lengths)}}"
+      ),
+      call = call
     )
   }
 
@@ -111,9 +172,9 @@ validate_sav <- function(data) {
 # Helpers -----------------------------------------------------------------
 
 max_level_length <- function(x) {
-  if (!is.factor(x))
+  if (!is.factor(x)) {
     return(0L)
+  }
 
   max(0L, nchar(levels(x)), na.rm = TRUE)
 }
-

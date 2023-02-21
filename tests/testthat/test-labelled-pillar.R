@@ -17,7 +17,7 @@ test_that("pillar", {
   expect_snapshot({
     x <- labelled(
       c(rep(c(1.22352, 1000, -345), each = 3), 35, 35),
-      c(One = 1.22352, Two =  35, Threeeee = 1000)
+      c(One = 1.22352, Two = 35, Threeeee = 1000)
     )
     tibble::tibble(x)
   })

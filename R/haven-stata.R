@@ -1,8 +1,13 @@
 #' Read and write Stata DTA files
 #'
+#' @description
 #' Currently haven can read and write logical, integer, numeric, character
 #' and factors. See [labelled()] for how labelled variables in
 #' Stata are handled in R.
+#'
+#' Character vectors will be stored as `strL` if any components are
+#' `strl_threshold` bytes or longer (and `version` >= 13); otherwise they will
+#' be stored as the appropriate `str#`.
 #'
 #' @section Character encoding:
 #' Prior to Stata 14, files did not declare a text encoding, and the
@@ -51,7 +56,7 @@ read_dta <- function(file, encoding = NULL, col_select = NULL, skip = 0, n_max =
   switch(class(spec)[1],
     source_file = df_parse_dta_file(spec, encoding, cols_skip, n_max, skip, name_repair = .name_repair),
     source_raw = df_parse_dta_raw(spec, encoding, cols_skip, n_max, skip, name_repair = .name_repair),
-    stop("This kind of input is not handled", call. = FALSE)
+    cli_abort("This kind of input is not handled.")
   )
 }
 
@@ -64,18 +69,25 @@ read_stata <- read_dta
 #' @param version File version to use. Supports versions 8-15.
 #' @param label Dataset label to use, or `NULL`. Defaults to the value stored in
 #'   the "label" attribute of `data`. Must be <= 80 characters.
-write_dta <- function(data, path, version = 14, label = attr(data, "label")) {
+#' @param strl_threshold Any character vectors with a maximum length greater
+#'   than `strl_threshold` bytes will be stored as a long string (strL) instead
+#'   of a standard string (str#) variable if `version` >= 13. This defaults to
+#'   2045, the maximum length of str# variables. See the Stata [long
+#'   string](https://www.stata.com/features/overview/long-strings/)
+#'   documentation for more details.
+write_dta <- function(data, path, version = 14, label = attr(data, "label"), strl_threshold = 2045) {
   data <- validate_dta(data, version = version)
   validate_dta_label(label)
   write_dta_(data,
     normalizePath(path, mustWork = FALSE),
     version = stata_file_format(version),
-    label = label
+    label = label,
+    strl_threshold = validate_strl_threshold(strl_threshold)
   )
   invisible(data)
 }
 
-stata_file_format <- function(version) {
+stata_file_format <- function(version, call = caller_env()) {
   stopifnot(is.numeric(version), length(version) == 1)
   version <- as.integer(version)
 
@@ -92,44 +104,58 @@ stata_file_format <- function(version) {
   } else if (version %in% c(8L, 9L)) {
     113
   } else {
-    stop("Version ", version, " not currently supported", call. = FALSE)
+    cli_abort("Stata version {.val {version}} is not currently supported.", call = call)
   }
 }
 
-validate_dta <- function(data, version) {
+validate_strl_threshold <- function(strl_threshold, call = caller_env()) {
+  stopifnot(is.numeric(strl_threshold), length(strl_threshold) == 1)
+
+  if (strl_threshold < 0 || strl_threshold > 2045) {
+    2045
+  } else {
+    strl_threshold
+  }
+}
+
+validate_dta <- function(data, version, call = caller_env()) {
   stopifnot(is.data.frame(data))
 
   # Check variable names
   bad_name <- !grepl("^[A-Za-z_]{1}[A-Za-z0-9_]+$", names(data))
-  bad_length <- nchar(names(data)) > 31
-  bad_vars <- if (version >= 14) bad_length else bad_length || bad_name
+  bad_length <- nchar(names(data)) > 32
+  bad_vars <- if (version >= 14) bad_length else bad_length | bad_name
   if (any(bad_vars)) {
-    stop(
-      "The following variable names are not valid Stata variables: ",
-      var_names(data, bad_vars),
-      call. = FALSE
+    cli_abort(
+      c(
+        "Variables in {.arg data} must have valid Stata variable names.",
+        x = "Problems: {.var {var_names(data, bad_vars)}}"
+      ),
+      call = call
     )
   }
 
   # Check double vectors can only have labelled integers
   bad_labels <- vapply(data, has_non_integer_labels, logical(1))
   if (any(bad_labels)) {
-    stop(
-      "Stata only supports labelling with integers.\nProblems: ",
-      var_names(data, bad_labels),
-      call. = FALSE
+    cli_abort(
+      c(
+        "Stata only supports labelling with integer variables.",
+        x = "Problems: {.var {var_names(data, bad_labels)}}"
+      ),
+      call = call
     )
   }
 
   adjust_tz(data)
 }
 
-validate_dta_label <- function(label) {
+validate_dta_label <- function(label, call = caller_env()) {
   if (!is.null(label)) {
     stopifnot(is.character(label), length(label) == 1)
 
     if (nchar(label) > 80) {
-      stop("Stata data labels must be 80 characters or fewer", call. = FALSE)
+      cli_abort("{.arg label} must be 80 characters or fewer.", call = call)
     }
   }
 }
@@ -139,6 +165,10 @@ validate_dta_label <- function(label) {
 # helpers -----------------------------------------------------------------
 
 has_non_integer_labels <- function(x) {
+  if (is.null(attr(x, "labels"))) {
+    return(FALSE)
+  }
+
   if (!is.labelled(x)) {
     return(FALSE)
   }
@@ -151,7 +181,9 @@ has_non_integer_labels <- function(x) {
 }
 # Adapted from rlang
 is_integerish <- function(x) {
-  if (!typeof(x) %in% c("double", "integer")) return(FALSE)
+  if (!typeof(x) %in% c("double", "integer")) {
+    return(FALSE)
+  }
 
   missing_elts <- is.na(x)
   finite_elts <- is.finite(x) | missing_elts
@@ -161,9 +193,4 @@ is_integerish <- function(x) {
 
   x_finite <- x[finite_elts & !missing_elts]
   all(x_finite == as.integer(x_finite))
-}
-
-var_names <- function(data, i) {
-  x <- names(data)[i]
-  paste(encodeString(x, quote = "`"), collapse = ", ")
 }

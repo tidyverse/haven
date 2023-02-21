@@ -7,13 +7,13 @@
       tibble(int, dbl, chr)
     Output
       # A tibble: 5 x 3
-              int        dbl chr      
-        <int+lbl>  <dbl+lbl> <chr+lbl>
-      1  1 [good] 0.1 [good] a [good] 
-      2  2        0.2        b        
-      3  3        0.3        c        
-      4  4        0.4        d        
-      5  5 [bad]  0.5 [bad]  e [bad]  
+        int       dbl        chr      
+        <int+lbl> <dbl+lbl>  <chr+lbl>
+      1 1 [good]  0.1 [good] a [good] 
+      2 2         0.2        b        
+      3 3         0.3        c        
+      4 4         0.4        d        
+      5 5 [bad]   0.5 [bad]  e [bad]  
 
 # pillar
 
@@ -22,7 +22,7 @@
       tibble::tibble(x)
     Output
       # A tibble: 11 x 1
-                 x
+         x        
          <int+lbl>
        1  1 [Good]
        2  2       
@@ -44,8 +44,8 @@
       tibble::tibble(x)
     Output
       # A tibble: 11 x 1
-                       x
-               <dbl+lbl>
+         x              
+         <dbl+lbl>      
        1    1.22 [One]  
        2    1.22 [One]  
        3    1.22 [One]  
@@ -88,8 +88,8 @@
       tibble::tibble(x)
     Output
       # A tibble: 11 x 1
-                       x
-               <dbl+lbl>
+         x              
+         <dbl+lbl>      
        1     1 [Good]   
        2     2          
        3     3          
@@ -109,8 +109,8 @@
       tibble::tibble(x)
     Output
       # A tibble: 11 x 1
-                         x
-                 <int+lbl>
+         x                
+         <int+lbl>        
        1  1 [Good]        
        2  2               
        3  3               

@@ -2,7 +2,7 @@
 % Please edit documentation in R/zap_empty.R
 \name{zap_empty}
 \alias{zap_empty}
-\title{Convert empty strings into missing values.}
+\title{Convert empty strings into missing values}
 \usage{
 zap_empty(x)
 }
@@ -13,7 +13,7 @@ zap_empty(x)
 A character vector with empty strings replaced by missing values.
 }
 \description{
-Convert empty strings into missing values.
+Convert empty strings into missing values
 }
 \examples{
 x <- c("a", "", "c")

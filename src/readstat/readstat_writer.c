@@ -19,10 +19,10 @@ static int readstat_compare_string_refs(const void *elem1, const void *elem2) {
     readstat_string_ref_t *ref1 = *(readstat_string_ref_t **)elem1;
     readstat_string_ref_t *ref2 = *(readstat_string_ref_t **)elem2;
 
-    if (ref1->first_v == ref2->first_v)
-        return ref1->first_o - ref2->first_o;
+    if (ref1->first_o == ref2->first_o)
+        return ref1->first_v - ref2->first_v;
 
-    return ref1->first_v - ref2->first_v;
+    return ref1->first_o - ref2->first_o;
 }
 
 readstat_string_ref_t *readstat_string_ref_init(const char *string) {
@@ -604,8 +604,8 @@ readstat_error_t readstat_insert_string_ref(readstat_writer_t *writer, const rea
         return READSTAT_ERROR_STRING_REFS_NOT_SUPPORTED;
 
     if (ref && ref->first_o == -1 && ref->first_v == -1) {
-        ref->first_o = writer->current_row;
-        ref->first_v = variable->index;
+        ref->first_o = writer->current_row + 1;
+        ref->first_v = variable->index + 1;
     }
 
     return writer->callbacks.write_string_ref(&writer->row[variable->offset], variable, ref);

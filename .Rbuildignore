@@ -19,3 +19,6 @@
 ^\.httr-oauth$
 ^LICENSE\.md$
 ^.vscode$
+^configure\.log$
+^src/Makevars$
+^CRAN-SUBMISSION$
