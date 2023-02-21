@@ -2,8 +2,7 @@
 % Please edit documentation in R/haven-sas.R
 \name{read_sas}
 \alias{read_sas}
-\alias{write_sas}
-\title{Read and write SAS files}
+\title{Read SAS files}
 \usage{
 read_sas(
   data_file,
@@ -16,8 +15,6 @@ read_sas(
   cols_only = deprecated(),
   .name_repair = "unique"
 )
-
-write_sas(data, path)
 }
 \arguments{
 \item{data_file, catalog_file}{Path to data and catalog files. The files are
@@ -55,10 +52,6 @@ for names in the style of base R).
 This argument is passed on as \code{repair} to \code{\link[vctrs:vec_as_names]{vctrs::vec_as_names()}}.
 See there for more details on these terms and the strategies used
 to enforce them.}
-
-\item{data}{Data frame to write.}
-
-\item{path}{Path to file where the data will be written.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
@@ -70,8 +63,7 @@ not printed on the console, but the RStudio viewer will show it.
 }
 \description{
 \code{read_sas()} supports both sas7bdat files and the accompanying sas7bcat files
-that SAS uses to record value labels. \code{write_sas()} is currently experimental
-and only works for limited datasets.
+that SAS uses to record value labels.
 }
 \examples{
 path <- system.file("examples", "iris.sas7bdat", package = "haven")
