@@ -127,8 +127,7 @@
 
     Code
       x <- labelled(c("spaces", "tabs", "newlines", "c0", "quote"), c(`a b` = "spaces",
-        `a	b` = "tabs", `a
-      b` = "newlines", `ab` = "c0", `a"b` = "quote"))
+        `a\tb` = "tabs", `a\nb` = "newlines", `a\001b` = "c0", `a"b` = "quote"))
       tibble::tibble(x)
     Output
       # A tibble: 5 x 1
