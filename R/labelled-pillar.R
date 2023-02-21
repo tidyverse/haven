@@ -101,7 +101,8 @@ lbl_pillar_info <- function(x) {
   MIN_LBL_DISPLAY <- 6
   labels <- attr(x, "labels")
   if (length(labels) > 0) {
-    names(labels) <- pillar::style_subtle(paste0(" [", names(labels), "]"))
+    encoded <- utf8::utf8_encode(names(labels))
+    names(labels) <- pillar::style_subtle(paste0(" [", encoded, "]"))
     attr(x, "labels") <- labels
     label_display <- as.character(as_factor(x, "labels"))
     label_display[is.na(label_display)] <- ""
@@ -203,6 +204,7 @@ paste_with_align <- function(x, y, lhs_ws, rhs_ws) {
 }
 
 pillar_print_pkgs_available <- function() {
-  requireNamespace("crayon", quietly = TRUE) &
-    requireNamespace("cli", quietly = TRUE)
+  requireNamespace("crayon", quietly = TRUE) &&
+    requireNamespace("cli", quietly = TRUE) &&
+    requireNamespace("utf8", quietly = TRUE)
 }

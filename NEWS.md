@@ -7,6 +7,9 @@
   * Ignore invalid SAV timestamp strings (#683).
   * Fix compiler warnings (#707).
 
+* Fixed issue in `write_*()` functions where invisible return of input data 
+  frame included unintended alteration of date/time variables. (@jmobrien, #702)
+
 * The experimental `write_sas()` function has been deprecated (#224). The
   sas7bdat file format is complex and undocumented, and as such writing SAS
   files is not officially supported by ReadStat. `write_xpt()` should be used

@@ -76,14 +76,18 @@ read_stata <- read_dta
 #'   string](https://www.stata.com/features/overview/long-strings/)
 #'   documentation for more details.
 write_dta <- function(data, path, version = 14, label = attr(data, "label"), strl_threshold = 2045) {
-  data <- validate_dta(data, version = version)
+  validate_dta(data, version = version)
   validate_dta_label(label)
-  write_dta_(data,
+
+  data_out <- adjust_tz(data)
+  write_dta_(
+    data_out,
     normalizePath(path, mustWork = FALSE),
     version = stata_file_format(version),
     label = label,
     strl_threshold = validate_strl_threshold(strl_threshold)
   )
+
   invisible(data)
 }
 
@@ -146,8 +150,7 @@ validate_dta <- function(data, version, call = caller_env()) {
       call = call
     )
   }
-
-  adjust_tz(data)
+  invisible(data)
 }
 
 validate_dta_label <- function(label, call = caller_env()) {

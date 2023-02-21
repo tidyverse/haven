@@ -248,3 +248,21 @@ test_that("can roundtrip long strings (strL)", {
   x <- long_string(10, 3000)
   expect_equal(roundtrip_var(x, "dta"), x)
 })
+
+
+test_that("invisibly returns original data unaltered", {
+
+  df <- tibble(
+    x = 1:5,
+    dt = seq(
+      as.POSIXct("2022-01-01 12:00:00", tz = "America/Chicago"),
+      by = "days",
+      length.out = 5
+    )
+  )
+
+  path <- tempfile()
+  df_returned <- write_dta(df, path)
+
+  expect_identical(df, df_returned)
+})

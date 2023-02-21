@@ -85,8 +85,9 @@ write_sav <- function(data, path, compress = c("byte", "none", "zsav")) {
     compress <- arg_match(compress)
   }
 
-  data <- validate_sav(data)
-  write_sav_(data, normalizePath(path, mustWork = FALSE), compress = compress)
+  validate_sav(data)
+  data_out <- adjust_tz(data)
+  write_sav_(data_out, normalizePath(path, mustWork = FALSE), compress = compress)
   invisible(data)
 }
 
@@ -165,8 +166,7 @@ validate_sav <- function(data, call = caller_env()) {
       call = call
     )
   }
-
-  adjust_tz(data)
+  invisible(data)
 }
 
 # Helpers -----------------------------------------------------------------
