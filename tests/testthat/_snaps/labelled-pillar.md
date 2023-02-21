@@ -126,33 +126,20 @@
 ---
 
     Code
-      x <- labelled(c("spaces", "tabs", "newlines", "c0", "quote"), c(`a b` = "spaces",
-        `a\tb` = "tabs", `a\nb` = "newlines", `a\001b` = "c0", `a"b` = "quote"))
+      x <- labelled(c("spaces", "tabs", "newlines", "c0", "quote", "backslash"), c(
+        `a b` = "spaces", `a\tb` = "tabs", `a\nb` = "newlines", `a\001b` = "c0",
+        `a"b` = "quote", `a\\b` = "backslash"))
       tibble::tibble(x)
     Output
-      # A tibble: 5 x 1
-        x              
-        <chr+lbl>      
-      1 spaces [a b]   
-      2 tabs [a\tb]    
-      3 newlines [a\nb]
-      4 c0 [a\u0001b]  
-      5 quote [a"b]    
-
----
-
-    Code
-      # https://github.com/r-lib/rlang/issues/1160
-      x <- "backslash"
-      label <- x
-      names(label) <- "a\\b"
-      x <- labelled(x, label)
-      tibble::tibble(x)
-    Output
-      # A tibble: 1 x 1
+      # A tibble: 6 x 1
         x               
         <chr+lbl>       
-      1 backslash [a\\b]
+      1 spaces [a b]    
+      2 tabs [a\tb]     
+      3 newlines [a\nb] 
+      4 c0 [a\u0001b]   
+      5 quote [a"b]     
+      6 backslash [a\\b]
 
 ---
 
