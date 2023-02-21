@@ -26,7 +26,7 @@ read_por(
   .name_repair = "unique"
 )
 
-write_sav(data, path, compress = c("byte", "none", "zsav"))
+write_sav(data, path, compress = c("byte", "none", "zsav"), convert_utc = TRUE)
 
 read_spss(
   file,
@@ -102,6 +102,11 @@ compression is supported by SPSS version 21.0 and above.
 
 \code{TRUE} and \code{FALSE} can be used for backwards compatibility, and correspond
 to the "zsav" and "none" options respectively.}
+
+\item{convert_utc}{If \code{TRUE} (the default), date times are converted to
+the equivalent UTC value and timezone is ignored, so they will appear the
+same in R and Stata/SPSS/SAS. If \code{FALSE}, date time variables are written
+as the corresponding UTC value.}
 }
 \value{
 A tibble, data frame variant with nice defaults.

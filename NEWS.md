@@ -1,7 +1,13 @@
 # haven (development version)
 
+* `write_*()` functions gain a new `convert_utc` argument to control timezone
+  conversion (#702) for date time variables. If `TRUE` (the default) date times
+  are converted to the equivalent UTC value and timezone is ignored, so they
+  will appear the same in R and Stata/SPSS/SAS. If `FALSE`, date time variables
+  are written as the corresponding UTC value.
+
 * Fixed issue in `write_*()` functions where invisible return of input data 
-  frame included unintended alteration of date/time variables. (@jmobrien, #702)
+  frame included unintended alteration of date time variables. (@jmobrien, #702)
 
 * The experimental `write_sas()` function has been deprecated (#224). The
   sas7bdat file format is complex and undocumented, and as such writing SAS

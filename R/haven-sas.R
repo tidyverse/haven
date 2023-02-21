@@ -81,11 +81,11 @@ read_sas <- function(data_file, catalog_file = NULL,
 #' @export
 write_sas <- function(data, path) {
   lifecycle::deprecate_warn("2.6.0", "write_sas()", "write_xpt()")
-  
+
   validate_sas(data)
   data_out <- adjust_tz(data)
   write_sas_(data_out, normalizePath(path, mustWork = FALSE))
-  
+
   invisible(data)
 }
 
@@ -134,7 +134,11 @@ read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repai
 #'
 #'   Note that although SAS itself supports dataset labels up to 256 characters
 #'   long, dataset labels in SAS transport files must be <= 40 characters.
-write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "label")) {
+#' @param convert_utc If `TRUE` (the default), date times are converted to
+#'   the equivalent UTC value and timezone is ignored, so they will appear the
+#'   same in R and Stata/SPSS/SAS. If `FALSE`, date time variables are written
+#'   as the corresponding UTC value.
+write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "label"), convert_utc = TRUE) {
   if (!version %in% c(5, 8)) {
     cli_abort("SAS transport file version {.val {version}} is not currently supported.")
   }
@@ -145,8 +149,11 @@ write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "
   name <- validate_xpt_name(name, version)
   label <- validate_xpt_label(label)
 
-  validate_sas(data)
-  data_out <- adjust_tz(data)
+  data_out <- validate_sas(data)
+
+  if (isTRUE(convert_utc)) {
+    data_out <- adjust_tz(data_out)
+  }
 
   write_xpt_(
     data_out,

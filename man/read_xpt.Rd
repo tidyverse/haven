@@ -13,7 +13,14 @@ read_xpt(
   .name_repair = "unique"
 )
 
-write_xpt(data, path, version = 8, name = NULL, label = attr(data, "label"))
+write_xpt(
+  data,
+  path,
+  version = 8,
+  name = NULL,
+  label = attr(data, "label"),
+  convert_utc = TRUE
+)
 }
 \arguments{
 \item{file}{Either a path to a file, a connection, or literal data
@@ -72,6 +79,11 @@ the "label" attribute of \code{data}.
 
 Note that although SAS itself supports dataset labels up to 256 characters
 long, dataset labels in SAS transport files must be <= 40 characters.}
+
+\item{convert_utc}{If \code{TRUE} (the default), date times are converted to
+the equivalent UTC value and timezone is ignored, so they will appear the
+same in R and Stata/SPSS/SAS. If \code{FALSE}, date time variables are written
+as the corresponding UTC value.}
 }
 \value{
 A tibble, data frame variant with nice defaults.

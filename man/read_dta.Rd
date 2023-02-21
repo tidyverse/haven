@@ -29,7 +29,8 @@ write_dta(
   path,
   version = 14,
   label = attr(data, "label"),
-  strl_threshold = 2045
+  strl_threshold = 2045,
+  convert_utc = TRUE
 )
 }
 \arguments{
@@ -92,6 +93,11 @@ than \code{strl_threshold} bytes will be stored as a long string (strL) instead
 of a standard string (str#) variable if \code{version} >= 13. This defaults to
 2045, the maximum length of str# variables. See the Stata \href{https://www.stata.com/features/overview/long-strings/}{long string}
 documentation for more details.}
+
+\item{convert_utc}{If \code{TRUE} (the default), date times are converted to
+the equivalent UTC value and timezone is ignored, so they will appear the
+same in R and Stata/SPSS/SAS. If \code{FALSE}, date time variables are written
+as the corresponding UTC value.}
 }
 \value{
 A tibble, data frame variant with nice defaults.

@@ -76,7 +76,11 @@ read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max =
 #'
 #'   `TRUE` and `FALSE` can be used for backwards compatibility, and correspond
 #'   to the "zsav" and "none" options respectively.
-write_sav <- function(data, path, compress = c("byte", "none", "zsav")) {
+#' @param convert_utc If `TRUE` (the default), date times are converted to
+#'   the equivalent UTC value and timezone is ignored, so they will appear the
+#'   same in R and Stata/SPSS/SAS. If `FALSE`, date time variables are written
+#'   as the corresponding UTC value.
+write_sav <- function(data, path, compress = c("byte", "none", "zsav"), convert_utc = TRUE) {
   if (isTRUE(compress)) {
     compress <- "zsav"
   } else if (isFALSE(compress)) {
@@ -85,8 +89,12 @@ write_sav <- function(data, path, compress = c("byte", "none", "zsav")) {
     compress <- arg_match(compress)
   }
 
-  validate_sav(data)
-  data_out <- adjust_tz(data)
+  data_out <- validate_sav(data)
+
+  if (isTRUE(convert_utc)) {
+    data_out <- adjust_tz(data_out)
+  }
+
   write_sav_(data_out, normalizePath(path, mustWork = FALSE), compress = compress)
   invisible(data)
 }

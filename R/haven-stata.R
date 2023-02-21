@@ -75,11 +75,18 @@ read_stata <- read_dta
 #'   2045, the maximum length of str# variables. See the Stata [long
 #'   string](https://www.stata.com/features/overview/long-strings/)
 #'   documentation for more details.
-write_dta <- function(data, path, version = 14, label = attr(data, "label"), strl_threshold = 2045) {
-  validate_dta(data, version = version)
+#' @param convert_utc If `TRUE` (the default), date times are converted to
+#'   the equivalent UTC value and timezone is ignored, so they will appear the
+#'   same in R and Stata/SPSS/SAS. If `FALSE`, date time variables are written
+#'   as the corresponding UTC value.
+write_dta <- function(data, path, version = 14, label = attr(data, "label"), strl_threshold = 2045, convert_utc = TRUE) {
+  data_out <- validate_dta(data, version = version)
   validate_dta_label(label)
 
-  data_out <- adjust_tz(data)
+  if (isTRUE(convert_utc)) {
+    data_out <- adjust_tz(data_out)
+  }
+
   write_dta_(
     data_out,
     normalizePath(path, mustWork = FALSE),
