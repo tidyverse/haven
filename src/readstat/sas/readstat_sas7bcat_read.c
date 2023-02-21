@@ -60,7 +60,7 @@ static readstat_error_t sas7bcat_parse_value_labels(const char *value_start, siz
 
     /* Pass 1 -- find out the offset of the labels */
     for (i=0; i<label_count_capacity; i++) {
-        if (&lbp1[3] - value_start > value_labels_len || lbp1[2] < 0) {
+        if (&lbp1[3] - value_start > value_labels_len || sas_read2(&lbp1[2], ctx->bswap) < 0) {
             retval = READSTAT_ERROR_PARSE;
             goto cleanup;
         }
@@ -76,7 +76,7 @@ static readstat_error_t sas7bcat_parse_value_labels(const char *value_start, siz
             }
             value_offset[label_pos] = lbp1 - value_start;
         }
-        lbp1 += 6 + lbp1[2];
+        lbp1 += 6 + sas_read2(&lbp1[2], ctx->bswap);
     }
 
     const char *lbp2 = lbp1;
@@ -93,7 +93,7 @@ static readstat_error_t sas7bcat_parse_value_labels(const char *value_start, siz
         readstat_value_t value = { .type = is_string ? READSTAT_TYPE_STRING : READSTAT_TYPE_DOUBLE };
         char string_val[4*16+1];
         if (is_string) {
-            size_t value_entry_len = 6 + lbp1[2];
+            size_t value_entry_len = 6 + sas_read2(&lbp1[2], ctx->bswap);
             retval = readstat_convert(string_val, sizeof(string_val),
                     &lbp1[value_entry_len-16], 16, ctx->converter);
             if (retval != READSTAT_OK)
@@ -143,18 +143,20 @@ static readstat_error_t sas7bcat_parse_block(const char *data, size_t data_size,
     readstat_error_t retval = READSTAT_OK;
 
     size_t pad = 0;
-    int label_count_capacity = 0;
-    int label_count_used = 0;
+    uint64_t label_count_capacity = 0;
+    uint64_t label_count_used = 0;
     int payload_offset = 106;
+    uint16_t flags = 0;
     char name[4*32+1];
 
     if (data_size < payload_offset)
         goto cleanup;
 
-    pad = (data[2] & 0x08) ? 4 : 0; // might be 0x10, not sure
+    flags = sas_read2(&data[2], ctx->bswap);
+    pad = (flags & 0x08) ? 4 : 0; // might be 0x10, not sure
     if (ctx->u64) {
-        label_count_capacity = sas_read4(&data[42+pad], ctx->bswap);
-        label_count_used = sas_read4(&data[50+pad], ctx->bswap);
+        label_count_capacity = sas_read8(&data[42+pad], ctx->bswap);
+        label_count_used = sas_read8(&data[50+pad], ctx->bswap);
 
         payload_offset += 32;
     } else {
@@ -169,7 +171,7 @@ static readstat_error_t sas7bcat_parse_block(const char *data, size_t data_size,
         pad += 16;
     }
 
-    if ((data[2] & 0x80) && !ctx->u64) { // has long name
+    if (((flags & 0x80) && !ctx->u64) || ((flags & 0x20) && ctx->u64)) { // has long name
         if (data_size < payload_offset + pad + 32)
             goto cleanup;
 
@@ -180,6 +182,9 @@ static readstat_error_t sas7bcat_parse_block(const char *data, size_t data_size,
     }
 
     if (data_size < payload_offset + pad)
+        goto cleanup;
+
+    if (label_count_used == 0)
         goto cleanup;
 
     if ((retval = sas7bcat_parse_value_labels(&data[payload_offset+pad], data_size - payload_offset - pad,
@@ -200,15 +205,15 @@ static readstat_error_t sas7bcat_augment_index(const char *index, size_t len, sa
             break;
 
         if (xlsr[ctx->xlsr_O_offset] == 'O') {
-            uint32_t page = 0, pos = 0;
+            uint64_t page = 0, pos = 0;
             if (ctx->u64) {
-                page = sas_read4(&xlsr[8], ctx->bswap);
-                pos = sas_read4(&xlsr[16], ctx->bswap);
+                page = sas_read8(&xlsr[8], ctx->bswap);
+                pos = sas_read2(&xlsr[16], ctx->bswap);
             } else {
-                page = sas_read2(&xlsr[4], ctx->bswap);
+                page = sas_read4(&xlsr[4], ctx->bswap);
                 pos = sas_read2(&xlsr[8], ctx->bswap);
             }
-            ctx->block_pointers[ctx->block_pointers_used++] = ((uint64_t)page << 32) + pos;
+            ctx->block_pointers[ctx->block_pointers_used++] = (page << 32) + pos;
         }
 
         if (ctx->block_pointers_used == ctx->block_pointers_capacity) {

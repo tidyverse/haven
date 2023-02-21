@@ -11,6 +11,8 @@ typedef SSIZE_T ssize_t;
 #include "readstat_sas_rle.h"
 
 #define SAS_RLE_COMMAND_COPY64          0
+#define SAS_RLE_COMMAND_COPY64_PLUS_4096 1
+#define SAS_RLE_COMMAND_COPY96          2
 #define SAS_RLE_COMMAND_INSERT_BYTE18   4
 #define SAS_RLE_COMMAND_INSERT_AT17     5
 #define SAS_RLE_COMMAND_INSERT_BLANK17  6
@@ -29,6 +31,7 @@ typedef SSIZE_T ssize_t;
 
 static size_t command_lengths[16] = {
     [SAS_RLE_COMMAND_COPY64] = 1,
+    [SAS_RLE_COMMAND_COPY64_PLUS_4096] = 1,
     [SAS_RLE_COMMAND_INSERT_BYTE18] = 2,
     [SAS_RLE_COMMAND_INSERT_AT17] = 1,
     [SAS_RLE_COMMAND_INSERT_BLANK17] = 1,
@@ -62,6 +65,10 @@ ssize_t sas_rle_decompress(void *output_buf, size_t output_len,
             case SAS_RLE_COMMAND_COPY64:
                 copy_len = (*input++) + 64 + length * 256;
                 break;
+            case SAS_RLE_COMMAND_COPY64_PLUS_4096:
+                copy_len = (*input++) + 64 + length * 256 + 4096;
+                break;
+            case SAS_RLE_COMMAND_COPY96: copy_len = length + 96; break;
             case SAS_RLE_COMMAND_INSERT_BYTE18:
                 insert_len = (*input++) + 18 + length * 256;
                 insert_byte = *input++;

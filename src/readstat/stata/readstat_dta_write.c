@@ -420,10 +420,10 @@ static readstat_error_t dta_emit_fmtlist(readstat_writer_t *writer, dta_ctx_t *c
             }
             char format[64];
             if (format_letter == 'g') {
-                sprintf(format, "%%%s%d.0g", r_variable->alignment == READSTAT_ALIGNMENT_LEFT ? "-" : "",
+                snprintf(format, sizeof(format), "%%%s%d.0g", r_variable->alignment == READSTAT_ALIGNMENT_LEFT ? "-" : "",
                         display_width);
             } else {
-                sprintf(format, "%%%s%ds",
+                snprintf(format, sizeof(format), "%%%s%ds",
                         r_variable->alignment == READSTAT_ALIGNMENT_LEFT ? "-" : "",
                         display_width);
             }

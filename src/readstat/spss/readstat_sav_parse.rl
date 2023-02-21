@@ -166,6 +166,7 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
     char *error_buf = NULL;
     unsigned char *p = c_data;
     unsigned char *pe = c_data + count;
+    unsigned char *eof = pe;
 
     varlookup_t *table = NULL;
     int cs;
@@ -198,7 +199,7 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
         
         keyval = ( key %copy_key "=" value ) %set_width;
         
-        main := keyval ("\0"+ "\t" keyval)* "\0"+ "\t"?;
+        main := keyval ("\0"* "\t" keyval)* "\0"* "\t"?;
         
         write init;
         write exec;

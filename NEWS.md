@@ -1,5 +1,12 @@
 # haven (development version)
 
+* Updated to ReadStat 1.1.9.
+
+  * Fix various SAS catalog file reading bugs (#529, #653, #680, #696, #705).
+  * Increase maximum SAS page file size to 16MiB (#697).
+  * Ignore invalid SAV timestamp strings (#683).
+  * Fix compiler warnings (#707).
+
 * The experimental `write_sas()` function has been deprecated (#224). The
   sas7bdat file format is complex and undocumented, and as such writing SAS
   files is not officially supported by ReadStat. `write_xpt()` should be used
