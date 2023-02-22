@@ -16,7 +16,7 @@ static void ieee2xpt(unsigned char *ieee, unsigned char *xport);
 
 #ifndef FLOATREP
 #define FLOATREP get_native()
-int get_native();
+int get_native(void);
 #endif
 
 void memreverse(void *intp_void, int l) {

@@ -41,11 +41,4 @@
       Error in `write_sav()`:
       ! Variables in `data` must have valid SPSS variable names.
       x Problems: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` and `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`
-    Code
-      names(df) <- c("流水号", "$性别", "年龄.")
-      write_sav(df, tempfile())
-    Condition
-      Error in `write_sav()`:
-      ! Variables in `data` must have valid SPSS variable names.
-      x Problems: `$性别` and `年龄.`
 

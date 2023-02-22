@@ -53,9 +53,9 @@ static readstat_charset_entry_t _charset_table[] = {
     { .code = 866,   .name = "CP866" },
     { .code = 869,   .name = "CP869" },
     { .code = 874,   .name = "CP874" },
-    { .code = 932,   .name = "SHIFT-JIS" },
-    { .code = 936,   .name = "ISO-IR-58" },
-    { .code = 949,   .name = "ISO-IR-149" },
+    { .code = 932,   .name = "CP932" },
+    { .code = 936,   .name = "CP936" },
+    { .code = 949,   .name = "CP949" },
     { .code = 950,   .name = "BIG-5" },
     { .code = 1200,  .name = "UTF-16LE" },
     { .code = 1201,  .name = "UTF-16BE" },
@@ -1620,8 +1620,8 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
         ctx->row_limit = parser->row_limit;
     }
     
-    if ((retval = sav_parse_timestamp(ctx, &header)) != READSTAT_OK)
-        goto cleanup;
+    /* ignore errors */
+    sav_parse_timestamp(ctx, &header);
 
     if ((retval = sav_parse_records_pass1(ctx)) != READSTAT_OK)
         goto cleanup;

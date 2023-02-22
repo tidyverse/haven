@@ -123,3 +123,35 @@
       10 10 (NA) [Refused]
       11 NA               
 
+---
+
+    Code
+      x <- labelled(c("spaces", "tabs", "newlines", "c0", "quote", "backslash"), c(
+        `a b` = "spaces", `a\tb` = "tabs", `a\nb` = "newlines", `a\001b` = "c0",
+        `a"b` = "quote", `a\\b` = "backslash"))
+      tibble::tibble(x)
+    Output
+      # A tibble: 6 x 1
+        x               
+        <chr+lbl>       
+      1 spaces [a b]    
+      2 tabs [a\tb]     
+      3 newlines [a\nb] 
+      4 c0 [a\u0001b]   
+      5 quote [a"b]     
+      6 backslash [a\\b]
+
+---
+
+    Code
+      x <- "c1"
+      label <- x
+      names(label) <- "a\u0080b"
+      x <- labelled(x, label)
+      tibble::tibble(x)
+    Output
+      # A tibble: 1 x 1
+        x            
+        <chr+lbl>    
+      1 c1 [a\u0080b]
+

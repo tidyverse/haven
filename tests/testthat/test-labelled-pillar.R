@@ -46,4 +46,35 @@ test_that("pillar", {
     )
     tibble::tibble(x)
   })
+
+  expect_snapshot({
+    x <- labelled(
+      c(
+        "spaces",
+        "tabs",
+        "newlines",
+        "c0",
+        "quote",
+        "backslash"
+      ),
+      c(
+        "a b" = "spaces",
+        "a\tb" = "tabs",
+        "a\nb" = "newlines",
+        "a\u0001b" = "c0",
+        'a"b' = "quote",
+        "a\\b" = "backslash"
+      )
+    )
+    tibble::tibble(x)
+  })
+
+  skip_on_os("windows")
+  expect_snapshot({
+    x <- "c1"
+    label <- x
+    names(label) <- "a\u0080b"
+    x <- labelled(x, label)
+    tibble::tibble(x)
+  })
 })

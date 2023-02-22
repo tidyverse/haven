@@ -1,5 +1,12 @@
 # haven (development version)
 
+* Updated to ReadStat 1.1.9.
+
+  * Fix various SAS catalog file reading bugs (#529, #653, #680, #696, #705).
+  * Increase maximum SAS page file size to 16MiB (#697).
+  * Ignore invalid SAV timestamp strings (#683).
+  * Fix compiler warnings (#707).
+
 * `write_*()` functions gain a new `convert_utc` argument to control timezone
   conversion (#702) for date time variables. If `TRUE` (the default) date times
   are converted to the equivalent UTC value and timezone is ignored, so they
