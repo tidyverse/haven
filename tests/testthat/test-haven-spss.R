@@ -351,18 +351,19 @@ test_that("complain about invalid variable names", {
       "c"
     )
     write_sav(df, tempfile())
-
-    names(df) <- c("流水号",  "$性别",  "年龄.")
-    write_sav(df, tempfile())
   })
 
   # Windows fails if this is a snapshot because of issues with unicode support
   expect_error(
     {
-      df <- data.frame(a = 1, A = 1)
+      df <- data.frame(a = 1, A = 1, b = 1)
+      names(df) <- c("流水号",  "$性别",  "年龄.")
+      write_sav(df, tempfile())
+
       names(df) <- c(
         paste(rep("\U044D", 33), collapse = ""),
-        paste(rep("\U767E", 22), collapse = "")
+        paste(rep("\U767E", 22), collapse = ""),
+        c
       )
       write_sav(df, tempfile())
     },

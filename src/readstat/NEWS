@@ -1,7 +1,21 @@
+New in 1.1.9:
+
+    * SAV reader: Improved support for Asian code pages #263
+    * SAV reader: Improved support for Very Long String records #287
+    * SAS reader: Improved support for RLE decompression #245 #253
+    * SAS reader: Support 16MiB page sizes #286
+    * SAS catalog reader: Fix bugs reading big-endian files #293
+    * SAS catalog reader: Allow formats with no labels #290
+    * SAS catalog reader: Check for long names in 64-bit files #291
+    * Improved compatibility with -Wstrict-prototypes #295
+    * Replace sprintf with snprintf #292
+
 New in 1.1.8:
 
     * XPT reader/writer: Improved support for format strings #257 #258
+    * DTA writer: Fix off-by-one error in v,o indexing for string refs #270
     * SAV/DTA writers: Improved checking of non-ASCII characters #256
+    * SAS7BDAT reader: Fix use-after-free error #273
     * Build: Link to libm on GNU systems #255
     * SAS commands: Support more syntax
     * SPSS commands: Make file names optional

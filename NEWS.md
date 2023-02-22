@@ -1,5 +1,12 @@
 # haven (development version)
 
+* Updated to ReadStat 1.1.9.
+
+  * Fix various SAS catalog file reading bugs (#529, #653, #680, #696, #705).
+  * Increase maximum SAS page file size to 16MiB (#697).
+  * Ignore invalid SAV timestamp strings (#683).
+  * Fix compiler warnings (#707).
+
 * Fixed issue in `write_*()` functions where invisible return of input data 
   frame included unintended alteration of date/time variables. (@jmobrien, #702)
 

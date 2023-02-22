@@ -703,7 +703,6 @@ static readstat_variable_t *sas7bdat_init_variable(sas7bdat_ctx_t *ctx, int i,
 
 cleanup:
     if (retval != READSTAT_OK) {
-        free(variable);
         if (out_retval)
             *out_retval = retval;
 
@@ -715,6 +714,8 @@ cleanup:
                 ctx->handle.error(ctx->error_buf, ctx->user_ctx);
             }
         }
+
+        free(variable);
 
         return NULL;
     }

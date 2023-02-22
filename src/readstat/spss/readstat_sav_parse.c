@@ -564,7 +564,7 @@ static const signed char _sav_very_long_string_parse_actions[] = {
 
 static const signed char _sav_very_long_string_parse_key_offsets[] = {
 	0, 0, 5, 19, 33, 47, 61, 75,
-	89, 103, 104, 106, 109, 111, 0
+	89, 103, 104, 106, 110, 112, 0
 };
 
 static const unsigned char _sav_very_long_string_parse_trans_keys[] = {
@@ -581,13 +581,13 @@ static const unsigned char _sav_very_long_string_parse_trans_keys[] = {
 	34u, 37u, 45u, 58u, 63u, 91u, 94u, 123u,
 	127u, 47u, 61u, 96u, 255u, 0u, 34u, 37u,
 	45u, 58u, 63u, 91u, 94u, 123u, 127u, 61u,
-	48u, 57u, 0u, 48u, 57u, 0u, 9u, 255u,
-	0u, 63u, 91u, 127u, 0u
+	48u, 57u, 0u, 9u, 48u, 57u, 0u, 9u,
+	255u, 0u, 63u, 91u, 127u, 0u
 };
 
 static const signed char _sav_very_long_string_parse_single_lengths[] = {
 	0, 1, 4, 4, 4, 4, 4, 4,
-	4, 1, 0, 1, 2, 1, 0
+	4, 1, 0, 2, 2, 1, 0
 };
 
 static const signed char _sav_very_long_string_parse_range_lengths[] = {
@@ -597,7 +597,7 @@ static const signed char _sav_very_long_string_parse_range_lengths[] = {
 
 static const signed char _sav_very_long_string_parse_index_offsets[] = {
 	0, 0, 4, 14, 24, 34, 44, 54,
-	64, 74, 76, 78, 81, 84, 0
+	64, 74, 76, 78, 82, 85, 0
 };
 
 static const signed char _sav_very_long_string_parse_cond_targs[] = {
@@ -610,10 +610,10 @@ static const signed char _sav_very_long_string_parse_cond_targs[] = {
 	0, 0, 0, 0, 0, 7, 0, 10,
 	0, 0, 0, 0, 0, 0, 0, 8,
 	0, 10, 0, 0, 0, 0, 0, 0,
-	0, 9, 10, 0, 11, 0, 12, 11,
-	0, 12, 13, 0, 0, 0, 0, 2,
-	0, 1, 2, 3, 4, 5, 6, 7,
-	8, 9, 10, 11, 12, 13, 0
+	0, 9, 10, 0, 11, 0, 12, 13,
+	11, 0, 12, 13, 0, 0, 0, 0,
+	2, 0, 1, 2, 3, 4, 5, 6,
+	7, 8, 9, 10, 11, 12, 13, 0
 };
 
 static const signed char _sav_very_long_string_parse_cond_actions[] = {
@@ -626,10 +626,15 @@ static const signed char _sav_very_long_string_parse_cond_actions[] = {
 	0, 0, 0, 0, 0, 0, 0, 7,
 	0, 0, 0, 0, 0, 0, 0, 0,
 	0, 7, 0, 0, 0, 0, 0, 0,
-	0, 0, 7, 0, 10, 0, 3, 5,
-	0, 0, 0, 0, 0, 0, 0, 1,
-	0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0
+	0, 0, 7, 0, 10, 0, 3, 3,
+	5, 0, 0, 0, 0, 0, 0, 0,
+	1, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 3, 0, 0, 0
+};
+
+static const signed char _sav_very_long_string_parse_eof_trans[] = {
+	90, 91, 92, 93, 94, 95, 96, 97,
+	98, 99, 100, 101, 102, 103, 0
 };
 
 static const int sav_very_long_string_parse_start = 1;
@@ -654,6 +659,7 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
 	char *error_buf = NULL;
 	unsigned char *p = c_data;
 	unsigned char *pe = c_data + count;
+	unsigned char *eof = pe;
 	
 	varlookup_t *table = NULL;
 	int cs;
@@ -662,12 +668,12 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
 	table = build_lookup_table(var_count, ctx);
 	
 	
-#line 666 "src/spss/readstat_sav_parse.c"
+#line 672 "src/spss/readstat_sav_parse.c"
 	{
 		cs = (int)sav_very_long_string_parse_start;
 	}
 	
-#line 671 "src/spss/readstat_sav_parse.c"
+#line 677 "src/spss/readstat_sav_parse.c"
 	{
 		int _klen;
 		unsigned int _trans = 0;
@@ -675,59 +681,66 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
 		const signed char * _acts;
 		unsigned int _nacts;
 		_resume: {}
-		if ( p == pe )
+		if ( p == pe && p != eof )
 			goto _out;
-		_keys = ( _sav_very_long_string_parse_trans_keys + (_sav_very_long_string_parse_key_offsets[cs]));
-		_trans = (unsigned int)_sav_very_long_string_parse_index_offsets[cs];
-		
-		_klen = (int)_sav_very_long_string_parse_single_lengths[cs];
-		if ( _klen > 0 ) {
-			const unsigned char *_lower = _keys;
-			const unsigned char *_upper = _keys + _klen - 1;
-			const unsigned char *_mid;
-			while ( 1 ) {
-				if ( _upper < _lower ) {
-					_keys += _klen;
-					_trans += (unsigned int)_klen;
-					break;
-				}
-				
-				_mid = _lower + ((_upper-_lower) >> 1);
-				if ( ( (*( p))) < (*( _mid)) )
-					_upper = _mid - 1;
-				else if ( ( (*( p))) > (*( _mid)) )
-					_lower = _mid + 1;
-				else {
-					_trans += (unsigned int)(_mid - _keys);
-					goto _match;
-				}
+		if ( p == eof ) {
+			if ( _sav_very_long_string_parse_eof_trans[cs] > 0 ) {
+				_trans = (unsigned int)_sav_very_long_string_parse_eof_trans[cs] - 1;
 			}
 		}
-		
-		_klen = (int)_sav_very_long_string_parse_range_lengths[cs];
-		if ( _klen > 0 ) {
-			const unsigned char *_lower = _keys;
-			const unsigned char *_upper = _keys + (_klen<<1) - 2;
-			const unsigned char *_mid;
-			while ( 1 ) {
-				if ( _upper < _lower ) {
-					_trans += (unsigned int)_klen;
-					break;
-				}
-				
-				_mid = _lower + (((_upper-_lower) >> 1) & ~1);
-				if ( ( (*( p))) < (*( _mid)) )
-					_upper = _mid - 2;
-				else if ( ( (*( p))) > (*( _mid + 1)) )
-					_lower = _mid + 2;
-				else {
-					_trans += (unsigned int)((_mid - _keys)>>1);
-					break;
+		else {
+			_keys = ( _sav_very_long_string_parse_trans_keys + (_sav_very_long_string_parse_key_offsets[cs]));
+			_trans = (unsigned int)_sav_very_long_string_parse_index_offsets[cs];
+			
+			_klen = (int)_sav_very_long_string_parse_single_lengths[cs];
+			if ( _klen > 0 ) {
+				const unsigned char *_lower = _keys;
+				const unsigned char *_upper = _keys + _klen - 1;
+				const unsigned char *_mid;
+				while ( 1 ) {
+					if ( _upper < _lower ) {
+						_keys += _klen;
+						_trans += (unsigned int)_klen;
+						break;
+					}
+					
+					_mid = _lower + ((_upper-_lower) >> 1);
+					if ( ( (*( p))) < (*( _mid)) )
+						_upper = _mid - 1;
+					else if ( ( (*( p))) > (*( _mid)) )
+						_lower = _mid + 1;
+					else {
+						_trans += (unsigned int)(_mid - _keys);
+						goto _match;
+					}
 				}
 			}
+			
+			_klen = (int)_sav_very_long_string_parse_range_lengths[cs];
+			if ( _klen > 0 ) {
+				const unsigned char *_lower = _keys;
+				const unsigned char *_upper = _keys + (_klen<<1) - 2;
+				const unsigned char *_mid;
+				while ( 1 ) {
+					if ( _upper < _lower ) {
+						_trans += (unsigned int)_klen;
+						break;
+					}
+					
+					_mid = _lower + (((_upper-_lower) >> 1) & ~1);
+					if ( ( (*( p))) < (*( _mid)) )
+						_upper = _mid - 2;
+					else if ( ( (*( p))) > (*( _mid + 1)) )
+						_lower = _mid + 2;
+					else {
+						_trans += (unsigned int)((_mid - _keys)>>1);
+						break;
+					}
+				}
+			}
+			
+			_match: {}
 		}
-		
-		_match: {}
 		cs = (int)_sav_very_long_string_parse_cond_targs[_trans];
 		
 		if ( _sav_very_long_string_parse_cond_actions[_trans] != 0 ) {
@@ -746,7 +759,7 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
 							temp_key[str_len] = '\0';
 						}
 						
-#line 750 "src/spss/readstat_sav_parse.c"
+#line 763 "src/spss/readstat_sav_parse.c"
 						
 						break; 
 					}
@@ -755,7 +768,7 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
 #line 20 "src/spss/readstat_sav_parse.rl"
 							str_start = p; }
 						
-#line 759 "src/spss/readstat_sav_parse.c"
+#line 772 "src/spss/readstat_sav_parse.c"
 						
 						break; 
 					}
@@ -764,13 +777,13 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
 #line 20 "src/spss/readstat_sav_parse.rl"
 							str_len = p - str_start; }
 						
-#line 768 "src/spss/readstat_sav_parse.c"
+#line 781 "src/spss/readstat_sav_parse.c"
 						
 						break; 
 					}
 					case 3:  {
 						{
-#line 177 "src/spss/readstat_sav_parse.rl"
+#line 178 "src/spss/readstat_sav_parse.rl"
 							
 							varlookup_t *found = bsearch(temp_key, table, var_count, sizeof(varlookup_t), &compare_key_varlookup);
 							if (found) {
@@ -780,13 +793,13 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
 							}
 						}
 						
-#line 784 "src/spss/readstat_sav_parse.c"
+#line 797 "src/spss/readstat_sav_parse.c"
 						
 						break; 
 					}
 					case 4:  {
 						{
-#line 186 "src/spss/readstat_sav_parse.rl"
+#line 187 "src/spss/readstat_sav_parse.rl"
 							
 							if ((( (*( p)))) != '\0') {
 								unsigned char digit = (( (*( p)))) - '0';
@@ -798,16 +811,16 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
 							}
 						}
 						
-#line 802 "src/spss/readstat_sav_parse.c"
+#line 815 "src/spss/readstat_sav_parse.c"
 						
 						break; 
 					}
 					case 5:  {
 						{
-#line 197 "src/spss/readstat_sav_parse.rl"
+#line 198 "src/spss/readstat_sav_parse.rl"
 							temp_val = 0; }
 						
-#line 811 "src/spss/readstat_sav_parse.c"
+#line 824 "src/spss/readstat_sav_parse.c"
 						
 						break; 
 					}
@@ -818,20 +831,26 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
 			
 		}
 		
-		if ( cs != 0 ) {
-			p += 1;
-			goto _resume;
+		if ( p == eof ) {
+			if ( cs >= 11 )
+				goto _out;
+		}
+		else {
+			if ( cs != 0 ) {
+				p += 1;
+				goto _resume;
+			}
 		}
 		_out: {}
 	}
 	
-#line 205 "src/spss/readstat_sav_parse.rl"
+#line 206 "src/spss/readstat_sav_parse.rl"
 	
 	
 	if (cs < 
-#line 833 "src/spss/readstat_sav_parse.c"
-	12
-#line 207 "src/spss/readstat_sav_parse.rl"
+#line 852 "src/spss/readstat_sav_parse.c"
+	11
+#line 208 "src/spss/readstat_sav_parse.rl"
 	|| p != pe) {
 		if (ctx->handle.error) {
 			snprintf(error_buf, error_buf_len, "Parsed %ld of %ld bytes. Remaining bytes: %.*s",

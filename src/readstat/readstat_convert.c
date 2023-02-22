@@ -7,7 +7,7 @@
 readstat_error_t readstat_convert(char *dst, size_t dst_len, const char *src, size_t src_len, iconv_t converter) {
     /* strip off spaces from the input because the programs use ASCII space
      * padding even with non-ASCII encoding. */
-    while (src_len && src[src_len-1] == ' ') {
+    while (src_len && (src[src_len-1] == ' ' || src[src_len-1] == '\0')) {
         src_len--;
     }
     if (dst_len == 0) {
