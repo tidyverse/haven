@@ -76,11 +76,19 @@ read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max =
 #'
 #'   `TRUE` and `FALSE` can be used for backwards compatibility, and correspond
 #'   to the "zsav" and "none" options respectively.
-#' @param convert_utc If `TRUE` (the default), date times are converted to
-#'   the equivalent UTC value and timezone is ignored, so they will appear the
-#'   same in R and Stata/SPSS/SAS. If `FALSE`, date time variables are written
-#'   as the corresponding UTC value.
-write_sav <- function(data, path, compress = c("byte", "none", "zsav"), convert_utc = TRUE) {
+#' @param adjust_tz Stata, SPSS and SAS do not have a concept of time zone,
+#'   and all [date-time] variables are treated as UTC. `adjust_tz` controls
+#'   how the timezone of date-time values is treated when writing.
+#'
+#'   * If `TRUE` (the default) the timezone of date-time values is ignored, and
+#'   they will display the same in R and Stata/SPSS/SAS, e.g.
+#'   `"2010-01-01 09:00:00 NZDT"` will be written as `"2010-01-01 09:00:00"`.
+#'   Note that this changes the underlying numeric data, so use caution if
+#'   preserving between-time-point differences is critical.
+#'   * If `FALSE`, date-time values are written as the corresponding UTC value,
+#'   e.g. `"2010-01-01 09:00:00 NZDT"` will be written as
+#'   `"2009-12-31 20:00:00"`.
+write_sav <- function(data, path, compress = c("byte", "none", "zsav"), adjust_tz = TRUE) {
   if (isTRUE(compress)) {
     compress <- "zsav"
   } else if (isFALSE(compress)) {
@@ -91,7 +99,7 @@ write_sav <- function(data, path, compress = c("byte", "none", "zsav"), convert_
 
   data_out <- validate_sav(data)
 
-  if (isTRUE(convert_utc)) {
+  if (isTRUE(adjust_tz)) {
     data_out <- adjust_tz(data_out)
   }
 

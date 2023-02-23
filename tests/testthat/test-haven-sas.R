@@ -180,7 +180,7 @@ test_that("can roundtrip date times", {
   x2_utc <- x2
   attr(x2_utc, "tzone") <- "UTC"
   expect_equal(
-    roundtrip_var(x2, "xpt", convert_utc = FALSE),
+    roundtrip_var(x2, "xpt", adjust_tz = FALSE),
     x2_utc
   )
 
