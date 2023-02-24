@@ -14,19 +14,19 @@ There are three common formats across SAS, SPSS and Stata.
 Date (number of days)
 
 * SAS:    MMDDYY, DDMMYY, YYMMDD, DATE
-* Spss:   n/a
+* SPSS:   n/a
 * Stata:  %td
 
 Time (number of seconds):
 
 * SAS:   TIME, HHMM, TOD 
-* Spss:  TIME, DTIME
+* SPSS:  TIME, DTIME
 * Stata: n/a
 
 DateTime (number of seconds):
 
 * SAS:   DATETIME
-* Spss:  DATE, ADATE, SDATE, DATETIME (as milliseconds)
+* SPSS:  DATE, ADATE, SDATE, DATETIME (as milliseconds)
 * Stata: %tc, %tC
 
 
@@ -42,12 +42,11 @@ Dates and date times use a difference offset to R:
 ## References
 
 * SAS: 
-  <https://v8doc.sas.com/sashtml/lrcon/zenid-63.htm>,
-  <http://support.sas.com/documentation/cdl/en/etsug/60372/HTML/default/viewer.htm>
+  <https://support.sas.com/documentation/cdl/en/lrcon/65287/HTML/default/viewer.htm#p1wj0wt2ebe2a0n1lv4lem9hdc0v.htm>
   
-* Spss:
-  <http://www-01.ibm.com/support/knowledgecenter/#!/SSLVMB_20.0.0/com.ibm.spss.statistics.help/idh_idd_dtwz_learn.htm>
-  <http://www-01.ibm.com/support/knowledgecenter/#!/SSLVMB_20.0.0/com.ibm.spss.statistics.help/syn_date_and_time_date_time_formats.htm>
+* SPSS:
+  <https://www.ibm.com/docs/en/spss-statistics/29.0.0?topic=wizard-dates-times-in-spss-statistics>
+  <https://www.ibm.com/docs/en/spss-statistics/29.0.0?topic=formats-date-time>
 
 * Stata:
-  <https://www.stata.com/manuals13/u24.pdf>
+  <https://www.stata.com/manuals/u25.pdf>
