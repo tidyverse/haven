@@ -7,6 +7,12 @@
   * Ignore invalid SAV timestamp strings (#683).
   * Fix compiler warnings (#707).
 
+* The experimental `write_sas()` function has been deprecated (#224). The
+  sas7bdat file format is complex and undocumented, and as such writing SAS
+  files is not officially supported by ReadStat. `write_xpt()` should be used
+  instead - it produces files in the SAS transport format, which has
+  limitations but will be reliably read by SAS.
+
 * `write_*()` functions gain a new `adjust_tz` argument to allow more control
   over time zone conversion for date-time variables (#702). Thanks to @jmobrien
   for the detailed issue and feedback.
@@ -22,14 +28,9 @@
   the corresponding UTC value, which will appear different to the user but
   preserves the underlying numeric data.
 
-* Fixed issue in `write_*()` functions where invisible return of input data 
-  frame included unintended alteration of date time variables. (@jmobrien, #702)
-
-* The experimental `write_sas()` function has been deprecated (#224). The
-  sas7bdat file format is complex and undocumented, and as such writing SAS
-  files is not officially supported by ReadStat. `write_xpt()` should be used
-  instead - it produces files in the SAS transport format, which has
-  limitations but will be reliably read by SAS.
+* `write_*()` functions previously returned the data frame with minor
+  alterations made to date-time variables. These functions now invisibly return
+  the original input data frame unchanged (@jmobrien, #702).
 
 * Fix bug in string variable width calculation that treated `NA` values as width
   2. `NA` values are now treated as blanks for width calculations (#699).

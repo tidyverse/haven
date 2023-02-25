@@ -80,7 +80,7 @@ read_sas <- function(data_file, catalog_file = NULL,
 #' @keywords internal
 #' @export
 write_sas <- function(data, path) {
-  lifecycle::deprecate_warn("2.6.0", "write_sas()", "write_xpt()")
+  lifecycle::deprecate_warn("2.5.2", "write_sas()", "write_xpt()")
 
   validate_sas(data)
   data_out <- adjust_tz(data)

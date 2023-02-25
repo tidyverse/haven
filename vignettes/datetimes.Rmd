@@ -35,7 +35,7 @@ DateTime (number of seconds):
 Dates and date times use a difference offset to R:
 
 * SAS: 1960-01-01 (`r -as.integer(as.Date("1960-01-01"))` days)
-* Spss: 1582-10-14. (`r -as.integer(as.Date("1582-10-14"))` days)
+* SPSS: 1582-10-14. (`r -as.integer(as.Date("1582-10-14"))` days)
 * Stata: 1960-01-01. (`r -as.integer(as.Date("1960-01-01"))` days)
 
 
