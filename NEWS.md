@@ -7,8 +7,23 @@
   * Ignore invalid SAV timestamp strings (#683).
   * Fix compiler warnings (#707).
 
+* `write_*()` functions gain a new `adjust_tz` argument to allow more control
+  over time zone conversion for date-time variables (#702). Thanks to @jmobrien
+  for the detailed issue and feedback.
+  
+  Stata, SPSS and SAS do not have a concept of time zone. Since haven 2.4.0
+  date-time values in non-UTC time zones are implicitly converted when writing
+  to ensure the time displayed in Stata/SPSS/SAS will match the time displayed
+  to the user in R (see #555). This is the behaviour when `adjust_tz = TRUE`
+  (the default). Although this is in line with general user expectations it can
+  cause issues when the time zone is important, for e.g. when looking at
+  differences between time points, since the underlying numeric data is changed
+  to preserve the displayed time. Use `adjust_tz = FALSE` to write the time as
+  the corresponding UTC value, which will appear different to the user but
+  preserves the underlying numeric data.
+
 * Fixed issue in `write_*()` functions where invisible return of input data 
-  frame included unintended alteration of date/time variables. (@jmobrien, #702)
+  frame included unintended alteration of date time variables. (@jmobrien, #702)
 
 * The experimental `write_sas()` function has been deprecated (#224). The
   sas7bdat file format is complex and undocumented, and as such writing SAS

@@ -81,11 +81,11 @@ read_sas <- function(data_file, catalog_file = NULL,
 #' @export
 write_sas <- function(data, path) {
   lifecycle::deprecate_warn("2.6.0", "write_sas()", "write_xpt()")
-  
+
   validate_sas(data)
   data_out <- adjust_tz(data)
   write_sas_(data_out, normalizePath(path, mustWork = FALSE))
-  
+
   invisible(data)
 }
 
@@ -134,7 +134,19 @@ read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repai
 #'
 #'   Note that although SAS itself supports dataset labels up to 256 characters
 #'   long, dataset labels in SAS transport files must be <= 40 characters.
-write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "label")) {
+#' @param adjust_tz Stata, SPSS and SAS do not have a concept of time zone,
+#'   and all [date-time] variables are treated as UTC. `adjust_tz` controls
+#'   how the timezone of date-time values is treated when writing.
+#'
+#'   * If `TRUE` (the default) the timezone of date-time values is ignored, and
+#'   they will display the same in R and Stata/SPSS/SAS, e.g.
+#'   `"2010-01-01 09:00:00 NZDT"` will be written as `"2010-01-01 09:00:00"`.
+#'   Note that this changes the underlying numeric data, so use caution if
+#'   preserving between-time-point differences is critical.
+#'   * If `FALSE`, date-time values are written as the corresponding UTC value,
+#'   e.g. `"2010-01-01 09:00:00 NZDT"` will be written as
+#'   `"2009-12-31 20:00:00"`.
+write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "label"), adjust_tz = TRUE) {
   if (!version %in% c(5, 8)) {
     cli_abort("SAS transport file version {.val {version}} is not currently supported.")
   }
@@ -145,8 +157,11 @@ write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "
   name <- validate_xpt_name(name, version)
   label <- validate_xpt_label(label)
 
-  validate_sas(data)
-  data_out <- adjust_tz(data)
+  data_out <- validate_sas(data)
+
+  if (isTRUE(adjust_tz)) {
+    data_out <- adjust_tz(data_out)
+  }
 
   write_xpt_(
     data_out,

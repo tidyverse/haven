@@ -166,6 +166,28 @@ test_that("can roundtrip missing values (as much as possible)", {
   expect_equal(roundtrip_var(NA_character_, "xpt"), "")
 })
 
+test_that("can roundtrip date times", {
+  x1 <- c(as.Date("2010-01-01"), NA)
+  expect_equal(roundtrip_var(x1, "xpt"), x1)
+
+  # converted to same time in UTC
+  x2 <- as.POSIXct("2010-01-01 09:00", tz = "Pacific/Auckland")
+  expect_equal(
+    roundtrip_var(x2, "xpt"),
+    as.POSIXct("2010-01-01 09:00", tz = "UTC")
+  )
+
+  x2_utc <- x2
+  attr(x2_utc, "tzone") <- "UTC"
+  expect_equal(
+    roundtrip_var(x2, "xpt", adjust_tz = FALSE),
+    x2_utc
+  )
+
+  attr(x2, "label") <- "abc"
+  expect_equal(attr(roundtrip_var(x2, "xpt"), "label"), "abc")
+})
+
 test_that("invalid files generate informative errors", {
   expect_snapshot(error = TRUE, {
     write_xpt(mtcars, file.path(tempdir(), " temp.xpt"))

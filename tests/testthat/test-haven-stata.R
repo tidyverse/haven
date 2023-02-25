@@ -115,6 +115,13 @@ test_that("can roundtrip date times", {
     as.POSIXct("2010-01-01 09:00", tz = "UTC")
   )
 
+  x2_utc <- x2
+  attr(x2_utc, "tzone") <- "UTC"
+  expect_equal(
+    roundtrip_var(x2, "sav", adjust_tz = FALSE),
+    x2_utc
+  )
+
   attr(x2, "label") <- "abc"
   expect_equal(attr(roundtrip_var(x2, "dta"), "label"), "abc")
 })

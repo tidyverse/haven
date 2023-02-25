@@ -29,7 +29,8 @@ write_dta(
   path,
   version = 14,
   label = attr(data, "label"),
-  strl_threshold = 2045
+  strl_threshold = 2045,
+  adjust_tz = TRUE
 )
 }
 \arguments{
@@ -92,6 +93,20 @@ than \code{strl_threshold} bytes will be stored as a long string (strL) instead
 of a standard string (str#) variable if \code{version} >= 13. This defaults to
 2045, the maximum length of str# variables. See the Stata \href{https://www.stata.com/features/overview/long-strings/}{long string}
 documentation for more details.}
+
+\item{adjust_tz}{Stata, SPSS and SAS do not have a concept of time zone,
+and all \link{date-time} variables are treated as UTC. \code{adjust_tz} controls
+how the timezone of date-time values is treated when writing.
+\itemize{
+\item If \code{TRUE} (the default) the timezone of date-time values is ignored, and
+they will display the same in R and Stata/SPSS/SAS, e.g.
+\code{"2010-01-01 09:00:00 NZDT"} will be written as \code{"2010-01-01 09:00:00"}.
+Note that this changes the underlying numeric data, so use caution if
+preserving between-time-point differences is critical.
+\item If \code{FALSE}, date-time values are written as the corresponding UTC value,
+e.g. \code{"2010-01-01 09:00:00 NZDT"} will be written as
+\code{"2009-12-31 20:00:00"}.
+}}
 }
 \value{
 A tibble, data frame variant with nice defaults.
