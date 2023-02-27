@@ -45,7 +45,7 @@ static readstat_error_t xport_update_progress(xport_ctx_t *ctx) {
     return io->update(ctx->file_size, ctx->handle.progress, ctx->user_ctx, io->io_ctx);
 }
 
-static xport_ctx_t *xport_ctx_init() {
+static xport_ctx_t *xport_ctx_init(void) {
     xport_ctx_t *ctx = calloc(1, sizeof(xport_ctx_t));
     return ctx;
 }
