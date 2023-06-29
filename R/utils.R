@@ -31,11 +31,6 @@ combine_labels <- function(x_labels, y_labels, x_arg, y_arg) {
   c(x_labels, y_labels[!y_labels %in% x_labels])
 }
 
-# TODO: remove when minimum R version >= 3.5
-if (getRversion() < 3.5) {
-  isFALSE <- function(x) is.logical(x) && length(x) == 1L && !is.na(x) && !x
-}
-
 force_utc <- function(x) {
   if (identical(attr(x, "tzone"), "UTC")) {
     x
