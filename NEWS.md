@@ -1,4 +1,4 @@
-# haven (development version)
+# haven 2.5.3
 
 * Fix for upcoming R-devel change.
 
