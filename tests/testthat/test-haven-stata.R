@@ -207,6 +207,10 @@ test_that("supports stata version 15", {
 
   df2$x <- as_factor(df2$x)
   df2$y <- zap_formats(df2$y)
+
+  attr(df, "creation_timestamp") <- as.integer(Sys.time())
+  attr(df, "modified_timestamp") <- as.integer(Sys.time())
+
   expect_equal(df2, df)
 })
 
