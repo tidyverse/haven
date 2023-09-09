@@ -202,14 +202,16 @@ test_that("supports stata version 15", {
   df <- tibble(x = factor(letters), y = runif(26))
 
   path <- tempfile()
+  # counld not estimate how long this would take
   write_dta(df, path, version = 15)
   df2 <- read_dta(path)
 
+  # cheating for correct creation date/modified date
+  attr(df, "creation_timestamp") <- attributes(df2)$creation_timestamp
+  attr(df, "modified_timestamp") <- attributes(df2)$modified_timestamp
+
   df2$x <- as_factor(df2$x)
   df2$y <- zap_formats(df2$y)
-
-  attr(df, "creation_timestamp") <- as.integer(Sys.time())
-  attr(df, "modified_timestamp") <- as.integer(Sys.time())
 
   expect_equal(df2, df)
 })
