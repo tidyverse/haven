@@ -6,7 +6,7 @@ Authors@R: c(
     person("Evan", "Miller", role = c("aut", "cph"),
            comment = "Author of included ReadStat code"),
     person("Danny", "Smith", role = "aut"),
-    person("RStudio", role = c("cph", "fnd"))
+    person("Posit Software, PBC", role = c("cph", "fnd"))
   )
 Description: Import foreign statistical formats into R via the embedded
     'ReadStat' C library, <https://github.com/WizardMac/ReadStat>.
