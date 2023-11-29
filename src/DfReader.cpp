@@ -400,7 +400,7 @@ public:
       label_set.add(haven_double_value(value), label_s);
       break;
     default:
-      Rf_warning("Unsupported label type: %s", value.type);
+      Rf_warning("Unsupported label type: %i", value.type);
     }
   }
 
