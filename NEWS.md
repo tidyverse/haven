@@ -1,5 +1,7 @@
 # haven (development version)
 
+* Fixed a buffer overflow in upstream ReadStat (#681).
+
 # haven 2.5.4
 
 * Fix for upcoming R-devel change.
