@@ -717,7 +717,7 @@ static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len
             }
             if (++offset == col_info->width) {
                 if (++segment_offset < var_info->n_segments) {
-                    raw_str_used--;
+                    if (raw_str_used > 0) raw_str_used--;
                 }
                 offset = 0;
                 col++;
