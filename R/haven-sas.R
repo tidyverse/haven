@@ -93,7 +93,7 @@ write_sas <- function(data, path) {
 
 #' Read and write SAS transport files
 #'
-#' The SAS transport format is a open format, as is required for submission
+#' The SAS transport format is an open format, as is required for submission
 #' of the data to the FDA.
 #'
 #' @inheritParams read_spss
