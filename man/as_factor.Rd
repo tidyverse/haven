@@ -36,7 +36,7 @@
 Labels are sorted by value.
 \item "both": like "default", but pastes together the level and value
 \item "label": use only the labels; unlabelled values become \code{NA}
-\item "values: use only the values
+\item "values": use only the values
 }}
 
 \item{ordered}{If \code{TRUE} create an ordered (ordinal) factor, if
