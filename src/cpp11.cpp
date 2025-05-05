@@ -110,9 +110,9 @@ extern "C" SEXP _haven_write_xpt_(SEXP data, SEXP path, SEXP version, SEXP name,
 
 extern "C" {
 /* .Call calls */
-extern SEXP is_tagged_na_(void *, void *);
-extern SEXP na_tag_(void *);
-extern SEXP tagged_na_(void *);
+extern SEXP is_tagged_na_(SEXP, SEXP);
+extern SEXP na_tag_(SEXP);
+extern SEXP tagged_na_(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_haven_df_parse_dta_file", (DL_FUNC) &_haven_df_parse_dta_file, 6},
