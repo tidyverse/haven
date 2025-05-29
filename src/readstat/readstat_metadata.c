@@ -43,3 +43,11 @@ const char *readstat_get_file_encoding(readstat_metadata_t *metadata) {
 const char *readstat_get_table_name(readstat_metadata_t *metadata) {
     return metadata->table_name;
 }
+
+size_t readstat_get_multiple_response_sets_length(readstat_metadata_t *metadata) {
+    return metadata->multiple_response_sets_length;
+}
+
+const mr_set_t *readstat_get_multiple_response_sets(readstat_metadata_t *metadata) {
+    return metadata->mr_sets;
+}

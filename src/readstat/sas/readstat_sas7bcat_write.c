@@ -46,7 +46,8 @@ static sas7bcat_block_t *sas7bcat_block_for_label_set(readstat_label_set_t *r_la
     memcpy(&block->data[38], &count, sizeof(int32_t));
     memcpy(&block->data[42], &count, sizeof(int32_t));
     if (name_len > 8) {
-        block->data[2] = (char)0x80;
+        int16_t flags = 0x80;
+        memcpy(&block->data[2], &flags, sizeof(int16_t));
         memcpy(&block->data[8], name, 8);
 
         memset(&block->data[106], ' ', 32);
@@ -63,7 +64,8 @@ static sas7bcat_block_t *sas7bcat_block_for_label_set(readstat_label_set_t *r_la
 
     for (j=0; j<r_label_set->value_labels_count; j++) {
         readstat_value_label_t *value_label = readstat_get_value_label(r_label_set, j);
-        lbp1[2] = 24; // size - 6
+        int16_t value_entry_len = 24; // size - 6
+        memcpy(&lbp1[2], &value_entry_len, sizeof(int16_t));
         int32_t index = j;
         memcpy(&lbp1[10], &index, sizeof(int32_t));
         if (r_label_set->type == READSTAT_TYPE_STRING) {
@@ -74,8 +76,14 @@ static sas7bcat_block_t *sas7bcat_block_for_label_set(readstat_label_set_t *r_la
             memcpy(&lbp1[14], value_label->string_key, string_len);
         } else {
             uint64_t big_endian_value;
-            double double_value = -1.0 * value_label->double_key;
-            memcpy(&big_endian_value, &double_value, sizeof(double));
+            double double_value = value_label->double_key;
+            if (double_value >= 0.0) {
+                double_value *= -1.0;
+                memcpy(&big_endian_value, &double_value, sizeof(double));
+            } else {
+                memcpy(&big_endian_value, &double_value, sizeof(double));
+                big_endian_value = ~big_endian_value;
+            }
             if (machine_is_little_endian()) {
                 big_endian_value = byteswap8(big_endian_value);
             }
@@ -86,7 +94,7 @@ static sas7bcat_block_t *sas7bcat_block_for_label_set(readstat_label_set_t *r_la
         memcpy(&lbp2[8], &label_len, sizeof(int16_t));
         memcpy(&lbp2[10], value_label->label, label_len);
 
-        lbp1 += 30;
+        lbp1 += 6 + value_entry_len;
         lbp2 += 8 + 2 + value_label->label_len + 1;
     }
 
@@ -138,16 +146,15 @@ static readstat_error_t sas7bcat_begin_data(void *writer_ctx) {
 
     // Page 1
     char *xlsr = &page[856];
-    int16_t block_idx, block_off;
-    block_idx = 4;
-    block_off = 16;
+    int32_t block_idx = 4;
+    int16_t block_off = 16;
     for (i=0; i<writer->label_sets_count; i++) {
         if (xlsr + 212 > page + hinfo->page_size)
             break;
 
         memcpy(&xlsr[0], "XLSR", 4);
 
-        memcpy(&xlsr[4], &block_idx, sizeof(int16_t));
+        memcpy(&xlsr[4], &block_idx, sizeof(int32_t));
         memcpy(&xlsr[8], &block_off, sizeof(int16_t));
 
         xlsr[50] = 'O';
