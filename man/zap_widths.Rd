@@ -18,7 +18,7 @@ causes problems for your code, you can get rid of them with \code{zap_widths}.
 Other zappers: 
 \code{\link{zap_empty}()},
 \code{\link{zap_formats}()},
-\code{\link{zap_labels}()},
-\code{\link{zap_label}()}
+\code{\link{zap_label}()},
+\code{\link{zap_labels}()}
 }
 \concept{zappers}
