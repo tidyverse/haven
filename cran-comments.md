@@ -1,9 +1,6 @@
 ## R CMD check results
 
-0 ERRORs | 0 WARNINGs | 1 NOTEs
-
-* checking for GNU extensions in Makefiles ... NOTE
-  GNU make is a SystemRequirements.
+0 ERRORs | 0 WARNINGs | 0 NOTEs
 
 ## revdepcheck results
 
