@@ -20,7 +20,8 @@ typedef struct col_info_s {
     uint64_t    offset;
     uint32_t    width;
     int         type;
-    int         format_len;
+    int         format_width;
+    int         format_digits;
 } col_info_t;
 
 typedef struct subheader_pointer_s {
@@ -376,8 +377,10 @@ static readstat_error_t sas7bdat_parse_column_format_subheader(const char *subhe
     if ((retval = sas7bdat_realloc_col_info(ctx, ctx->col_formats_count)) != READSTAT_OK)
         goto cleanup;
 
-    if (ctx->u64)
-        ctx->col_info[ctx->col_formats_count-1].format_len = sas_read2(&subheader[24], ctx->bswap);
+    if (ctx->u64) {
+        ctx->col_info[ctx->col_formats_count-1].format_width = sas_read2(&subheader[24], ctx->bswap);
+        ctx->col_info[ctx->col_formats_count-1].format_digits = sas_read2(&subheader[26], ctx->bswap);
+    }
     ctx->col_info[ctx->col_formats_count-1].format_ref = sas7bdat_parse_text_ref(
             ctx->u64 ? &subheader[46] : &subheader[34], ctx);
     ctx->col_info[ctx->col_formats_count-1].label_ref = sas7bdat_parse_text_ref(
@@ -693,8 +696,13 @@ static readstat_variable_t *sas7bdat_init_variable(sas7bdat_ctx_t *ctx, int i,
         goto cleanup;
     }
     size_t len = strlen(variable->format);
-    if (len && ctx->col_info[i].format_len) {
-        snprintf(variable->format + len, sizeof(variable->format) - len, "%d", ctx->col_info[i].format_len);
+    if (len && ctx->col_info[i].format_width) {
+        len += snprintf(variable->format + len, sizeof(variable->format) - len,
+                "%d", ctx->col_info[i].format_width);
+    }
+    if (len && ctx->col_info[i].format_digits) {
+        len += snprintf(variable->format + len, sizeof(variable->format) - len,
+                ".%d", ctx->col_info[i].format_digits);
     }
     if ((retval = sas7bdat_copy_text_ref(variable->label, sizeof(variable->label), 
                     ctx->col_info[i].label_ref, ctx)) != READSTAT_OK) {

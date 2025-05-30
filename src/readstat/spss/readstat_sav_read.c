@@ -1,24 +1,26 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/types.h>
 #include <stdint.h>
 #include <math.h>
 #include <float.h>
 #include <time.h>
 #include <limits.h>
+#include <ctype.h>
 
 #include "../readstat.h"
 #include "../readstat_bits.h"
 #include "../readstat_iconv.h"
 #include "../readstat_convert.h"
 #include "../readstat_malloc.h"
+#include "../CKHashTable.h"
 
 #include "readstat_sav.h"
 #include "readstat_sav_compress.h"
 #include "readstat_sav_parse.h"
 #include "readstat_sav_parse_timestamp.h"
+#include "readstat_sav_parse_mr_name.h"
 
 #if HAVE_ZLIB
 #include "readstat_zsav_read.h"
@@ -145,6 +147,32 @@ static readstat_error_t sav_parse_variable_display_parameter_record(sav_ctx_t *c
 static readstat_error_t sav_parse_machine_integer_info_record(const void *data, size_t data_len, sav_ctx_t *ctx);
 static readstat_error_t sav_parse_long_string_value_labels_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx);
 static readstat_error_t sav_parse_long_string_missing_values_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx);
+static readstat_error_t sav_read_multiple_response_sets(size_t data_len, sav_ctx_t *ctx);
+
+static readstat_error_t sav_read_multiple_response_sets(size_t data_len, sav_ctx_t *ctx) {
+    readstat_error_t retval = READSTAT_OK;
+
+    char *mr_string = readstat_malloc(data_len + 1);
+    if (mr_string == NULL) {
+        retval = READSTAT_ERROR_MALLOC;
+        goto cleanup;
+    }
+    mr_string[data_len] = '\0';
+    if (ctx->io->read(mr_string, data_len, ctx->io->io_ctx) < data_len) {
+        retval = READSTAT_ERROR_PARSE;
+        goto cleanup;
+    }
+    if (mr_string[0] != '$') {
+        retval = READSTAT_ERROR_BAD_MR_STRING;
+        goto cleanup;
+    }
+
+    retval = parse_mr_string(mr_string, &ctx->mr_sets, &ctx->multiple_response_sets_length);
+
+cleanup:
+    free(mr_string);
+    return retval;
+}
 
 static void sav_tag_missing_double(readstat_value_t *value, sav_ctx_t *ctx) {
     double fp_value = value->v.double_value;
@@ -337,7 +365,7 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
         }
         ctx->var_offset++;
         ctx->varinfo[ctx->var_index-1]->width++;
-        return 0;
+        return retval;
     }
 
     if ((info = readstat_calloc(1, sizeof(spss_varinfo_t))) == NULL) {
@@ -703,24 +731,25 @@ static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len
             goto done;
         }
         if (var_info->type == READSTAT_TYPE_STRING) {
-            if (raw_str_used + 8 <= ctx->raw_string_len) {
+            // If we're in the last column of a segment, only read 7 bytes
+            // (Segments contain 255 bytes but have room for 256)
+            size_t read_len = 8 - (offset == 31);
+            if (raw_str_used + read_len <= ctx->raw_string_len) {
                 if (raw_str_is_utf8) {
                     /* Skip null bytes, see https://github.com/tidyverse/haven/issues/560  */
                     char c;
-                    for (int i=0; i<8; i++)
+                    for (int i=0; i<read_len; i++)
                         if ((c = buffer[data_offset+i]))
                             ctx->raw_string[raw_str_used++] = c;
                 } else {
-                    memcpy(ctx->raw_string + raw_str_used, &buffer[data_offset], 8);
-                    raw_str_used += 8;
+                    memcpy(ctx->raw_string + raw_str_used, &buffer[data_offset], read_len);
+                    raw_str_used += read_len;
                 }
             }
             if (++offset == col_info->width) {
-                if (++segment_offset < var_info->n_segments) {
-                    raw_str_used--;
-                }
                 offset = 0;
                 col++;
+                segment_offset++;
             }
             if (segment_offset == var_info->n_segments) {
                 if (!ctx->variables[var_info->index]->skip) {
@@ -1335,6 +1364,14 @@ static readstat_error_t sav_parse_records_pass1(sav_ctx_t *ctx) {
                     retval = sav_parse_machine_integer_info_record(data_buf, data_len, ctx);
                     if (retval != READSTAT_OK)
                         goto cleanup;
+                } else if (subtype == SAV_RECORD_SUBTYPE_MULTIPLE_RESPONSE_SETS) {
+                    if (ctx->mr_sets != NULL) {
+                        retval = READSTAT_ERROR_BAD_MR_STRING;
+                        goto cleanup;
+                    }
+                    retval = sav_read_multiple_response_sets(data_len, ctx);
+                    if (retval != READSTAT_OK)
+                        goto cleanup;
                 } else {
                     if (io->seek(data_len, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
                         retval = READSTAT_ERROR_SEEK;
@@ -1662,6 +1699,48 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
 
         metadata.file_label = ctx->file_label;
 
+        // Replace short MR names with long names
+        ck_hash_table_t *var_dict = ck_hash_table_init(ctx->var_index, 8);
+        for (size_t i = 0; i < ctx->var_index; i++) {
+            spss_varinfo_t *current_varinfo = ctx->varinfo[i];
+            if (current_varinfo != NULL && current_varinfo->name[0] != '\0') {
+                ck_str_hash_insert(current_varinfo->name, current_varinfo, var_dict);
+            }
+        }
+        for (size_t i = 0; i < ctx->multiple_response_sets_length; i++) {
+            mr_set_t mr = ctx->mr_sets[i];
+            for (size_t j = 0; j < mr.num_subvars; j++) {
+                char* sv_name_upper = readstat_malloc(strlen(mr.subvariables[j]) + 1);
+                if (sv_name_upper == NULL) {
+                    retval = READSTAT_ERROR_MALLOC;
+                    goto cleanup;
+                }
+                sv_name_upper[strlen(mr.subvariables[j])] = '\0';
+                for (int c = 0; mr.subvariables[j][c] != '\0'; c++) {
+                    sv_name_upper[c] = toupper((unsigned char) mr.subvariables[j][c]);
+                }
+                spss_varinfo_t *info = (spss_varinfo_t *)ck_str_hash_lookup(sv_name_upper, var_dict);
+                if (info) {
+                    free(mr.subvariables[j]);
+                    // mr.subvariables[j] = NULL;
+                    if ((mr.subvariables[j] = readstat_malloc(strlen(info->longname) + 1)) == NULL) {
+                        retval = READSTAT_ERROR_MALLOC;
+                        goto cleanup;
+                    }
+                    // mr.subvariables[j][strlen(info->longname)] = '\0';
+                    strcpy(mr.subvariables[j], info->longname);
+                    // mr.subvariables[j] = info->longname;
+                }
+                free(sv_name_upper);
+                // sv_name_upper = NULL;
+            }
+        }
+        if (var_dict)
+            ck_hash_table_free(var_dict);
+
+        metadata.multiple_response_sets_length = ctx->multiple_response_sets_length;
+        metadata.mr_sets = ctx->mr_sets;
+
         if (ctx->handle.metadata(&metadata, ctx->user_ctx) != READSTAT_HANDLER_OK) {
             retval = READSTAT_ERROR_USER_ABORT;
             goto cleanup;
@@ -1673,6 +1752,7 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
 
     if ((retval = sav_handle_variables(ctx)) != READSTAT_OK)
         goto cleanup;
+
 
     if ((retval = sav_handle_fweight(ctx)) != READSTAT_OK)
         goto cleanup;

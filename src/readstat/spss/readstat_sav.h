@@ -3,6 +3,7 @@
 //
 
 #include "readstat_spss.h"
+#include "../readstat.h"
 
 #pragma pack(push, 1)
 
@@ -100,6 +101,9 @@ typedef struct sav_ctx_s {
     uint64_t       lowest_double;
     uint64_t       highest_double;
 
+    size_t         multiple_response_sets_length;
+    mr_set_t      *mr_sets;
+
     double         bias;
     int            format_version;
 
@@ -117,6 +121,7 @@ typedef struct sav_ctx_s {
 
 #define SAV_RECORD_SUBTYPE_INTEGER_INFO       3
 #define SAV_RECORD_SUBTYPE_FP_INFO            4
+#define SAV_RECORD_SUBTYPE_MULTIPLE_RESPONSE_SETS 7
 #define SAV_RECORD_SUBTYPE_PRODUCT_INFO      10
 #define SAV_RECORD_SUBTYPE_VAR_DISPLAY       11
 #define SAV_RECORD_SUBTYPE_LONG_VAR_NAME     13

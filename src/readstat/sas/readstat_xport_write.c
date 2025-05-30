@@ -10,7 +10,7 @@
 #include "readstat_xport_parse_format.h"
 #include "ieee.h"
 
-#define XPORT_DEFAULT_VERISON   8
+#define XPORT_DEFAULT_VERSION   8
 #define RECORD_LEN 80
 
 #if defined _MSC_VER
@@ -53,8 +53,8 @@ static readstat_error_t xport_write_header_record_v8(readstat_writer_t *writer,
         xport_header_record_t *xrecord) {
     char record[RECORD_LEN+1];
     snprintf(record, sizeof(record),
-            "HEADER RECORD*******%-8sHEADER RECORD!!!!!!!%-30d",
-            xrecord->name, xrecord->num1);
+            "HEADER RECORD*******%-8sHEADER RECORD!!!!!!!" "%15d" "%15d",
+            xrecord->name, xrecord->num1, xrecord->num2);
     return xport_write_record(writer, record);
 }
 
@@ -356,12 +356,16 @@ static readstat_error_t xport_write_namestr_header_record(readstat_writer_t *wri
 }
 
 static readstat_error_t xport_write_obs_header_record(readstat_writer_t *writer) {
+    if (writer->version == 8) {
+        xport_header_record_t xrecord = {
+            .name = "OBSV8",
+            .num1 = writer->row_count
+        };
+        return xport_write_header_record_v8(writer, &xrecord);
+    }
     xport_header_record_t xrecord = { 
         .name = "OBS"
     };
-    if (writer->version == 8) {
-        strcpy(xrecord.name, "OBSV8");
-    }
     return xport_write_header_record(writer, &xrecord);
 }
 
@@ -531,7 +535,7 @@ static readstat_error_t xport_metadata_ok(void *writer_ctx) {
 readstat_error_t readstat_begin_writing_xport(readstat_writer_t *writer, void *user_ctx, long row_count) {
 
     if (writer->version == 0)
-        writer->version = XPORT_DEFAULT_VERISON;
+        writer->version = XPORT_DEFAULT_VERSION;
 
     writer->callbacks.metadata_ok = &xport_metadata_ok;
     writer->callbacks.write_int8 = &xport_write_int8;

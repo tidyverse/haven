@@ -60,7 +60,7 @@ static readstat_error_t sas7bcat_parse_value_labels(const char *value_start, siz
 
     /* Pass 1 -- find out the offset of the labels */
     for (i=0; i<label_count_capacity; i++) {
-        if (&lbp1[3] - value_start > value_labels_len || sas_read2(&lbp1[2], ctx->bswap) < 0) {
+        if (&lbp1[4] - value_start > value_labels_len || sas_read2(&lbp1[2], ctx->bswap) < 0) {
             retval = READSTAT_ERROR_PARSE;
             goto cleanup;
         }
@@ -107,15 +107,25 @@ static readstat_error_t sas7bcat_parse_value_labels(const char *value_start, siz
                 sas_assign_tag(&value, (val >> 40));
             } else {
                 memcpy(&dval, &val, 8);
-                dval *= -1.0;
+                if (dval > 0.0) {
+                    val = ~val;
+                    memcpy(&dval, &val, 8);
+                } else {
+                    dval *= -1.0;
+                }
             }
 
             value.v.double_value = dval;
         }
         size_t label_len = sas_read2(&lbp2[8], ctx->bswap);
-        if (&lbp2[10] + label_len - value_start > value_labels_len) {
+        if (&lbp2[10] > value_start + value_labels_len) {
             retval = READSTAT_ERROR_PARSE;
             goto cleanup;
+        }
+        /* Some labels seem to overflow the reported block length, truncate it */
+        /* (Observed with formats.sasbcat from GSS2021, produced with 9.0401M6X64_SR12R2 */
+        if (label_len > value_start + value_labels_len - &lbp2[10]) {
+            label_len = value_start + value_labels_len - &lbp2[10];
         }
         if (ctx->value_label_handler) {
             label = realloc(label, 4 * label_len + 1);
