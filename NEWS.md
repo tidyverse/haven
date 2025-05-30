@@ -1,5 +1,7 @@
 # haven (development version)
 
+* Updated ReadStat to fix stricter gcc diagnostics.
+
 # haven 2.5.4
 
 * Fix for upcoming R-devel change.
