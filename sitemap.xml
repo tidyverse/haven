@@ -1,96 +1,34 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://haven.tidyverse.org/404.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/CODE_OF_CONDUCT.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/CONTRIBUTING.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/SUPPORT.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/articles/datetimes.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/articles/semantics.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/index.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/as_factor.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/haven-package.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/labelled.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/labelled_spss.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/print_labels.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/read_dta.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/read_sas.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/read_spss.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/read_xpt.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/tagged_na.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/vec_arith.haven_labelled.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/write_sas.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/zap_empty.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/zap_formats.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/zap_label.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/zap_labels.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/zap_missing.html</loc>
-  </url>
-  <url>
-    <loc>https://haven.tidyverse.org/reference/zap_widths.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://haven.tidyverse.org/404.html</loc></url>
+<url><loc>https://haven.tidyverse.org/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://haven.tidyverse.org/CONTRIBUTING.html</loc></url>
+<url><loc>https://haven.tidyverse.org/LICENSE-text.html</loc></url>
+<url><loc>https://haven.tidyverse.org/LICENSE.html</loc></url>
+<url><loc>https://haven.tidyverse.org/SUPPORT.html</loc></url>
+<url><loc>https://haven.tidyverse.org/articles/datetimes.html</loc></url>
+<url><loc>https://haven.tidyverse.org/articles/index.html</loc></url>
+<url><loc>https://haven.tidyverse.org/articles/semantics.html</loc></url>
+<url><loc>https://haven.tidyverse.org/authors.html</loc></url>
+<url><loc>https://haven.tidyverse.org/index.html</loc></url>
+<url><loc>https://haven.tidyverse.org/news/index.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/as_factor.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/haven-package.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/index.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/labelled.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/labelled_spss.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/print_labels.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/read_dta.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/read_sas.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/read_spss.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/read_xpt.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/tagged_na.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/vec_arith.haven_labelled.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/write_sas.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/zap_empty.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/zap_formats.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/zap_label.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/zap_labels.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/zap_missing.html</loc></url>
+<url><loc>https://haven.tidyverse.org/reference/zap_widths.html</loc></url>
 </urlset>
+
