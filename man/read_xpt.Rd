@@ -105,11 +105,14 @@ It is not printed on the console, but the RStudio viewer will show it.
 If a dataset label is defined, it will be stored in the "label" attribute
 of the tibble.
 
+Value labels are not supported by the transport format, and value labels
+are silently ignored by \code{write_xpt()}.
+
 \code{write_xpt()} returns the input \code{data} invisibly.
 }
 \description{
-The SAS transport format is a open format, as is required for submission
-of the data to the FDA.
+The SAS transport format is an open format, as is required for submission
+of data to the FDA.
 }
 \examples{
 tmp <- tempfile(fileext = ".xpt")

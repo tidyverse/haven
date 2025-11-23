@@ -326,6 +326,9 @@ public:
         if (!std::isnan(values[i]) || tag == '\0') {
           readstat_label_double_value(labelSet, values[i], string_utf8(labels, i));
         } else {
+          if (ext_ == HAVEN_XPT || ext_ == HAVEN_SAS7BDAT || ext_ == HAVEN_SAS7BCAT) {
+            tag = toupper(tag);
+          }
           readstat_label_tagged_value(labelSet, tag, string_utf8(labels, i));
         }
       }
@@ -448,6 +451,9 @@ public:
       if (tag == '\0') {
         return readstat_insert_missing_value(writer_, var);
       } else {
+        if (ext_ == HAVEN_XPT || ext_ == HAVEN_SAS7BDAT || ext_ == HAVEN_SAS7BCAT) {
+          tag = toupper(tag);
+        }
         return readstat_insert_tagged_missing_value(writer_, var, tag);
       }
     } else {
