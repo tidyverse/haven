@@ -22,3 +22,5 @@
 ^configure\.log$
 ^src/Makevars$
 ^CRAN-SUBMISSION$
+^compile_commands\.json$
+^\.cache$

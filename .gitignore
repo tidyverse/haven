@@ -12,3 +12,5 @@ revdep/data.sqlite
 .vscode/
 src/Makevars
 configure.log
+compile_commands.json
+.cache
