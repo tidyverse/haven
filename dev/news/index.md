@@ -2,6 +2,11 @@
 
 ## haven (development version)
 
+- Character limit checks in
+  [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
+  now check for the number of bytes instead of the number of characters
+  ([\#746](https://github.com/tidyverse/haven/issues/746)).
+
 ## haven 2.5.5
 
 CRAN release: 2025-05-30

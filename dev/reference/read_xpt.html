@@ -176,6 +176,13 @@ It is not printed on the console, but the RStudio viewer will show it.</p>
 of the tibble.</p>
 <p><code>write_xpt()</code> returns the input <code>data</code> invisibly.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Note that character limits are expressed in bytes. The number of bytes
+will often be the same as the number of characters , but strings with
+multibyte character sequences will count some symbols as more than one
+character. For example, the string "café" is 5 bytes long in UTF-8.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

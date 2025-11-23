@@ -147,6 +147,13 @@ attribute of the tibble.
 
 `write_xpt()` returns the input `data` invisibly.
 
+## Details
+
+Note that character limits are expressed in bytes. The number of bytes
+will often be the same as the number of characters , but strings with
+multibyte character sequences will count some symbols as more than one
+character. For example, the string "café" is 5 bytes long in UTF-8.
+
 ## Examples
 
 ``` r
