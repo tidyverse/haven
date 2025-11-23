@@ -1,0 +1,84 @@
+# Create a labelled vector.
+
+A labelled vector is a common data structure in other statistical
+environments, allowing you to assign text labels to specific values.
+This class makes it possible to import such labelled vectors in to R
+without loss of fidelity. This class provides few methods, as I expect
+you'll coerce to a standard R class (e.g. a
+[`factor()`](https://rdrr.io/r/base/factor.html)) soon after importing.
+
+## Usage
+
+``` r
+labelled(x = double(), labels = NULL, label = NULL)
+
+is.labelled(x)
+```
+
+## Arguments
+
+- x:
+
+  A vector to label. Must be either numeric (integer or double) or
+  character.
+
+- labels:
+
+  A named vector or `NULL`. The vector should be the same type as `x`.
+  Unlike factors, labels don't need to be exhaustive: only a fraction of
+  the values might be labelled.
+
+- label:
+
+  A short, human-readable description of the vector.
+
+## Examples
+
+``` r
+s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
+s2 <- labelled(c(1, 1, 2), c(Male = 1, Female = 2))
+s3 <- labelled(
+  c(1, 1, 2),
+  c(Male = 1, Female = 2),
+  label = "Assigned sex at birth"
+)
+
+# Unfortunately it's not possible to make as.factor work for labelled objects
+# so instead use as_factor. This works for all types of labelled vectors.
+as_factor(s1)
+#> [1] Male   Male   Female
+#> Levels: Female Male
+as_factor(s1, levels = "values")
+#> [1] M M F
+#> Levels: M F
+as_factor(s2)
+#> [1] Male   Male   Female
+#> Levels: Male Female
+
+# Other statistical software supports multiple types of missing values
+s3 <- labelled(
+  c("M", "M", "F", "X", "N/A"),
+  c(Male = "M", Female = "F", Refused = "X", "Not applicable" = "N/A")
+)
+s3
+#> <labelled<character>[5]>
+#> [1] M   M   F   X   N/A
+#> 
+#> Labels:
+#>  value          label
+#>      M           Male
+#>      F         Female
+#>      X        Refused
+#>    N/A Not applicable
+as_factor(s3)
+#> [1] Male           Male           Female         Refused       
+#> [5] Not applicable
+#> Levels: Female Male Not applicable Refused
+
+# Often when you have a partially labelled numeric vector, labelled values
+# are special types of missing. Use zap_labels to replace labels with missing
+# values
+x <- labelled(c(1, 2, 1, 2, 10, 9), c(Unknown = 9, Refused = 10))
+zap_labels(x)
+#> [1]  1  2  1  2 10  9
+```

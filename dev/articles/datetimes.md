@@ -1,0 +1,42 @@
+# Dates and times
+
+## Formats
+
+There are three common formats across SAS, SPSS and Stata.
+
+Date (number of days)
+
+- SAS: MMDDYY, DDMMYY, YYMMDD, DATE
+- SPSS: n/a
+- Stata: %td
+
+Time (number of seconds):
+
+- SAS: TIME, HHMM, TOD
+- SPSS: TIME, DTIME
+- Stata: n/a
+
+DateTime (number of seconds):
+
+- SAS: DATETIME
+- SPSS: DATE, ADATE, SDATE, DATETIME (as milliseconds)
+- Stata: %tc, %tC
+
+## Offsets
+
+Dates and date times use a difference offset to R:
+
+- SAS: 1960-01-01 (3653 days)
+- SPSS: 1582-10-14. (141428 days)
+- Stata: 1960-01-01. (3653 days)
+
+## References
+
+- SAS:
+  <https://support.sas.com/documentation/cdl/en/lrcon/65287/HTML/default/viewer.htm#p1wj0wt2ebe2a0n1lv4lem9hdc0v.htm>
+
+- SPSS:
+  <https://www.ibm.com/docs/en/spss-statistics/29.0.0?topic=wizard-dates-times-in-spss-statistics>
+  <https://www.ibm.com/docs/en/spss-statistics/29.0.0?topic=formats-date-time>
+
+- Stata: <https://www.stata.com/manuals/u25.pdf>
