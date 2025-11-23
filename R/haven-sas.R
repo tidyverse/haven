@@ -93,8 +93,8 @@ write_sas <- function(data, path) {
 
 #' Read and write SAS transport files
 #'
-#' The SAS transport format is a open format, as is required for submission
-#' of the data to the FDA.
+#' The SAS transport format is an open format, as is required for submission
+#' of data to the FDA.
 #'
 #' @inheritParams read_spss
 #' @return A tibble, data frame variant with nice defaults.
@@ -104,6 +104,9 @@ write_sas <- function(data, path) {
 #'
 #'   If a dataset label is defined, it will be stored in the "label" attribute
 #'   of the tibble.
+#' 
+#'   Value labels are not supported by the transport format, and value labels
+#'   are silently ignored by `write_xpt()`.
 #'
 #'   `write_xpt()` returns the input `data` invisibly.
 #' @export

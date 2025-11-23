@@ -1,5 +1,7 @@
 # haven (development version)
 
+* Fix bug that caused `write_xpt()` to fail when writing tagged `NA` values (#755).
+
 # haven 2.5.5
 
 * Updated ReadStat to fix stricter gcc diagnostics.
