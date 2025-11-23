@@ -111,6 +111,12 @@ of the tibble.
 The SAS transport format is a open format, as is required for submission
 of the data to the FDA.
 }
+\details{
+Note that character limits are expressed in bytes. The number of bytes
+will often be the same as the number of characters , but strings with
+multibyte character sequences will count some symbols as more than one
+character. For example, the string "café" is 5 bytes long in UTF-8.
+}
 \examples{
 tmp <- tempfile(fileext = ".xpt")
 write_xpt(mtcars, tmp)

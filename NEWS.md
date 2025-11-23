@@ -1,5 +1,8 @@
 # haven (development version)
 
+* Character limit checks in `write_xpt()` now check for the number of bytes
+  instead of the number of characters (#746).
+
 # haven 2.5.5
 
 * Updated ReadStat to fix stricter gcc diagnostics.
