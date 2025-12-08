@@ -2,14 +2,14 @@
 #'
 #' "Tagged" missing values work exactly like regular R missing values except
 #' that they store one additional byte of information a tag, which is usually
-#' a letter ("a" to "z"). When by loading a SAS and Stata file, the tagged
-#' missing values always use lower case values.
+#' a letter ("a" to "z"). Tagged missing values are always lower case characters
+#' in R - upper case characters are silently converted to lower case.
 #'
 #' `format_tagged_na()` and `print_tagged_na()` format tagged
 #' NA's as NA(a), NA(b), etc.
 #'
 #' @param ... Vectors containing single character. The letter will be used to
-#'   "tag" the missing value.
+#'   "tag" the missing value. Tags are silently converted to lower case.
 #' @param x A numeric vector
 #' @param digits Number of digits to use in string representation
 #' @export
@@ -42,7 +42,7 @@ na_tag <- function(x) {
   .Call(na_tag_, x)
 }
 
-#' @param tag If `NULL`, will only return true if the tag has this value.
+#' @param tag If not `NULL`, will only return true if the tag has this value.
 #' @rdname tagged_na
 #' @export
 is_tagged_na <- function(x, tag = NULL) {

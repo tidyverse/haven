@@ -188,6 +188,18 @@ test_that("can roundtrip date times", {
   expect_equal(attr(roundtrip_var(x2, "xpt"), "label"), "abc")
 })
 
+test_that("can roundtrip tagged NAs", {
+  x <- c(1, 2, tagged_na("a", "b"), NA)
+  expect_equal(roundtrip_var(x, "dta"), x)
+
+  tags <- tagged_na("a", "b")
+  y <- labelled(
+    x,
+    c("ABC" = tags[1], "DEF" = tags[2])
+  )
+  expect_equal(roundtrip_var(y, "xpt"), x)
+})
+
 test_that("invalid files generate informative errors", {
   expect_snapshot(error = TRUE, {
     write_xpt(mtcars, file.path(tempdir(), " temp.xpt"))

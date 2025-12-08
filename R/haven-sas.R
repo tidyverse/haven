@@ -111,7 +111,7 @@ write_sas <- function(data, path) {
 #'
 #'   If a dataset label is defined, it will be stored in the "label" attribute
 #'   of the tibble.
-#'
+#' 
 #'   `write_xpt()` returns the input `data` invisibly.
 #' @export
 #' @examples

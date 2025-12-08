@@ -54,3 +54,13 @@ test_that("print_tagged_na is stable", {
   x <- c(1:100, tagged_na(letters), NA)
   expect_snapshot(print_tagged_na(x))
 })
+
+test_that("uppercase tags are converted to lowercase", {
+  x_upper <- tagged_na("A", "B", "Z")
+  x_lower <- tagged_na("a", "b", "z")
+
+  expect_equal(na_tag(x_upper), c("a", "b", "z"))
+  expect_equal(is_tagged_na(x_lower, "A"), c(TRUE, FALSE, FALSE))
+
+  expect_equal(x_upper, x_lower)
+})
