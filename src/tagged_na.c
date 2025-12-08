@@ -2,6 +2,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 // Scalar operators -------------------------------------------------------
 
@@ -68,7 +69,7 @@ SEXP tagged_na_(SEXP x) {
 
   for (int i = 0; i < n; ++i) {
     char xi = first_char(STRING_ELT(x, i));
-    REAL(out)[i] = make_tagged_na(xi);
+    REAL(out)[i] = make_tagged_na(tolower(xi));
   }
 
   UNPROTECT(1);
@@ -124,7 +125,7 @@ SEXP is_tagged_na_(SEXP x, SEXP tag_) {
     if (Rf_length(tag_) != 1)
       Rf_errorcall(R_NilValue, "`tag` must be a character vector of length one.");
     has_tag = true;
-    check_tag = first_char(STRING_ELT(tag_, 0));
+    check_tag = tolower(first_char(STRING_ELT(tag_, 0)));
   } else {
     Rf_errorcall(R_NilValue, "`tag` must be NULL or a character vector");
   }
