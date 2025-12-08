@@ -2,8 +2,9 @@
 
 "Tagged" missing values work exactly like regular R missing values
 except that they store one additional byte of information a tag, which
-is usually a letter ("a" to "z"). When by loading a SAS and Stata file,
-the tagged missing values always use lower case values.
+is usually a letter ("a" to "z"). Tagged missing values are always lower
+case characters in R - upper case characters are silently converted to
+lower case.
 
 ## Usage
 
@@ -24,7 +25,7 @@ print_tagged_na(x, digits = getOption("digits"))
 - ...:
 
   Vectors containing single character. The letter will be used to "tag"
-  the missing value.
+  the missing value. Tags are silently converted to lower case.
 
 - x:
 
@@ -32,7 +33,7 @@ print_tagged_na(x, digits = getOption("digits"))
 
 - tag:
 
-  If `NULL`, will only return true if the tag has this value.
+  If not `NULL`, will only return true if the tag has this value.
 
 - digits:
 

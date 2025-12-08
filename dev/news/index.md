@@ -2,6 +2,19 @@
 
 ## haven (development version)
 
+- Fix bug that caused
+  [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
+  to fail when writing tagged `NA` values
+  ([\#755](https://github.com/tidyverse/haven/issues/755)).
+
+- Tagged `NA` values are now silently converted to lower case when they
+  are created in R with
+  [`tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md)
+  or checked with
+  [`is_tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md).
+  These are case insensitive when reading and writing, so forcing lower
+  case removes any potential ambiguity.
+
 - Character limit checks in
   [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
   now check for the number of bytes instead of the number of characters
