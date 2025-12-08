@@ -23,7 +23,6 @@
 #'   Variable labels are stored in the "label" attribute of each variable. It is
 #'   not printed on the console, but the RStudio viewer will show it.
 #'
-#'   `write_sas()` returns the input `data` invisibly.
 #' @export
 #' @examples
 #' path <- system.file("examples", "iris.sas7bdat", package = "haven")
@@ -99,6 +98,11 @@ write_sas <- function(data, path) {
 #' Value labels are not supported by the transport format, and are silently
 #' ignored by `write_xpt()`.
 #'
+#' Note that character limits are expressed in bytes. The number of bytes
+#' will often be the same as the number of characters, but strings with
+#' multibyte character sequences will count some symbols as more than one
+#' character. For example, the string "café" is 5 bytes long in UTF-8.
+#' 
 #' @inheritParams read_spss
 #' @return A tibble, data frame variant with nice defaults.
 #'
@@ -186,11 +190,11 @@ validate_sas <- function(data) {
 
 validate_xpt_name <- function(name, version, call = caller_env()) {
   if (version == 5) {
-    if (nchar(name) > 8) {
+    if (nchar(name, type = "bytes") > 8) {
       cli_abort("{.arg name} must be 8 characters or fewer.", call = call)
     }
   } else {
-    if (nchar(name) > 32) {
+    if (nchar(name, type = "bytes") > 32) {
       cli_abort("{.arg name} must be 32 characters or fewer.", call = call)
     }
   }
@@ -201,7 +205,7 @@ validate_xpt_label <- function(label, call = caller_env()) {
   if (!is.null(label)) {
     stopifnot(is.character(label), length(label) == 1)
 
-    if (nchar(label) > 40) {
+    if (nchar(label, type = "bytes") > 40) {
       cli_abort("{.arg label} must be 40 characters or fewer.", call = call)
     }
   }

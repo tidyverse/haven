@@ -114,6 +114,11 @@ of data to the FDA.
 \details{
 Value labels are not supported by the transport format, and are silently
 ignored by \code{write_xpt()}.
+
+Note that character limits are expressed in bytes. The number of bytes
+will often be the same as the number of characters, but strings with
+multibyte character sequences will count some symbols as more than one
+character. For example, the string "café" is 5 bytes long in UTF-8.
 }
 \examples{
 tmp <- tempfile(fileext = ".xpt")
