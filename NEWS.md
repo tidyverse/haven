@@ -1,5 +1,8 @@
 # haven (development version)
 
+* `read_sas()` and `read_xpt()` now supports all datetime, date and time
+  formats (#780) and correctly recognises DATEAMPM as datetime (#789). 
+
 * Fix bug that caused `write_xpt()` to fail when writing tagged `NA` values (#755).
 
 * Tagged `NA` values are now silently converted to lower case when they are
