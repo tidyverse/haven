@@ -2,6 +2,14 @@
 
 ## haven (development version)
 
+- [`read_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
+  and
+  [`read_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
+  now supports all datetime, date and time formats
+  ([\#780](https://github.com/tidyverse/haven/issues/780)) and correctly
+  recognises DATEAMPM as datetime
+  ([\#789](https://github.com/tidyverse/haven/issues/789)).
+
 - Fix bug that caused
   [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
   to fail when writing tagged `NA` values
