@@ -206,6 +206,36 @@ test_that("invalid files generate informative errors", {
   })
 })
 
+test_that("write_xpt validates variable name length", {
+  path <- tempfile(fileext = ".xpt")
+
+  # Version 5: names at exactly 8 bytes should succeed
+  df_ok_v5 <- data.frame(X1234567 = 1, ABCDEFGH = 2)
+  expect_no_error(write_xpt(df_ok_v5, path, version = 5, name = "test"))
+
+  # Version 5: names exceeding 8 bytes should error
+  df_bad_v5 <- data.frame(X12345678 = 1)
+  expect_snapshot(error = TRUE, {
+    write_xpt(df_bad_v5, path, version = 5, name = "test")
+  })
+
+  # Version 5: multiple bad names should all be reported
+  df_multi_v5 <- data.frame(X1234567_ABC = 1, X1234567_XYZ = 2)
+  expect_snapshot(error = TRUE, {
+    write_xpt(df_multi_v5, path, version = 5, name = "test")
+  })
+
+  # Version 8: names at exactly 32 bytes should succeed
+  df_ok_v8 <- data.frame(X1234567890123456789012345678901 = 1)
+  expect_no_error(write_xpt(df_ok_v8, path, version = 8, name = "test"))
+
+  # Version 8: names exceeding 32 bytes should error
+  df_bad_v8 <- data.frame(X12345678901234567890123456789012 = 1)
+  expect_snapshot(error = TRUE, {
+    write_xpt(df_bad_v8, path, version = 8, name = "test")
+  })
+})
+
 test_that("can roundtrip file labels", {
   df <- tibble(x = 1)
   expect_null(attr(roundtrip_xpt(df), "label"))

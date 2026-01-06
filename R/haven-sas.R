@@ -163,6 +163,7 @@ write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "
   }
   name <- validate_xpt_name(name, version)
   label <- validate_xpt_label(label)
+  data <- validate_xpt_var_names(data, version)
 
   data_out <- validate_sas(data)
 
@@ -198,7 +199,7 @@ validate_xpt_name <- function(name, version, call = caller_env()) {
       cli_abort("{.arg name} must be 32 characters or fewer.", call = call)
     }
   }
-  name
+  invisible(name)
 }
 
 validate_xpt_label <- function(label, call = caller_env()) {
@@ -209,5 +210,21 @@ validate_xpt_label <- function(label, call = caller_env()) {
       cli_abort("{.arg label} must be 40 characters or fewer.", call = call)
     }
   }
-  label
+  invisible(label)
+}
+
+validate_xpt_var_names <- function(data, version, call = caller_env()) {
+  max_len <- if (version == 5) 8L else 32L
+  bad_length <- nchar(names(data), type = "bytes") > max_len
+
+  if (any(bad_length)) {
+    cli_abort(
+      c(
+        "Variable names must be {max_len} bytes or fewer for SAS transport format version {version}.",
+        x = "Problems: {.var {var_names(data, bad_length)}}"
+      ),
+      call = call
+    )
+  }
+  invisible(data)
 }
