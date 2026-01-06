@@ -2,6 +2,12 @@
 
 ## haven (development version)
 
+- [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
+  now errors if variable names are too long for the XPT version: 8 bytes
+  for version 5, 32 bytes for version 8. Previously, long names were
+  silently truncated for version 5 and error messaging was inconsistent
+  ([\#771](https://github.com/tidyverse/haven/issues/771)).
+
 - [`read_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
   and
   [`read_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)

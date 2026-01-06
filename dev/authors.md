@@ -18,14 +18,14 @@
 Source:
 [`DESCRIPTION`](https://github.com/tidyverse/haven/blob/main/DESCRIPTION)
 
-Wickham H, Miller E, Smith D (2025). *haven: Import and Export 'SPSS',
+Wickham H, Miller E, Smith D (2026). *haven: Import and Export 'SPSS',
 'Stata' and 'SAS' Files*. R package version 2.5.5.9000,
 <https://haven.tidyverse.org>.
 
     @Manual{,
       title = {haven: Import and Export 'SPSS', 'Stata' and 'SAS' Files},
       author = {Hadley Wickham and Evan Miller and Danny Smith},
-      year = {2025},
+      year = {2026},
       note = {R package version 2.5.5.9000},
       url = {https://haven.tidyverse.org},
     }
