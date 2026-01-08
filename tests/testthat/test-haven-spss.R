@@ -308,6 +308,17 @@ test_that("spss string labelleds are round tripped", {
 })
 
 
+# PSPP Docs - https://www.gnu.org/software/pspp/pspp-dev/pspp-dev.html#Long-String-Value-Labels-Record
+# Identified in #587
+test_that("spss long string value labels are round tripped", {
+  x <- labelled("24_week_arm_1", labels = c(`8 week` = "client_status_arm_1"))
+  expect_equal(roundtrip_var(x, "sav"), x)
+  
+  x <- labelled("24_week_arm_1", labels = c(`8 week` = "client_status"))
+  expect_equal(roundtrip_var(x, "sav"), x)
+})
+
+
 test_that("factors become labelleds", {
   f <- factor(c("a", "b"), levels = letters[1:3])
   rt <- roundtrip_var(f, "sav")

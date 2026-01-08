@@ -381,6 +381,13 @@ public:
       if (length > max_length)
         max_length = length;
     }
+    if (labelSet) {
+      for (int i = 0; i < labelSet->value_labels_count; ++i) {
+        int length = labelSet->value_labels[i].string_key_len;
+        if (length > max_length)
+          max_length = length;
+      }
+    }
     if (max_length > user_width) {
       if (user_width > 0) {
         cpp11::warning("Column `%s` contains string values longer than user width %d. Width set to %d to accommodate.", name, user_width, max_length);
