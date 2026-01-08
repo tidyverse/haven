@@ -1,5 +1,10 @@
 # haven (development version)
 
+* `write_*()` functions now take into account the width of value labels when
+  calculating string variable widths. Previously it was possible to create
+  value label sets with values that were wider than the string variable, causing
+  issues when reading files (#537).
+
 * `write_xpt()` now errors if variable names are too long for the XPT version:
   8 bytes for version 5, 32 bytes for version 8. Previously, long names were
   silently truncated for version 5 and error messaging was inconsistent (#771).
