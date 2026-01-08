@@ -39,10 +39,14 @@ string with a new line.
 
 Using a value of \code{\link[readr:clipboard]{clipboard()}} will read from the system clipboard.}
 
-\item{col_select}{One or more selection expressions, like in
-\code{\link[dplyr:select]{dplyr::select()}}. Use \code{c()} or \code{list()} to use more than one expression.
-See \code{?dplyr::select} for details on available selection options. Only the
-specified columns will be read from \code{data_file}.}
+\item{col_select}{Columns to include in the results. You can use the same
+mini-language as \code{dplyr::select()} to refer to the columns by name. Use
+\code{c()} to use more than one selection expression. Although this
+usage is less common, \code{col_select} also accepts a numeric column index. See
+\code{\link[tidyselect:language]{?tidyselect::language}} for full details on the
+selection language.
+
+Predicates using \code{\link[tidyselect:where]{where()}} are not supported.}
 
 \item{skip}{Number of lines to skip before reading data.}
 

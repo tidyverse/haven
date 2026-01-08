@@ -1,5 +1,12 @@
 # haven (development version)
 
+* `col_select` in the `read_*()` functions now correctly implements the
+  tidyselect interface. Columns will be returned in the order specified in
+  `col_select` and can be renamed, e.g. `col_select = c(new = old)` (#685).
+
+* `col_select` works correctly when combined with `.name_repair` for files with
+  duplicate column names (#687).
+
 * `write_xpt()` now errors if variable names are too long for the XPT version:
   8 bytes for version 5, 32 bytes for version 8. Previously, long names were
   silently truncated for version 5 and error messaging was inconsistent (#771).

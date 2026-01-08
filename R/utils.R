@@ -44,20 +44,36 @@ force_utc <- function(x) {
   }
 }
 
-skip_cols <- function(reader, col_select = NULL, ..., call = caller_env()) {
+select_cols <- function(reader, col_select = NULL, ..., call = caller_env()) {
   col_select <- enquo(col_select)
   if (quo_is_null(col_select)) {
-    return(character())
+    return(list(pos = NULL, skip_index = integer()))
   }
 
   cols <- names(reader(..., n_max = 0L))
-  sels <- tidyselect::vars_select(cols, !!col_select)
+  data <- as.list(setNames(seq_along(cols), cols))
 
-  if (length(sels) == 0) {
-    cli_abort("Can't find any columns matching {.arg col_select} in data.", call = call)
+  pos <- tidyselect::eval_select(
+    col_select,
+    data = data,
+    allow_rename = TRUE,
+    allow_empty = FALSE,
+    allow_predicates = FALSE,
+    error_call = call
+  )
+
+  list(
+    select = pos,
+    skip = as.integer(setdiff(seq_along(cols), pos) - 1L)
+  )
+}
+
+output_cols <- function(data, cols, name_repair, call = caller_env()) {
+  if (is.null(cols$select)) {
+    set_names(data, vctrs::vec_as_names(names(data), repair = name_repair, call = call))
+  } else {
+    set_names(data[rank(cols$select)], names(cols$select))
   }
-
-  setdiff(cols, sels)
 }
 
 validate_n_max <- function(n, call = caller_env()) {

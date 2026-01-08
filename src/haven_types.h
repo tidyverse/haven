@@ -6,6 +6,7 @@
 #include <cpp11/R.hpp>
 #include <cpp11/list.hpp>
 #include <cpp11/strings.hpp>
+#include <cpp11/integers.hpp>
 
 #define CPP11_PARTIAL
 
