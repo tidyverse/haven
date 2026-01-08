@@ -49,10 +49,10 @@ read_sas <- function(data_file, catalog_file = NULL,
     encoding <- ""
   }
 
-  cols <- select_cols(read_sas, !!col_select, data_file, encoding = encoding, .name_repair = .name_repair)
+  spec_data <- readr::datasource(data_file)
+  cols <- select_cols(read_sas, !!col_select, spec_data, encoding = encoding, .name_repair = .name_repair)
   n_max <- validate_n_max(n_max)
 
-  spec_data <- readr::datasource(data_file)
   if (is.null(catalog_file)) {
     spec_cat <- list()
   } else {
@@ -125,10 +125,10 @@ write_sas <- function(data, path) {
 #' write_xpt(mtcars, tmp)
 #' read_xpt(tmp)
 read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
-  cols <- select_cols(read_xpt, {{ col_select }}, file, .name_repair = .name_repair)
+  spec <- readr::datasource(file)
+  cols <- select_cols(read_xpt, {{ col_select }}, spec, .name_repair = .name_repair)
   n_max <- validate_n_max(n_max)
 
-  spec <- readr::datasource(file)
   data <- switch(class(spec)[1],
     source_file = df_parse_xpt_file(spec, cols$skip, n_max, skip),
     source_raw = df_parse_xpt_raw(spec, cols$skip, n_max, skip),

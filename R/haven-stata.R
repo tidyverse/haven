@@ -49,10 +49,10 @@ read_dta <- function(file, encoding = NULL, col_select = NULL, skip = 0, n_max =
     encoding <- ""
   }
 
-  cols <- select_cols(read_dta, {{ col_select }}, file, encoding, .name_repair = .name_repair)
+  spec <- readr::datasource(file)
+  cols <- select_cols(read_dta, {{ col_select }}, spec, encoding, .name_repair = .name_repair)
   n_max <- validate_n_max(n_max)
 
-  spec <- readr::datasource(file)
   data <- switch(class(spec)[1],
     source_file = df_parse_dta_file(spec, encoding, cols$skip, n_max, skip),
     source_raw = df_parse_dta_raw(spec, encoding, cols$skip, n_max, skip),
