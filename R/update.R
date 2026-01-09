@@ -17,6 +17,32 @@ update_readstat <- function(branch = "master") {
   fs::file_copy(fs::path(base, "LICENSE"), out_dir)
   fs::file_copy(fs::path(base, "NEWS"), out_dir)
 
+  apply_iconv_hack()
+
   invisible()
+}
+
+apply_iconv_hack <- function() {
+  path <- fs::path("src", "readstat", "readstat_iconv.h")
+  lines <- readLines(path)
+
+  # Replace the autotools ICONV_CONST fallback with platform-specific logic
+  # Also update the comment to reflect that we're manually hacking this
+  ifndef_line <- which(lines == "#ifndef ICONV_CONST")
+  comment_line <- grep("^/\\* ICONV_CONST", lines)
+
+  if (length(ifndef_line) == 1 && length(comment_line) == 1) {
+    lines <- c(
+      lines[1:(comment_line - 1)],
+      "/* ICONV_CONST defined by autotools; so we hack this in manually */",
+      "#if defined(_WIN32) || defined(__sun)",
+      "  #define ICONV_CONST const",
+      "#else",
+      "  #define ICONV_CONST",
+      "#endif",
+      lines[(ifndef_line + 3):length(lines)]
+    )
+    writeLines(lines, path)
+  }
 }
 # nocov end
