@@ -230,20 +230,26 @@ public:
     VarType var_type = numType(vendor_, var_format);
     // Rcout << name << ": " << var_format << " [" << var_type << "]\n";
     var_types_[var_index] = var_type;
-    switch(var_type) {
-    case HAVEN_DATE:
-      col.attr("class") = "Date";
-      break;
-    case HAVEN_TIME:
-      col.attr("class") = {"hms", "difftime"};
-      col.attr("units") = "secs";
-      break;
-    case HAVEN_DATETIME:
-      col.attr("class") = {"POSIXct", "POSIXt"};
-      col.attr("tzone") = "UTC";
-      break;
-    default:
-      break;
+    // Files have been observed in the wild with a date format applied to a string variable.
+    // This should not be possible, so we throw a warning, don't apply a class and continue.
+    if (var_type != HAVEN_DEFAULT && readstat_variable_get_type_class(variable) == READSTAT_TYPE_CLASS_STRING) {
+      Rf_warning("String variable '%s' has incompatible format '%s' and will be returned as a regular string variable.", name, var_format);
+    } else {
+      switch (var_type) {
+      case HAVEN_DATE:
+        col.attr("class") = "Date";
+        break;
+      case HAVEN_TIME:
+        col.attr("class") = {"hms", "difftime"};
+        col.attr("units") = "secs";
+        break;
+      case HAVEN_DATETIME:
+        col.attr("class") = {"POSIXct", "POSIXt"};
+        col.attr("tzone") = "UTC";
+        break;
+      default:
+        break;
+      }
     }
 
     // User defined missing values

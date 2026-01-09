@@ -149,6 +149,23 @@ test_that("can read date/times", {
   expect_s3_class(res$datetime, "POSIXct")
 })
 
+test_that("date/times with character data throw a warning (#747)", {
+  df = data.frame(
+    id = 1:2,
+    date = structure(c("20424", "20487"), label = "Date", class = "Date")
+  ) #would not work with tibble()
+
+  path <- tempfile()
+  write_xpt(df, path)
+
+  expect_warning(
+    out <- read_xpt(path),
+    "will be returned as a regular string variable"
+  )
+
+  expect_equal(out$date, structure(c("20424", "20487"), label = "Date", format.sas = "DATE"))
+})
+
 # write_xpt ---------------------------------------------------------------
 
 test_that("can roundtrip basic types", {
