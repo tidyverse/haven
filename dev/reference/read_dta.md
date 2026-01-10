@@ -127,7 +127,8 @@ write_dta(
 
 - version:
 
-  File version to use. Supports versions 8-15.
+  File version to use. Supports versions 8-15. See the "Stata versions"
+  section below for details on compatibility.
 
 - label:
 
@@ -185,6 +186,35 @@ string to the requested encoding", try `encoding = "latin1"`
 For Stata 14 and later, you should not need to manually specify
 `encoding` value unless the value was incorrectly recorded in the source
 file.
+
+## Stata versions
+
+The `version` argument controls which Stata file format is used, which
+determines compatibility with different versions and flavours of Stata.
+The following table shows the supported versions:
+
+|             |                 |                   |                         |
+|-------------|-----------------|-------------------|-------------------------|
+| **version** | **File format** | **Stata version** | **Compatible flavours** |
+| 8-9         | 113             | Stata 8-9         | BE, SE, MP              |
+| 10-11       | 114             | Stata 10-11       | BE, SE, MP              |
+| 12          | 115             | Stata 12          | BE, SE, MP              |
+| 13          | 117             | Stata 13          | BE, SE, MP              |
+| 14          | 118             | Stata 14+         | BE, SE, MP              |
+| 15          | 119             | Stata 15+         | MP only                 |
+
+In most cases you should use the default `version = 14`:
+
+- Versions 8-14 create files readable by all flavours of Stata
+  (Stata/BE, Stata/SE, and Stata/MP).
+
+- Version 15 creates format 119 files, designed for datasets exceeding
+  32,767 variables. These files can only be opened by Stata/MP, even if
+  your dataset has fewer variables. Stata/BE and Stata/SE will refuse to
+  open these files with an error like "dataset too large".
+
+Only use `version = 15` if you need to write a dataset with more than
+32,767 variables and your recipients have access to Stata/MP.
 
 ## Examples
 

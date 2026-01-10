@@ -168,7 +168,8 @@ to enforce them.</p></dd>
 
 
 <dt id="arg-version">version<a class="anchor" aria-label="anchor" href="#arg-version"></a></dt>
-<dd><p>File version to use. Supports versions 8-15.</p></dd>
+<dd><p>File version to use. Supports versions 8-15. See the
+"Stata versions" section below for details on compatibility.</p></dd>
 
 
 <dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
@@ -220,6 +221,22 @@ default encoding, "latin1". If you encounter an error such as
 <code>encoding = "latin1"</code></p>
 <p>For Stata 14 and later, you should not need to manually specify <code>encoding</code>
 value unless the value was incorrectly recorded in the source file.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="stata-versions">Stata versions<a class="anchor" aria-label="anchor" href="#stata-versions"></a></h2>
+
+
+<p>The <code>version</code> argument controls which Stata file format is used, which
+determines compatibility with different versions and flavours of Stata.
+The following table shows the supported versions:</p>
+<table class="table table"><tr><td><strong>version</strong></td><td><strong>File format</strong></td><td><strong>Stata version</strong></td><td><strong>Compatible flavours</strong></td></tr><tr><td>8-9</td><td>113</td><td>Stata 8-9</td><td>BE, SE, MP</td></tr><tr><td>10-11</td><td>114</td><td>Stata 10-11</td><td>BE, SE, MP</td></tr><tr><td>12</td><td>115</td><td>Stata 12</td><td>BE, SE, MP</td></tr><tr><td>13</td><td>117</td><td>Stata 13</td><td>BE, SE, MP</td></tr><tr><td>14</td><td>118</td><td>Stata 14+</td><td>BE, SE, MP</td></tr><tr><td>15</td><td>119</td><td>Stata 15+</td><td>MP only</td></tr></table><p>In most cases you should use the default <code>version = 14</code>:</p><ul><li><p>Versions 8-14 create files readable by all flavours of Stata
+(Stata/BE, Stata/SE, and Stata/MP).</p></li>
+<li><p>Version 15 creates format 119 files, designed for datasets exceeding
+32,767 variables. These files can only be opened by Stata/MP, even if
+your dataset has fewer variables. Stata/BE and Stata/SE will refuse to
+open these files with an error like "dataset too large".</p></li>
+</ul><p>Only use <code>version = 15</code> if you need to write a dataset with more than 32,767
+variables and your recipients have access to Stata/MP.</p>
     </div>
 
     <div class="section level2">
