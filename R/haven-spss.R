@@ -39,29 +39,33 @@ read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, 
     encoding <- ""
   }
 
-  cols_skip <- skip_cols(read_sav, {{ col_select }}, file, encoding)
+  spec <- readr::datasource(file)
+  cols <- select_cols(read_sav, {{ col_select }}, spec, encoding, .name_repair = .name_repair)
   n_max <- validate_n_max(n_max)
 
-  spec <- readr::datasource(file)
-  switch(class(spec)[1],
-    source_file = df_parse_sav_file(spec, encoding, user_na, cols_skip, n_max, skip, name_repair = .name_repair),
-    source_raw = df_parse_sav_raw(spec, encoding, user_na, cols_skip, n_max, skip, name_repair = .name_repair),
+  data <- switch(class(spec)[1],
+    source_file = df_parse_sav_file(spec, encoding, user_na, cols$skip, n_max, skip),
+    source_raw = df_parse_sav_raw(spec, encoding, user_na, cols$skip, n_max, skip),
     cli_abort("This kind of input is not handled.")
   )
+
+  output_cols(data, cols, .name_repair)
 }
 
 #' @export
 #' @rdname read_spss
 read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
-  cols_skip <- skip_cols(read_por, {{ col_select }}, file)
+  spec <- readr::datasource(file)
+  cols <- select_cols(read_por, {{ col_select }}, spec, .name_repair = .name_repair)
   n_max <- validate_n_max(n_max)
 
-  spec <- readr::datasource(file)
-  switch(class(spec)[1],
-    source_file = df_parse_por_file(spec, encoding = "", user_na = user_na, cols_skip, n_max, skip, name_repair = .name_repair),
-    source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na, cols_skip, n_max, skip, name_repair = .name_repair),
+  data <- switch(class(spec)[1],
+    source_file = df_parse_por_file(spec, encoding = "", user_na = user_na, cols$skip, n_max, skip),
+    source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na, cols$skip, n_max, skip),
     cli_abort("This kind of input is not handled.")
   )
+
+  output_cols(data, cols, .name_repair)
 }
 
 #' @export

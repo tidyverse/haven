@@ -10,10 +10,14 @@
 #'   encoding specified in the file; use this argument to override it if it is
 #'   incorrect.
 #' @inheritParams tibble::as_tibble
-#' @param col_select One or more selection expressions, like in
-#'   [dplyr::select()]. Use `c()` or `list()` to use more than one expression.
-#'   See `?dplyr::select` for details on available selection options. Only the
-#'   specified columns will be read from `data_file`.
+#' @param col_select Columns to include in the results. You can use the same
+#'   mini-language as `dplyr::select()` to refer to the columns by name. Use
+#'   `c()` to use more than one selection expression. Although this
+#'   usage is less common, `col_select` also accepts a numeric column index. See
+#'   [`?tidyselect::language`][tidyselect::language] for full details on the
+#'   selection language.
+#' 
+#'   Predicates using [`where()`][tidyselect::where] are not supported.
 #' @param skip Number of lines to skip before reading data.
 #' @param n_max Maximum number of lines to read.
 #' @param cols_only `r lifecycle::badge("deprecated")` `cols_only` is no longer
@@ -45,21 +49,23 @@ read_sas <- function(data_file, catalog_file = NULL,
     encoding <- ""
   }
 
-  cols_skip <- skip_cols(read_sas, !!col_select, data_file, encoding = encoding)
+  spec_data <- readr::datasource(data_file)
+  cols <- select_cols(read_sas, !!col_select, spec_data, encoding = encoding, .name_repair = .name_repair)
   n_max <- validate_n_max(n_max)
 
-  spec_data <- readr::datasource(data_file)
   if (is.null(catalog_file)) {
     spec_cat <- list()
   } else {
     spec_cat <- readr::datasource(catalog_file)
   }
 
-  switch(class(spec_data)[1],
-    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max, rows_skip = skip, name_repair = .name_repair),
-    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols_skip, n_max = n_max, rows_skip = skip, name_repair = .name_repair),
+  data <- switch(class(spec_data)[1],
+    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols$skip, n_max = n_max, rows_skip = skip),
+    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols$skip, n_max = n_max, rows_skip = skip),
     cli_abort("This kind of input is not handled.")
   )
+
+  output_cols(data, cols, .name_repair)
 }
 
 #' Write SAS files
@@ -119,15 +125,17 @@ write_sas <- function(data, path) {
 #' write_xpt(mtcars, tmp)
 #' read_xpt(tmp)
 read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
-  cols_skip <- skip_cols(read_xpt, {{ col_select }}, file)
+  spec <- readr::datasource(file)
+  cols <- select_cols(read_xpt, {{ col_select }}, spec, .name_repair = .name_repair)
   n_max <- validate_n_max(n_max)
 
-  spec <- readr::datasource(file)
-  switch(class(spec)[1],
-    source_file = df_parse_xpt_file(spec, cols_skip, n_max, skip, name_repair = .name_repair),
-    source_raw = df_parse_xpt_raw(spec, cols_skip, n_max, skip, name_repair = .name_repair),
+  data <- switch(class(spec)[1],
+    source_file = df_parse_xpt_file(spec, cols$skip, n_max, skip),
+    source_raw = df_parse_xpt_raw(spec, cols$skip, n_max, skip),
     cli_abort("This kind of input is not handled.")
   )
+
+  output_cols(data, cols, .name_repair)
 }
 
 #' @export
