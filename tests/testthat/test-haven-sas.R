@@ -167,7 +167,7 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
   # Test renaming
   res3 <- read_xpt(path, col_select = c(a = id...3, b = id...1), .name_repair = "universal")
   expect_equal(res3, set_names(df[c(3, 1)], c("a", "b")))
-}
+})
 
 test_that("date/times with character data throw a warning (#747)", {
   df = data.frame(

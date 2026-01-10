@@ -6,6 +6,9 @@
 
 * `col_select` works correctly when combined with `.name_repair` for files with
   duplicate column names (#687).
+
+* `read_*()` functions now correctly load from non-file connections when using
+  `col_select` (#720).
   
 * When a string variable has a date and/or time format `read_*()` functions now
   warn and treat the variable as a plain string instead of throwing an error
