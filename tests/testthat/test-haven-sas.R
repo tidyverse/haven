@@ -296,6 +296,9 @@ test_that("can roundtrip format attribute", {
     e = structure(100.12345, format.sas = "COMMA10.3")
   )
 
+  attr(df, "creation_timestamp") <- as.integer(Sys.time())
+  attr(df, "modified_timestamp") <- as.integer(Sys.time())
+
   path <- tempfile()
 
   write_xpt(df, path)

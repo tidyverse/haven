@@ -427,6 +427,9 @@ test_that("works with empty factors", {
 
 test_that("all compression types roundtrip successfully", {
   df <- tibble::tibble(x = 1:10)
+  attr(df, "encoding") <- "UTF-8"
+  attr(df, "creation_timestamp") <- as.integer(Sys.time())
+  attr(df, "modified_timestamp") <- as.integer(Sys.time())
   expect_equal(roundtrip_sav(df, compress = "byte"), df)
   expect_equal(roundtrip_sav(df, compress = "none"), df)
   expect_equal(roundtrip_sav(df, compress = "zsav"), df)
