@@ -47,7 +47,7 @@ force_utc <- function(x) {
 select_cols <- function(reader, col_select = NULL, ..., call = caller_env()) {
   col_select <- enquo(col_select)
   if (quo_is_null(col_select)) {
-    return(list(pos = NULL, skip_index = integer()))
+    return(list(pos = NULL, skip = integer()))
   }
 
   cols <- names(reader(..., n_max = 0L))
