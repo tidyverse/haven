@@ -89,7 +89,8 @@ to enforce them.}
 
 \item{path}{Path to a file where the data will be written.}
 
-\item{version}{File version to use. Supports versions 8-15.}
+\item{version}{File version to use. Supports versions 8-15. See the
+"Stata versions" section below for details on compatibility.}
 
 \item{label}{Dataset label to use, or \code{NULL}. Defaults to the value stored in
 the "label" attribute of \code{data}. Must be <= 80 characters.}
@@ -146,6 +147,36 @@ default encoding, "latin1". If you encounter an error such as
 
 For Stata 14 and later, you should not need to manually specify \code{encoding}
 value unless the value was incorrectly recorded in the source file.
+}
+
+\section{Stata versions}{
+
+The \code{version} argument controls which Stata file format is used, which
+determines compatibility with different versions and flavours of Stata.
+The following table shows the supported versions:
+
+\tabular{llll}{
+\strong{version} \tab \strong{File format} \tab \strong{Stata version} \tab \strong{Compatible flavours} \cr
+8-9   \tab 113 \tab Stata 8-9   \tab BE, SE, MP \cr
+10-11 \tab 114 \tab Stata 10-11 \tab BE, SE, MP \cr
+12    \tab 115 \tab Stata 12    \tab BE, SE, MP \cr
+13    \tab 117 \tab Stata 13    \tab BE, SE, MP \cr
+14    \tab 118 \tab Stata 14+   \tab BE, SE, MP \cr
+15    \tab 119 \tab Stata 15+   \tab MP only
+}
+
+In most cases you should use the default \code{version = 14}:
+\itemize{
+\item Versions 8-14 create files readable by all flavours of Stata
+(Stata/BE, Stata/SE, and Stata/MP).
+\item Version 15 creates format 119 files, designed for datasets exceeding
+32,767 variables. These files can only be opened by Stata/MP, even if
+your dataset has fewer variables. Stata/BE and Stata/SE will refuse to
+open these files with an error like "dataset too large".
+}
+
+Only use \code{version = 15} if you need to write a dataset with more than 32,767
+variables and your recipients have access to Stata/MP.
 }
 
 \examples{
