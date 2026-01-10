@@ -6,6 +6,11 @@
 
 * `col_select` works correctly when combined with `.name_repair` for files with
   duplicate column names (#687).
+  
+* When a string variable has a date and/or time format `read_*()` functions now
+  warn and treat the variable as a plain string instead of throwing an error
+  (#747). This should not normally occur, but has been observed in files
+  produced by 3rd party software.
 
 * `write_*()` functions now take into account the width of value labels when
   calculating string variable widths. Previously it was possible to create

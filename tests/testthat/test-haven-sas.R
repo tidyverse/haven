@@ -156,7 +156,7 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
   write_xpt(df, path)
   df <- tibble::as_tibble(df, .name_repair = "universal")
 
- # This previously crashed with "attempt to set index 1/1 in SET_STRING_ELT"
+  # This previously crashed with "attempt to set index 1/1 in SET_STRING_ELT"
   res <- read_xpt(path, col_select = id...1, .name_repair = "universal")
   expect_equal(res, df[1])
 
@@ -167,6 +167,23 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
   # Test renaming
   res3 <- read_xpt(path, col_select = c(a = id...3, b = id...1), .name_repair = "universal")
   expect_equal(res3, set_names(df[c(3, 1)], c("a", "b")))
+}
+
+test_that("date/times with character data throw a warning (#747)", {
+  df = data.frame(
+    id = 1:2,
+    date = structure(c("20424", "20487"), label = "Date", class = "Date")
+  ) #would not work with tibble()
+
+  path <- tempfile()
+  write_xpt(df, path)
+
+  expect_warning(
+    out <- read_xpt(path),
+    "will be returned as a regular string variable"
+  )
+
+  expect_equal(out$date, structure(c("20424", "20487"), label = "Date", format.sas = "DATE"))
 })
 
 # write_xpt ---------------------------------------------------------------
