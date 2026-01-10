@@ -2,6 +2,19 @@
 
 ## haven (development version)
 
+- `col_select` in the `read_*()` functions now correctly implements the
+  tidyselect interface. Columns will be returned in the order specified
+  in `col_select` and can be renamed, e.g. `col_select = c(new = old)`
+  ([\#685](https://github.com/tidyverse/haven/issues/685)).
+
+- `col_select` works correctly when combined with `.name_repair` for
+  files with duplicate column names
+  ([\#687](https://github.com/tidyverse/haven/issues/687)).
+
+- `read_*()` functions now correctly load from non-file connections when
+  using `col_select`
+  ([\#720](https://github.com/tidyverse/haven/issues/720)).
+
 - When a string variable has a date and/or time format `read_*()`
   functions now warn and treat the variable as a plain string instead of
   throwing an error

@@ -48,11 +48,17 @@ write_xpt(
 
 - col_select:
 
-  One or more selection expressions, like in `dplyr::select()`. Use
-  [`c()`](https://rdrr.io/r/base/c.html) or
-  [`list()`](https://rdrr.io/r/base/list.html) to use more than one
-  expression. See `?dplyr::select` for details on available selection
-  options. Only the specified columns will be read from `data_file`.
+  Columns to include in the results. You can use the same mini-language
+  as `dplyr::select()` to refer to the columns by name. Use
+  [`c()`](https://rdrr.io/r/base/c.html) to use more than one selection
+  expression. Although this usage is less common, `col_select` also
+  accepts a numeric column index. See
+  [`?tidyselect::language`](https://tidyselect.r-lib.org/reference/language.html)
+  for full details on the selection language.
+
+  Predicates using
+  [`where()`](https://tidyselect.r-lib.org/reference/where.html) are not
+  supported.
 
 - skip:
 

@@ -129,10 +129,13 @@ default, user-defined missings will be converted to <code>NA</code>.</p></dd>
 
 
 <dt id="arg-col-select">col_select<a class="anchor" aria-label="anchor" href="#arg-col-select"></a></dt>
-<dd><p>One or more selection expressions, like in
-<code>dplyr::select()</code>. Use <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code> or <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> to use more than one expression.
-See <code>?dplyr::select</code> for details on available selection options. Only the
-specified columns will be read from <code>data_file</code>.</p></dd>
+<dd><p>Columns to include in the results. You can use the same
+mini-language as <code>dplyr::select()</code> to refer to the columns by name. Use
+<code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code> to use more than one selection expression. Although this
+usage is less common, <code>col_select</code> also accepts a numeric column index. See
+<code><a href="https://tidyselect.r-lib.org/reference/language.html" class="external-link">?tidyselect::language</a></code> for full details on the
+selection language.</p>
+<p>Predicates using <code><a href="https://tidyselect.r-lib.org/reference/where.html" class="external-link">where()</a></code> are not supported.</p></dd>
 
 
 <dt id="arg-skip">skip<a class="anchor" aria-label="anchor" href="#arg-skip"></a></dt>
