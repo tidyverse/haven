@@ -3,18 +3,25 @@
 #include <stdlib.h>
 #include "../readstat.h"
 #include "../readstat_malloc.h"
+#include "../readstat_iconv.h"
+#include "../readstat_convert.h"
+#include "readstat_sav.h"
 
 %%{
     machine mr_extractor;
 
     action extract_mr_name {
-        mr_name = (char *)readstat_malloc(p - start + 1);
+        size_t src_len = p - start;
+        size_t dst_len = 4 * src_len + 1;  // UTF-8 expansion: up to 4 bytes per char
+        mr_name = (char *)readstat_malloc(dst_len);
         if (mr_name == NULL) {
             retval = READSTAT_ERROR_MALLOC;
             goto cleanup;
         }
-        memcpy(mr_name, start, p - start);
-        mr_name[p - start] = '\0';
+        retval = readstat_convert(mr_name, dst_len, start, src_len, ctx->converter);
+        if (retval != READSTAT_OK) {
+            goto cleanup;
+        }
     }
 
     action extract_mr_type {
@@ -61,27 +68,34 @@
         lbl_len_str[p - start] = '\0';
         int len = strtol(lbl_len_str, NULL, 10);
         free(lbl_len_str);
-        mr_label = (char *)readstat_malloc(len + 1);
+        size_t dst_len = 4 * len + 1;  // UTF-8 expansion: up to 4 bytes per char
+        mr_label = (char *)readstat_malloc(dst_len);
         if (mr_label == NULL) {
             retval = READSTAT_ERROR_MALLOC;
             goto cleanup;
         }
-        memcpy(mr_label, p + 1, len);
-        mr_label[len] = '\0';
+        retval = readstat_convert(mr_label, dst_len, p + 1, len, ctx->converter);
+        if (retval != READSTAT_OK) {
+            goto cleanup;
+        }
         p = p + 1 + len;
         start = p + 1;
     }
 
     action extract_subvar {
-        int len = p - start;
-        char *subvar = (char *)readstat_malloc(len + 1);
+        size_t src_len = p - start;
+        size_t dst_len = 4 * src_len + 1;  // UTF-8 expansion: up to 4 bytes per char
+        char *subvar = (char *)readstat_malloc(dst_len);
         if (subvar == NULL) {
             retval = READSTAT_ERROR_MALLOC;
             goto cleanup;
         }
-        memcpy(subvar, start, len);
-        subvar[len] = '\0';
-        start = p + 1;    
+        retval = readstat_convert(subvar, dst_len, start, src_len, ctx->converter);
+        if (retval != READSTAT_OK) {
+            free(subvar);
+            goto cleanup;
+        }
+        start = p + 1;
         char **new_subvariables = readstat_realloc(mr_subvariables, sizeof(char *) * (mr_subvar_count + 1));
         if (new_subvariables == NULL) {
             free(subvar);
@@ -92,7 +106,7 @@
         mr_subvariables[mr_subvar_count++] = subvar;
     }
 
-    nc = (alnum | '_' | '.' ); # name character (including dots)
+    nc = ([^ =]); # name character (all characters except space and equals)
     name = nc+ '=' > extract_mr_name;
     type = ('C' | 'D'){1} > extract_mr_type;
     counted_value = digit* ' ' > extract_counted_value;
@@ -106,7 +120,7 @@
     write data nofinal noerror;
 }%%
 
-readstat_error_t extract_mr_data(const char *line, mr_set_t *result) {
+readstat_error_t extract_mr_data(const char *line, mr_set_t *result, sav_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
 
     // Variables needed for Ragel operation
@@ -161,9 +175,9 @@ cleanup:
 }
 
 
-readstat_error_t parse_mr_line(const char *line, mr_set_t *result) {
+readstat_error_t parse_mr_line(const char *line, mr_set_t *result, sav_ctx_t *ctx) {
     *result = (mr_set_t){0};
-    return extract_mr_data(line, result);
+    return extract_mr_data(line, result, ctx);
 }
 
 %%{
@@ -184,7 +198,7 @@ readstat_error_t parse_mr_line(const char *line, mr_set_t *result) {
             goto cleanup;
         }
         *mr_sets = new_mr_sets;
-        retval = parse_mr_line(mln, &(*mr_sets)[*n_mr_lines]);
+        retval = parse_mr_line(mln, &(*mr_sets)[*n_mr_lines], ctx);
         free(mln);
         if (retval != READSTAT_OK) {
             goto cleanup;
@@ -201,7 +215,7 @@ readstat_error_t parse_mr_line(const char *line, mr_set_t *result) {
     write data nofinal noerror;
 }%%
 
-readstat_error_t parse_mr_string(const char *line, mr_set_t **mr_sets, size_t *n_mr_lines) {
+readstat_error_t parse_mr_string(const char *line, mr_set_t **mr_sets, size_t *n_mr_lines, sav_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     int cs = 0;
     char *p = (char *)line;

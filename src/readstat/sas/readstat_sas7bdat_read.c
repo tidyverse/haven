@@ -667,7 +667,7 @@ static readstat_error_t sas7bdat_validate_column(col_info_t *col_info) {
         }
     }
     if (col_info->type == READSTAT_TYPE_STRING) {
-        if (col_info->width > INT16_MAX || col_info->width == 0) {
+        if (col_info->width > INT16_MAX) {
             return READSTAT_ERROR_PARSE;
         }
     }
