@@ -115,7 +115,7 @@
     end = (space | '\0'); # subvar token terminator
     subvariable = (nc+ end >extract_subvar);
 
-    main := name type counted_value label subvariable+;
+    main := name type counted_value label (subvariable+ | end*);
 
     write data nofinal noerror;
 }%%
