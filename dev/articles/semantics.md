@@ -38,7 +38,7 @@ character vectors:
 
 ``` r
 x1 <- labelled(
-  sample(1:5), 
+  sample(1:5),
   c(Good = 1, Bad = 5)
 )
 x1
@@ -51,7 +51,7 @@ x1
 #>      5   Bad
 
 x2 <- labelled(
-  c("M", "F", "F", "F", "M"), 
+  c("M", "F", "F", "F", "M"),
   c(Male = "M", Female = "F")
 )
 x2
