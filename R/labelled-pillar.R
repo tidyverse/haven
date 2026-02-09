@@ -1,4 +1,3 @@
-
 # Dynamically exported, see zzz.R
 pillar_shaft.haven_labelled <- function(x,
                                         show_labels = getOption("haven.show_pillar_labels", TRUE),
@@ -24,7 +23,7 @@ pillar_shaft.haven_labelled <- function(x,
     pillar::new_pillar_shaft(
       list(val = val, lbl = lbl),
       min_width = max(val$wid_short + lbl$wid_short),
-      width =  max(val$wid_full + lbl$wid_full),
+      width = max(val$wid_full + lbl$wid_full),
       class = "pillar_shaft_haven_labelled_chr"
     )
   }

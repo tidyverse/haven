@@ -258,7 +258,6 @@ test_that("can roundtrip long strings (strL)", {
 
 
 test_that("invisibly returns original data unaltered", {
-
   df <- tibble(
     x = 1:5,
     dt = seq(

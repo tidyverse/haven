@@ -16,7 +16,7 @@
 #'   usage is less common, `col_select` also accepts a numeric column index. See
 #'   [`?tidyselect::language`][tidyselect::language] for full details on the
 #'   selection language.
-#' 
+#'
 #'   Predicates using [`where()`][tidyselect::where] are not supported.
 #' @param skip Number of lines to skip before reading data.
 #' @param n_max Maximum number of lines to read.
@@ -108,7 +108,7 @@ write_sas <- function(data, path) {
 #' will often be the same as the number of characters, but strings with
 #' multibyte character sequences will count some symbols as more than one
 #' character. For example, the string "café" is 5 bytes long in UTF-8.
-#' 
+#'
 #' @inheritParams read_spss
 #' @return A tibble, data frame variant with nice defaults.
 #'
@@ -117,7 +117,7 @@ write_sas <- function(data, path) {
 #'
 #'   If a dataset label is defined, it will be stored in the "label" attribute
 #'   of the tibble.
-#' 
+#'
 #'   `write_xpt()` returns the input `data` invisibly.
 #' @export
 #' @examples

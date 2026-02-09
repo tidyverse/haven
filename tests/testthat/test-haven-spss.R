@@ -313,7 +313,7 @@ test_that("spss string labelleds are round tripped", {
 test_that("spss long string value labels are round tripped", {
   x <- labelled("24_week_arm_1", labels = c(`8 week` = "client_status_arm_1"))
   expect_equal(roundtrip_var(x, "sav"), x)
-  
+
   x <- labelled("24_week_arm_1", labels = c(`8 week` = "client_status"))
   expect_equal(roundtrip_var(x, "sav"), x)
 })
@@ -371,7 +371,7 @@ test_that("complain about invalid variable names", {
   expect_error(
     {
       df <- data.frame(a = 1, A = 1, b = 1)
-      names(df) <- c("流水号",  "$性别",  "年龄.")
+      names(df) <- c("流水号", "$性别", "年龄.")
       write_sav(df, tempfile())
 
       names(df) <- c(
@@ -392,7 +392,6 @@ test_that("complain about invalid variable names", {
 })
 
 test_that("invisibly returns original data unaltered", {
-
   df <- tibble(
     x = 1:5,
     dt = seq(

@@ -170,10 +170,10 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
 })
 
 test_that("date/times with character data throw a warning (#747)", {
-  df = data.frame(
+  df <- data.frame(
     id = 1:2,
     date = structure(c("20424", "20487"), label = "Date", class = "Date")
-  ) #would not work with tibble()
+  ) # would not work with tibble()
 
   path <- tempfile()
   write_xpt(df, path)
