@@ -4,6 +4,6 @@
 #include "../readstat.h"
 #include "../readstat_malloc.h"
 
-readstat_error_t parse_mr_string(const char *line, mr_set_t **mr_sets, size_t *n_mr_lines);
+readstat_error_t parse_mr_string(const char *line, mr_set_t **mr_sets, size_t *n_mr_lines, sav_ctx_t *ctx);
 
 #endif // READSTAT_PARSE_MR_NAME_H

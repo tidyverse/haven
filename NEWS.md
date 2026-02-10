@@ -1,5 +1,12 @@
 # haven (development version)
 
+* Updated to ReadStat dev a4984d5.
+
+  * Fix issue writing SAV files with labels for string values longer than 8 bytes (#550).
+  * Fix issue reading SAS files with zero observations (#627).
+  * Fix issue writing XPT V8 datasets with long variable labels (#784).
+  * FIx issue reading SAV files where an MR set name contains a non-ASCII character (#788).
+
 * `col_select` in the `read_*()` functions now correctly implements the
   tidyselect interface. Columns will be returned in the order specified in
   `col_select` and can be renamed, e.g. `col_select = c(new = old)` (#685).
@@ -39,7 +46,7 @@
 
 # haven 2.5.5
 
-* Updated ReadStat to fix stricter gcc diagnostics.
+* Updated to ReadStat dev b2d5407 to fix stricter gcc diagnostics.
 
 # haven 2.5.4
 
