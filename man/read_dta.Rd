@@ -121,6 +121,12 @@ A tibble, data frame variant with nice defaults.
 Variable labels are stored in the "label" attribute of each variable.
 It is not printed on the console, but the RStudio viewer will show it.
 
+Value labels are preserved with the \code{\link[=labelled]{labelled()}} class. Labelled vectors are
+an intermediate representation that preserves the original value labels,
+not a regular R factor. Convert labelled categorical variables with
+\code{\link[=as_factor]{as_factor()}}, or remove value labels with \code{\link[=zap_labels]{zap_labels()}} if you need plain
+R vectors for analysis. See \code{vignette("semantics")} for more details.
+
 If a dataset label is defined in Stata, it will stored in the "label"
 attribute of the tibble.
 

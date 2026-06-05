@@ -1,5 +1,10 @@
 # haven (development version)
 
+* Documentation for `read_*()` functions now more clearly explains that
+  labelled vectors are an intermediate representation, and points users to
+  `as_factor()` and `zap_labels()` when preparing imported categorical
+  variables for analysis (#741).
+
 * `col_select` in the `read_*()` functions now correctly implements the
   tidyselect interface. Columns will be returned in the order specified in
   `col_select` and can be renamed, e.g. `col_select = c(new = old)` (#685).
