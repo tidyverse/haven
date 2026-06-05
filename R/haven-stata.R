@@ -59,6 +59,12 @@
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #'
+#'   Value labels are preserved with the [labelled()] class. Labelled vectors are
+#'   an intermediate representation that preserves the original value labels,
+#'   not a regular R factor. Convert labelled categorical variables with
+#'   [as_factor()], or remove value labels with [zap_labels()] if you need plain
+#'   R vectors for analysis. See `vignette("semantics")` for more details.
+#'
 #'   If a dataset label is defined in Stata, it will stored in the "label"
 #'   attribute of the tibble.
 #'
