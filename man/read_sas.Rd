@@ -64,6 +64,12 @@ A tibble, data frame variant with nice defaults.
 
 Variable labels are stored in the "label" attribute of each variable. It is
 not printed on the console, but the RStudio viewer will show it.
+
+The original SAS variable format is stored in the \code{format.sas} attribute
+of each variable. Use \code{\link[=zap_formats]{zap_formats()}} to remove it if it causes problems.
+
+If the file contains SAS notes, they will be stored in the \code{notes}
+attribute of the tibble.
 }
 \description{
 \code{read_sas()} supports both sas7bdat files and the accompanying sas7bcat files
