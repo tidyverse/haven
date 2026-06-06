@@ -28,9 +28,9 @@ reference:
 
 - title: Labelled vectors
   desc: >
-    SAS, SPSS, and Stata share a simply concept of "labelled" vectors, which
+    SAS, SPSS, and Stata share a simple concept of "labelled" vectors, which
     are similar to factors but a little more general. The `labelled()` class
-    provides a natural representaion in R.
+    provides a natural representation in R.
 
   contents:
   - labelled_spss
@@ -41,7 +41,7 @@ reference:
 - title: Tagged missing values
   desc: >
     Both SAS and Stata supported tagged missing values, where a missing value
-    can have multiple "types", given by an letter from A through Z.
+    can have multiple "types", given by a letter from A through Z.
     `tagged_na()` provides a convenient way of representing these types of
     missing values in R by taking advantage of the binary representation of
     `NA`.
