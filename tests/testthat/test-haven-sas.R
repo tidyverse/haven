@@ -304,6 +304,27 @@ test_that("can roundtrip format attribute", {
   expect_identical(df, out)
 })
 
+test_that("read_sas reads format.sas attribute", {
+  df <- read_sas(test_path("sas/hadley.sas7bdat"))
+  expect_equal(attr(df$gender, "format.sas"), "$GENDER")
+  expect_equal(attr(df$workshop, "format.sas"), "WORKSHOP")
+  expect_null(attr(df$q1, "format.sas"))
+})
+
+test_that("display_width is not retained during XPT roundtrip", {
+  df <- tibble(
+    a = structure(1:3, display_width = 10),
+    b = structure(4:6, display_width = 20)
+  )
+
+  path <- tempfile()
+  write_xpt(df, path)
+  out <- read_xpt(path)
+
+  expect_null(attr(out$a, "display_width"))
+  expect_null(attr(out$b, "display_width"))
+})
+
 test_that("user width warns appropriately when data is wider than value", {
   df <- tibble(
     a = c("a", NA_character_),
