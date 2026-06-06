@@ -64,6 +64,9 @@ A tibble, data frame variant with nice defaults.
 
 Variable labels are stored in the "label" attribute of each variable. It is
 not printed on the console, but the RStudio viewer will show it.
+
+If a dataset label is defined, it will be stored in the "label" attribute
+of the tibble.
 }
 \description{
 \code{read_sas()} supports both sas7bdat files and the accompanying sas7bcat files
