@@ -304,6 +304,21 @@ test_that("can roundtrip format attribute", {
   expect_identical(df, out)
 })
 
+test_that("trailing period in format.sas is stripped during roundtrip", {
+  df <- tibble(
+    date_var = structure(as.Date("2025-01-02"), format.sas = "DATE9."),
+    num_var = structure(100.12345, format.sas = "BEST12.")
+  )
+
+  path <- tempfile()
+  write_xpt(df, path)
+  out <- read_xpt(path)
+
+  # SAS transport format does not store trailing periods
+  expect_equal(attr(out$date_var, "format.sas"), "DATE9")
+  expect_equal(attr(out$num_var, "format.sas"), "BEST12")
+})
+
 test_that("user width warns appropriately when data is wider than value", {
   df <- tibble(
     a = c("a", NA_character_),
