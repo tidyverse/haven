@@ -24,7 +24,7 @@ Base R has one data type that effectively maintains a mapping between integers a
 * SPSS and SAS can label numeric and character values, not just
   integer values.
   
-* The value do not need to be exhaustive. It is common to label the
+* The values do not need to be exhaustive. It is common to label the
   special missing values (e.g. `.D` = did not respond, `.N` = 
   not applicable), while leaving other values as is.
 
@@ -48,7 +48,7 @@ x2 <- labelled(
 x2
 ```
 
-The goal of haven is not to provide a labelled vector that you can use everywhere in your analysis. The goal is to provide an intermediate datastructure that you can convert into a regular R data frame. You can do this by either converting to a factor or stripping the labels:
+The goal of haven is not to provide a labelled vector that you can use everywhere in your analysis. The goal is to provide an intermediate data structure that you can convert into a regular R data frame. You can do this by either converting to a factor or stripping the labels:
 
 ```{r}
 as_factor(x1)
