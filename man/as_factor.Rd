@@ -35,7 +35,7 @@
 \item "default": uses labels where available, otherwise the values.
 Labels are sorted by value.
 \item "both": like "default", but pastes together the level and value
-\item "label": use only the labels; unlabelled values become \code{NA}
+\item "labels": use only the labels; unlabelled values become \code{NA}
 \item "values": use only the values
 }}
 

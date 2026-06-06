@@ -55,7 +55,7 @@ as_factor.data.frame <- function(x, ..., only_labelled = TRUE) {
 #'   * "default": uses labels where available, otherwise the values.
 #'     Labels are sorted by value.
 #'   * "both": like "default", but pastes together the level and value
-#'   * "label": use only the labels; unlabelled values become `NA`
+#'   * "labels": use only the labels; unlabelled values become `NA`
 #'   * "values": use only the values
 #' @rdname as_factor
 #' @export
