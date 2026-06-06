@@ -46,10 +46,11 @@ zap_labels(df)
 \seealso{
 \code{\link[=zap_label]{zap_label()}} to remove variable labels.
 
-Other zappers: 
-\code{\link{zap_empty}()},
-\code{\link{zap_formats}()},
-\code{\link{zap_label}()},
-\code{\link{zap_widths}()}
+Other zappers:
+\code{\link[=zap_empty]{zap_empty()}},
+\code{\link[=zap_formats]{zap_formats()}},
+\code{\link[=zap_label]{zap_label()}},
+\code{\link[=zap_missing]{zap_missing()}},
+\code{\link[=zap_widths]{zap_widths()}}
 }
 \concept{zappers}

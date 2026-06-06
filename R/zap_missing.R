@@ -4,6 +4,8 @@
 #' Stata, or user-defined missings from SPSS, to regular R `NA`.
 #'
 #' @param x A vector or data frame
+#' @seealso [zap_labels()] to remove value labels.
+#' @family zappers
 #' @export
 #' @examples
 #' x1 <- labelled(

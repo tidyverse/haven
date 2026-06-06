@@ -34,3 +34,14 @@ df <- tibble::tibble(x1, x2, y = 4:1)
 df
 zap_missing(df)
 }
+\seealso{
+\code{\link[=zap_labels]{zap_labels()}} to remove value labels.
+
+Other zappers:
+\code{\link[=zap_empty]{zap_empty()}},
+\code{\link[=zap_formats]{zap_formats()}},
+\code{\link[=zap_label]{zap_label()}},
+\code{\link[=zap_labels]{zap_labels()}},
+\code{\link[=zap_widths]{zap_widths()}}
+}
+\concept{zappers}

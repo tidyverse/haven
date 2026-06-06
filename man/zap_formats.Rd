@@ -16,10 +16,11 @@ and R, haven stores variable formats in an attribute: \code{format.stata},
 code, you can get rid of them with \code{zap_formats}.
 }
 \seealso{
-Other zappers: 
-\code{\link{zap_empty}()},
-\code{\link{zap_label}()},
-\code{\link{zap_labels}()},
-\code{\link{zap_widths}()}
+Other zappers:
+\code{\link[=zap_empty]{zap_empty()}},
+\code{\link[=zap_label]{zap_label()}},
+\code{\link[=zap_labels]{zap_labels()}},
+\code{\link[=zap_missing]{zap_missing()}},
+\code{\link[=zap_widths]{zap_widths()}}
 }
 \concept{zappers}
