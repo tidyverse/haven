@@ -128,7 +128,8 @@ write_sas <- function(data, path) {
 #'   of each variable. Use [zap_formats()] to remove it if it causes problems.
 #'   `write_xpt()` reads this attribute back to preserve the original format
 #'   during round-trips; if absent, it assigns a default format based on the
-#'   variable type.
+#'   variable type. Note that the SAS transport format does not store trailing
+#'   periods in format names, so `"DATE9."` will round-trip as `"DATE9"`.
 #'
 #'   If the file contains SAS notes, they will be stored in the `notes`
 #'   attribute of the tibble.
@@ -146,7 +147,7 @@ write_sas <- function(data, path) {
 #' # Round-trip: variable labels and format.sas are preserved
 #' df <- data.frame(x = 1:3)
 #' attr(df$x, "label") <- "My variable"
-#' attr(df$x, "format.sas") <- "BEST12."
+#' attr(df$x, "format.sas") <- "BEST12"
 #' tmp2 <- tempfile(fileext = ".xpt")
 #' write_xpt(df, tmp2)
 #' df2 <- read_xpt(tmp2)

@@ -21,6 +21,17 @@
 #'   Variable labels are stored in the "label" attribute of each variable.
 #'   It is not printed on the console, but the RStudio viewer will show it.
 #'
+#'   The original SPSS variable format is stored in the `format.spss` attribute
+#'   of each variable, and display width in the `display_width` attribute.
+#'   Use [zap_formats()] or [zap_widths()] to remove them if they cause problems.
+#'
+#'   When `user_na = TRUE`, user-defined missing values (`na_values` and
+#'   `na_range`) are retained as attributes on [labelled_spss()] vectors.
+#'   Use [zap_missing()] to convert them to regular `NA` values.
+#'
+#'   If the file contains SPSS notes, they will be stored in the `notes`
+#'   attribute of the tibble.
+#'
 #'   `write_sav()` returns the input `data` invisibly.
 #' @name read_spss
 #' @examples

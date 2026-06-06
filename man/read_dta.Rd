@@ -40,13 +40,11 @@ write_dta(
 Files ending in \code{.gz}, \code{.bz2}, \code{.xz}, or \code{.zip} will
 be automatically uncompressed. Files starting with \verb{http://},
 \verb{https://}, \verb{ftp://}, or \verb{ftps://} will be automatically
-downloaded. Remote gz files can also be automatically downloaded and
+downloaded. Remote \code{.gz} files can also be automatically downloaded and
 decompressed.
 
 Literal data is most useful for examples and tests. To be recognised as
-literal data, the input must be either wrapped with \code{I()}, be a string
-containing at least one new line, or be a vector containing at least one
-string with a new line.
+literal data, wrap the input with \code{I()}.
 
 Using a value of \code{\link[readr:clipboard]{clipboard()}} will read from the system clipboard.}
 
@@ -122,6 +120,12 @@ Variable labels are stored in the "label" attribute of each variable.
 It is not printed on the console, but the RStudio viewer will show it.
 
 If a dataset label is defined in Stata, it will stored in the "label"
+attribute of the tibble.
+
+The original Stata variable format is stored in the \code{format.stata} attribute
+of each variable. Use \code{\link[=zap_formats]{zap_formats()}} to remove it if it causes problems.
+
+If the file contains Stata notes, they will be stored in the \code{notes}
 attribute of the tibble.
 
 \code{write_dta()} returns the input \code{data} invisibly.

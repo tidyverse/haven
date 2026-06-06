@@ -62,6 +62,12 @@
 #'   If a dataset label is defined in Stata, it will stored in the "label"
 #'   attribute of the tibble.
 #'
+#'   The original Stata variable format is stored in the `format.stata` attribute
+#'   of each variable. Use [zap_formats()] to remove it if it causes problems.
+#'
+#'   If the file contains Stata notes, they will be stored in the `notes`
+#'   attribute of the tibble.
+#'
 #'   `write_dta()` returns the input `data` invisibly.
 #' @export
 #' @examples

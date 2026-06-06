@@ -44,13 +44,11 @@ read_spss(
 Files ending in \code{.gz}, \code{.bz2}, \code{.xz}, or \code{.zip} will
 be automatically uncompressed. Files starting with \verb{http://},
 \verb{https://}, \verb{ftp://}, or \verb{ftps://} will be automatically
-downloaded. Remote gz files can also be automatically downloaded and
+downloaded. Remote \code{.gz} files can also be automatically downloaded and
 decompressed.
 
 Literal data is most useful for examples and tests. To be recognised as
-literal data, the input must be either wrapped with \code{I()}, be a string
-containing at least one new line, or be a vector containing at least one
-string with a new line.
+literal data, wrap the input with \code{I()}.
 
 Using a value of \code{\link[readr:clipboard]{clipboard()}} will read from the system clipboard.}
 
@@ -128,6 +126,17 @@ A tibble, data frame variant with nice defaults.
 
 Variable labels are stored in the "label" attribute of each variable.
 It is not printed on the console, but the RStudio viewer will show it.
+
+The original SPSS variable format is stored in the \code{format.spss} attribute
+of each variable, and display width in the \code{display_width} attribute.
+Use \code{\link[=zap_formats]{zap_formats()}} or \code{\link[=zap_widths]{zap_widths()}} to remove them if they cause problems.
+
+When \code{user_na = TRUE}, user-defined missing values (\code{na_values} and
+\code{na_range}) are retained as attributes on \code{\link[=labelled_spss]{labelled_spss()}} vectors.
+Use \code{\link[=zap_missing]{zap_missing()}} to convert them to regular \code{NA} values.
+
+If the file contains SPSS notes, they will be stored in the \code{notes}
+attribute of the tibble.
 
 \code{write_sav()} returns the input \code{data} invisibly.
 }
