@@ -1,5 +1,20 @@
 # haven (development version)
 
+* Documentation for `read_*()` functions now mentions the retained `format.*`
+  and `display_width` attributes, pointing users to `zap_formats()` and
+  `zap_widths()` for removal (#719).
+
+* Documentation for `read_spss()` now mentions that `na_values` and `na_range`
+  are retained when `user_na = TRUE`, pointing users to `zap_missing()`.
+
+* Documentation for `read_xpt()`/`write_xpt()` now documents round-trip
+  metadata: `format.sas` is preserved by `write_xpt()` and re-read, value
+  labels are not supported by the transport format, and a round-trip example
+  is included (#719).
+
+* Documentation for `read_*()` functions now mentions the `notes` attribute
+  when present in the source file.
+
 * `col_select` in the `read_*()` functions now correctly implements the
   tidyselect interface. Columns will be returned in the order specified in
   `col_select` and can be renamed, e.g. `col_select = c(new = old)` (#685).

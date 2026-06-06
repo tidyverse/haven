@@ -27,6 +27,12 @@
 #'   Variable labels are stored in the "label" attribute of each variable. It is
 #'   not printed on the console, but the RStudio viewer will show it.
 #'
+#'   The original SAS variable format is stored in the `format.sas` attribute
+#'   of each variable. Use [zap_formats()] to remove it if it causes problems.
+#'
+#'   If the file contains SAS notes, they will be stored in the `notes`
+#'   attribute of the tibble.
+#'
 #' @export
 #' @examples
 #' path <- system.file("examples", "iris.sas7bdat", package = "haven")
@@ -118,12 +124,34 @@ write_sas <- function(data, path) {
 #'   If a dataset label is defined, it will be stored in the "label" attribute
 #'   of the tibble.
 #'
+#'   The original SAS variable format is stored in the `format.sas` attribute
+#'   of each variable. Use [zap_formats()] to remove it if it causes problems.
+#'   `write_xpt()` reads this attribute back to preserve the original format
+#'   during round-trips; if absent, it assigns a default format based on the
+#'   variable type.
+#'
+#'   If the file contains SAS notes, they will be stored in the `notes`
+#'   attribute of the tibble.
+#'
 #'   `write_xpt()` returns the input `data` invisibly.
+#'
+#'   The SAS transport format does not support value labels, so they are not
+#'   retained by `read_xpt()` and are silently ignored by `write_xpt()`.
 #' @export
 #' @examples
 #' tmp <- tempfile(fileext = ".xpt")
 #' write_xpt(mtcars, tmp)
 #' read_xpt(tmp)
+#'
+#' # Round-trip: variable labels and format.sas are preserved
+#' df <- data.frame(x = 1:3)
+#' attr(df$x, "label") <- "My variable"
+#' attr(df$x, "format.sas") <- "BEST12."
+#' tmp2 <- tempfile(fileext = ".xpt")
+#' write_xpt(df, tmp2)
+#' df2 <- read_xpt(tmp2)
+#' attr(df2$x, "label")
+#' attr(df2$x, "format.sas")
 read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
   spec <- readr::datasource(file)
   cols <- select_cols(read_xpt, {{ col_select }}, spec, .name_repair = .name_repair)

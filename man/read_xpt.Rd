@@ -29,13 +29,11 @@ write_xpt(
 Files ending in \code{.gz}, \code{.bz2}, \code{.xz}, or \code{.zip} will
 be automatically uncompressed. Files starting with \verb{http://},
 \verb{https://}, \verb{ftp://}, or \verb{ftps://} will be automatically
-downloaded. Remote gz files can also be automatically downloaded and
+downloaded. Remote \code{.gz} files can also be automatically downloaded and
 decompressed.
 
 Literal data is most useful for examples and tests. To be recognised as
-literal data, the input must be either wrapped with \code{I()}, be a string
-containing at least one new line, or be a vector containing at least one
-string with a new line.
+literal data, wrap the input with \code{I()}.
 
 Using a value of \code{\link[readr:clipboard]{clipboard()}} will read from the system clipboard.}
 
@@ -109,7 +107,19 @@ It is not printed on the console, but the RStudio viewer will show it.
 If a dataset label is defined, it will be stored in the "label" attribute
 of the tibble.
 
+The original SAS variable format is stored in the \code{format.sas} attribute
+of each variable. Use \code{\link[=zap_formats]{zap_formats()}} to remove it if it causes problems.
+\code{write_xpt()} reads this attribute back to preserve the original format
+during round-trips; if absent, it assigns a default format based on the
+variable type.
+
+If the file contains SAS notes, they will be stored in the \code{notes}
+attribute of the tibble.
+
 \code{write_xpt()} returns the input \code{data} invisibly.
+
+The SAS transport format does not support value labels, so they are not
+retained by \code{read_xpt()} and are silently ignored by \code{write_xpt()}.
 }
 \description{
 The SAS transport format is an open format, as is required for submission
@@ -128,4 +138,14 @@ character. For example, the string "café" is 5 bytes long in UTF-8.
 tmp <- tempfile(fileext = ".xpt")
 write_xpt(mtcars, tmp)
 read_xpt(tmp)
+
+# Round-trip: variable labels and format.sas are preserved
+df <- data.frame(x = 1:3)
+attr(df$x, "label") <- "My variable"
+attr(df$x, "format.sas") <- "BEST12."
+tmp2 <- tempfile(fileext = ".xpt")
+write_xpt(df, tmp2)
+df2 <- read_xpt(tmp2)
+attr(df2$x, "label")
+attr(df2$x, "format.sas")
 }
