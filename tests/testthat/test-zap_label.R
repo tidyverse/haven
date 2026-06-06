@@ -6,7 +6,7 @@ test_that("zap_label strips label but doesn't change other attributes", {
 
 test_that("zap_label returns variables not of class('labelled') unmodified", {
   var <- c(1L, 98L, 99L)
-  expect_equal(zap_labels(var), var)
+  expect_equal(zap_label(var), var)
 })
 
 test_that("zap_label is correctly applied to every column in data frame", {

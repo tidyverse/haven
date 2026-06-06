@@ -6,7 +6,7 @@
 #' @param data_file,catalog_file Path to data and catalog files. The files are
 #'   processed with [readr::datasource()].
 #' @param encoding,catalog_encoding The character encoding used for the
-#'   `data_file` and `catalog_encoding` respectively. A value of `NULL` uses the
+#'   `data_file` and `catalog_file` respectively. A value of `NULL` uses the
 #'   encoding specified in the file; use this argument to override it if it is
 #'   incorrect.
 #' @inheritParams tibble::as_tibble
