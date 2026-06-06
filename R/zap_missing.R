@@ -16,7 +16,7 @@
 #' x2 <- labelled_spss(
 #'   c(1, 2, 1, 99),
 #'   c(missing = 99),
-#'   na_value = 99
+#'   na_values = 99
 #' )
 #' x2
 #' zap_missing(x2)

@@ -134,7 +134,7 @@ as_factor(y)
 SPSS's user-defined values work differently to SAS and Stata. Each column can have either up to three distinct values that are considered as missing, or a range.  Haven provides `labelled_spss()` as a subclass of `labelled()` to model these additional user-defined missings. 
 
 ```{r}
-x1 <- labelled_spss(c(1:10, 99), c(Missing = 99), na_value = 99)
+x1 <- labelled_spss(c(1:10, 99), c(Missing = 99), na_values = 99)
 x2 <- labelled_spss(c(1:10, 99), c(Missing = 99), na_range = c(90, Inf))
 
 x1
