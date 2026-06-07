@@ -136,6 +136,12 @@ test_that("using cols_only warns about deprecation, but works", {
   expect_named(out, "id")
 })
 
+test_that("write_sas warns about deprecation", {
+  df <- tibble(x = 1:3)
+  path <- tempfile(fileext = ".sas7bdat")
+  lifecycle::expect_deprecated(write_sas(df, path), "write_sas")
+})
+
 # read_xpt ----------------------------------------------------------------
 
 test_that("can read date/times", {
