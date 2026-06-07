@@ -256,6 +256,26 @@ test_that("can roundtrip long strings (strL)", {
   expect_equal(roundtrip_var(x, "dta"), x)
 })
 
+test_that("strl_threshold controls strL storage", {
+  short_str <- paste(rep("a", 100), collapse = "")
+  long_str <- paste(rep("b", 3000), collapse = "")
+
+  df <- tibble(xshort = short_str, xlong = long_str)
+
+  # With a low threshold, both strings should roundtrip correctly
+  path_low <- tempfile(fileext = ".dta")
+  write_dta(df, path_low, strl_threshold = 50)
+  df_low <- zap_formats(read_dta(path_low))
+  expect_equal(df_low$xshort, short_str)
+  expect_equal(df_low$xlong, long_str)
+
+  # With a high threshold, both should still roundtrip
+  path_high <- tempfile(fileext = ".dta")
+  write_dta(df, path_high, strl_threshold = 5000)
+  df_high <- zap_formats(read_dta(path_high))
+  expect_equal(df_high$xshort, short_str)
+  expect_equal(df_high$xlong, long_str)
+})
 
 test_that("invisibly returns original data unaltered", {
   df <- tibble(
