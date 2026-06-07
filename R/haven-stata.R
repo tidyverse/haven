@@ -162,6 +162,10 @@ validate_strl_threshold <- function(strl_threshold, call = caller_env()) {
   stopifnot(is.numeric(strl_threshold), length(strl_threshold) == 1)
 
   if (strl_threshold < 0 || strl_threshold > 2045) {
+    cli_warn(
+      "{.arg strl_threshold} must be between 0 and 2045, not {strl_threshold}.",
+      call = call
+    )
     2045
   } else {
     strl_threshold

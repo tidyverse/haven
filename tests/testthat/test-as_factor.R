@@ -110,7 +110,7 @@ test_that("updates numeric values", {
   expect_equal(replace_with(x, 1:5, rep(1, 5)), rep(1, 5))
 })
 
-test_that("udpates tagged NAs", {
+test_that("updates tagged NAs", {
   x <- c(tagged_na("a"), 1:3)
 
   expect_equal(replace_with(x, tagged_na("a"), 0), 0:3)
