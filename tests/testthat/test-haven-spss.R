@@ -430,3 +430,9 @@ test_that("all compression types roundtrip successfully", {
   expect_equal(roundtrip_sav(df, compress = "none"), df)
   expect_equal(roundtrip_sav(df, compress = "zsav"), df)
 })
+
+test_that("compress accepts TRUE/FALSE for backwards compatibility", {
+  df <- tibble::tibble(x = 1:10)
+  expect_equal(roundtrip_sav(df, compress = TRUE), df)
+  expect_equal(roundtrip_sav(df, compress = FALSE), df)
+})
