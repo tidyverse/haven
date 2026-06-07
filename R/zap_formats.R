@@ -6,8 +6,19 @@
 #' code, you can get rid of them with `zap_formats`.
 #'
 #' @param x A vector or data frame.
+#' @return The input with format attributes (`format.spss`, `format.sas`,
+#'   `format.stata`) removed.
 #' @family zappers
 #' @export
+#' @examples
+#' x <- labelled(c(1, 2, 3), c(yes = 1, no = 3))
+#' attr(x, "format.spss") <- "F8.2"
+#' attr(x, "format.stata") <- "%8.2g"
+#' zap_formats(x)
+#'
+#' # Also works with data frames
+#' df <- tibble::tibble(x = x, y = 4:6)
+#' zap_formats(df)
 zap_formats <- function(x) {
   UseMethod("zap_formats")
 }

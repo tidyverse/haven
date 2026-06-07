@@ -9,17 +9,31 @@ zap_formats(x)
 \arguments{
 \item{x}{A vector or data frame.}
 }
+\value{
+The input with format attributes (\code{format.spss}, \code{format.sas},
+\code{format.stata}) removed.
+}
 \description{
 To provide some mild support for round-tripping variables between Stata/SPSS
 and R, haven stores variable formats in an attribute: \code{format.stata},
 \code{format.spss}, or \code{format.sas}. If this causes problems for your
 code, you can get rid of them with \code{zap_formats}.
 }
+\examples{
+x <- labelled(c(1, 2, 3), c(yes = 1, no = 3))
+attr(x, "format.spss") <- "F8.2"
+attr(x, "format.stata") <- "\%8.2g"
+zap_formats(x)
+
+# Also works with data frames
+df <- tibble::tibble(x = x, y = 4:6)
+zap_formats(df)
+}
 \seealso{
-Other zappers: 
-\code{\link{zap_empty}()},
-\code{\link{zap_label}()},
-\code{\link{zap_labels}()},
-\code{\link{zap_widths}()}
+Other zappers:
+\code{\link[=zap_empty]{zap_empty()}},
+\code{\link[=zap_label]{zap_label()}},
+\code{\link[=zap_labels]{zap_labels()}},
+\code{\link[=zap_widths]{zap_widths()}}
 }
 \concept{zappers}
