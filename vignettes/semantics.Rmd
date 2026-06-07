@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-There are some differences between the way that R, SAS, SPSS, and Stata represented labelled data and missing values. While SAS, SPSS, and Stata share some obvious similarities, R is little different. This vignette explores the differences, and shows you how haven bridges the gap.
+There are some differences between the way that R, SAS, SPSS, and Stata represent labelled data and missing values. While SAS, SPSS, and Stata share some obvious similarities, R is a little different. This vignette explores the differences, and shows you how haven bridges the gap.
 
 ## Value labels
 
@@ -63,7 +63,7 @@ See the documentation for `as_factor()` for more options to control exactly what
 Both `as_factor()` and `zap_labels()` have data frame methods if you want to apply the same strategy to every column in a data frame:
 
 ```{r}
-df <- tibble::data_frame(x1, x2, z = 1:5)
+df <- tibble::tibble(x1, x2, z = 1:5)
 df
 
 zap_labels(df)
@@ -134,7 +134,7 @@ as_factor(y)
 SPSS's user-defined values work differently to SAS and Stata. Each column can have either up to three distinct values that are considered as missing, or a range.  Haven provides `labelled_spss()` as a subclass of `labelled()` to model these additional user-defined missings. 
 
 ```{r}
-x1 <- labelled_spss(c(1:10, 99), c(Missing = 99), na_value = 99)
+x1 <- labelled_spss(c(1:10, 99), c(Missing = 99), na_values = 99)
 x2 <- labelled_spss(c(1:10, 99), c(Missing = 99), na_range = c(90, Inf))
 
 x1
