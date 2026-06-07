@@ -12,6 +12,14 @@
 #'   "tag" the missing value. Tags are silently converted to lower case.
 #' @param x A numeric vector
 #' @param digits Number of digits to use in string representation
+#' @return
+#'   - `tagged_na()`: A numeric vector of length `...` containing tagged
+#'     missing values.
+#'   - `na_tag()`: A character vector the same length as `x` containing the
+#'     tag for each element, or `NA` for non-tagged values.
+#'   - `is_tagged_na()`: A logical vector the same length as `x`.
+#'   - `format_tagged_na()`: A character vector the same length as `x`.
+#'   - `print_tagged_na()`: `x`, invisibly.
 #' @export
 #' @examples
 #' x <- c(1:5, tagged_na("a"), tagged_na("z"), NA)

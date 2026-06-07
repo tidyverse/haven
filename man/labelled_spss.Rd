@@ -28,6 +28,9 @@ open ended.}
 
 \item{label}{A short, human-readable description of the vector.}
 }
+\value{
+A \code{haven_labelled_spss} vector the same type as \code{x}.
+}
 \description{
 This class is only used when \code{user_na = TRUE} in
 \code{\link[=read_sav]{read_sav()}}. It is similar to the \code{\link[=labelled]{labelled()}} class

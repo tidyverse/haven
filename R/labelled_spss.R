@@ -10,6 +10,7 @@
 #'   of the range. Use `-Inf` and `Inf` if you want the range to be
 #'   open ended.
 #' @inheritParams labelled
+#' @return A `haven_labelled_spss` vector the same type as `x`.
 #' @export
 #' @examples
 #' x1 <- labelled_spss(1:10, c(Good = 1, Bad = 8), na_values = c(9, 10))

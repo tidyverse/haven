@@ -19,6 +19,9 @@ of the values might be labelled.}
 
 \item{label}{A short, human-readable description of the vector.}
 }
+\value{
+A \code{haven_labelled} vector the same type as \code{x}.
+}
 \description{
 A labelled vector is a common data structure in other statistical
 environments, allowing you to assign text labels to specific values.

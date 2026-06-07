@@ -13,6 +13,7 @@
 #'   as `x`. Unlike factors, labels don't need to be exhaustive: only a fraction
 #'   of the values might be labelled.
 #' @param label A short, human-readable description of the vector.
+#' @return A `haven_labelled` vector the same type as `x`.
 #' @export
 #' @examples
 #' s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))
@@ -174,6 +175,7 @@ obj_print_footer.haven_labelled <- function(x, ...) {
 #' a newly imported dataset.
 #' @param x A labelled vector
 #' @param name The name of the vector (optional)
+#' @return `x`, invisibly.
 #' @export
 #' @examples
 #' s1 <- labelled(c("M", "M", "F"), c(Male = "M", Female = "F"))

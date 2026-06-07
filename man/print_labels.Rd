@@ -11,6 +11,9 @@ print_labels(x, name = NULL)
 
 \item{name}{The name of the vector (optional)}
 }
+\value{
+\code{x}, invisibly.
+}
 \description{
 This is a convenience function, useful to explore the variables of
 a newly imported dataset.

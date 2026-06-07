@@ -28,6 +28,17 @@ print_tagged_na(x, digits = getOption("digits"))
 
 \item{digits}{Number of digits to use in string representation}
 }
+\value{
+\itemize{
+\item \code{tagged_na()}: A numeric vector of length \code{...} containing tagged
+missing values.
+\item \code{na_tag()}: A character vector the same length as \code{x} containing the
+tag for each element, or \code{NA} for non-tagged values.
+\item \code{is_tagged_na()}: A logical vector the same length as \code{x}.
+\item \code{format_tagged_na()}: A character vector the same length as \code{x}.
+\item \code{print_tagged_na()}: \code{x}, invisibly.
+}
+}
 \description{
 "Tagged" missing values work exactly like regular R missing values except
 that they store one additional byte of information a tag, which is usually
