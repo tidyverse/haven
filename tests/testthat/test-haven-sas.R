@@ -315,3 +315,19 @@ test_that("user width warns appropriately when data is wider than value", {
   path <- tempfile()
   expect_snapshot(write_xpt(df, path))
 })
+
+test_that("invisibly returns original data unaltered", {
+  df <- tibble(
+    x = 1:5,
+    dt = seq(
+      as.POSIXct("2022-01-01 12:00:00", tz = "America/Chicago"),
+      by = "days",
+      length.out = 5
+    )
+  )
+
+  path <- tempfile()
+  df_returned <- write_xpt(df, path)
+
+  expect_identical(df, df_returned)
+})
