@@ -113,7 +113,7 @@ public:
   }
 
   void setFileLabel(cpp11::sexp label) {
-    if (label == R_NilValue)
+    if (label == R_NilValue || Rf_length(label) == 0)
       return;
 
     readstat_writer_set_file_label(writer_, string_utf8(label, 0));
@@ -229,7 +229,7 @@ public:
   const char* var_label(cpp11::sexp x) {
     cpp11::sexp label(x.attr("label"));
 
-    if (label == R_NilValue)
+    if (label == R_NilValue || Rf_length(label) == 0)
       return NULL;
 
     return string_utf8(label, 0);
@@ -238,7 +238,7 @@ public:
   const char* var_format(cpp11::sexp x, VarType varType) {
     // Use attribute, if present
     cpp11::sexp format(x.attr(formatAttribute(vendor_).c_str()));
-    if (format != R_NilValue)
+    if (format != R_NilValue && Rf_length(format) != 0)
       return string_utf8(format, 0);
 
     switch(varType) {

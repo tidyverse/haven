@@ -257,6 +257,24 @@ test_that("can roundtrip long strings (strL)", {
 })
 
 
+test_that("zero-length label attributes don't cause crash (#740)", {
+  # Zero-length variable label
+  df <- data.frame(
+    not_working = structure(5:1, format.stata = "%10.0g", label = character(0)),
+    working = 1:5
+  )
+  path <- tempfile(fileext = ".dta")
+  expect_no_error(write_dta(df, path))
+
+  result <- read_dta(path)
+  expect_null(attr(result$not_working, "label"))
+
+  # Zero-length format attribute
+  df2 <- data.frame(x = structure(1:3, format.stata = character(0)))
+  path2 <- tempfile(fileext = ".dta")
+  expect_no_error(write_dta(df2, path2))
+})
+
 test_that("invisibly returns original data unaltered", {
   df <- tibble(
     x = 1:5,
