@@ -271,10 +271,25 @@ test_that("strl_threshold controls strL storage", {
 
   # With a high threshold, both should still roundtrip
   path_high <- tempfile(fileext = ".dta")
-  write_dta(df, path_high, strl_threshold = 5000)
+  expect_warning(write_dta(df, path_high, strl_threshold = 5000))
   df_high <- zap_formats(read_dta(path_high))
   expect_equal(df_high$xshort, short_str)
   expect_equal(df_high$xlong, long_str)
+})
+
+test_that("strl_threshold warns on out-of-range values", {
+  df <- tibble(x = "a")
+
+  expect_warning(
+    write_dta(df, tempfile(), strl_threshold = -1),
+    "strl_threshold"
+  )
+  expect_warning(
+    write_dta(df, tempfile(), strl_threshold = 5000),
+    "strl_threshold"
+  )
+  expect_no_warning(write_dta(df, tempfile(), strl_threshold = 0))
+  expect_no_warning(write_dta(df, tempfile(), strl_threshold = 2045))
 })
 
 test_that("invisibly returns original data unaltered", {
