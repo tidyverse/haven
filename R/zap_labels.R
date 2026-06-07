@@ -13,6 +13,8 @@
 #'   [labelled_spss()] user-defined missing values to `NA`. If `TRUE` they
 #'   will be treated like normal values.
 #' @param ... Other arguments passed down to method.
+#' @return The input with value labels (and, for `labelled_spss`, user-defined
+#'   missing values) removed.
 #' @family zappers
 #' @seealso [zap_label()] to remove variable labels.
 #' @export

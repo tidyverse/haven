@@ -9,16 +9,19 @@ zap_widths(x)
 \arguments{
 \item{x}{A vector or data frame.}
 }
+\value{
+The input with \code{display_width} attributes removed.
+}
 \description{
 To provide some mild support for round-tripping variables between SPSS
 and R, haven stores display widths in an attribute: \code{display_width}. If this
 causes problems for your code, you can get rid of them with \code{zap_widths}.
 }
 \seealso{
-Other zappers: 
-\code{\link{zap_empty}()},
-\code{\link{zap_formats}()},
-\code{\link{zap_label}()},
-\code{\link{zap_labels}()}
+Other zappers:
+\code{\link[=zap_empty]{zap_empty()}},
+\code{\link[=zap_formats]{zap_formats()}},
+\code{\link[=zap_label]{zap_label()}},
+\code{\link[=zap_labels]{zap_labels()}}
 }
 \concept{zappers}

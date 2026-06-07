@@ -40,13 +40,11 @@ write_dta(
 Files ending in \code{.gz}, \code{.bz2}, \code{.xz}, or \code{.zip} will
 be automatically uncompressed. Files starting with \verb{http://},
 \verb{https://}, \verb{ftp://}, or \verb{ftps://} will be automatically
-downloaded. Remote gz files can also be automatically downloaded and
+downloaded. Remote \code{.gz} files can also be automatically downloaded and
 decompressed.
 
 Literal data is most useful for examples and tests. To be recognised as
-literal data, the input must be either wrapped with \code{I()}, be a string
-containing at least one new line, or be a vector containing at least one
-string with a new line.
+literal data, wrap the input with \code{I()}.
 
 Using a value of \code{\link[readr:clipboard]{clipboard()}} will read from the system clipboard.}
 

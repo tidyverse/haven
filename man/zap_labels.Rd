@@ -18,6 +18,10 @@ zap_labels(x, ...)
 \code{\link[=labelled_spss]{labelled_spss()}} user-defined missing values to \code{NA}. If \code{TRUE} they
 will be treated like normal values.}
 }
+\value{
+The input with value labels (and, for \code{labelled_spss}, user-defined
+missing values) removed.
+}
 \description{
 Removes value labels, leaving unlabelled vectors as is. Use this if you
 want to simply drop all \code{labels} from a data frame.
@@ -46,10 +50,10 @@ zap_labels(df)
 \seealso{
 \code{\link[=zap_label]{zap_label()}} to remove variable labels.
 
-Other zappers: 
-\code{\link{zap_empty}()},
-\code{\link{zap_formats}()},
-\code{\link{zap_label}()},
-\code{\link{zap_widths}()}
+Other zappers:
+\code{\link[=zap_empty]{zap_empty()}},
+\code{\link[=zap_formats]{zap_formats()}},
+\code{\link[=zap_label]{zap_label()}},
+\code{\link[=zap_widths]{zap_widths()}}
 }
 \concept{zappers}

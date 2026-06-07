@@ -9,6 +9,10 @@ zap_missing(x)
 \arguments{
 \item{x}{A vector or data frame}
 }
+\value{
+The input with tagged missing values (SAS/Stata) and user-defined
+missing values (SPSS) converted to regular \code{NA}.
+}
 \description{
 This is useful if you want to convert tagged missing values from SAS or
 Stata, or user-defined missings from SPSS, to regular R \code{NA}.

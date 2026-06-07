@@ -4,6 +4,8 @@
 #' Stata, or user-defined missings from SPSS, to regular R `NA`.
 #'
 #' @param x A vector or data frame
+#' @return The input with tagged missing values (SAS/Stata) and user-defined
+#'   missing values (SPSS) converted to regular `NA`.
 #' @export
 #' @examples
 #' x1 <- labelled(

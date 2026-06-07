@@ -5,6 +5,7 @@
 #'
 #' @seealso [zap_labels()] to remove value labels.
 #' @param x A vector or data frame
+#' @return The input with the `label` attribute removed.
 #' @family zappers
 #' @export
 #' @examples

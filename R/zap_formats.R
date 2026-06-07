@@ -6,6 +6,8 @@
 #' code, you can get rid of them with `zap_formats`.
 #'
 #' @param x A vector or data frame.
+#' @return The input with format attributes (`format.spss`, `format.sas`,
+#'   `format.stata`) removed.
 #' @family zappers
 #' @export
 zap_formats <- function(x) {

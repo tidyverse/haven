@@ -5,6 +5,7 @@
 #' causes problems for your code, you can get rid of them with `zap_widths`.
 #'
 #' @param x A vector or data frame.
+#' @return The input with `display_width` attributes removed.
 #' @family zappers
 #' @export
 zap_widths <- function(x) {

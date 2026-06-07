@@ -11,6 +11,8 @@
 #' @param x Object to coerce to a factor.
 #' @param ... Other arguments passed down to method.
 #' @param only_labelled Only apply to labelled columns?
+#' @return A factor if `x` is a vector, or a data frame with labelled columns
+#'   converted to factors if `x` is a data frame.
 #' @export
 #' @examples
 #' x <- labelled(sample(5, 10, replace = TRUE), c(Bad = 1, Good = 5))

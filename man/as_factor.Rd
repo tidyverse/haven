@@ -42,6 +42,10 @@ Labels are sorted by value.
 \item{ordered}{If \code{TRUE} create an ordered (ordinal) factor, if
 \code{FALSE} (the default) create a regular (nominal) factor.}
 }
+\value{
+A factor if \code{x} is a vector, or a data frame with labelled columns
+converted to factors if \code{x} is a data frame.
+}
 \description{
 The base function \code{as.factor()} is not a generic, but \code{\link[forcats:as_factor]{forcats::as_factor()}}
 is. haven provides \code{as_factor()} methods for \code{\link[=labelled]{labelled()}} and
