@@ -1,4 +1,4 @@
-test_that("constructor checks na_value", {
+test_that("constructor checks na_values", {
   expect_incompatible_type(labelled_spss(1:10, na_values = "a"))
 
   expect_snapshot(error = TRUE, {
