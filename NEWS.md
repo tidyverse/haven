@@ -1,5 +1,8 @@
 # haven (development version)
 
+* `median()` method for `haven_labelled` vectors now forwards the `na.rm`
+  argument instead of always using `na.rm = TRUE`.
+
 * `col_select` in the `read_*()` functions now correctly implements the
   tidyselect interface. Columns will be returned in the order specified in
   `col_select` and can be renamed, e.g. `col_select = c(new = old)` (#685).
