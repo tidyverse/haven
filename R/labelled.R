@@ -108,7 +108,7 @@ median.haven_labelled <- function(x, na.rm = TRUE, ...) {
   if (is.character(x)) {
     cli_abort("Can't compute median of {.cls labelled<character>}.")
   }
-  median(vec_data(x), na.rm = TRUE, ...)
+  median(vec_data(x), na.rm = na.rm, ...)
 }
 
 #' @importFrom stats quantile
