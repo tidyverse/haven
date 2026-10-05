@@ -418,6 +418,29 @@ test_that("casting to a subset of user missing works iff values were unused", {
   ))
 })
 
+test_that("casting vectors containing NA works with user missing ranges (#761)", {
+  x <- labelled_spss(c(1, NA, 997), na_range = c(990, 999))
+
+  expect_equal(
+    vec_cast(x, labelled_spss(na_range = c(995, 999))),
+    labelled_spss(c(1, NA, 997), na_range = c(995, 999))
+  )
+  expect_equal(
+    vec_cast(x, labelled_spss(na_values = 997)),
+    labelled_spss(c(1, NA, 997), na_values = 997)
+  )
+  expect_lossy_cast(vec_cast(x, labelled_spss(na_range = c(998, 999))))
+
+  df1 <- data.frame(x = x)
+  df2 <- data.frame(x = labelled_spss(c(2, NA), na_range = c(995, 999)))
+  expect_equal(vec_data(rbind(df1, df2)$x), c(1, NA, 997, 2, NA))
+
+  y <- labelled_spss(c(1, NA, 997), c(a = 997), na_range = c(990, 999))
+  z <- labelled_spss(2, c(b = 997), na_range = c(990, 999))
+  out <- suppressWarnings(vec_c(y, z))
+  expect_equal(vec_data(out), c(1, NA, 997, 2))
+})
+
 test_that("casting away user missing throws lossy cast", {
   expect_lossy_cast(vec_cast(
     labelled_spss(1, na_values = 1),
