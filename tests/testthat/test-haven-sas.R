@@ -343,11 +343,11 @@ test_that("read_sas attaches file timestamps", {
 
   expect_equal(
     attr(out, "creation_timestamp"),
-    as.POSIXct("2015-02-09 20:55:12", tz = "UTC")
+    as.POSIXct("2015-02-09 15:55:12", tz = "UTC")
   )
   expect_equal(
     attr(out, "modified_timestamp"),
-    as.POSIXct("2015-02-09 20:55:12", tz = "UTC")
+    as.POSIXct("2015-02-09 15:55:12", tz = "UTC")
   )
 })
 

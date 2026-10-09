@@ -51,7 +51,7 @@ select_cols <- function(reader, col_select = NULL, ..., call = caller_env()) {
   }
 
   cols <- names(reader(..., n_max = 0L))
-  data <- as.list(setNames(seq_along(cols), cols))
+  data <- as.list(stats::setNames(seq_along(cols), cols))
 
   pos <- tidyselect::eval_select(
     col_select,
