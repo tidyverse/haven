@@ -21,6 +21,8 @@ Useful links:
 
 Authors:
 
+- Hadley Wickham <hadley@posit.co>
+
 - Evan Miller (Author of included ReadStat code) \[copyright holder\]
 
 - Danny Smith

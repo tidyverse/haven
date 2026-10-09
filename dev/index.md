@@ -50,6 +50,7 @@ The output objects:
 ## Installation
 
 ``` r
+
 # The easiest way to get haven is to install the whole tidyverse:
 install.packages("tidyverse")
 
@@ -60,6 +61,7 @@ install.packages("haven")
 ## Usage
 
 ``` r
+
 library(haven)
 
 # SAS

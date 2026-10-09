@@ -77,20 +77,20 @@ x <- labelled(sample(5, 10, replace = TRUE), c(Bad = 1, Good = 5))
 
 # Default method uses values where available
 as_factor(x)
-#>  [1] 4    Good 4    Bad  Good Good Good 2    3    3   
+#>  [1] Good 4    Good 4    Bad  Good Good Good 2    3   
 #> Levels: Bad 2 3 4 Good
 # You can also extract just the labels
 as_factor(x, levels = "labels")
-#>  [1] <NA> Good <NA> Bad  Good Good Good <NA> <NA> <NA>
+#>  [1] Good <NA> Good <NA> Bad  Good Good Good <NA> <NA>
 #> Levels: Bad Good
 # Or just the values
 as_factor(x, levels = "values")
-#>  [1] 4 5 4 1 5 5 5 2 3 3
+#>  [1] 5 4 5 4 1 5 5 5 2 3
 #> Levels: 1 2 3 4 5
 # Or combine value and label
 as_factor(x, levels = "both")
-#>  [1] 4        [5] Good 4        [1] Bad  [5] Good [5] Good [5] Good
-#>  [8] 2        3        3       
+#>  [1] [5] Good 4        [5] Good 4        [1] Bad  [5] Good [5] Good
+#>  [8] [5] Good 2        3       
 #> Levels: [1] Bad 2 3 4 [5] Good
 
 # as_factor() will preserve SPSS missing values from values and ranges

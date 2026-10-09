@@ -37,6 +37,7 @@ This class allows you to associated arbitrary labels with numeric or
 character vectors:
 
 ``` r
+
 x1 <- labelled(
   sample(1:5),
   c(Good = 1, Bad = 5)
@@ -70,6 +71,7 @@ datastructure that you can convert into a regular R data frame. You can
 do this by either converting to a factor or stripping the labels:
 
 ``` r
+
 as_factor(x1)
 #> [1] Bad  3    4    Good 2   
 #> Levels: Good 2 3 4 Bad
@@ -95,6 +97,7 @@ have data frame methods if you want to apply the same strategy to every
 column in a data frame:
 
 ``` r
+
 df <- tibble::data_frame(x1, x2, z = 1:5)
 #> Warning: `data_frame()` was deprecated in tibble 1.1.0.
 #> ℹ Please use `tibble()` instead.
@@ -177,6 +180,7 @@ own with
 [`tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md):
 
 ``` r
+
 x <- c(1:3, tagged_na("a", "z"), 3:1)
 x
 #> [1]  1  2  3 NA NA  3  2  1
@@ -187,6 +191,7 @@ printing. To see their tags, use
 [`print_tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md):
 
 ``` r
+
 print_tagged_na(x)
 #> [1]     1     2     3 NA(a) NA(z)     3     2     1
 ```
@@ -197,6 +202,7 @@ and to extract the value of the tag, use
 [`na_tag()`](https://haven.tidyverse.org/dev/reference/tagged_na.md):
 
 ``` r
+
 is_tagged_na(x)
 #> [1] FALSE FALSE FALSE  TRUE  TRUE FALSE FALSE FALSE
 is_tagged_na(x, "a")
@@ -213,6 +219,7 @@ you, and
 knows how to relabel:
 
 ``` r
+
 y <- labelled(x, c("Not home" = tagged_na("a"), "Refused" = tagged_na("z")))
 y
 #> <labelled<double>[8]>
@@ -240,6 +247,7 @@ as a subclass of
 model these additional user-defined missings.
 
 ``` r
+
 x1 <- labelled_spss(c(1:10, 99), c(Missing = 99), na_value = 99)
 x2 <- labelled_spss(c(1:10, 99), c(Missing = 99), na_range = c(90, Inf))
 
@@ -265,6 +273,7 @@ These objects are somewhat dangerous to work with in R because most R
 functions don’t know those values are missing:
 
 ``` r
+
 mean(x1)
 #> [1] 14
 ```
@@ -282,6 +291,7 @@ I’ve defined an [`is.na()`](https://rdrr.io/r/base/NA.html) method so
 you can find them yourself:
 
 ``` r
+
 is.na(x1)
 #>  [1] FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE FALSE  TRUE
 ```
@@ -290,6 +300,7 @@ And the presence of that method does mean many functions with an `na.rm`
 argument will work correctly:
 
 ``` r
+
 mean(x1, na.rm = TRUE)
 #> [1] 14
 ```
@@ -298,6 +309,7 @@ But generally you should either convert to a factor, convert to regular
 missing vaues, or strip the all the labels:
 
 ``` r
+
 as_factor(x1)
 #>  [1] 1       2       3       4       5       6       7       8      
 #>  [9] 9       10      Missing
