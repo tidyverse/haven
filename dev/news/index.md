@@ -28,6 +28,15 @@
   `haven_labelled` vectors now forwards the `na.rm` argument instead of
   always using `na.rm = TRUE`.
 
+- Casting a
+  [`labelled_spss()`](https://haven.tidyverse.org/dev/reference/labelled_spss.md)
+  vector that contains `NA` to one with a different `na_range` no longer
+  fails with “missing value where TRUE/FALSE needed”, which affected
+  [`rbind()`](https://rdrr.io/r/base/cbind.html) and
+  `dplyr::bind_rows()`
+  ([\#761](https://github.com/tidyverse/haven/issues/761),
+  [@taekop](https://github.com/taekop)).
+
 - `col_select` in the `read_*()` functions now correctly implements the
   tidyselect interface. Columns will be returned in the order specified
   in `col_select` and can be renamed, e.g. `col_select = c(new = old)`
