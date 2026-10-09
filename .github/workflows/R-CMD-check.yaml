@@ -54,22 +54,18 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      # Reproduce the conda-style setup from #774: a GNU libiconv whose
-      # iconv.h shadows glibc's iconv, so configure must detect that
-      # -liconv is needed
-      - uses: mamba-org/setup-micromamba@v2
-        if: matrix.config.libiconv
-        with:
-          create-args: libiconv -c conda-forge
-
-      - name: Point R at conda's libiconv
+      # Reproduce the conda-style setup from #774: install GNU libiconv
+      # into /usr/local, where its iconv.h shadows glibc's iconv, so
+      # configure must detect that -liconv is needed
+      - name: Install GNU libiconv
         if: matrix.config.libiconv
         run: |
-          mkdir -p ~/.R
-          cat > ~/.R/Makevars <<EOF
-          CPPFLAGS += -I$CONDA_PREFIX/include
-          LDFLAGS += -L$CONDA_PREFIX/lib -Wl,-rpath,$CONDA_PREFIX/lib
-          EOF
+          curl -sSL https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz | tar xz
+          cd libiconv-1.17
+          ./configure --quiet
+          make -s -j2
+          sudo make -s install
+          sudo ldconfig
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
