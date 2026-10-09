@@ -4,10 +4,11 @@
 #include "readstat_iconv.h"
 #include "readstat_convert.h"
 
-readstat_error_t readstat_convert(char *dst, size_t dst_len, const char *src, size_t src_len, iconv_t converter) {
+static readstat_error_t readstat_convert_impl(char *dst, size_t dst_len, const char *src, size_t src_len,
+        iconv_t converter, int trim_spaces) {
     /* strip off spaces from the input because the programs use ASCII space
      * padding even with non-ASCII encoding. */
-    while (src_len && (src[src_len-1] == ' ' || src[src_len-1] == '\0')) {
+    while (src_len && ((trim_spaces && src[src_len-1] == ' ') || src[src_len-1] == '\0')) {
         src_len--;
     }
     if (dst_len == 0) {
@@ -33,4 +34,12 @@ readstat_error_t readstat_convert(char *dst, size_t dst_len, const char *src, si
         dst[src_len] = '\0';
     }
     return READSTAT_OK;
+}
+
+readstat_error_t readstat_convert(char *dst, size_t dst_len, const char *src, size_t src_len, iconv_t converter) {
+    return readstat_convert_impl(dst, dst_len, src, src_len, converter, 1);
+}
+
+readstat_error_t readstat_convert_notrim(char *dst, size_t dst_len, const char *src, size_t src_len, iconv_t converter) {
+    return readstat_convert_impl(dst, dst_len, src, src_len, converter, 0);
 }

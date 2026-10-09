@@ -1,3 +1,11 @@
+# string variables can't have missing value ranges
+
+    Code
+      write_sav(df, tempfile())
+    Condition
+      Error:
+      ! Failed to create column `x`: The file format does not support missing value ranges for this variable type.
+
 # complain about long factor labels
 
     Code

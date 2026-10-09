@@ -76,6 +76,8 @@ typedef struct sav_ctx_s {
 
     const char    *input_encoding;
     const char    *output_encoding;
+    int            charset_code;      /* from record 7 subtype 3 */
+    char           charset_name[64];  /* from record 7 subtype 20 */
     char           file_label[4*64+1];
     time_t         timestamp;
     uint32_t      *variable_display_values;
@@ -122,6 +124,7 @@ typedef struct sav_ctx_s {
 #define SAV_RECORD_SUBTYPE_INTEGER_INFO       3
 #define SAV_RECORD_SUBTYPE_FP_INFO            4
 #define SAV_RECORD_SUBTYPE_MULTIPLE_RESPONSE_SETS 7
+#define SAV_RECORD_SUBTYPE_MULTIPLE_RESPONSE_SETS_V14 19
 #define SAV_RECORD_SUBTYPE_PRODUCT_INFO      10
 #define SAV_RECORD_SUBTYPE_VAR_DISPLAY       11
 #define SAV_RECORD_SUBTYPE_LONG_VAR_NAME     13

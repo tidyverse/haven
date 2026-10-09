@@ -4,66 +4,61 @@
 #include "../readstat.h"
 #include "readstat_por_parse.h"
 
+#define POR_PARSE_MAX_DIGITS 128
 
-#line 9 "src/spss/readstat_por_parse.c"
+
+#line 11 "src/spss/readstat_por_parse.c"
 static const signed char _por_field_parse_actions[] = {
-	0, 1, 0, 1, 1, 1, 5, 1,
-	8, 1, 9, 1, 10, 2, 2, 0,
-	2, 3, 1, 2, 5, 10, 2, 7,
-	10, 3, 4, 2, 0, 3, 6, 2,
-	0, 0
+	0, 1, 0, 1, 1, 1, 2, 1,
+	3, 1, 4, 1, 5, 1, 7, 2,
+	6, 7, 0
 };
 
 static const signed char _por_field_parse_key_offsets[] = {
-	0, 0, 8, 9, 14, 18, 23, 31,
-	35, 40, 44, 48, 55, 0
+	0, 0, 8, 9, 14, 18, 25, 29,
+	34, 42, 0
 };
 
 static const char _por_field_parse_trans_keys[] = {
 	32, 42, 45, 46, 48, 57, 65, 84,
 	46, 46, 48, 57, 65, 84, 48, 57,
-	65, 84, 47, 48, 57, 65, 84, 43,
-	45, 46, 47, 48, 57, 65, 84, 48,
-	57, 65, 84, 47, 48, 57, 65, 84,
-	48, 57, 65, 84, 48, 57, 65, 84,
-	43, 45, 47, 48, 57, 65, 84, 0
+	65, 84, 43, 45, 47, 48, 57, 65,
+	84, 48, 57, 65, 84, 47, 48, 57,
+	65, 84, 43, 45, 46, 47, 48, 57,
+	65, 84, 0
 };
 
 static const signed char _por_field_parse_single_lengths[] = {
-	0, 4, 1, 1, 0, 1, 4, 0,
-	1, 0, 0, 3, 0, 0
+	0, 4, 1, 1, 0, 3, 0, 1,
+	4, 0, 0
 };
 
 static const signed char _por_field_parse_range_lengths[] = {
 	0, 2, 0, 2, 2, 2, 2, 2,
-	2, 2, 2, 2, 0, 0
+	2, 0, 0
 };
 
 static const signed char _por_field_parse_index_offsets[] = {
-	0, 0, 7, 9, 13, 16, 20, 27,
-	30, 34, 37, 40, 46, 0
+	0, 0, 7, 9, 13, 16, 22, 25,
+	29, 36, 0
 };
 
 static const signed char _por_field_parse_cond_targs[] = {
-	1, 2, 3, 4, 6, 6, 0, 12,
-	0, 4, 6, 6, 0, 5, 5, 0,
-	12, 5, 5, 0, 7, 9, 10, 12,
-	6, 6, 0, 8, 8, 0, 12, 8,
-	8, 0, 8, 8, 0, 11, 11, 0,
-	7, 9, 12, 11, 11, 0, 0, 0,
-	1, 2, 3, 4, 5, 6, 7, 8,
-	9, 10, 11, 12, 0
+	1, 2, 3, 4, 8, 8, 0, 9,
+	0, 4, 8, 8, 0, 5, 5, 0,
+	6, 6, 9, 5, 5, 0, 7, 7,
+	0, 9, 7, 7, 0, 6, 6, 5,
+	9, 8, 8, 0, 0, 0, 1, 2,
+	3, 4, 5, 6, 7, 8, 9, 0
 };
 
 static const signed char _por_field_parse_cond_actions[] = {
-	0, 9, 0, 0, 13, 13, 0, 11,
-	0, 7, 25, 25, 0, 16, 16, 0,
-	11, 3, 3, 0, 5, 5, 5, 19,
-	1, 1, 0, 13, 13, 0, 22, 1,
-	1, 0, 29, 29, 0, 16, 16, 0,
-	0, 0, 11, 3, 3, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0
+	0, 0, 11, 7, 1, 1, 0, 15,
+	0, 7, 1, 1, 0, 1, 1, 0,
+	0, 9, 13, 1, 1, 0, 3, 3,
+	0, 13, 3, 3, 0, 0, 9, 5,
+	13, 1, 1, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0
 };
 
 static const int por_field_parse_start = 1;
@@ -71,34 +66,44 @@ static const int por_field_parse_start = 1;
 static const int por_field_parse_en_main = 1;
 
 
-#line 9 "src/spss/readstat_por_parse.rl"
+#line 11 "src/spss/readstat_por_parse.rl"
 
 
-ssize_t readstat_por_parse_double(const char *data, size_t len, double *result, 
+static int por_base30_digit_value(unsigned char c) {
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	return 10 + c - 'A';
+}
+
+ssize_t readstat_por_parse_double(const char *data, size_t len, double *result,
 readstat_error_handler error_cb, void *user_ctx) {
 	ssize_t retval = 0;
 	double val = 0.0;
-	double denom = 30.0;
-	double temp_frac = 0.0;
-	double num = 0.0;
-	double exp = 0.0;
 	
-	double temp_val = 0.0;
+	/* Significant digits of the mantissa, most significant first; leading
+	* zeros are dropped and digits beyond POR_PARSE_MAX_DIGITS are folded
+	* into the scale. */
+	unsigned char digits[POR_PARSE_MAX_DIGITS] = { 0 };
+	size_t n_digits = 0;
+	long scale = 0;
+	long exp = 0;
 	
 	const unsigned char *p = (const unsigned char *)data;
 	const unsigned char *pe = p + len;
 	
 	int cs;
 	int is_negative = 0, exp_is_negative = 0;
+	int got_dot = 0;
+	int is_missing = 0;
 	int success = 0;
 	
 	
-#line 97 "src/spss/readstat_por_parse.c"
+#line 102 "src/spss/readstat_por_parse.c"
 	{
 		cs = (int)por_field_parse_start;
 	}
 	
-#line 102 "src/spss/readstat_por_parse.c"
+#line 107 "src/spss/readstat_por_parse.c"
 	{
 		int _klen;
 		unsigned int _trans = 0;
@@ -171,113 +176,88 @@ readstat_error_handler error_cb, void *user_ctx) {
 				{
 					case 0:  {
 						{
-#line 30 "src/spss/readstat_por_parse.rl"
+#line 42 "src/spss/readstat_por_parse.rl"
 							
-							if ((( (*( p)))) >= '0' && (( (*( p)))) <= '9') {
-								temp_val = 30 * temp_val + ((( (*( p)))) - '0');
-							} else if ((( (*( p)))) >= 'A' && (( (*( p)))) <= 'T') {
-								temp_val = 30 * temp_val + (10 + (( (*( p)))) - 'A');
+							int digit = por_base30_digit_value((( (*( p)))));
+							if (n_digits == 0 && digit == 0) {
+								if (got_dot)
+								scale--;
+							} else if (n_digits < POR_PARSE_MAX_DIGITS) {
+								digits[n_digits++] = digit;
+								if (got_dot)
+								scale--;
+							} else if (!got_dot) {
+								scale++;
 							}
 						}
 						
-#line 184 "src/spss/readstat_por_parse.c"
+#line 195 "src/spss/readstat_por_parse.c"
 						
 						break; 
 					}
 					case 1:  {
 						{
-#line 38 "src/spss/readstat_por_parse.rl"
+#line 56 "src/spss/readstat_por_parse.rl"
 							
-							if ((( (*( p)))) >= '0' && (( (*( p)))) <= '9') {
-								temp_frac += ((( (*( p)))) - '0') / denom;
-							} else if ((( (*( p)))) >= 'A' && (( (*( p)))) <= 'T') {
-								temp_frac += (10 + (( (*( p)))) - 'A') / denom;
-							}
-							denom *= 30.0;
+							if (exp < 100000)
+							exp = 30 * exp + por_base30_digit_value((( (*( p)))));
 						}
 						
-#line 200 "src/spss/readstat_por_parse.c"
+#line 207 "src/spss/readstat_por_parse.c"
 						
 						break; 
 					}
 					case 2:  {
 						{
-#line 47 "src/spss/readstat_por_parse.rl"
-							temp_val = 0; }
+#line 63 "src/spss/readstat_por_parse.rl"
+							got_dot = 1; }
 						
-#line 209 "src/spss/readstat_por_parse.c"
+#line 216 "src/spss/readstat_por_parse.c"
 						
 						break; 
 					}
 					case 3:  {
 						{
-#line 49 "src/spss/readstat_por_parse.rl"
-							temp_frac = 0.0; }
+#line 64 "src/spss/readstat_por_parse.rl"
+							got_dot = 1; }
 						
-#line 218 "src/spss/readstat_por_parse.c"
+#line 225 "src/spss/readstat_por_parse.c"
 						
 						break; 
 					}
 					case 4:  {
 						{
-#line 53 "src/spss/readstat_por_parse.rl"
-							is_negative = 1; }
+#line 66 "src/spss/readstat_por_parse.rl"
+							exp_is_negative = 1; }
 						
-#line 227 "src/spss/readstat_por_parse.c"
+#line 234 "src/spss/readstat_por_parse.c"
 						
 						break; 
 					}
 					case 5:  {
 						{
-#line 53 "src/spss/readstat_por_parse.rl"
-							num = temp_val; }
+#line 68 "src/spss/readstat_por_parse.rl"
+							is_negative = 1; }
 						
-#line 236 "src/spss/readstat_por_parse.c"
+#line 243 "src/spss/readstat_por_parse.c"
 						
 						break; 
 					}
 					case 6:  {
 						{
-#line 54 "src/spss/readstat_por_parse.rl"
-							exp_is_negative = 1; }
+#line 70 "src/spss/readstat_por_parse.rl"
+							is_missing = 1; }
 						
-#line 245 "src/spss/readstat_por_parse.c"
+#line 252 "src/spss/readstat_por_parse.c"
 						
 						break; 
 					}
 					case 7:  {
 						{
-#line 54 "src/spss/readstat_por_parse.rl"
-							exp = temp_val; }
-						
-#line 254 "src/spss/readstat_por_parse.c"
-						
-						break; 
-					}
-					case 8:  {
-						{
-#line 56 "src/spss/readstat_por_parse.rl"
-							is_negative = 1; }
-						
-#line 263 "src/spss/readstat_por_parse.c"
-						
-						break; 
-					}
-					case 9:  {
-						{
-#line 58 "src/spss/readstat_por_parse.rl"
-							val = NAN; }
-						
-#line 272 "src/spss/readstat_por_parse.c"
-						
-						break; 
-					}
-					case 10:  {
-						{
-#line 60 "src/spss/readstat_por_parse.rl"
+#line 72 "src/spss/readstat_por_parse.rl"
 							success = 1; {p += 1; goto _out; } }
 						
-#line 281 "src/spss/readstat_por_parse.c"
+#line 261 "src/spss/readstat_por_parse.c"
 						
 						break; 
 					}
@@ -295,18 +275,17 @@ readstat_error_handler error_cb, void *user_ctx) {
 		_out: {}
 	}
 	
-#line 64 "src/spss/readstat_por_parse.rl"
+#line 76 "src/spss/readstat_por_parse.rl"
 	
 	
-	if (!isnan(val)) {
-		val = 1.0 * num + temp_frac;
+	if (is_missing) {
+		val = NAN;
+	} else {
 		if (exp_is_negative)
-			exp *= -1;
-		if (exp) {
-			val *= pow(30.0, exp);
-		}
+			exp = -exp;
+		val = por_base30_to_double(digits, n_digits, scale + exp);
 		if (is_negative)
-			val *= -1;
+			val = -val;
 	}
 	
 	if (!success) {

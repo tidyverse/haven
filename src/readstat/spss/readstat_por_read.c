@@ -29,6 +29,8 @@
 #define MAX_FORMAT_WIDTH    20000
 #define MAX_FORMAT_DECIMALS   100
 #define MAX_STRING_LENGTH   20000
+/* A string field holds at most 255 characters, each up to three bytes in UTF-8 */
+#define POR_STRING_BUFFER_SIZE  (3*255+1)
 
 #define MAX_VARS    1000000
 #define MAX_WIDTH   1000000
@@ -62,17 +64,16 @@ static ssize_t read_bytes(por_ctx_t *ctx, void *dst, size_t len) {
         if (bytes_read == -1) {
             return -1;
         }
-        if (byte == '\r' || byte == '\n') {
-            if (byte == '\r') {
-                bytes_read = io->read(&byte, 1, io->io_ctx);
-                if (bytes_read == 0 || bytes_read == -1 || byte != '\n')
-                    return -1;
-            }
-            ctx->num_spaces = POR_LINE_LENGTH - ctx->pos;
+        /* Like PSPP: ignore carriage returns entirely; a line feed ends the
+         * line, and a line shorter than 80 characters is padded with spaces.
+         * Lines longer than 80 characters are read as-is. */
+        if (byte == '\r') {
+            continue;
+        } else if (byte == '\n') {
+            if (ctx->pos < POR_LINE_LENGTH)
+                ctx->num_spaces = POR_LINE_LENGTH - ctx->pos;
             ctx->pos = 0;
             continue;
-        } else if (ctx->pos == POR_LINE_LENGTH) {
-            return -1;
         }
         *dst_pos++ = byte;
         ctx->pos++;
@@ -218,7 +219,7 @@ static readstat_error_t maybe_read_string(por_ctx_t *ctx, char *data, size_t len
         memset(ctx->string_buffer, 0, ctx->string_buffer_len);
     }
     
-    if (read_bytes(ctx, ctx->string_buffer, string_length) == -1) {
+    if (read_bytes(ctx, ctx->string_buffer, string_length) != string_length) {
         retval = READSTAT_ERROR_READ;
         goto cleanup;
     }
@@ -325,8 +326,11 @@ static readstat_error_t read_variable_record(por_ctx_t *ctx) {
     varinfo->width = value;
     if (varinfo->width == 0) {
         varinfo->type = READSTAT_TYPE_DOUBLE;
+        varinfo->width = 1; /* one eight-byte slot, as in SAV files */
     } else {
         varinfo->type = READSTAT_TYPE_STRING;
+        /* The declared width is the string length in characters */
+        varinfo->string_length = value;
     }
     if ((retval = read_string(ctx, varinfo->name, sizeof(varinfo->name))) != READSTAT_OK) {
         goto cleanup;
@@ -362,6 +366,37 @@ cleanup:
     return retval;
 }
 
+/* Reads a string field and stores it trimmed and converted, as the SAV reader
+ * does, so that string missing values and value-label keys match the data
+ * values (which are also trimmed and converted). Strings that do not fit in
+ * dst are truncated at a character boundary. */
+static readstat_error_t read_converted_string(por_ctx_t *ctx, char *dst, size_t dst_len) {
+    readstat_error_t retval = READSTAT_OK;
+    char string[POR_STRING_BUFFER_SIZE];
+    size_t len = 0;
+
+    if ((retval = read_string(ctx, string, sizeof(string))) != READSTAT_OK)
+        goto cleanup;
+
+    len = strlen(string);
+    while (len > 0 && string[len-1] == ' ')
+        len--;
+    if (len + 1 > dst_len) {
+        len = dst_len - 1;
+        while (len > 0 && (string[len] & 0xC0) == 0x80)
+            len--;
+    }
+    retval = readstat_convert(dst, dst_len, string, len, ctx->converter);
+
+cleanup:
+    return retval;
+}
+
+static readstat_error_t read_missing_string_value(por_ctx_t *ctx, spss_varinfo_t *varinfo, int index) {
+    return read_converted_string(ctx, varinfo->missing_string_values[index],
+            sizeof(varinfo->missing_string_values[index]));
+}
+
 static readstat_error_t read_missing_value_record(por_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     spss_varinfo_t *varinfo = NULL;
@@ -372,19 +407,18 @@ static readstat_error_t read_missing_value_record(por_ctx_t *ctx) {
     }
     varinfo = &ctx->varinfo[ctx->var_offset];
 
+    if (varinfo->n_missing_values >= 3) {
+        retval = READSTAT_ERROR_PARSE;
+        goto cleanup;
+    }
     if (varinfo->type == READSTAT_TYPE_DOUBLE) {
         if ((retval = read_double(ctx, &varinfo->missing_double_values[varinfo->n_missing_values])) != READSTAT_OK) {
             goto cleanup;
         }
     } else {
-        if ((retval = read_string(ctx, varinfo->missing_string_values[varinfo->n_missing_values],
-                        sizeof(varinfo->missing_string_values[varinfo->n_missing_values]))) != READSTAT_OK) {
+        if ((retval = read_missing_string_value(ctx, varinfo, varinfo->n_missing_values)) != READSTAT_OK) {
             goto cleanup;
         }
-    }
-    if (varinfo->n_missing_values > 2) {
-        retval = READSTAT_ERROR_PARSE;
-        goto cleanup;
     }
     varinfo->n_missing_values++;
 
@@ -412,12 +446,10 @@ static readstat_error_t read_missing_value_range_record(por_ctx_t *ctx) {
             goto cleanup;
         }
     } else {
-        if ((retval = read_string(ctx, varinfo->missing_string_values[0],
-                        sizeof(varinfo->missing_string_values[0]))) != READSTAT_OK) {
+        if ((retval = read_missing_string_value(ctx, varinfo, 0)) != READSTAT_OK) {
             goto cleanup;
         }
-        if ((retval = read_string(ctx, varinfo->missing_string_values[1],
-                        sizeof(varinfo->missing_string_values[1]))) != READSTAT_OK) {
+        if ((retval = read_missing_string_value(ctx, varinfo, 1)) != READSTAT_OK) {
             goto cleanup;
         }
     }
@@ -444,8 +476,7 @@ static readstat_error_t read_missing_value_lo_range_record(por_ctx_t *ctx) {
         }
     } else {
         varinfo->missing_string_values[0][0] = '\0';
-        if ((retval = read_string(ctx, varinfo->missing_string_values[1],
-                        sizeof(varinfo->missing_string_values[1]))) != READSTAT_OK) {
+        if ((retval = read_missing_string_value(ctx, varinfo, 1)) != READSTAT_OK) {
             goto cleanup;
         }
     }
@@ -471,8 +502,7 @@ static readstat_error_t read_missing_value_hi_range_record(por_ctx_t *ctx) {
         }
         varinfo->missing_double_values[1] = HUGE_VAL;
     } else {
-        if ((retval = read_string(ctx, varinfo->missing_string_values[0],
-                        sizeof(varinfo->missing_string_values[0]))) != READSTAT_OK) {
+        if ((retval = read_missing_string_value(ctx, varinfo, 0)) != READSTAT_OK) {
             goto cleanup;
         }
         varinfo->missing_string_values[1][0] = '\0';
@@ -483,14 +513,14 @@ cleanup:
 
 static readstat_error_t read_document_record(por_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
-    char string[256];
+    char string[4*POR_STRING_BUFFER_SIZE+1];
     int i;
     int line_count = 0;
     if ((retval = read_integer_in_range(ctx, 0, MAX_LINES, &line_count)) != READSTAT_OK) {
         goto cleanup;
     }
     for (i=0; i<line_count; i++) {
-        if ((retval = read_string(ctx, string, sizeof(string))) != READSTAT_OK) {
+        if ((retval = read_converted_string(ctx, string, sizeof(string))) != READSTAT_OK) {
             goto cleanup;
         }
         if (ctx->handle.note) {
@@ -506,7 +536,7 @@ cleanup:
 
 static readstat_error_t read_variable_label_record(por_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
-    char string[256];
+    char string[POR_STRING_BUFFER_SIZE];
     spss_varinfo_t *varinfo = NULL;
 
     if (ctx->var_offset < 0 || ctx->var_offset == ctx->var_count) {
@@ -530,10 +560,11 @@ static readstat_error_t read_value_label_record(por_ctx_t *ctx) {
     readstat_error_t retval = READSTAT_OK;
     double dval;
     int i;
-    char string[256];
+    char string[POR_STRING_BUFFER_SIZE];
     int count = 0, label_count = 0;
     char label_name_buf[256];
-    char label_buf[256];
+    char key_buf[4*POR_STRING_BUFFER_SIZE+1];
+    char label_buf[4*POR_STRING_BUFFER_SIZE+1];
     snprintf(label_name_buf, sizeof(label_name_buf), POR_LABEL_NAME_PREFIX "%d", ctx->labels_offset);
     readstat_type_t value_type = READSTAT_TYPE_DOUBLE;
     if ((retval = read_integer_in_range(ctx, 0, MAX_STRINGS, &count)) != READSTAT_OK) {
@@ -555,18 +586,18 @@ static readstat_error_t read_value_label_record(por_ctx_t *ctx) {
     for (i=0; i<label_count; i++) {
         readstat_value_t value = { .type = value_type };
         if (value_type == READSTAT_TYPE_STRING) {
-            if ((retval = read_string(ctx, string, sizeof(string))) != READSTAT_OK) {
+            if ((retval = read_converted_string(ctx, key_buf, sizeof(key_buf))) != READSTAT_OK) {
                 goto cleanup;
             }
-            if ((retval = read_string(ctx, label_buf, sizeof(label_buf))) != READSTAT_OK) {
+            if ((retval = read_converted_string(ctx, label_buf, sizeof(label_buf))) != READSTAT_OK) {
                 goto cleanup;
             }
-            value.v.string_value = string;
+            value.v.string_value = key_buf;
         } else {
             if ((retval = read_double(ctx, &dval)) != READSTAT_OK) {
                 goto cleanup;
             }
-            if ((retval = read_string(ctx, label_buf, sizeof(label_buf))) != READSTAT_OK) {
+            if ((retval = read_converted_string(ctx, label_buf, sizeof(label_buf))) != READSTAT_OK) {
                 goto cleanup;
             }
             value.v.double_value = dval;
@@ -586,8 +617,8 @@ cleanup:
 
 static readstat_error_t read_por_file_data(por_ctx_t *ctx) {
     int i;
-    char input_string[256];
-    char output_string[4*256+1];
+    char input_string[POR_STRING_BUFFER_SIZE];
+    char output_string[4*POR_STRING_BUFFER_SIZE+1];
     char error_buf[1024];
     readstat_error_t rs_retval = READSTAT_OK;
 
@@ -803,7 +834,14 @@ readstat_error_t readstat_parse_por(readstat_parser_t *parser, const char *path,
 
     int i;
 
+    /* A byte that appears at several positions in the translation table
+     * keeps its first meaning, as in PSPP and R's foreign package. PSPP for
+     * instance maps the superscript digits (positions 167-176) to '0'-'9'
+     * as well, and last-writer-wins would turn every digit into a
+     * superscript. */
     for (i=0; i<256; i++) {
+        if (ctx->byte2unicode[reverse_lookup[i]])
+            continue;
         if (por_ascii_lookup[i]) {
             ctx->byte2unicode[reverse_lookup[i]] = por_ascii_lookup[i];
         } else if (por_unicode_lookup[i]) {

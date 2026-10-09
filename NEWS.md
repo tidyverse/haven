@@ -1,15 +1,22 @@
 # haven (development version)
 
+* Updated to ReadStat dev 835b88c.
+
+  * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
+
+  * SAS catalog reader now correctly reads big-endian files.
+  * SAS reader now applies the timezone offset stored in the file header, so `creation_timestamp` and `modified_timestamp` attributes are now correctly reported in UTC.
+  * SAS reader now supports files with zero observations (#627).
+  * SAS reader has improved support for RLE decompression and 16MiB page sizes.
+  * SAV reader now supports MR set names containing non-ASCII characters (#788).
+  * SAV reader has improved support for Asian code pages and very long string records.
+  * SAV writer now supports labels for string values longer than 8 bytes (#550).
+  * Stata reader no longer returns Stata's internal note count (`_dta[note0]`) as a note, so `attr(df, "notes")` may contain one fewer note than before.
+  * XPT V8 writer now supports long variable labels (#784).
+
 * `read_dta()`, `read_sav()`, `read_por()`, `read_sas()`, and `read_xpt()` now
   attach file metadata as attributes: `creation_timestamp` and
   `modified_timestamp` (as POSIXct, in UTC) (#733, @SInginc).
-
-* Updated to ReadStat dev a4984d5.
-
-  * Fix issue writing SAV files with labels for string values longer than 8 bytes (#550).
-  * Fix issue reading SAS files with zero observations (#627).
-  * Fix issue writing XPT V8 datasets with long variable labels (#784).
-  * Fix issue reading SAV files where an MR set name contains a non-ASCII character (#788).
 
 * Documentation for `read_*()` functions now more clearly explains that
   labelled vectors are an intermediate representation, and points users to

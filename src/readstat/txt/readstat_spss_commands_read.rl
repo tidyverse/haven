@@ -48,6 +48,7 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
     int i;
     int line_no = 0;
     uint64_t first_integer = 0, integer = 0;
+    uint64_t range_values_remaining = MAX_VALUE_LABEL_RANGE_VALUES;
     double double_value = NAN;
     unsigned char *line_start = p;
 
@@ -80,7 +81,12 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
         }
         
         action incr_integer {
-            integer = 10 * integer + (fc - '0');
+            /* Saturate rather than wrap so an overlong literal reads as "too big" */
+            if (integer > (INT64_MAX - (fc - '0')) / 10) {
+                integer = INT64_MAX;
+            } else {
+                integer = 10 * integer + (fc - '0');
+            }
         }
 
         action copy_pos {
@@ -158,7 +164,8 @@ readstat_schema_t *readstat_parse_spss_commands(readstat_parser_t *parser,
             char labelset_name[256];
             snprintf(labelset_name, sizeof(labelset_name), "labels%d", labelset_count);
             error = submit_value_label(parser, labelset_name, label_type,
-                first_integer, integer, double_value, string_value, buf, user_ctx);
+                first_integer, integer, double_value, string_value, buf,
+                &range_values_remaining, user_ctx);
             if (error != READSTAT_OK)
                 goto cleanup;
         }

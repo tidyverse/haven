@@ -28,6 +28,7 @@ static int readstat_compare_string_refs(const void *elem1, const void *elem2) {
 readstat_string_ref_t *readstat_string_ref_init(const char *string) {
     size_t len = strlen(string) + 1;
     readstat_string_ref_t *ref = calloc(1, sizeof(readstat_string_ref_t) + len);
+    if (ref == NULL) return NULL;
     ref->first_o = -1;
     ref->first_v = -1;
     ref->len = len;
@@ -140,6 +141,7 @@ static readstat_error_t readstat_begin_writing_data(readstat_writer_t *writer) {
     }
     writer->row_len = row_len;
     writer->row = malloc(writer->row_len);
+    if (writer->row == NULL) { retval = READSTAT_ERROR_MALLOC; goto cleanup; }
     if (writer->callbacks.begin_data) {
         retval = writer->callbacks.begin_data(writer);
     }
@@ -235,6 +237,8 @@ readstat_error_t readstat_write_line_padding(readstat_writer_t *writer, char pad
     readstat_error_t error = READSTAT_OK;
     ssize_t bytes_left_in_line = line_len - (writer->bytes_written % (line_len + line_sep_len));
     char *bytes = malloc(bytes_left_in_line);
+    if (bytes == NULL)
+        return READSTAT_ERROR_MALLOC;
     memset(bytes, pad, bytes_left_in_line);
 
     if ((error = readstat_write_bytes(writer, bytes, bytes_left_in_line)) != READSTAT_OK)
@@ -247,7 +251,7 @@ cleanup:
     if (bytes)
         free(bytes);
 
-    return READSTAT_OK;
+    return error;
 }
 
 readstat_error_t readstat_write_string(readstat_writer_t *writer, const char *bytes) {
@@ -290,7 +294,17 @@ readstat_error_t readstat_write_space_padded_string(readstat_writer_t *writer, c
     return readstat_write_spaces(writer, max_len - len);
 }
 
+/* Once the first row has been begun (or readstat_end_writing called on an
+ * empty data set) the file header, row layout, and section offsets have been
+ * computed from the registered metadata, so nothing more may be added */
+static int readstat_writer_data_has_begun(readstat_writer_t *writer) {
+    return writer->row != NULL;
+}
+
 readstat_label_set_t *readstat_add_label_set(readstat_writer_t *writer, readstat_type_t type, const char *name) {
+    if (readstat_writer_data_has_begun(writer))
+        return NULL;
+
     if (writer->label_sets_count == writer->label_sets_capacity) {
         writer->label_sets_capacity *= 2;
         writer->label_sets = realloc(writer->label_sets, 
@@ -366,6 +380,9 @@ void readstat_label_tagged_value(readstat_label_set_t *label_set, char tag, cons
 }
 
 readstat_variable_t *readstat_add_variable(readstat_writer_t *writer, const char *name, readstat_type_t type, size_t width) {
+    if (readstat_writer_data_has_begun(writer))
+        return NULL;
+
     if (writer->variables_count == writer->variables_capacity) {
         writer->variables_capacity *= 2;
         writer->variables = realloc(writer->variables,
@@ -404,12 +421,21 @@ static void readstat_append_string_ref(readstat_writer_t *writer, readstat_strin
 }
 
 readstat_string_ref_t *readstat_add_string_ref(readstat_writer_t *writer, const char *string) {
+    if (readstat_writer_data_has_begun(writer))
+        return NULL;
+
     readstat_string_ref_t *ref = readstat_string_ref_init(string);
+    if (ref == NULL)
+        return NULL;
+
     readstat_append_string_ref(writer, ref);
     return ref;
 }
 
 void readstat_add_note(readstat_writer_t *writer, const char *note) {
+    if (readstat_writer_data_has_begun(writer))
+        return;
+
     if (writer->notes_count == writer->notes_capacity) {
         writer->notes_capacity *= 2;
         writer->notes = realloc(writer->notes,
@@ -433,6 +459,14 @@ void readstat_variable_set_format(readstat_variable_t *variable, const char *for
         snprintf(variable->format, sizeof(variable->format), "%s", format);
     } else {
         memset(variable->format, '\0', sizeof(variable->format));
+    }
+}
+
+void readstat_variable_set_informat(readstat_variable_t *variable, const char *informat) {
+    if (informat) {
+        snprintf(variable->informat, sizeof(variable->informat), "%s", informat);
+    } else {
+        memset(variable->informat, '\0', sizeof(variable->informat));
     }
 }
 
@@ -536,13 +570,16 @@ readstat_error_t readstat_begin_row(readstat_writer_t *writer) {
     if (writer->current_row == 0)
         retval = readstat_begin_writing_data(writer);
 
+    if (retval != READSTAT_OK || writer->row == NULL)
+        return retval;
+
     memset(writer->row, '\0', writer->row_len);
     return retval;
 }
 
 // Then call one of these for each variable
 readstat_error_t readstat_insert_int8_value(readstat_writer_t *writer, const readstat_variable_t *variable, int8_t value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_INT8)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -551,7 +588,7 @@ readstat_error_t readstat_insert_int8_value(readstat_writer_t *writer, const rea
 }
 
 readstat_error_t readstat_insert_int16_value(readstat_writer_t *writer, const readstat_variable_t *variable, int16_t value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_INT16)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -560,7 +597,7 @@ readstat_error_t readstat_insert_int16_value(readstat_writer_t *writer, const re
 }
 
 readstat_error_t readstat_insert_int32_value(readstat_writer_t *writer, const readstat_variable_t *variable, int32_t value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_INT32)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -569,7 +606,7 @@ readstat_error_t readstat_insert_int32_value(readstat_writer_t *writer, const re
 }
 
 readstat_error_t readstat_insert_float_value(readstat_writer_t *writer, const readstat_variable_t *variable, float value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_FLOAT)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -578,7 +615,7 @@ readstat_error_t readstat_insert_float_value(readstat_writer_t *writer, const re
 }
 
 readstat_error_t readstat_insert_double_value(readstat_writer_t *writer, const readstat_variable_t *variable, double value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_DOUBLE)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -587,7 +624,7 @@ readstat_error_t readstat_insert_double_value(readstat_writer_t *writer, const r
 }
 
 readstat_error_t readstat_insert_string_value(readstat_writer_t *writer, const readstat_variable_t *variable, const char *value) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_STRING)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -596,7 +633,7 @@ readstat_error_t readstat_insert_string_value(readstat_writer_t *writer, const r
 }
 
 readstat_error_t readstat_insert_string_ref(readstat_writer_t *writer, const readstat_variable_t *variable, readstat_string_ref_t *ref) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (variable->type != READSTAT_TYPE_STRING_REF)
         return READSTAT_ERROR_VALUE_TYPE_MISMATCH;
@@ -612,7 +649,7 @@ readstat_error_t readstat_insert_string_ref(readstat_writer_t *writer, const rea
 }
 
 readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
 
     if (variable->type == READSTAT_TYPE_STRING) {
@@ -626,7 +663,7 @@ readstat_error_t readstat_insert_missing_value(readstat_writer_t *writer, const 
 }
 
 readstat_error_t readstat_insert_tagged_missing_value(readstat_writer_t *writer, const readstat_variable_t *variable, char tag) {
-    if (!writer->initialized)
+    if (!writer->initialized || writer->row == NULL)
         return READSTAT_ERROR_WRITER_NOT_INITIALIZED;
     if (!writer->callbacks.write_missing_tagged) {
         /* Write out a missing number but return an error */

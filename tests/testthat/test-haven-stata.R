@@ -53,7 +53,7 @@ test_that("file label and notes stored as attributes", {
   df <- read_dta(test_path("stata/notes.dta"))
 
   expect_equal(attr(df, "label"), "This is a test dataset.")
-  expect_length(attr(df, "notes"), 2)
+  expect_length(attr(df, "notes"), 1)
 })
 
 test_that("only selected columns are read", {

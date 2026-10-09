@@ -21,13 +21,8 @@ readstat_error_t zsav_write_compressed_row(void *writer_ctx, void *row, size_t l
      * small).
      */
     size_t row_len = sav_compress_row(zctx->buffer, row, len, writer);
-    int deflate_status = zsav_compress_row(zctx->buffer, row_len,
+    return zsav_compress_row(zctx->buffer, row_len,
             writer->current_row + 1 == writer->row_count, zctx);
-
-    if (deflate_status != Z_OK && deflate_status != Z_STREAM_END)
-        return READSTAT_ERROR_WRITE;
-
-    return  READSTAT_OK;
 }
 
 static readstat_error_t zsav_write_data_header(readstat_writer_t *writer, zsav_ctx_t *zctx) {

@@ -41,6 +41,13 @@ const char *readstat_variable_get_format(const readstat_variable_t *variable) {
     return NULL;
 }
 
+const char *readstat_variable_get_informat(const readstat_variable_t *variable) {
+    if (variable->informat[0])
+        return variable->informat;
+
+    return NULL;
+}
+
 readstat_type_t readstat_variable_get_type(const readstat_variable_t *variable) {
     return variable->type;
 }

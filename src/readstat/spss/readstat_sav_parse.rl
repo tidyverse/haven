@@ -17,7 +17,7 @@
         
     non_ascii_byte = (0x80 .. 0xFE); # multi-byte sequence might be incomplete
 
-    key = ( ( non_ascii_byte | [A-Z@] ) ( non_ascii_byte | [A-Za-z0-9@#$_\.] ){0,7} ) >{ str_start = fpc; } %{ str_len = fpc - str_start; };
+    key = ( ( non_ascii_byte | [A-Za-z@] ) ( non_ascii_byte | [A-Za-z0-9@#$_\.] ){0,7} ) >{ str_start = fpc; } %{ str_len = fpc - str_start; };
 }%%
 
 typedef struct varlookup {
@@ -127,15 +127,17 @@ readstat_error_t sav_parse_long_variable_names_record(void *data, int count, sav
         }
 
         action copy_value {
+            if (str_len > sizeof(temp_val) - 1)
+                str_len = sizeof(temp_val) - 1;
             memcpy(temp_val, str_start, str_len);
             temp_val[str_len] = '\0';
         }
 
-        value = ( non_ascii_byte | print ){1,64} >{ str_start = fpc; } %{ str_len = fpc - str_start; };
+        value = ( non_ascii_byte | print )+ >{ str_start = fpc; } %{ str_len = fpc - str_start; if (str_len > 64) str_len = 64; };
         
         keyval = ( key %copy_key "=" value %copy_value ) %set_long_name;
         
-        main := keyval ("\t" keyval)*  "\t"?;
+        main := keyval ("\t" keyval)*  "\t"? "\0"*;
         
         write init;
         write exec;
@@ -144,7 +146,7 @@ readstat_error_t sav_parse_long_variable_names_record(void *data, int count, sav
     if (cs < %%{ write first_final; }%%|| p != pe) {
         if (ctx->handle.error) {
             snprintf(error_buf, sizeof(error_buf), "Error parsing string \"%.*s\" around byte #%ld/%d, character %c", 
-                    count, (char *)data, (long)(p - c_data), count, *p);
+                    count, (char *)data, (long)(p - c_data), count, p < pe ? *p : '?');
             ctx->handle.error(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_PARSE;

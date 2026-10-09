@@ -135,7 +135,7 @@ int32_t readstat_int32_value(readstat_value_t value) {
 }
 
 float readstat_float_value(readstat_value_t value) {
-    if (readstat_value_is_system_missing(value))
+    if (readstat_value_is_system_missing(value) || readstat_value_is_tagged_missing(value))
         return NAN;
 
     if (value.type == READSTAT_TYPE_DOUBLE)
@@ -153,7 +153,7 @@ float readstat_float_value(readstat_value_t value) {
 }
 
 double readstat_double_value(readstat_value_t value) {
-    if (readstat_value_is_system_missing(value))
+    if (readstat_value_is_system_missing(value) || readstat_value_is_tagged_missing(value))
         return NAN;
 
     if (value.type == READSTAT_TYPE_DOUBLE)

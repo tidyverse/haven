@@ -80,6 +80,19 @@ test_that("widths roundtrip", {
   expect_equal(df2$d, df$d)
 })
 
+test_that("long string ghost names don't collide with real variables", {
+  df <- tibble::tibble(
+    Q2 = paste(rep("a", 800), collapse = ""),
+    Q23 = paste(rep("b", 300), collapse = "")
+  )
+
+  df2 <- roundtrip_sav(df)
+
+  expect_named(df2, c("Q2", "Q23"))
+  expect_equal(df2$Q2, df$Q2)
+  expect_equal(df2$Q23, df$Q23)
+})
+
 test_that("only selected columns are read", {
   out <- read_spss(test_path("spss/datetime.sav"), col_select = "date")
   expect_named(out, "date")
@@ -298,8 +311,7 @@ test_that("spss string labelleds are round tripped", {
     x = labelled_spss(
       c("1", "2", "3", "99"),
       labels = c(one = "1"),
-      na_values = "99",
-      na_range = c("2", "3")
+      na_values = "99"
     )
   )
 
@@ -308,12 +320,21 @@ test_that("spss string labelleds are round tripped", {
 
   df2 <- read_sav(path)
   expect_s3_class(df2$x, "haven_labelled")
-  expect_equal(as.character(df2$x), c("1", NA, NA, NA))
+  expect_equal(as.character(df2$x), c("1", "2", "3", NA))
 
   df3 <- read_sav(path, user_na = TRUE)
   expect_s3_class(df3$x, "haven_labelled_spss")
   expect_equal(attr(df3$x, "na_values"), attr(df$x, "na_values"))
-  expect_equal(attr(df3$x, "na_range"), attr(df$x, "na_range"))
+})
+
+test_that("string variables can't have missing value ranges", {
+  df <- tibble(
+    x = labelled_spss("a", na_range = c("a", "b"))
+  )
+
+  expect_snapshot(error = TRUE, {
+    write_sav(df, tempfile())
+  })
 })
 
 

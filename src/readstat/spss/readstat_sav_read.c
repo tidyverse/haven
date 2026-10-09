@@ -33,10 +33,10 @@
 
 /* See http://msdn.microsoft.com/en-us/library/dd317756(VS.85).aspx */
 static readstat_charset_entry_t _charset_table[] = { 
-    { .code = 1,     .name = "EBCDIC-US" },
+    { .code = 1,     .name = "IBM037" },
     { .code = 2,     .name = "WINDOWS-1252" }, /* supposed to be ASCII, but some files are miscoded */
     { .code = 3,     .name = "WINDOWS-1252" },
-    { .code = 4,     .name = "DEC-KANJI" },
+    { .code = 4,     .name = "CP932" }, /* PSPP: MS_KANJI */
     { .code = 437,   .name = "CP437" },
     { .code = 708,   .name = "ASMO-708" },
     { .code = 737,   .name = "CP737" },
@@ -147,31 +147,25 @@ static readstat_error_t sav_parse_variable_display_parameter_record(sav_ctx_t *c
 static readstat_error_t sav_parse_machine_integer_info_record(const void *data, size_t data_len, sav_ctx_t *ctx);
 static readstat_error_t sav_parse_long_string_value_labels_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx);
 static readstat_error_t sav_parse_long_string_missing_values_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx);
-static readstat_error_t sav_read_multiple_response_sets(size_t data_len, sav_ctx_t *ctx);
+static readstat_error_t sav_read_multiple_response_sets(const void *data, size_t data_len, sav_ctx_t *ctx);
 
-static readstat_error_t sav_read_multiple_response_sets(size_t data_len, sav_ctx_t *ctx) {
-    readstat_error_t retval = READSTAT_OK;
-
-    char *mr_string = readstat_malloc(data_len + 1);
-    if (mr_string == NULL) {
-        retval = READSTAT_ERROR_MALLOC;
-        goto cleanup;
+static void sav_report_error(sav_ctx_t *ctx, const char *message) {
+    if (ctx->handle.error) {
+        ctx->handle.error(message, ctx->user_ctx);
     }
-    mr_string[data_len] = '\0';
-    if (ctx->io->read(mr_string, data_len, ctx->io->io_ctx) < data_len) {
-        retval = READSTAT_ERROR_PARSE;
-        goto cleanup;
-    }
-    if (mr_string[0] != '$') {
-        retval = READSTAT_ERROR_BAD_MR_STRING;
-        goto cleanup;
-    }
+}
 
-    retval = parse_mr_string(mr_string, &ctx->mr_sets, &ctx->multiple_response_sets_length, ctx);
-
-cleanup:
-    free(mr_string);
-    return retval;
+/* Record 7 subtypes 7 and 19. Malformed sets are reported and dropped rather
+ * than failing the whole file, as in PSPP. */
+static readstat_error_t sav_read_multiple_response_sets(const void *data, size_t data_len, sav_ctx_t *ctx) {
+    readstat_error_t retval = parse_mr_string(data, data_len,
+            &ctx->mr_sets, &ctx->multiple_response_sets_length, ctx);
+    if (retval == READSTAT_ERROR_MALLOC || retval == READSTAT_ERROR_USER_ABORT)
+        return retval;
+    if (retval != READSTAT_OK) {
+        sav_report_error(ctx, "Ignoring malformed multiple response set record");
+    }
+    return READSTAT_OK;
 }
 
 static void sav_tag_missing_double(readstat_value_t *value, sav_ctx_t *ctx) {
@@ -216,6 +210,10 @@ static readstat_error_t sav_skip_variable_record(sav_ctx_t *ctx) {
     }
     if (variable.n_missing_values) {
         int n_missing_values = ctx->bswap ? byteswap4(variable.n_missing_values) : variable.n_missing_values;
+        if (n_missing_values > 3 || n_missing_values < -3) {
+            retval = READSTAT_ERROR_PARSE;
+            goto cleanup;
+        }
         if (io->seek(abs(n_missing_values) * sizeof(double), READSTAT_SEEK_CUR, io->io_ctx) == -1) {
             retval = READSTAT_ERROR_SEEK;
             goto cleanup;
@@ -292,12 +290,18 @@ static readstat_error_t sav_read_variable_missing_double_values(spss_varinfo_t *
         uint64_t long_value = 0;
         memcpy(&long_value, &info->missing_double_values[i], 8);
 
-        if (long_value == ctx->missing_double)
-            info->missing_double_values[i] = NAN;
-        if (long_value == ctx->lowest_double)
+        if (info->missing_range && i == 0 && long_value == ctx->missing_double) {
+            /* SPSS 21 and later write LOWEST with the same bit pattern as
+             * SYSMIS, which is unambiguous here because SYSMIS cannot be a
+             * range endpoint. */
             info->missing_double_values[i] = -HUGE_VAL;
-        if (long_value == ctx->highest_double)
+        } else if (long_value == ctx->missing_double) {
+            info->missing_double_values[i] = NAN;
+        } else if (long_value == ctx->lowest_double) {
+            info->missing_double_values[i] = -HUGE_VAL;
+        } else if (long_value == ctx->highest_double) {
             info->missing_double_values[i] = HUGE_VAL;
+        }
     }
 
 cleanup:
@@ -325,7 +329,7 @@ cleanup:
 }
 
 static readstat_error_t sav_read_variable_missing_values(spss_varinfo_t *info, sav_ctx_t *ctx) {
-    if (info->n_missing_values > 3 || info->n_missing_values < -3) {
+    if (info->n_missing_values > 3 || info->n_missing_values < -3 || info->n_missing_values == -1) {
         return READSTAT_ERROR_PARSE;
     }
     if (info->n_missing_values < 0) {
@@ -360,8 +364,23 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
 
     int32_t type = ctx->bswap ? byteswap4(variable.type) : variable.type;
     if (type < 0) {
-        if (ctx->var_index == 0) {
+        if (ctx->var_index == 0 || ctx->varinfo[ctx->var_index-1]->type != READSTAT_TYPE_STRING) {
             return READSTAT_ERROR_PARSE;
+        }
+        /* Some files put a label or missing values on continuation records;
+         * the spec says to parse them like any other variable record. */
+        if (variable.has_var_label) {
+            spss_varinfo_t dummy = { .label = NULL };
+            if ((retval = sav_read_variable_label(&dummy, ctx)) != READSTAT_OK)
+                return retval;
+            if (dummy.label)
+                free(dummy.label);
+        }
+        if (variable.n_missing_values) {
+            spss_varinfo_t dummy = { .type = READSTAT_TYPE_DOUBLE };
+            dummy.n_missing_values = ctx->bswap ? byteswap4(variable.n_missing_values) : variable.n_missing_values;
+            if ((retval = sav_read_variable_missing_values(&dummy, ctx)) != READSTAT_OK)
+                return retval;
         }
         ctx->var_offset++;
         ctx->varinfo[ctx->var_index-1]->width++;
@@ -398,6 +417,7 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
 
     if (type > 0 || info->print_format.type == SPSS_FORMAT_TYPE_A || info->write_format.type == SPSS_FORMAT_TYPE_A) {
         info->type = READSTAT_TYPE_STRING;
+        info->string_length = type; /* may be raised by the very long string record */
     } else {
         info->type = READSTAT_TYPE_DOUBLE;
     }
@@ -555,7 +575,7 @@ static readstat_error_t sav_read_value_label_record(sav_ctx_t *ctx) {
             goto cleanup;
         }
 
-        retval = readstat_convert(vlabel->label, utf8_label_len, label_buf, padded_label_len, ctx->converter);
+        retval = readstat_convert(vlabel->label, utf8_label_len, label_buf, unpadded_label_len, ctx->converter);
         if (retval != READSTAT_OK)
             goto cleanup;
     }
@@ -650,7 +670,7 @@ static readstat_error_t sav_skip_document_record(sav_ctx_t *ctx) {
     }
     if (ctx->bswap)
         n_lines = byteswap4(n_lines);
-    if (io->seek(n_lines * SPSS_DOC_LINE_SIZE, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
+    if (io->seek((readstat_off_t)n_lines * SPSS_DOC_LINE_SIZE, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
         retval = READSTAT_ERROR_SEEK;
         goto cleanup;
     }
@@ -734,7 +754,12 @@ static readstat_error_t sav_process_row(unsigned char *buffer, size_t buffer_len
             // If we're in the last column of a segment, only read 7 bytes
             // (Segments contain 255 bytes but have room for 256)
             size_t read_len = 8 - (offset == 31);
-            if (raw_str_used + read_len <= ctx->raw_string_len) {
+            /* Data in padding and in the unused space of very long string
+             * segments is ignored, per the spec */
+            if (raw_str_used + read_len > var_info->string_length) {
+                read_len = var_info->string_length > raw_str_used ? var_info->string_length - raw_str_used : 0;
+            }
+            if (read_len && raw_str_used + read_len <= ctx->raw_string_len) {
                 if (raw_str_is_utf8) {
                     /* Skip null bytes, see https://github.com/tidyverse/haven/issues/560  */
                     char c;
@@ -846,7 +871,10 @@ static readstat_error_t sav_read_uncompressed_data(sav_ctx_t *ctx,
     size_t bytes_read = 0;
     size_t buffer_len = ctx->var_offset * 8;
 
-    buffer = readstat_malloc(buffer_len);
+    if ((buffer = readstat_malloc(buffer_len)) == NULL) {
+        retval = READSTAT_ERROR_MALLOC;
+        goto done;
+    }
 
     if (ctx->row_offset) {
         if (io->seek(buffer_len * ctx->row_offset, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
@@ -882,6 +910,7 @@ static readstat_error_t sav_read_compressed_data(sav_ctx_t *ctx,
     readstat_off_t data_offset = 0;
     unsigned char buffer[DATA_BUFFER_SIZE];
     int buffer_used = 0;
+    int trailing_bytes = 0;
 
     size_t uncompressed_row_len = ctx->var_offset * 8;
     readstat_off_t uncompressed_offset = 0;
@@ -903,8 +932,16 @@ static readstat_error_t sav_read_compressed_data(sav_ctx_t *ctx,
             goto done;
 
         buffer_used = io->read(buffer, sizeof(buffer), io->io_ctx);
-        if (buffer_used == -1 || buffer_used == 0 || (buffer_used % 8) != 0)
+        if (buffer_used == -1 || buffer_used == 0) {
+            if (uncompressed_offset != 0 && (ctx->row_limit < 0 || ctx->current_row < ctx->row_limit)) {
+                /* File ends in the middle of a row */
+                retval = READSTAT_ERROR_PARSE;
+            }
             goto done;
+        }
+        /* Decode every complete opcode block; a trailing fragment ends the data */
+        trailing_bytes = buffer_used % 8;
+        buffer_used -= trailing_bytes;
 
         state.status = SAV_ROW_STREAM_HAVE_DATA;
         data_offset = 0;
@@ -934,6 +971,12 @@ static readstat_error_t sav_read_compressed_data(sav_ctx_t *ctx,
             if (ctx->row_limit > 0 && ctx->current_row == ctx->row_limit)
                 goto done;
         }
+        if (trailing_bytes) {
+            if (uncompressed_offset != 0 && (ctx->row_limit < 0 || ctx->current_row < ctx->row_limit)) {
+                retval = READSTAT_ERROR_PARSE;
+            }
+            goto done;
+        }
     }
 
 done:
@@ -945,46 +988,83 @@ done:
 
 static readstat_error_t sav_parse_machine_integer_info_record(const void *data, size_t data_len, sav_ctx_t *ctx) {
     if (data_len != 32)
-        return READSTAT_ERROR_PARSE;
+        return READSTAT_OK; /* malformed; ignore the record like PSPP does */
 
-    const char *src_charset = NULL;
-    const char *dst_charset = ctx->output_encoding;
     sav_machine_integer_info_record_t record;
     memcpy(&record, data, data_len);
-    if (ctx->bswap) {
-        record.character_code = byteswap4(record.character_code);
+    ctx->charset_code = ctx->bswap ? byteswap4(record.character_code) : record.character_code;
+    return READSTAT_OK;
+}
+
+/* Record 7 subtype 20: the encoding name as a string, e.g. "UTF-8" or
+ * "windows-1252". Takes precedence over the code page in subtype 3. */
+static readstat_error_t sav_parse_character_encoding_record(const void *data, size_t data_len, sav_ctx_t *ctx) {
+    if (data_len == 0 || data_len >= sizeof(ctx->charset_name))
+        return READSTAT_OK;
+    readstat_convert(ctx->charset_name, sizeof(ctx->charset_name), data, data_len, NULL);
+    return READSTAT_OK;
+}
+
+static const char *sav_charset_name_for_code(int code) {
+    int i;
+    for (i=0; i<sizeof(_charset_table)/sizeof(_charset_table[0]); i++) {
+        if (code == _charset_table[i].code) {
+            return _charset_table[i].name;
+        }
     }
+    return NULL;
+}
+
+static iconv_t sav_open_converter(const char *src_charset, const char *dst_charset) {
+    if (src_charset == NULL || dst_charset == NULL)
+        return (iconv_t)-1;
+    return iconv_open(dst_charset, src_charset);
+}
+
+/* Choose the source encoding from, in order of preference: the caller's
+ * override, the character encoding record (subtype 20), and the code page in
+ * the machine integer info record (subtype 3). */
+static readstat_error_t sav_setup_converter(sav_ctx_t *ctx) {
+    const char *dst_charset = ctx->output_encoding;
+    const char *code_charset = sav_charset_name_for_code(ctx->charset_code);
+    const char *src_charset = NULL;
+    iconv_t converter = (iconv_t)-1;
+
     if (ctx->input_encoding) {
         src_charset = ctx->input_encoding;
-    } else {
-        int i;
-        for (i=0; i<sizeof(_charset_table)/sizeof(_charset_table[0]); i++) {
-            if (record.character_code  == _charset_table[i].code) {
-                src_charset = _charset_table[i].name;
-                break;
-            }
+        converter = sav_open_converter(src_charset, dst_charset);
+    } else if (ctx->charset_name[0]) {
+        src_charset = ctx->charset_name;
+        converter = sav_open_converter(src_charset, dst_charset);
+        if (converter == (iconv_t)-1 && code_charset) {
+            src_charset = code_charset;
+            converter = sav_open_converter(src_charset, dst_charset);
         }
-        if (src_charset == NULL) {
-            if (ctx->handle.error) {
-                char error_buf[1024];
-                snprintf(error_buf, sizeof(error_buf), "Unsupported character set: %d\n", record.character_code);
-                ctx->handle.error(error_buf, ctx->user_ctx);
-            }
-            return READSTAT_ERROR_UNSUPPORTED_CHARSET;
-        }
-        ctx->input_encoding = src_charset;
+    } else if (code_charset) {
+        src_charset = code_charset;
+        converter = sav_open_converter(src_charset, dst_charset);
+    } else if (ctx->charset_code) {
+        char error_buf[1024];
+        snprintf(error_buf, sizeof(error_buf), "Unsupported character set: %d\n", ctx->charset_code);
+        sav_report_error(ctx, error_buf);
+        return READSTAT_ERROR_UNSUPPORTED_CHARSET;
     }
-    if (src_charset && dst_charset) {
+
+    if (src_charset && dst_charset && converter == (iconv_t)-1) {
+        char error_buf[1024];
+        snprintf(error_buf, sizeof(error_buf), "Unsupported character set: %s\n", src_charset);
+        sav_report_error(ctx, error_buf);
+        return READSTAT_ERROR_UNSUPPORTED_CHARSET;
+    }
+
+    ctx->input_encoding = src_charset;
+    if (converter != (iconv_t)-1) {
         // You might be tempted to skip the charset conversion when src_charset
         // and dst_charset are the same. However, some versions of SPSS insert
         // illegally truncated strings (e.g. the last character is three bytes
         // but the field only has room for two bytes). So to prevent the client
         // from receiving an invalid byte sequence, we ram everything through
         // our iconv machinery.
-        iconv_t converter = iconv_open(dst_charset, src_charset);
-        if (converter == (iconv_t)-1) {
-            return READSTAT_ERROR_UNSUPPORTED_CHARSET;
-        }
         if (ctx->converter) {
             iconv_close(ctx->converter);
         }
@@ -995,7 +1075,7 @@ static readstat_error_t sav_parse_machine_integer_info_record(const void *data, 
 
 static readstat_error_t sav_parse_machine_floating_point_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx) {
     if (size != 8 || count != 3)
-        return READSTAT_ERROR_PARSE;
+        return READSTAT_OK; /* malformed; ignore the record like PSPP does */
 
     sav_machine_floating_point_info_record_t fp_info;
     memcpy(&fp_info, data, sizeof(sav_machine_floating_point_info_record_t));
@@ -1011,7 +1091,7 @@ static readstat_error_t sav_parse_machine_floating_point_record(const void *data
  * and make sense of them later. */
 static readstat_error_t sav_store_variable_display_parameter_record(const void *data, size_t size, size_t count, sav_ctx_t *ctx) {
     if (size != 4)
-        return READSTAT_ERROR_PARSE;
+        return READSTAT_OK; /* malformed; ignore the record like PSPP does */
 
     const uint32_t *data_ptr = data;
     int i;
@@ -1034,7 +1114,8 @@ static readstat_error_t sav_parse_variable_display_parameter_record(sav_ctx_t *c
     int i;
     long count = ctx->variable_display_values_count;
     if (count != 2 * ctx->var_index && count != 3 * ctx->var_index) {
-        return READSTAT_ERROR_PARSE;
+        sav_report_error(ctx, "Ignoring variable display record with unexpected length");
+        return READSTAT_OK;
     }
     int has_display_width = ctx->var_index > 0 && (count / ctx->var_index == 3);
     int offset = 0;
@@ -1123,8 +1204,7 @@ static readstat_error_t sav_parse_long_string_value_labels_record(const void *da
         }
 
         if (label_name_buf[0] == '\0') {
-            retval = READSTAT_ERROR_PARSE;
-            goto cleanup;
+            sav_report_error(ctx, "Ignoring long string value labels for unknown variable");
         }
 
         data_ptr += sizeof(uint32_t);
@@ -1205,6 +1285,9 @@ static readstat_error_t sav_parse_long_string_value_labels_record(const void *da
             readstat_value_t value = { .type = READSTAT_TYPE_STRING };
             value.v.string_value = value_buffer;
 
+            if (label_name_buf[0] == '\0')
+                continue;
+
             if (ctx->handle.value_label(label_name_buf, value, label_buffer, ctx->user_ctx) != READSTAT_HANDLER_OK) {
                 retval = READSTAT_ERROR_USER_ABORT;
                 goto cleanup;
@@ -1251,45 +1334,61 @@ static readstat_error_t sav_parse_long_string_missing_values_record(const void *
             goto cleanup;
         }
 
+        spss_varinfo_t *info = NULL;
         for (i=0; i<ctx->var_index;) {
-            spss_varinfo_t *info = ctx->varinfo[i];
-            if (strcmp(var_name_buf, info->longname) == 0) {
-                info->n_missing_values = n_missing_values;
-
-                uint32_t var_name_len = 0;
-
-                if (data_ptr + sizeof(uint32_t) > data_end) {
-                    retval = READSTAT_ERROR_PARSE;
-                    goto cleanup;
-                }
-
-                memcpy(&var_name_len, data_ptr, sizeof(uint32_t));
-                if (ctx->bswap)
-                    var_name_len = byteswap4(var_name_len);
-
-                data_ptr += sizeof(uint32_t);
-
-                for (j=0; j<n_missing_values; j++) {
-                    if (data_ptr + var_name_len > data_end) {
-                        retval = READSTAT_ERROR_PARSE;
-                        goto cleanup;
-                    }
-
-                    retval = readstat_convert(info->missing_string_values[j],
-                            sizeof(info->missing_string_values[0]),
-                            data_ptr, var_name_len, ctx->converter);
-                    if (retval != READSTAT_OK)
-                        goto cleanup;
-
-                    data_ptr += var_name_len;
-                }
+            if (strcmp(var_name_buf, ctx->varinfo[i]->longname) == 0) {
+                info = ctx->varinfo[i];
                 break;
             }
-            i += info->n_segments;
+            i += ctx->varinfo[i]->n_segments;
         }
-        if (i == ctx->var_index) {
+        if (info == NULL || info->type != READSTAT_TYPE_STRING) {
+            sav_report_error(ctx, "Ignoring long string missing values for unknown or numeric variable");
+            info = NULL;
+        }
+
+        uint32_t value_len = 0;
+
+        if (data_ptr + sizeof(uint32_t) > data_end) {
             retval = READSTAT_ERROR_PARSE;
             goto cleanup;
+        }
+
+        memcpy(&value_len, data_ptr, sizeof(uint32_t));
+        if (ctx->bswap)
+            value_len = byteswap4(value_len);
+
+        data_ptr += sizeof(uint32_t);
+
+        for (j=0; j<n_missing_values; j++) {
+            /* Old versions of PSPP repeated the value length (always 8)
+             * before each value; tolerate that as PSPP itself does. */
+            if (value_len == 8 && data_ptr + sizeof(uint32_t) <= data_end) {
+                uint32_t repeated_len = 0;
+                memcpy(&repeated_len, data_ptr, sizeof(uint32_t));
+                if (ctx->bswap)
+                    repeated_len = byteswap4(repeated_len);
+                if (repeated_len == 8)
+                    data_ptr += sizeof(uint32_t);
+            }
+            if (data_ptr + value_len > data_end) {
+                retval = READSTAT_ERROR_PARSE;
+                goto cleanup;
+            }
+
+            if (info) {
+                retval = readstat_convert(info->missing_string_values[j],
+                        sizeof(info->missing_string_values[0]),
+                        data_ptr, value_len, ctx->converter);
+                if (retval != READSTAT_OK)
+                    goto cleanup;
+            }
+
+            data_ptr += value_len;
+        }
+        if (info) {
+            info->n_missing_values = n_missing_values;
+            info->missing_range = 0;
         }
     }
 
@@ -1351,25 +1450,31 @@ static readstat_error_t sav_parse_records_pass1(sav_ctx_t *ctx) {
                 uint32_t subtype = extra_info[0];
                 size_t size = extra_info[1];
                 size_t count = extra_info[2];
+                if (size && count > SIZE_MAX / size) {
+                    retval = READSTAT_ERROR_PARSE;
+                    goto cleanup;
+                }
                 data_len = size * count;
-                if (subtype == SAV_RECORD_SUBTYPE_INTEGER_INFO) {
+                if (subtype == SAV_RECORD_SUBTYPE_INTEGER_INFO ||
+                        subtype == SAV_RECORD_SUBTYPE_FP_INFO ||
+                        subtype == SAV_RECORD_SUBTYPE_CHAR_ENCODING) {
                     if (data_len > sizeof(data_buf)) {
                         retval = READSTAT_ERROR_PARSE;
                         goto cleanup;
                     }
-                    if (io->read(data_buf, data_len, io->io_ctx) < data_len) {
+                    if (data_len && io->read(data_buf, data_len, io->io_ctx) < data_len) {
                         retval = READSTAT_ERROR_PARSE;
                         goto cleanup;
                     }
-                    retval = sav_parse_machine_integer_info_record(data_buf, data_len, ctx);
-                    if (retval != READSTAT_OK)
-                        goto cleanup;
-                } else if (subtype == SAV_RECORD_SUBTYPE_MULTIPLE_RESPONSE_SETS) {
-                    if (ctx->mr_sets != NULL) {
-                        retval = READSTAT_ERROR_BAD_MR_STRING;
-                        goto cleanup;
+                    if (subtype == SAV_RECORD_SUBTYPE_INTEGER_INFO) {
+                        retval = sav_parse_machine_integer_info_record(data_buf, data_len, ctx);
+                    } else if (subtype == SAV_RECORD_SUBTYPE_FP_INFO) {
+                        /* Parsed here so the file's SYSMIS/LOWEST/HIGHEST are
+                         * known before the variable records' missing values */
+                        retval = sav_parse_machine_floating_point_record(data_buf, size, count, ctx);
+                    } else {
+                        retval = sav_parse_character_encoding_record(data_buf, data_len, ctx);
                     }
-                    retval = sav_read_multiple_response_sets(data_len, ctx);
                     if (retval != READSTAT_OK)
                         goto cleanup;
                 } else {
@@ -1447,6 +1552,10 @@ static readstat_error_t sav_parse_records_pass2(sav_ctx_t *ctx) {
                 uint32_t subtype = extra_info[0];
                 size_t size = extra_info[1];
                 size_t count = extra_info[2];
+                if (size && count > SIZE_MAX / size) {
+                    retval = READSTAT_ERROR_PARSE;
+                    goto cleanup;
+                }
                 data_len = size * count;
                 if (data_buf_capacity < data_len) {
                     if ((data_buf = readstat_realloc(data_buf, data_buf_capacity = data_len)) == NULL) {
@@ -1454,17 +1563,22 @@ static readstat_error_t sav_parse_records_pass2(sav_ctx_t *ctx) {
                         goto cleanup;
                     }
                 }
-                if (data_len == 0 || io->read(data_buf, data_len, io->io_ctx) < data_len) {
+                if (data_len == 0)
+                    break; /* nothing to parse */
+                if (io->read(data_buf, data_len, io->io_ctx) < data_len) {
                     retval = READSTAT_ERROR_PARSE;
                     goto cleanup;
                 }
                 
                 switch (subtype) {
                     case SAV_RECORD_SUBTYPE_INTEGER_INFO:
+                    case SAV_RECORD_SUBTYPE_FP_INFO:
+                    case SAV_RECORD_SUBTYPE_CHAR_ENCODING:
                         /* parsed in pass 1 */
                         break;
-                    case SAV_RECORD_SUBTYPE_FP_INFO:
-                        retval = sav_parse_machine_floating_point_record(data_buf, size, count, ctx);
+                    case SAV_RECORD_SUBTYPE_MULTIPLE_RESPONSE_SETS:
+                    case SAV_RECORD_SUBTYPE_MULTIPLE_RESPONSE_SETS_V14:
+                        retval = sav_read_multiple_response_sets(data_buf, data_len, ctx);
                         if (retval != READSTAT_OK)
                             goto cleanup;
                         break;
@@ -1518,7 +1632,7 @@ static readstat_error_t sav_set_n_segments_and_var_count(sav_ctx_t *ctx) {
         spss_varinfo_t *info = ctx->varinfo[i];
         if (info->string_length > VERY_LONG_STRING_MAX_LENGTH)
             return READSTAT_ERROR_PARSE;
-        if (info->string_length) {
+        if (info->string_length > 255) {
             info->n_segments = (info->string_length + 251) / 252;
         }
         info->index = ctx->var_count++;
@@ -1533,19 +1647,23 @@ static readstat_error_t sav_handle_variables(sav_ctx_t *ctx) {
     int index_after_skipping = 0;
     readstat_error_t retval = READSTAT_OK;
 
-    if (!ctx->handle.variable)
-        return retval;
-
     for (i=0; i<ctx->var_index;) {
         char label_name_buf[256];
         spss_varinfo_t *info = ctx->varinfo[i];
         ctx->variables[info->index] = spss_init_variable_for_info(info, index_after_skipping, ctx->converter);
+        if (ctx->variables[info->index] == NULL) {
+            retval = READSTAT_ERROR_MALLOC;
+            goto cleanup;
+        }
 
         snprintf(label_name_buf, sizeof(label_name_buf), SAV_LABEL_NAME_PREFIX "%d", info->labels_index);
 
-        int cb_retval = ctx->handle.variable(info->index, ctx->variables[info->index],
-                info->labels_index == -1 ? NULL : label_name_buf,
-                ctx->user_ctx);
+        int cb_retval = READSTAT_HANDLER_OK;
+        if (ctx->handle.variable) {
+            cb_retval = ctx->handle.variable(info->index, ctx->variables[info->index],
+                    info->labels_index == -1 ? NULL : label_name_buf,
+                    ctx->user_ctx);
+        }
 
         if (cb_retval == READSTAT_HANDLER_ABORT) {
             retval = READSTAT_ERROR_USER_ABORT;
@@ -1571,6 +1689,8 @@ static readstat_error_t sav_handle_fweight(sav_ctx_t *ctx) {
         for (i=0; i<ctx->var_index;) {
             spss_varinfo_t *info = ctx->varinfo[i];
             if (info->offset == ctx->fweight_index - 1) {
+                if (info->type != READSTAT_TYPE_DOUBLE)
+                    break; /* PSPP ignores a weight that names a string variable */
                 if (ctx->handle.fweight(ctx->variables[info->index], ctx->user_ctx) != READSTAT_HANDLER_OK) {
                     retval = READSTAT_ERROR_USER_ABORT;
                     goto cleanup;
@@ -1661,6 +1781,9 @@ readstat_error_t readstat_parse_sav(readstat_parser_t *parser, const char *path,
     sav_parse_timestamp(ctx, &header);
 
     if ((retval = sav_parse_records_pass1(ctx)) != READSTAT_OK)
+        goto cleanup;
+
+    if ((retval = sav_setup_converter(ctx)) != READSTAT_OK)
         goto cleanup;
     
     if (io->seek(sizeof(sav_file_header_record_t), READSTAT_SEEK_SET, io->io_ctx) == -1) {

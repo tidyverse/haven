@@ -44,6 +44,11 @@ sav_ctx_t *sav_ctx_init(sav_file_header_record_t *header, readstat_io_t *io) {
         ctx->compression = READSTAT_COMPRESS_BINARY;
     }
     ctx->record_count = ctx->bswap ? byteswap4(header->ncases) : header->ncases;
+    if (ctx->record_count < 0 || ctx->record_count > INT32_MAX / 2) {
+        /* -1 means unknown; PSPP also treats implausibly large counts as unknown */
+        ctx->record_count = -1;
+    }
+    ctx->row_limit = -1;
     ctx->fweight_index = ctx->bswap ? byteswap4(header->weight_index) : header->weight_index;
 
     ctx->missing_double = SAV_MISSING_DOUBLE;
@@ -98,6 +103,9 @@ void sav_ctx_free(sav_ctx_t *ctx) {
             }
             if (ctx->mr_sets[i].label) {
                 free(ctx->mr_sets[i].label);
+            }
+            if (ctx->mr_sets[i].counted_string) {
+                free(ctx->mr_sets[i].counted_string);
             }
             if (ctx->mr_sets[i].subvariables) {
                 for (size_t j = 0; j < ctx->mr_sets[i].num_subvars; j++) {
