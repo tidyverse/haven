@@ -335,3 +335,34 @@ test_that("user width warns appropriately when data is wider than value", {
   path <- tempfile()
   expect_snapshot(write_xpt(df, path))
 })
+
+# File metadata -----------------------------------------------------------
+
+test_that("read_sas attaches file timestamps", {
+  out <- read_sas(test_path("sas/hadley.sas7bdat"))
+
+  expect_equal(
+    attr(out, "creation_timestamp"),
+    as.POSIXct("2015-02-09 20:55:12", tz = "UTC")
+  )
+  expect_equal(
+    attr(out, "modified_timestamp"),
+    as.POSIXct("2015-02-09 20:55:12", tz = "UTC")
+  )
+})
+
+test_that("read_xpt attaches file timestamps", {
+  df <- tibble(x = 1:3)
+  before <- Sys.time()
+
+  path <- tempfile(fileext = ".xpt")
+  write_xpt(df, path)
+  out <- read_xpt(path)
+
+  created <- attr(out, "creation_timestamp")
+  modified <- attr(out, "modified_timestamp")
+  expect_s3_class(created, "POSIXct")
+  expect_s3_class(modified, "POSIXct")
+  expect_true(created >= before - 60 && created <= Sys.time() + 60)
+  expect_true(modified >= before - 60 && modified <= Sys.time() + 60)
+})

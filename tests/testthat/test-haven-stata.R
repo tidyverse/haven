@@ -278,3 +278,22 @@ test_that("invisibly returns original data unaltered", {
 
   expect_identical(df, df_returned)
 })
+
+# File metadata -----------------------------------------------------------
+
+test_that("read_dta attaches file timestamps", {
+  df <- tibble(x = 1:3)
+  before <- Sys.time()
+
+  path <- tempfile(fileext = ".dta")
+  write_dta(df, path)
+  out <- read_dta(path)
+
+  created <- attr(out, "creation_timestamp")
+  modified <- attr(out, "modified_timestamp")
+  expect_s3_class(created, "POSIXct")
+  expect_s3_class(modified, "POSIXct")
+  # dta files only store timestamps with minute resolution
+  expect_true(created >= before - 60 && created <= Sys.time() + 60)
+  expect_true(modified >= before - 60 && modified <= Sys.time() + 60)
+})
