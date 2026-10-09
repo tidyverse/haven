@@ -78,9 +78,9 @@ int main() { iconv_t cd = iconv_open("UTF-8", "UTF-16"); iconv_close(cd); return
 ICONV_OUT=`mktemp ${TMPDIR:-/tmp}/haven-iconv-test.XXXXXX`
 trap "rm -f $ICONV_OUT" EXIT
 
-if echo "$ICONV_TEST" | ${CC} ${CPPFLAGS} ${PKG_CFLAGS} ${CFLAGS} ${LDFLAGS} ${PKG_LIBS} -xc - -o $ICONV_OUT >>configure.log 2>&1; then
+if echo "$ICONV_TEST" | ${CC} ${CPPFLAGS} ${PKG_CFLAGS} ${CFLAGS} ${LDFLAGS} -xc - -o $ICONV_OUT ${PKG_LIBS} >>configure.log 2>&1; then
   echo "iconv does not require -liconv"
-elif echo "$ICONV_TEST" | ${CC} ${CPPFLAGS} ${PKG_CFLAGS} ${CFLAGS} ${LDFLAGS} ${PKG_LIBS} -liconv -xc - -o $ICONV_OUT >>configure.log 2>&1; then
+elif echo "$ICONV_TEST" | ${CC} ${CPPFLAGS} ${PKG_CFLAGS} ${CFLAGS} ${LDFLAGS} -xc - -o $ICONV_OUT ${PKG_LIBS} -liconv >>configure.log 2>&1; then
   echo "iconv requires -liconv"
   PKG_LIBS="${PKG_LIBS} -liconv"
 else
