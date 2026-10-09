@@ -2,7 +2,8 @@
 update_readstat <- function(branch = "master") {
   tmp <- tempfile()
   utils::download.file(
-    paste0("https://github.com/WizardMac/ReadStat/archive/", branch, ".zip"), tmp,
+    paste0("https://github.com/WizardMac/ReadStat/archive/", branch, ".zip"),
+    tmp,
     quiet = TRUE
   )
   base <- fs::path_common(utils::unzip(tmp, exdir = tempdir()))

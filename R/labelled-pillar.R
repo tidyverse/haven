@@ -1,7 +1,9 @@
 # Dynamically exported, see zzz.R
-pillar_shaft.haven_labelled <- function(x,
-                                        show_labels = getOption("haven.show_pillar_labels", TRUE),
-                                        ...) {
+pillar_shaft.haven_labelled <- function(
+  x,
+  show_labels = getOption("haven.show_pillar_labels", TRUE),
+  ...
+) {
   if (!isTRUE(show_labels) | !pillar_print_pkgs_available()) {
     return(pillar::pillar_shaft(unclass(x)))
   }
@@ -12,7 +14,9 @@ pillar_shaft.haven_labelled <- function(x,
 
     pillar::new_pillar_shaft(
       list(val = val, lbl = lbl),
-      min_width = max(val$disp_short$lhs_ws + val$disp_short$main_wid + lbl$wid_short),
+      min_width = max(
+        val$disp_short$lhs_ws + val$disp_short$main_wid + lbl$wid_short
+      ),
       width = max(val$disp_full$lhs_ws + val$disp_full$main_wid + lbl$wid_full),
       class = "pillar_shaft_haven_labelled_num"
     )
@@ -32,12 +36,20 @@ pillar_shaft.haven_labelled <- function(x,
 val_num_pillar_info <- function(x) {
   val_pillar <- pillar::pillar_shaft(zap_labels.haven_labelled(x))
 
-  disp_short <- num_disp_components(x, val_pillar, attr(val_pillar, "min_width"))
+  disp_short <- num_disp_components(
+    x,
+    val_pillar,
+    attr(val_pillar, "min_width")
+  )
   disp_full <- num_disp_components(x, val_pillar, attr(val_pillar, "width"))
 
   if (is.double(x)) {
     na_display <- character(length(x))
-    na_display[is_tagged_na(x)] <- pillar::style_na(paste0("(", na_tag(x[is_tagged_na(x)]), ")"))
+    na_display[is_tagged_na(x)] <- pillar::style_na(paste0(
+      "(",
+      na_tag(x[is_tagged_na(x)]),
+      ")"
+    ))
 
     disp_short <- add_text(disp_short, na_display)
     disp_full <- add_text(disp_full, na_display)
@@ -64,7 +76,8 @@ num_disp_components <- function(x, pillar, width) {
 
   display[is.na(unclass(x))] <- pillar::style_na(display[is.na(unclass(x))])
   list(
-    lhs_ws = max(main_wid + display_trimmed_rhs) - (main_wid + display_trimmed_rhs),
+    lhs_ws = max(main_wid + display_trimmed_rhs) -
+      (main_wid + display_trimmed_rhs),
     main_wid = main_wid,
     main_txt = display,
     rhs_ws = display_trimmed_rhs
@@ -109,7 +122,11 @@ lbl_pillar_info <- function(x) {
     label_display <- character(length(x))
   }
   label_widths <- pillar::get_extent(label_display)
-  label_min_widths <- ifelse(label_widths > 0, pmin(MIN_LBL_DISPLAY, label_widths), 0)
+  label_min_widths <- ifelse(
+    label_widths > 0,
+    pmin(MIN_LBL_DISPLAY, label_widths),
+    0
+  )
 
   if (inherits(x, "haven_labelled_spss")) {
     MIN_NA_DISPLAY <- 4
@@ -119,7 +136,8 @@ lbl_pillar_info <- function(x) {
 
     label_display <- paste0(na_display, label_display)
     label_widths <- label_widths + na_widths
-    label_min_widths <- label_min_widths + ifelse(label_widths > 0, pmin(MIN_NA_DISPLAY, label_widths), 0)
+    label_min_widths <- label_min_widths +
+      ifelse(label_widths > 0, pmin(MIN_NA_DISPLAY, label_widths), 0)
   }
 
   ret <- list(
@@ -171,7 +189,9 @@ str_trunc <- function(x, widths, subtle = FALSE) {
   too_wide <- which(!is.na(x) & str_width > widths)
 
   continue_symbol <- cli::symbol$continue
-  if (subtle) continue_symbol <- pillar::style_subtle(continue_symbol)
+  if (subtle) {
+    continue_symbol <- pillar::style_subtle(continue_symbol)
+  }
 
   truncated <- Map(x[too_wide], widths[too_wide], f = function(item, wid) {
     paste0(crayon::col_substr(item, 1, wid - 1), continue_symbol)
