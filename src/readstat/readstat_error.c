@@ -122,5 +122,8 @@ const char *readstat_error_message(readstat_error_t error_code) {
     if (error_code == READSTAT_ERROR_BAD_TIMESTAMP_VALUE)
         return "The provided file timestamp is invalid";
 
+    if (error_code == READSTAT_ERROR_BAD_MR_STRING)
+        return "A multi-response set record is invalid";
+
     return "Unknown error";
 }

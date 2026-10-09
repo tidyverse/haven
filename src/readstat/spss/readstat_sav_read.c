@@ -167,7 +167,7 @@ static readstat_error_t sav_read_multiple_response_sets(size_t data_len, sav_ctx
         goto cleanup;
     }
 
-    retval = parse_mr_string(mr_string, &ctx->mr_sets, &ctx->multiple_response_sets_length);
+    retval = parse_mr_string(mr_string, &ctx->mr_sets, &ctx->multiple_response_sets_length, ctx);
 
 cleanup:
     free(mr_string);

@@ -913,6 +913,7 @@ static readstat_error_t sav_emit_long_string_value_labels_record(readstat_writer
         for (k=0; k<var_count; k++) {
             readstat_variable_t *r_variable = readstat_get_label_set_variable(r_label_set, k);
             int32_t name_len = strlen(r_variable->name);
+            int32_t user_width = r_variable->user_width;
             int32_t storage_width = readstat_variable_get_storage_width(r_variable);
             if (storage_width <= 8)
                 continue;
@@ -928,8 +929,13 @@ static readstat_error_t sav_emit_long_string_value_labels_record(readstat_writer
                 if (label_len > MAX_VALUE_LABEL_SIZE)
                     label_len = MAX_VALUE_LABEL_SIZE;
 
+                if (r_value_label->string_key_len > user_width) {
+                    retval = READSTAT_ERROR_STRING_VALUE_IS_TOO_LONG;
+                    goto cleanup;
+                }
+
                 info_header.count += sizeof(int32_t); // value length
-                info_header.count += storage_width;
+                info_header.count += user_width;
                 info_header.count += sizeof(int32_t); // label length
                 info_header.count += label_len;
             }
@@ -954,12 +960,13 @@ static readstat_error_t sav_emit_long_string_value_labels_record(readstat_writer
         for (k=0; k<var_count; k++) {
             readstat_variable_t *r_variable = readstat_get_label_set_variable(r_label_set, k);
             int32_t name_len = strlen(r_variable->name);
+            int32_t user_width = r_variable->user_width;
             int32_t storage_width = readstat_variable_get_storage_width(r_variable);
             if (storage_width <= 8)
                 continue;
 
-            space_buffer = realloc(space_buffer, storage_width);
-            memset(space_buffer, ' ', storage_width);
+            space_buffer = realloc(space_buffer, user_width);
+            memset(space_buffer, ' ', user_width);
 
             retval = readstat_write_bytes(writer, &name_len, sizeof(int32_t));
             if (retval != READSTAT_OK)
@@ -969,7 +976,7 @@ static readstat_error_t sav_emit_long_string_value_labels_record(readstat_writer
             if (retval != READSTAT_OK)
                 goto cleanup;
 
-            retval = readstat_write_bytes(writer, &storage_width, sizeof(int32_t));
+            retval = readstat_write_bytes(writer, &user_width, sizeof(int32_t));
             if (retval != READSTAT_OK)
                 goto cleanup;
 
@@ -984,7 +991,7 @@ static readstat_error_t sav_emit_long_string_value_labels_record(readstat_writer
                 if (label_len > MAX_VALUE_LABEL_SIZE)
                     label_len = MAX_VALUE_LABEL_SIZE;
 
-                retval = readstat_write_bytes(writer, &storage_width, sizeof(int32_t));
+                retval = readstat_write_bytes(writer, &user_width, sizeof(int32_t));
                 if (retval != READSTAT_OK)
                     goto cleanup;
 
@@ -992,8 +999,8 @@ static readstat_error_t sav_emit_long_string_value_labels_record(readstat_writer
                 if (retval != READSTAT_OK)
                     goto cleanup;
 
-                if (value_len < storage_width) {
-                    retval = readstat_write_bytes(writer, space_buffer, storage_width - value_len);
+                if (value_len < user_width) {
+                    retval = readstat_write_bytes(writer, space_buffer, user_width - value_len);
                     if (retval != READSTAT_OK)
                         goto cleanup;
                 }
