@@ -59,8 +59,12 @@ as_factor.data.frame <- function(x, ..., only_labelled = TRUE) {
 #'   * "values": use only the values
 #' @rdname as_factor
 #' @export
-as_factor.haven_labelled <- function(x, levels = c("default", "labels", "values", "both"),
-                                     ordered = FALSE, ...) {
+as_factor.haven_labelled <- function(
+  x,
+  levels = c("default", "labels", "values", "both"),
+  ordered = FALSE,
+  ...
+) {
   levels <- match.arg(levels)
   label <- attr(x, "label", exact = TRUE)
   labels <- attr(x, "labels")

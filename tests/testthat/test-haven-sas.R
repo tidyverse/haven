@@ -7,7 +7,10 @@ test_that("variable label stored as attributes", {
 })
 
 test_that("value labels parsed from bcat file", {
-  df <- read_sas(test_path("sas/hadley.sas7bdat"), test_path("sas/formats.sas7bcat"))
+  df <- read_sas(
+    test_path("sas/hadley.sas7bdat"),
+    test_path("sas/formats.sas7bcat")
+  )
 
   expect_s3_class(df$gender, "haven_labelled")
   expect_equal(attr(df$gender, "labels"), c(Female = "f", Male = "m"))
@@ -15,7 +18,10 @@ test_that("value labels parsed from bcat file", {
 })
 
 test_that("value labels read in as same type as vector", {
-  df <- read_sas(test_path("sas/hadley.sas7bdat"), test_path("sas/formats.sas7bcat"))
+  df <- read_sas(
+    test_path("sas/hadley.sas7bdat"),
+    test_path("sas/formats.sas7bcat")
+  )
 
   expect_equal(typeof(df$gender), typeof(attr(df$gender, "labels")))
   expect_equal(typeof(df$workshop), typeof(attr(df$workshop, "labels")))
@@ -31,7 +37,10 @@ test_that("date times are converted into corresponding R types", {
 })
 
 test_that("tagged missings are read correctly", {
-  x <- read_sas(test_path("sas/tagged-na.sas7bdat"), test_path("sas/tagged-na.sas7bcat"))$x
+  x <- read_sas(
+    test_path("sas/tagged-na.sas7bdat"),
+    test_path("sas/tagged-na.sas7bcat")
+  )$x
   expect_equal(na_tag(x), c(rep(NA, 5), "a", "h", "z"))
 
   labels <- attr(x, "labels")
@@ -161,11 +170,19 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
   expect_equal(res, df[1])
 
   # Test selecting the first and third duplicate columns
-  res2 <- read_xpt(path, col_select = c(id...3, id...1), .name_repair = "universal")
+  res2 <- read_xpt(
+    path,
+    col_select = c(id...3, id...1),
+    .name_repair = "universal"
+  )
   expect_equal(res2, df[c(3, 1)])
 
   # Test renaming
-  res3 <- read_xpt(path, col_select = c(a = id...3, b = id...1), .name_repair = "universal")
+  res3 <- read_xpt(
+    path,
+    col_select = c(a = id...3, b = id...1),
+    .name_repair = "universal"
+  )
   expect_equal(res3, set_names(df[c(3, 1)], c("a", "b")))
 })
 
@@ -183,7 +200,10 @@ test_that("date/times with character data throw a warning (#747)", {
     "will be returned as a regular string variable"
   )
 
-  expect_equal(out$date, structure(c("20424", "20487"), label = "Date", format.sas = "DATE"))
+  expect_equal(
+    out$date,
+    structure(c("20424", "20487"), label = "Date", format.sas = "DATE")
+  )
 })
 
 # write_xpt ---------------------------------------------------------------

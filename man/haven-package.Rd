@@ -25,6 +25,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Hadley Wickham \email{hadley@posit.co}
   \item Evan Miller (Author of included ReadStat code) [copyright holder]
   \item Danny Smith
 }

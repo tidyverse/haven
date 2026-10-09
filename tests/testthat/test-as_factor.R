@@ -17,8 +17,14 @@ test_that("all labels (implicit missing values) are preserved when levels is 'de
 })
 
 test_that("all labels (existing and missing) are sorted by values (#172)", {
-  s1 <- labelled(c(1, 4), c("Agree" = 1, "Neutral" = 2, "Disagree" = 3, "Don't know" = 5))
-  exp <- factor(c("Agree", "4"), levels = c("Agree", "Neutral", "Disagree", "4", "Don't know"))
+  s1 <- labelled(
+    c(1, 4),
+    c("Agree" = 1, "Neutral" = 2, "Disagree" = 3, "Don't know" = 5)
+  )
+  exp <- factor(
+    c("Agree", "4"),
+    levels = c("Agree", "Neutral", "Disagree", "4", "Don't know")
+  )
   expect_equal(as_factor(s1), exp)
 })
 
@@ -66,12 +72,18 @@ test_that("otherwise falls back to alphabetical", {
 
 test_that("labels preserves all label values", {
   var <- labelled(1L, c(female = 1L, male = 2L))
-  expect_equal(as_factor(var, "labels"), factor("female", levels = c("female", "male")))
+  expect_equal(
+    as_factor(var, "labels"),
+    factor("female", levels = c("female", "male"))
+  )
 })
 
 test_that("order of labels doesn't matter", {
   var <- labelled(1L, c(female = 2L, male = 1L))
-  expect_equal(as_factor(var, "labels"), factor("male", levels = c("female", "male")))
+  expect_equal(
+    as_factor(var, "labels"),
+    factor("male", levels = c("female", "male"))
+  )
 })
 
 test_that("as_factor labels works with non-unique labels", {

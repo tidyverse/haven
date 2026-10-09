@@ -40,7 +40,8 @@ roundtrip_var <- function(x, type = "sav", ...) {
     df$y <- seq_along(x)
   }
 
-  switch(type,
+  switch(
+    type,
     sav = roundtrip_sav(df, ...)$x,
     dta = roundtrip_dta(df, ...)$x,
     sas = roundtrip_sas(df, ...)$x,

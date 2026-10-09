@@ -267,10 +267,10 @@ test_that("na_range roundtrips successfully with mismatched type", {
   x_vec <- 1:10
   x_na <- c(1, 10)
   df <- tibble(
-    x_int_int   = labelled_spss(as.integer(x_vec), na_range = as.integer(x_na)),
-    x_int_real  = labelled_spss(as.integer(x_vec), na_range = as.numeric(x_na)),
+    x_int_int = labelled_spss(as.integer(x_vec), na_range = as.integer(x_na)),
+    x_int_real = labelled_spss(as.integer(x_vec), na_range = as.numeric(x_na)),
     x_real_real = labelled_spss(as.numeric(x_vec), na_range = as.numeric(x_na)),
-    x_real_int  = labelled_spss(as.numeric(x_vec), na_range = as.integer(x_na))
+    x_real_int = labelled_spss(as.numeric(x_vec), na_range = as.integer(x_na))
   )
 
   path <- tempfile()
@@ -278,9 +278,18 @@ test_that("na_range roundtrips successfully with mismatched type", {
   df2 <- read_sav(path, user_na = TRUE)
 
   expect_equal(attr(df2$x_int_int, "na_range"), attr(df$x_int_int, "na_range"))
-  expect_equal(attr(df2$x_int_real, "na_range"), attr(df$x_int_real, "na_range"))
-  expect_equal(attr(df2$x_real_real, "na_range"), attr(df$x_real_real, "na_range"))
-  expect_equal(attr(df2$x_real_int, "na_range"), attr(df$x_real_int, "na_range"))
+  expect_equal(
+    attr(df2$x_int_real, "na_range"),
+    attr(df$x_int_real, "na_range")
+  )
+  expect_equal(
+    attr(df2$x_real_real, "na_range"),
+    attr(df$x_real_real, "na_range")
+  )
+  expect_equal(
+    attr(df2$x_real_int, "na_range"),
+    attr(df$x_real_int, "na_range")
+  )
 })
 
 
@@ -336,7 +345,10 @@ test_that("labels are converted to utf-8", {
   v_latin1 <- labelled(3:1, setNames(1:3, labels_latin1))
 
   expect_equal(names(attr(roundtrip_var(v_utf8, "sav"), "labels")), labels_utf8)
-  expect_equal(names(attr(roundtrip_var(v_latin1, "sav"), "labels")), labels_utf8)
+  expect_equal(
+    names(attr(roundtrip_var(v_latin1, "sav"), "labels")),
+    labels_utf8
+  )
 })
 
 
