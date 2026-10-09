@@ -29,10 +29,10 @@ str(zap_label(df))
 \seealso{
 \code{\link[=zap_labels]{zap_labels()}} to remove value labels.
 
-Other zappers: 
-\code{\link{zap_empty}()},
-\code{\link{zap_formats}()},
-\code{\link{zap_labels}()},
-\code{\link{zap_widths}()}
+Other zappers:
+\code{\link[=zap_empty]{zap_empty()}},
+\code{\link[=zap_formats]{zap_formats()}},
+\code{\link[=zap_labels]{zap_labels()}},
+\code{\link[=zap_widths]{zap_widths()}}
 }
 \concept{zappers}

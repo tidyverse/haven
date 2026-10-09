@@ -102,13 +102,17 @@ export(zap_missing)
 export(zap_widths)
 import(rlang)
 import(vctrs)
-importFrom(cli,cli_abort)
-importFrom(cli,cli_warn)
+importFrom(cli,
+  cli_abort,
+  cli_warn
+)
 importFrom(forcats,as_factor)
 importFrom(hms,hms)
 importFrom(lifecycle,deprecated)
 importFrom(methods,setOldClass)
-importFrom(stats,median)
-importFrom(stats,quantile)
+importFrom(stats,
+  median,
+  quantile
+)
 importFrom(tibble,tibble)
 useDynLib(haven, .registration = TRUE)
