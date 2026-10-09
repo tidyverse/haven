@@ -1,5 +1,10 @@
 # haven (development version)
 
+* Documentation for `read_*()` functions now more clearly explains that
+  labelled vectors are an intermediate representation, and points users to
+  `as_factor()` and `zap_labels()` when preparing imported categorical
+  variables for analysis (#741).
+
 * `median()` method for `haven_labelled` vectors now forwards the `na.rm`
   argument instead of always using `na.rm = TRUE`.
 

@@ -404,3 +404,20 @@ vec_arith.numeric.haven_labelled <- function(op, x, y, ...) {
 vec_math.haven_labelled <- function(.fn, .x, ...) {
   vec_math_base(.fn, .x, ...)
 }
+
+#' Labelled vector output
+#'
+#' @return A tibble, data frame variant with nice defaults.
+#'
+#'   Variable labels are stored in the "label" attribute of each variable.
+#'   It is not printed on the console, but the RStudio viewer will show it.
+#'
+#'   Value labels are preserved with the [labelled()] class. Labelled vectors
+#'   are an intermediate representation that preserves the original value
+#'   labels, not a regular R factor. Convert labelled categorical variables
+#'   with [as_factor()], or remove value labels with [zap_labels()] if you
+#'   need plain R vectors for analysis. See `vignette("semantics")` for more
+#'   details.
+#' @name labelled-output
+#' @keywords internal
+NULL

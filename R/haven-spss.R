@@ -16,12 +16,7 @@
 #' @param encoding The character encoding used for the file. The default,
 #'   `NULL`, use the encoding specified in the file, but sometimes this
 #'   value is incorrect and it is useful to be able to override it.
-#' @return A tibble, data frame variant with nice defaults.
-#'
-#'   Variable labels are stored in the "label" attribute of each variable.
-#'   It is not printed on the console, but the RStudio viewer will show it.
-#'
-#'   `write_sav()` returns the input `data` invisibly.
+#' @inherit labelled-output return
 #' @name read_spss
 #' @examples
 #' path <- system.file("examples", "iris.sav", package = "haven")

@@ -54,15 +54,7 @@
 #' @param encoding The character encoding used for the file. Generally,
 #'   only needed for Stata 13 files and earlier. See Encoding section
 #'   for details.
-#' @return A tibble, data frame variant with nice defaults.
-#'
-#'   Variable labels are stored in the "label" attribute of each variable.
-#'   It is not printed on the console, but the RStudio viewer will show it.
-#'
-#'   If a dataset label is defined in Stata, it will stored in the "label"
-#'   attribute of the tibble.
-#'
-#'   `write_dta()` returns the input `data` invisibly.
+#' @inherit labelled-output return
 #' @export
 #' @examples
 #' path <- system.file("examples", "iris.dta", package = "haven")
