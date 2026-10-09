@@ -682,7 +682,8 @@ readstat_error_t read_version_and_timestamp(por_ctx_t *ctx) {
         goto cleanup;
     }
     if (sscanf(string, "%02d%02d%02d", &timestamp.tm_hour, &timestamp.tm_min, &timestamp.tm_sec) != 3) {
-        /* optional */
+        retval = READSTAT_ERROR_BAD_TIMESTAMP_STRING;
+        goto cleanup;
     }
 
     timestamp.tm_year -= 1900;

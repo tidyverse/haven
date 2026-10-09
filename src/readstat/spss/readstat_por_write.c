@@ -167,7 +167,7 @@ static readstat_error_t por_write_string_field(readstat_writer_t *writer, por_wr
     return por_write_string_field_n(writer, ctx, string, strlen(string));
 }
 
-static por_write_ctx_t *por_write_ctx_init(void) {
+static por_write_ctx_t *por_write_ctx_init() {
     por_write_ctx_t *ctx = calloc(1, sizeof(por_write_ctx_t));
     uint16_t max_unicode = 0;
     int i;
@@ -201,10 +201,11 @@ static readstat_error_t por_emit_header(readstat_writer_t *writer, por_write_ctx
     size_t file_label_len = strlen(writer->file_label);
     char vanity[5][40];
     memset(vanity, '0', sizeof(vanity));
-    memset(vanity[1], ' ', sizeof(vanity[1]));
 
     memcpy(vanity[1], "ASCII SPSS PORT FILE", 20);
-    memcpy(vanity[1] + 20, writer->file_label, file_label_len > 20 ? 20 : file_label_len);
+    strncpy(vanity[1] + 20, writer->file_label, 20);
+    if (file_label_len < 20)
+        memset(vanity[1] + 20 + file_label_len, ' ', 20 - file_label_len);
 
     por_write_bytes(writer, vanity, sizeof(vanity));
 

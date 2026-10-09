@@ -10,7 +10,7 @@
 #include "readstat_xport_parse_format.h"
 #include "ieee.h"
 
-#define XPORT_DEFAULT_VERSION   8
+#define XPORT_DEFAULT_VERISON   8
 #define RECORD_LEN 80
 
 #if defined _MSC_VER
@@ -49,20 +49,11 @@ cleanup:
     return retval;
 }
 
-static readstat_error_t xport_write_header_record_obsv8(readstat_writer_t *writer, 
-        int row_count) {
-    char record[RECORD_LEN+1];
-    snprintf(record, sizeof(record),
-            "HEADER RECORD*******OBSV8   HEADER RECORD!!!!!!!" "%15d",
-            row_count);
-    return xport_write_record(writer, record);
-}
-
-static readstat_error_t xport_write_header_record_labelv8(readstat_writer_t *writer, 
+static readstat_error_t xport_write_header_record_v8(readstat_writer_t *writer, 
         xport_header_record_t *xrecord) {
     char record[RECORD_LEN+1];
     snprintf(record, sizeof(record),
-            "HEADER RECORD*******%-8sHEADER RECORD!!!!!!!" "%-5d",
+            "HEADER RECORD*******%-8sHEADER RECORD!!!!!!!%-30d",
             xrecord->name, xrecord->num1);
     return xport_write_record(writer, record);
 }
@@ -176,7 +167,7 @@ static readstat_error_t xport_write_variables(readstat_writer_t *writer) {
         if (any_has_long_format) {
             strcpy(header.name, "LABELV9");
         }
-        retval = xport_write_header_record_labelv8(writer, &header);
+        retval = xport_write_header_record_v8(writer, &header);
         if (retval != READSTAT_OK)
             goto cleanup;
 
@@ -365,12 +356,12 @@ static readstat_error_t xport_write_namestr_header_record(readstat_writer_t *wri
 }
 
 static readstat_error_t xport_write_obs_header_record(readstat_writer_t *writer) {
-    if (writer->version == 8) {
-        return xport_write_header_record_obsv8(writer, writer->row_count);
-    }
     xport_header_record_t xrecord = { 
         .name = "OBS"
     };
+    if (writer->version == 8) {
+        strcpy(xrecord.name, "OBSV8");
+    }
     return xport_write_header_record(writer, &xrecord);
 }
 
@@ -540,7 +531,7 @@ static readstat_error_t xport_metadata_ok(void *writer_ctx) {
 readstat_error_t readstat_begin_writing_xport(readstat_writer_t *writer, void *user_ctx, long row_count) {
 
     if (writer->version == 0)
-        writer->version = XPORT_DEFAULT_VERSION;
+        writer->version = XPORT_DEFAULT_VERISON;
 
     writer->callbacks.metadata_ok = &xport_metadata_ok;
     writer->callbacks.write_int8 = &xport_write_int8;

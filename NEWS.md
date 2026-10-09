@@ -1,11 +1,14 @@
 # haven (development version)
 
-* Updated to ReadStat dev a4984d5.
+* Updated to ReadStat dev 104ba03.
 
-  * Fix issue writing SAV files with labels for string values longer than 8 bytes (#550).
-  * Fix issue reading SAS files with zero observations (#627).
-  * Fix issue writing XPT V8 datasets with long variable labels (#784).
-  * Fix issue reading SAV files where an MR set name contains a non-ASCII character (#788).
+  * SAS catalog reader now correctly reads big-endian files.
+  * SAS reader now supports files with zero observations (#627).
+  * SAS reader has improved support for RLE decompression and 16MiB page sizes.
+  * SAV reader now supports MR set names containing non-ASCII characters (#788).
+  * SAV reader has improved support for Asian code pages and very long string records.
+  * SAV writer now supports labels for string values longer than 8 bytes (#550).
+  * XPT V8 writer now supports long variable labels (#784).
 
 * Documentation for `read_*()` functions now more clearly explains that
   labelled vectors are an intermediate representation, and points users to
