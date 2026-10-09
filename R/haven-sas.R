@@ -22,11 +22,7 @@
 #' @param n_max Maximum number of lines to read.
 #' @param cols_only `r lifecycle::badge("deprecated")` `cols_only` is no longer
 #'   supported; use `col_select` instead.
-#' @return A tibble, data frame variant with nice defaults.
-#'
-#'   Variable labels are stored in the "label" attribute of each variable. It is
-#'   not printed on the console, but the RStudio viewer will show it.
-#'
+#' @inherit labelled-output return
 #' @export
 #' @examples
 #' path <- system.file("examples", "iris.sas7bdat", package = "haven")

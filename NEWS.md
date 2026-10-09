@@ -7,6 +7,11 @@
   * Fix issue writing XPT V8 datasets with long variable labels (#784).
   * Fix issue reading SAV files where an MR set name contains a non-ASCII character (#788).
 
+* Documentation for `read_*()` functions now more clearly explains that
+  labelled vectors are an intermediate representation, and points users to
+  `as_factor()` and `zap_labels()` when preparing imported categorical
+  variables for analysis (#741).
+
 * `median()` method for `haven_labelled` vectors now forwards the `na.rm`
   argument instead of always using `na.rm = TRUE`.
 
