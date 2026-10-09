@@ -16,19 +16,7 @@
 #' @param encoding The character encoding used for the file. The default,
 #'   `NULL`, use the encoding specified in the file, but sometimes this
 #'   value is incorrect and it is useful to be able to override it.
-#' @return A tibble, data frame variant with nice defaults.
-#'
-#'   Variable labels are stored in the "label" attribute of each variable.
-#'   It is not printed on the console, but the RStudio viewer will show it.
-#'
-#'   Value labels are preserved with the [labelled()] class, or
-#'   [labelled_spss()] when `user_na = TRUE`. Labelled vectors are an
-#'   intermediate representation that preserves the original value labels, not a
-#'   regular R factor. Convert labelled categorical variables with [as_factor()],
-#'   or remove value labels with [zap_labels()] if you need plain R vectors for
-#'   analysis. See `vignette("semantics")` for more details.
-#'
-#'   `write_sav()` returns the input `data` invisibly.
+#' @inherit labelled-output return
 #' @name read_spss
 #' @examples
 #' path <- system.file("examples", "iris.sav", package = "haven")
