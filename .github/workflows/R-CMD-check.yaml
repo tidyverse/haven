@@ -35,6 +35,9 @@ jobs:
           - {os: ubuntu-latest,  r: 'oldrel-2'}
           - {os: ubuntu-latest,  r: 'oldrel-3'}
           - {os: ubuntu-latest,  r: 'oldrel-4'}
+          # Install GNU libiconv into /usr/local, shadowing glibc's iconv
+          # (as happens in conda environments) to test configure detection
+          - {os: ubuntu-latest,  r: 'release', libiconv: true}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -50,6 +53,23 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+
+      # Reproduce the conda-style setup from #774: a GNU libiconv whose
+      # iconv.h shadows glibc's iconv, so configure must detect that
+      # -liconv is needed
+      - uses: mamba-org/setup-micromamba@v2
+        if: matrix.config.libiconv
+        with:
+          create-args: libiconv -c conda-forge
+
+      - name: Point R at conda's libiconv
+        if: matrix.config.libiconv
+        run: |
+          mkdir -p ~/.R
+          cat > ~/.R/Makevars <<EOF
+          CPPFLAGS += -I$CONDA_PREFIX/include
+          LDFLAGS += -L$CONDA_PREFIX/lib -Wl,-rpath,$CONDA_PREFIX/lib
+          EOF
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:

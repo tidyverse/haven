@@ -1,5 +1,9 @@
 # haven (development version)
 
+* `configure` now detects when iconv requires `-liconv` (e.g. when a GNU
+  libiconv installation shadows the system iconv, as in conda environments),
+  fixing `undefined symbol: libiconv` load failures (#774).
+
 * `col_select` in the `read_*()` functions now correctly implements the
   tidyselect interface. Columns will be returned in the order specified in
   `col_select` and can be renamed, e.g. `col_select = c(new = old)` (#685).
