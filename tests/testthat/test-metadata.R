@@ -27,7 +27,7 @@ test_that("read functions attach file timestamps as POSIXct", {
   }
 })
 
-test_that("read_sas attaches timestamps and encoding", {
+test_that("read_sas attaches timestamps", {
   out <- read_sas(test_path("sas/hadley.sas7bdat"))
 
   expect_equal(
@@ -38,13 +38,4 @@ test_that("read_sas attaches timestamps and encoding", {
     attr(out, "modified_timestamp"),
     as.POSIXct("2015-02-09 20:55:12", tz = "UTC")
   )
-  expect_equal(attr(out, "encoding"), "WINDOWS-1252")
-})
-
-test_that("read_sav attaches file encoding", {
-  df <- tibble::tibble(x = 1:3)
-
-  path <- tempfile(fileext = ".sav")
-  write_sav(df, path)
-  expect_equal(attr(read_sav(path), "encoding"), "UTF-8")
 })

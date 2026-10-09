@@ -1,9 +1,8 @@
-# Removes file metadata attributes (creation/modified timestamps, encoding)
+# Removes file metadata attributes (creation/modified timestamps)
 # that vary from run to run
 zap_file_metadata <- function(x) {
   attr(x, "creation_timestamp") <- NULL
   attr(x, "modified_timestamp") <- NULL
-  attr(x, "encoding") <- NULL
   x
 }
 

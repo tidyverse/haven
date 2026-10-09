@@ -199,12 +199,6 @@ public:
     return out;
   }
 
-  void setFileEncoding(const char *file_encoding) {
-    if (file_encoding != NULL && strcmp(file_encoding, "") != 0) {
-      output_.attr("encoding") = file_encoding;
-    }
-  }
-
   void setNote(int note_index, const char *note) {
     if (note != NULL && strcmp(note, "") != 0) {
       notes_.push_back(note);
@@ -497,7 +491,6 @@ int dfreader_metadata(readstat_metadata_t *metadata, void *ctx) {
       readstat_get_var_count(metadata)
   );
   ((DfReader*) ctx)->setMetadata(readstat_get_file_label(metadata));
-  ((DfReader*) ctx)->setFileEncoding(readstat_get_file_encoding(metadata));
   ((DfReader*) ctx)->setTimestamp(readstat_get_creation_time(metadata), readstat_get_modified_time(metadata));
   return 0;
 }
