@@ -31,6 +31,9 @@ jobs:
           - {os: ubuntu-latest,  r: 'oldrel-2'}
           - {os: ubuntu-latest,  r: 'oldrel-3'}
           - {os: ubuntu-latest,  r: 'oldrel-4'}
+          # Install GNU libiconv into /usr/local, shadowing glibc's iconv
+          # (as happens in conda environments) to test configure detection
+          - {os: ubuntu-latest,  r: 'release', libiconv: true}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -45,6 +48,19 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
+
+      # Reproduce the conda-style setup from #774: install GNU libiconv
+      # into /usr/local, where its iconv.h shadows glibc's iconv, so
+      # configure must detect that -liconv is needed
+      - name: Install GNU libiconv
+        if: matrix.config.libiconv
+        run: |
+          curl -sSL https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz | tar xz
+          cd libiconv-1.17
+          ./configure --quiet
+          make -s -j2
+          sudo make -s install
+          sudo ldconfig
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:

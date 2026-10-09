@@ -44,6 +44,7 @@ echo "Using PKG_LIBS=$PKG_LIBS"
 CC=`${R_HOME}/bin/R CMD config CC`
 CFLAGS=`${R_HOME}/bin/R CMD config CFLAGS`
 CPPFLAGS=`${R_HOME}/bin/R CMD config CPPFLAGS`
+LDFLAGS=`${R_HOME}/bin/R CMD config LDFLAGS`
 
 # Test configuration
 echo "#include $PKG_TEST_HEADER" | ${CC} ${CPPFLAGS} ${PKG_CFLAGS} ${CFLAGS} -E -xc - >/dev/null 2>configure.log
@@ -66,9 +67,34 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Check whether iconv needs -liconv. This matters when a GNU libiconv
+# installation shadows the system iconv (e.g. in conda environments):
+# its iconv.h renames the symbols to libiconv*, so we must link -liconv
+# for haven.so to load. On glibc systems iconv is in libc and there is
+# no libiconv to link, so the flag must only be added when needed.
+ICONV_TEST='#include <iconv.h>
+int main() { iconv_t cd = iconv_open("UTF-8", "UTF-16"); iconv_close(cd); return 0; }'
+
+ICONV_OUT=`mktemp ${TMPDIR:-/tmp}/haven-iconv-test.XXXXXX`
+trap "rm -f $ICONV_OUT" EXIT
+
+if echo "$ICONV_TEST" | ${CC} ${CPPFLAGS} ${PKG_CFLAGS} ${CFLAGS} ${LDFLAGS} ${PKG_LIBS} -xc - -o $ICONV_OUT >>configure.log 2>&1; then
+  echo "iconv does not require -liconv"
+elif echo "$ICONV_TEST" | ${CC} ${CPPFLAGS} ${PKG_CFLAGS} ${CFLAGS} ${LDFLAGS} ${PKG_LIBS} -liconv -xc - -o $ICONV_OUT >>configure.log 2>&1; then
+  echo "iconv requires -liconv"
+  PKG_LIBS="${PKG_LIBS} -liconv"
+else
+  echo "--------------------------- [ANTICONF] --------------------------------"
+  echo "Configuration failed to find the iconv library (with or without"
+  echo "-liconv). See configure.log for details."
+  echo "--------------------------------------------------------------------"
+  exit 1
+fi
+
+echo "Using PKG_LIBS=$PKG_LIBS"
+
 # Write to Makevars
 sed -e "s|@cflags@|$PKG_CFLAGS|" -e "s|@libs@|$PKG_LIBS|" src/Makevars.in > src/Makevars
 
 # Success
 exit 0
-
