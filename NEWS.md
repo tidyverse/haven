@@ -10,6 +10,10 @@
   * SAV writer now supports labels for string values longer than 8 bytes (#550).
   * XPT V8 writer now supports long variable labels (#784).
 
+* `read_dta()`, `read_sav()`, `read_por()`, `read_sas()`, and `read_xpt()` now
+  attach file metadata as attributes: `creation_timestamp` and
+  `modified_timestamp` (as POSIXct, in UTC) (#733, @SInginc).
+
 * Documentation for `read_*()` functions now more clearly explains that
   labelled vectors are an intermediate representation, and points users to
   `as_factor()` and `zap_labels()` when preparing imported categorical
