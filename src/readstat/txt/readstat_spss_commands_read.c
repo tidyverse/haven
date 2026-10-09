@@ -1958,6 +1958,7 @@ const char *filepath, void *user_ctx, readstat_error_t *outError) {
 	int i;
 	int line_no = 0;
 	uint64_t first_integer = 0, integer = 0;
+	uint64_t range_values_remaining = MAX_VALUE_LABEL_RANGE_VALUES;
 	double double_value = NAN;
 	unsigned char *line_start = p;
 	
@@ -1985,12 +1986,12 @@ const char *filepath, void *user_ctx, readstat_error_t *outError) {
 	schema->rows_per_observation = 1;
 	
 	
-#line 1989 "src/txt/readstat_spss_commands_read.c"
+#line 1990 "src/txt/readstat_spss_commands_read.c"
 	{
 		cs = (int)spss_commands_start;
 	}
 	
-#line 1994 "src/txt/readstat_spss_commands_read.c"
+#line 1995 "src/txt/readstat_spss_commands_read.c"
 	{
 		int _klen;
 		unsigned int _trans = 0;
@@ -2070,96 +2071,101 @@ const char *filepath, void *user_ctx, readstat_error_t *outError) {
 				{
 					case 0:  {
 						{
-#line 78 "src/txt/readstat_spss_commands_read.rl"
+#line 79 "src/txt/readstat_spss_commands_read.rl"
 							
 							integer = 0;
 						}
 						
-#line 2079 "src/txt/readstat_spss_commands_read.c"
+#line 2080 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 1:  {
 						{
-#line 82 "src/txt/readstat_spss_commands_read.rl"
+#line 83 "src/txt/readstat_spss_commands_read.rl"
 							
-							integer = 10 * integer + ((( (*( p)))) - '0');
+							/* Saturate rather than wrap so an overlong literal reads as "too big" */
+							if (integer > (INT64_MAX - ((( (*( p)))) - '0')) / 10) {
+								integer = INT64_MAX;
+							} else {
+								integer = 10 * integer + ((( (*( p)))) - '0');
+							}
 						}
 						
-#line 2090 "src/txt/readstat_spss_commands_read.c"
+#line 2096 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 2:  {
 						{
-#line 86 "src/txt/readstat_spss_commands_read.rl"
+#line 92 "src/txt/readstat_spss_commands_read.rl"
 							
 							var_col = integer - 1;
 							var_len = 1;
 						}
 						
-#line 2102 "src/txt/readstat_spss_commands_read.c"
+#line 2108 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 3:  {
 						{
-#line 91 "src/txt/readstat_spss_commands_read.rl"
+#line 97 "src/txt/readstat_spss_commands_read.rl"
 							
 							var_len = integer - var_col;
 						}
 						
-#line 2113 "src/txt/readstat_spss_commands_read.c"
+#line 2119 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 4:  {
 						{
-#line 95 "src/txt/readstat_spss_commands_read.rl"
+#line 101 "src/txt/readstat_spss_commands_read.rl"
 							
 							readstat_copy_quoted(buf, sizeof(buf), (char *)str_start, str_len);
 						}
 						
-#line 2124 "src/txt/readstat_spss_commands_read.c"
+#line 2130 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 5:  {
 						{
-#line 99 "src/txt/readstat_spss_commands_read.rl"
+#line 105 "src/txt/readstat_spss_commands_read.rl"
 							
 							readstat_copy_quoted(string_value, sizeof(string_value), (char *)str_start, str_len);
 						}
 						
-#line 2135 "src/txt/readstat_spss_commands_read.c"
+#line 2141 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 6:  {
 						{
-#line 107 "src/txt/readstat_spss_commands_read.rl"
+#line 113 "src/txt/readstat_spss_commands_read.rl"
 							
 							readstat_copy(varname, sizeof(varname), (char *)str_start, str_len);
 						}
 						
-#line 2146 "src/txt/readstat_spss_commands_read.c"
+#line 2152 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 7:  {
 						{
-#line 111 "src/txt/readstat_spss_commands_read.rl"
+#line 117 "src/txt/readstat_spss_commands_read.rl"
 							
 							readstat_copy(argname, sizeof(argname), (char *)str_start, str_len);
 						}
 						
-#line 2157 "src/txt/readstat_spss_commands_read.c"
+#line 2163 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 8:  {
 						{
-#line 115 "src/txt/readstat_spss_commands_read.rl"
+#line 121 "src/txt/readstat_spss_commands_read.rl"
 							
 							readstat_schema_entry_t *entry = readstat_schema_find_or_create_entry(schema, varname);
 							entry->variable.type = var_type;
@@ -2169,49 +2175,49 @@ const char *filepath, void *user_ctx, readstat_error_t *outError) {
 							entry->len = var_len;
 						}
 						
-#line 2173 "src/txt/readstat_spss_commands_read.c"
+#line 2179 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 9:  {
 						{
-#line 124 "src/txt/readstat_spss_commands_read.rl"
+#line 130 "src/txt/readstat_spss_commands_read.rl"
 							
 							readstat_schema_entry_t *entry = readstat_schema_find_or_create_entry(schema, varname);
 							readstat_copy(entry->variable.label, sizeof(entry->variable.label), buf, sizeof(buf));
 						}
 						
-#line 2185 "src/txt/readstat_spss_commands_read.c"
+#line 2191 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 10:  {
 						{
-#line 129 "src/txt/readstat_spss_commands_read.rl"
+#line 135 "src/txt/readstat_spss_commands_read.rl"
 							
 							var_count = 0;
 						}
 						
-#line 2196 "src/txt/readstat_spss_commands_read.c"
+#line 2202 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 11:  {
 						{
-#line 133 "src/txt/readstat_spss_commands_read.rl"
+#line 139 "src/txt/readstat_spss_commands_read.rl"
 							
 							if (var_count < sizeof(var_list)/sizeof(var_list[0])) {
 								memcpy(var_list[var_count++], varname, sizeof(varname));
 							}
 						}
 						
-#line 2209 "src/txt/readstat_spss_commands_read.c"
+#line 2215 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 12:  {
 						{
-#line 139 "src/txt/readstat_spss_commands_read.rl"
+#line 145 "src/txt/readstat_spss_commands_read.rl"
 							
 							if (strcasecmp(argname, "FIRSTCASE") == 0) {
 								schema->first_line = integer;
@@ -2221,13 +2227,13 @@ const char *filepath, void *user_ctx, readstat_error_t *outError) {
 							}
 						}
 						
-#line 2225 "src/txt/readstat_spss_commands_read.c"
+#line 2231 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 13:  {
 						{
-#line 148 "src/txt/readstat_spss_commands_read.rl"
+#line 154 "src/txt/readstat_spss_commands_read.rl"
 							
 							char labelset_name[256];
 							snprintf(labelset_name, sizeof(labelset_name), "labels%d", labelset_count++);
@@ -2237,212 +2243,213 @@ const char *filepath, void *user_ctx, readstat_error_t *outError) {
 							}
 						}
 						
-#line 2241 "src/txt/readstat_spss_commands_read.c"
+#line 2247 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 14:  {
 						{
-#line 157 "src/txt/readstat_spss_commands_read.rl"
+#line 163 "src/txt/readstat_spss_commands_read.rl"
 							
 							char labelset_name[256];
 							snprintf(labelset_name, sizeof(labelset_name), "labels%d", labelset_count);
 							error = submit_value_label(parser, labelset_name, label_type,
-							first_integer, integer, double_value, string_value, buf, user_ctx);
+							first_integer, integer, double_value, string_value, buf,
+							&range_values_remaining, user_ctx);
 							if (error != READSTAT_OK)
 							goto cleanup;
 						}
 						
-#line 2257 "src/txt/readstat_spss_commands_read.c"
+#line 2264 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 15:  {
 						{
-#line 166 "src/txt/readstat_spss_commands_read.rl"
+#line 173 "src/txt/readstat_spss_commands_read.rl"
 							str_start = p; }
 						
-#line 2266 "src/txt/readstat_spss_commands_read.c"
+#line 2273 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 16:  {
 						{
-#line 166 "src/txt/readstat_spss_commands_read.rl"
+#line 173 "src/txt/readstat_spss_commands_read.rl"
 							str_len = p - str_start; }
 						
-#line 2275 "src/txt/readstat_spss_commands_read.c"
+#line 2282 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 17:  {
 						{
-#line 168 "src/txt/readstat_spss_commands_read.rl"
+#line 175 "src/txt/readstat_spss_commands_read.rl"
 							str_start = p; }
 						
-#line 2284 "src/txt/readstat_spss_commands_read.c"
+#line 2291 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 18:  {
 						{
-#line 168 "src/txt/readstat_spss_commands_read.rl"
+#line 175 "src/txt/readstat_spss_commands_read.rl"
 							str_len = p - str_start; }
 						
-#line 2293 "src/txt/readstat_spss_commands_read.c"
+#line 2300 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 19:  {
 						{
-#line 172 "src/txt/readstat_spss_commands_read.rl"
+#line 179 "src/txt/readstat_spss_commands_read.rl"
 							line_no++; line_start = p; }
 						
-#line 2302 "src/txt/readstat_spss_commands_read.c"
+#line 2309 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 20:  {
 						{
-#line 174 "src/txt/readstat_spss_commands_read.rl"
+#line 181 "src/txt/readstat_spss_commands_read.rl"
 							str_start = p; }
 						
-#line 2311 "src/txt/readstat_spss_commands_read.c"
+#line 2318 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 21:  {
 						{
-#line 174 "src/txt/readstat_spss_commands_read.rl"
+#line 181 "src/txt/readstat_spss_commands_read.rl"
 							str_len = p - str_start; }
 						
-#line 2320 "src/txt/readstat_spss_commands_read.c"
+#line 2327 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 22:  {
 						{
-#line 192 "src/txt/readstat_spss_commands_read.rl"
+#line 199 "src/txt/readstat_spss_commands_read.rl"
 							var_type = READSTAT_TYPE_STRING; }
 						
-#line 2329 "src/txt/readstat_spss_commands_read.c"
+#line 2336 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 23:  {
 						{
-#line 195 "src/txt/readstat_spss_commands_read.rl"
+#line 202 "src/txt/readstat_spss_commands_read.rl"
 							var_type = READSTAT_TYPE_STRING; }
 						
-#line 2338 "src/txt/readstat_spss_commands_read.c"
+#line 2345 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 24:  {
 						{
-#line 196 "src/txt/readstat_spss_commands_read.rl"
+#line 203 "src/txt/readstat_spss_commands_read.rl"
 							var_type = READSTAT_TYPE_DOUBLE; }
 						
-#line 2347 "src/txt/readstat_spss_commands_read.c"
+#line 2354 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 25:  {
 						{
-#line 197 "src/txt/readstat_spss_commands_read.rl"
+#line 204 "src/txt/readstat_spss_commands_read.rl"
 							var_type = READSTAT_TYPE_DOUBLE; }
 						
-#line 2356 "src/txt/readstat_spss_commands_read.c"
+#line 2363 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 26:  {
 						{
-#line 198 "src/txt/readstat_spss_commands_read.rl"
+#line 205 "src/txt/readstat_spss_commands_read.rl"
 							var_type = READSTAT_TYPE_STRING; }
 						
-#line 2365 "src/txt/readstat_spss_commands_read.c"
+#line 2372 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 27:  {
 						{
-#line 219 "src/txt/readstat_spss_commands_read.rl"
+#line 226 "src/txt/readstat_spss_commands_read.rl"
 							var_row = integer - 1; }
 						
-#line 2374 "src/txt/readstat_spss_commands_read.c"
+#line 2381 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 28:  {
 						{
-#line 220 "src/txt/readstat_spss_commands_read.rl"
+#line 227 "src/txt/readstat_spss_commands_read.rl"
 							var_type = READSTAT_TYPE_DOUBLE; }
 						
-#line 2383 "src/txt/readstat_spss_commands_read.c"
+#line 2390 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 29:  {
 						{
-#line 221 "src/txt/readstat_spss_commands_read.rl"
+#line 228 "src/txt/readstat_spss_commands_read.rl"
 							var_type = READSTAT_TYPE_DOUBLE; }
 						
-#line 2392 "src/txt/readstat_spss_commands_read.c"
+#line 2399 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 30:  {
 						{
-#line 254 "src/txt/readstat_spss_commands_read.rl"
+#line 261 "src/txt/readstat_spss_commands_read.rl"
 							label_type = -1; }
 						
-#line 2401 "src/txt/readstat_spss_commands_read.c"
+#line 2408 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 31:  {
 						{
-#line 260 "src/txt/readstat_spss_commands_read.rl"
+#line 267 "src/txt/readstat_spss_commands_read.rl"
 							label_type = LABEL_TYPE_DOUBLE; double_value = -(double)integer; }
 						
-#line 2410 "src/txt/readstat_spss_commands_read.c"
+#line 2417 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 32:  {
 						{
-#line 261 "src/txt/readstat_spss_commands_read.rl"
+#line 268 "src/txt/readstat_spss_commands_read.rl"
 							label_type = LABEL_TYPE_DOUBLE; double_value = integer; }
 						
-#line 2419 "src/txt/readstat_spss_commands_read.c"
+#line 2426 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 33:  {
 						{
-#line 262 "src/txt/readstat_spss_commands_read.rl"
+#line 269 "src/txt/readstat_spss_commands_read.rl"
 							first_integer = integer; }
 						
-#line 2428 "src/txt/readstat_spss_commands_read.c"
+#line 2435 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 34:  {
 						{
-#line 262 "src/txt/readstat_spss_commands_read.rl"
+#line 269 "src/txt/readstat_spss_commands_read.rl"
 							label_type = LABEL_TYPE_RANGE; }
 						
-#line 2437 "src/txt/readstat_spss_commands_read.c"
+#line 2444 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
 					case 35:  {
 						{
-#line 263 "src/txt/readstat_spss_commands_read.rl"
+#line 270 "src/txt/readstat_spss_commands_read.rl"
 							label_type = LABEL_TYPE_STRING; }
 						
-#line 2446 "src/txt/readstat_spss_commands_read.c"
+#line 2453 "src/txt/readstat_spss_commands_read.c"
 						
 						break; 
 					}
@@ -2466,16 +2473,16 @@ const char *filepath, void *user_ctx, readstat_error_t *outError) {
 		_out: {}
 	}
 	
-#line 313 "src/txt/readstat_spss_commands_read.rl"
+#line 320 "src/txt/readstat_spss_commands_read.rl"
 	
 	
 	/* suppress warnings */
 	(void)spss_commands_en_main;
 	
 	if (cs < 
-#line 2477 "src/txt/readstat_spss_commands_read.c"
+#line 2484 "src/txt/readstat_spss_commands_read.c"
 	646
-#line 318 "src/txt/readstat_spss_commands_read.rl"
+#line 325 "src/txt/readstat_spss_commands_read.rl"
 	) {
 		char error_buf[1024];
 		if (p == pe) {

@@ -5,7 +5,7 @@
 static readstat_value_t make_blank_value(void);
 static readstat_value_t make_double_value(double dval);
 
-static readstat_value_t make_blank_value() {
+static readstat_value_t make_blank_value(void) {
     readstat_value_t value = { .is_system_missing = 1, .v = { .double_value = NAN }, .type = READSTAT_TYPE_DOUBLE };
     return value;
 }
@@ -37,6 +37,13 @@ const char *readstat_variable_get_label(const readstat_variable_t *variable) {
 const char *readstat_variable_get_format(const readstat_variable_t *variable) {
     if (variable->format[0])
         return variable->format;
+
+    return NULL;
+}
+
+const char *readstat_variable_get_informat(const readstat_variable_t *variable) {
+    if (variable->informat[0])
+        return variable->informat;
 
     return NULL;
 }

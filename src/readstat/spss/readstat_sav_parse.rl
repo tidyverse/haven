@@ -17,7 +17,7 @@
         
     non_ascii_byte = (0x80 .. 0xFE); # multi-byte sequence might be incomplete
 
-    key = ( ( non_ascii_byte | [A-Z@] ) ( non_ascii_byte | [A-Za-z0-9@#$_\.] ){0,7} ) >{ str_start = fpc; } %{ str_len = fpc - str_start; };
+    key = ( ( non_ascii_byte | [A-Za-z@] ) ( non_ascii_byte | [A-Za-z0-9@#$_\.] ){0,7} ) >{ str_start = fpc; } %{ str_len = fpc - str_start; };
 }%%
 
 typedef struct varlookup {
@@ -101,26 +101,43 @@ readstat_error_t sav_parse_long_variable_names_record(void *data, int count, sav
     %%{
         action set_long_name {
             varlookup_t *found = bsearch(temp_key, table, var_count, sizeof(varlookup_t), &compare_key_varlookup);
-            if (found) {
-                spss_varinfo_t *info = ctx->varinfo[found->index];
-                memcpy(info->longname, temp_val, str_len);
-                info->longname[str_len] = '\0';
-            } else if (ctx->handle.error) {
+            if (!found) {
                 snprintf(error_buf, sizeof(error_buf), "Failed to find %s", temp_key);
-                ctx->handle.error(error_buf, ctx->user_ctx);
+                if (ctx->handle.error)
+                    ctx->handle.error(error_buf, ctx->user_ctx);
+            } else {
+                // Handle the edge case where a ghost variable name (from a multi-segment
+                // variable) is identical to a real variable name. Normally we handle this
+                // by incrementing the loop variable by n_segments, but n_segments hasn't
+                // been set when this record is processed. So just set the longname to every
+                // matching variable, ghost or real.
+                varlookup_t *iter_match = found;
+                while (iter_match >= table && strcmp(iter_match->name, temp_key) == 0) {
+                    spss_varinfo_t *info = ctx->varinfo[iter_match->index];
+                    snprintf(info->longname, sizeof(info->longname), "%*s", (int)str_len, temp_val);
+                    iter_match--;
+                }
+                iter_match = found + 1;
+                while (iter_match - table < var_count && strcmp(iter_match->name, temp_key) == 0) {
+                    spss_varinfo_t *info = ctx->varinfo[iter_match->index];
+                    snprintf(info->longname, sizeof(info->longname), "%*s", (int)str_len, temp_val);
+                    iter_match++;
+                }
             }
         }
 
         action copy_value {
+            if (str_len > sizeof(temp_val) - 1)
+                str_len = sizeof(temp_val) - 1;
             memcpy(temp_val, str_start, str_len);
             temp_val[str_len] = '\0';
         }
 
-        value = ( non_ascii_byte | print ){1,64} >{ str_start = fpc; } %{ str_len = fpc - str_start; };
+        value = ( non_ascii_byte | print )+ >{ str_start = fpc; } %{ str_len = fpc - str_start; if (str_len > 64) str_len = 64; };
         
         keyval = ( key %copy_key "=" value %copy_value ) %set_long_name;
         
-        main := keyval ("\t" keyval)*  "\t"?;
+        main := keyval ("\t" keyval)*  "\t"? "\0"*;
         
         write init;
         write exec;
@@ -129,7 +146,7 @@ readstat_error_t sav_parse_long_variable_names_record(void *data, int count, sav
     if (cs < %%{ write first_final; }%%|| p != pe) {
         if (ctx->handle.error) {
             snprintf(error_buf, sizeof(error_buf), "Error parsing string \"%.*s\" around byte #%ld/%d, character %c", 
-                    count, (char *)data, (long)(p - c_data), count, *p);
+                    count, (char *)data, (long)(p - c_data), count, p < pe ? *p : '?');
             ctx->handle.error(error_buf, ctx->user_ctx);
         }
         retval = READSTAT_ERROR_PARSE;
@@ -178,9 +195,24 @@ readstat_error_t sav_parse_very_long_string_record(void *data, int count, sav_ct
         action set_width {
             varlookup_t *found = bsearch(temp_key, table, var_count, sizeof(varlookup_t), &compare_key_varlookup);
             if (found) {
-                ctx->varinfo[found->index]->string_length = temp_val;
-                ctx->varinfo[found->index]->write_format.width = temp_val;
-                ctx->varinfo[found->index]->print_format.width = temp_val;
+                // See logic above; we need to apply this to all matching variables since ghost variable
+                // names may conflict with real variable names.
+                varlookup_t *first_match = found, *last_match = found;
+                varlookup_t *iter_match = found - 1;
+                while (iter_match >= table && strcmp(iter_match->name, temp_key) == 0) {
+                    first_match = iter_match;
+                    iter_match--;
+                }
+                iter_match = found + 1;
+                while (iter_match - table < var_count && strcmp(iter_match->name, temp_key) == 0) {
+                    last_match = iter_match;
+                    iter_match++;
+                }
+                for (iter_match=first_match; iter_match<=last_match; iter_match++) {
+                    ctx->varinfo[iter_match->index]->string_length = temp_val;
+                    ctx->varinfo[iter_match->index]->write_format.width = temp_val;
+                    ctx->varinfo[iter_match->index]->print_format.width = temp_val;
+                }
             }
         }
 

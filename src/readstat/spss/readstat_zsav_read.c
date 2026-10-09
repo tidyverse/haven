@@ -120,6 +120,11 @@ readstat_error_t zsav_read_compressed_data(sav_ctx_t *ctx,
             goto cleanup;
 
         struct ztrailer_entry *entry = &ztrailer_entries[block_i];
+        if (entry->uncompressed_size == 0) {
+            /* PSPP finishes an empty zlib stream for files with no cases */
+            block_i++;
+            continue;
+        }
         if (io->seek(entry->compressed_ofs, READSTAT_SEEK_SET, io->io_ctx) == -1) {
             retval = READSTAT_ERROR_SEEK;
             goto cleanup;

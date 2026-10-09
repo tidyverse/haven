@@ -14,6 +14,17 @@
 #define DTA_MIN_VERSION 104
 #define DTA_MAX_VERSION 119
 
+/* Only the format numbers Stata has actually released; 106, 107, 109, 112 and
+ * 116 were never used for files. */
+int dta_format_is_supported(int ds_format) {
+    switch (ds_format) {
+        case 104: case 105: case 108: case 110: case 111:
+        case 113: case 114: case 115: case 117: case 118: case 119:
+            return 1;
+    }
+    return 0;
+}
+
 dta_ctx_t *dta_ctx_alloc(readstat_io_t *io) {
     dta_ctx_t *ctx = calloc(1, sizeof(dta_ctx_t));
     if (ctx == NULL) {
@@ -31,7 +42,7 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, uint32_t nvar, uint64_t nobs,
         const char *input_encoding, const char *output_encoding) {
     readstat_error_t retval = READSTAT_OK;
     int machine_byteorder = DTA_HILO;
-    if (ds_format < DTA_MIN_VERSION || ds_format > DTA_MAX_VERSION)
+    if (!dta_format_is_supported(ds_format))
         return READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION;
 
     if (machine_is_little_endian()) {
@@ -46,7 +57,7 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, uint32_t nvar, uint64_t nobs,
     ctx->nobs = nobs;
 
     if (ctx->nvar) {
-        if ((ctx->variables = readstat_calloc(ctx->nvar, sizeof(readstat_variable_t *))) == NULL) {
+        if ((ctx->variables = calloc(ctx->nvar, sizeof(readstat_variable_t *))) == NULL) {
             retval = READSTAT_ERROR_MALLOC;
             goto cleanup;
         }
@@ -72,7 +83,12 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, uint32_t nvar, uint64_t nobs,
         ctx->typlist_version = 0;
     }
 
-    if (ds_format >= 118) {
+    if (ds_format >= 119) {
+        /* The 8-byte (v,o) field in the data is a 3-byte v and a 5-byte o */
+        ctx->data_label_len_len = 2;
+        ctx->strl_v_len = 3;
+        ctx->strl_o_len = 5;
+    } else if (ds_format >= 118) {
         ctx->data_label_len_len = 2;
         ctx->strl_v_len = 2;
         ctx->strl_o_len = 6;
@@ -117,13 +133,23 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, uint32_t nvar, uint64_t nobs,
 
     if (ds_format < 105) {
         ctx->timestamp_len = 0;
-        ctx->value_label_table_len_len = 2;
-        ctx->value_label_table_labname_len = 12;
-        ctx->value_label_table_padding_len = 2;
     } else {
         ctx->timestamp_len = 18;
+    }
+
+    /* Value label tables. Formats 105 and earlier use the "old" layout:
+     * n (int16), labname (9 bytes), 1 byte of padding, n int16 codes, then n
+     * 8-byte labels. Format 108 uses the modern layout but with a 9-byte
+     * label name; later formats widen the name with the variable name. */
+    if (ds_format < 108) {
+        ctx->value_label_table_len_len = 2;
+        ctx->value_label_table_labname_len = 9;
+        ctx->value_label_table_padding_len = 1;
+    } else {
         ctx->value_label_table_len_len = 4;
-        if (ds_format < 118) {
+        if (ds_format < 110) {
+            ctx->value_label_table_labname_len = 9;
+        } else if (ds_format < 118) {
             ctx->value_label_table_labname_len = 33;
         } else {
             ctx->value_label_table_labname_len = 129;
@@ -176,35 +202,47 @@ readstat_error_t dta_ctx_init(dta_ctx_t *ctx, uint32_t nvar, uint64_t nobs,
         ctx->srtlist_len = (ctx->nvar + 1) * sizeof(int32_t);
     }
 
-    if ((ctx->srtlist = readstat_malloc(ctx->srtlist_len)) == NULL) {
+    if ((ctx->srtlist = malloc(ctx->srtlist_len)) == NULL) {
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;
     }
 
     if (ctx->nvar > 0) {
+        if (ctx->file_size > 0) {
+            /* Every variable has a mandatory entry in each descriptor list, so
+             * a variable count whose descriptors alone exceed the file size
+             * cannot be read. Reject it here rather than allocating for it. */
+            size_t bytes_per_var = ctx->typlist_entry_len + ctx->variable_name_len
+                + ctx->fmtlist_entry_len + ctx->lbllist_entry_len + ctx->variable_labels_entry_len
+                + (ds_format < 119 ? sizeof(int16_t) : sizeof(int32_t));
+            if ((uint64_t)ctx->nvar * bytes_per_var > ctx->file_size) {
+                retval = READSTAT_ERROR_PARSE;
+                goto cleanup;
+            }
+        }
         ctx->typlist_len = ctx->nvar * sizeof(uint16_t);
         ctx->varlist_len = ctx->variable_name_len * ctx->nvar * sizeof(char);
         ctx->fmtlist_len = ctx->fmtlist_entry_len * ctx->nvar * sizeof(char);
         ctx->lbllist_len = ctx->lbllist_entry_len * ctx->nvar * sizeof(char);
         ctx->variable_labels_len = ctx->variable_labels_entry_len * ctx->nvar * sizeof(char);
 
-        if ((ctx->typlist = readstat_malloc(ctx->typlist_len)) == NULL) {
+        if ((ctx->typlist = malloc(ctx->typlist_len)) == NULL) {
             retval = READSTAT_ERROR_MALLOC;
             goto cleanup;
         }
-        if ((ctx->varlist = readstat_malloc(ctx->varlist_len)) == NULL) {
+        if ((ctx->varlist = malloc(ctx->varlist_len)) == NULL) {
             retval = READSTAT_ERROR_MALLOC;
             goto cleanup;
         }
-        if ((ctx->fmtlist = readstat_malloc(ctx->fmtlist_len)) == NULL) {
+        if ((ctx->fmtlist = malloc(ctx->fmtlist_len)) == NULL) {
             retval = READSTAT_ERROR_MALLOC;
             goto cleanup;
         }
-        if ((ctx->lbllist = readstat_malloc(ctx->lbllist_len)) == NULL) {
+        if ((ctx->lbllist = malloc(ctx->lbllist_len)) == NULL) {
             retval = READSTAT_ERROR_MALLOC;
             goto cleanup;
         }
-        if ((ctx->variable_labels = readstat_malloc(ctx->variable_labels_len)) == NULL) {
+        if ((ctx->variable_labels = malloc(ctx->variable_labels_len)) == NULL) {
             retval = READSTAT_ERROR_MALLOC;
             goto cleanup;
         }

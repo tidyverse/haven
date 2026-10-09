@@ -46,6 +46,7 @@ typedef struct sas_header_info_s {
     int64_t  subheader_pointer_size;
     int64_t  page_count;
     int64_t  header_size;
+    uint32_t page_number_mask;
     time_t   creation_time;
     time_t   modification_time;
     char     table_name[32];
@@ -63,6 +64,19 @@ typedef struct sas_text_ref_s {
     uint16_t    offset;
     uint16_t    length;
 } sas_text_ref_t;
+
+typedef enum sas_subheader_type_e {
+    SAS_SUBHEADER_TYPE_DATA,
+    SAS_SUBHEADER_TYPE_ROW_SIZE,
+    SAS_SUBHEADER_TYPE_COLUMN_SIZE,
+    SAS_SUBHEADER_TYPE_COUNTS,
+    SAS_SUBHEADER_TYPE_COLUMN_FORMAT,
+    SAS_SUBHEADER_TYPE_COLUMN_ATTRS,
+    SAS_SUBHEADER_TYPE_COLUMN_TEXT,
+    SAS_SUBHEADER_TYPE_COLUMN_LIST,
+    SAS_SUBHEADER_TYPE_COLUMN_NAME,
+    SAS_SUBHEADER_TYPE_UNKNOWN
+} sas_subheader_type_t;
 
 #define SAS_ENDIAN_BIG       0x00
 #define SAS_ENDIAN_LITTLE    0x01
@@ -89,14 +103,18 @@ typedef struct sas_text_ref_s {
 #define SAS_SUBHEADER_SIGNATURE_COLUMN_LIST    0xFFFFFFFE
 #define SAS_SUBHEADER_SIGNATURE_COLUMN_NAME    0xFFFFFFFF
 
+#define SAS_SUBHEADER_SIGNATURE_64BIT_MASK     0xFFFFFFFF00000000
+#define SAS_SUBHEADER_SIGNATURE_32BIT_MASK     0x00000000FFFFFFFF
+
 #define SAS_PAGE_TYPE_META   0x0000
 #define SAS_PAGE_TYPE_DATA   0x0100
 #define SAS_PAGE_TYPE_MIX    0x0200
 #define SAS_PAGE_TYPE_AMD    0x0400
 #define SAS_PAGE_TYPE_MASK   0x0F00
 
-#define SAS_PAGE_TYPE_META2  0x4000
-#define SAS_PAGE_TYPE_COMP   0x9000
+#define SAS_PAGE_TYPE_DELETED_ROWS  0x0080
+#define SAS_PAGE_TYPE_META2         0x4000
+#define SAS_PAGE_TYPE_COMP          0x9000
 
 #define SAS_SUBHEADER_POINTER_SIZE_32BIT    12
 #define SAS_SUBHEADER_POINTER_SIZE_64BIT    24
@@ -104,9 +122,15 @@ typedef struct sas_text_ref_s {
 #define SAS_PAGE_HEADER_SIZE_32BIT  24
 #define SAS_PAGE_HEADER_SIZE_64BIT  40
 
-#define SAS_COMPRESSION_NONE   0x00
-#define SAS_COMPRESSION_TRUNC  0x01
-#define SAS_COMPRESSION_ROW    0x04
+#define SAS_COMPRESSION_NONE               0x00
+#define SAS_COMPRESSION_TRUNC              0x01
+#define SAS_COMPRESSION_NONE_MOVED         0x02
+#define SAS_COMPRESSION_REFERENCE          0x03
+#define SAS_COMPRESSION_ROW                0x04
+#define SAS_COMPRESSION_DELETED_ROW        0x05
+#define SAS_COMPRESSION_ROW_MOVED          0x06
+#define SAS_COMPRESSION_NONE_UNREFERENCED  0x09
+#define SAS_COMPRESSION_ROW_UNREFERENCED   0x0d
 
 #define SAS_COMPRESSION_SIGNATURE_RLE  "SASYZCRL"
 #define SAS_COMPRESSION_SIGNATURE_RDC  "SASYZCR2"

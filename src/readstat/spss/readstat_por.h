@@ -33,9 +33,16 @@ typedef struct por_ctx_s {
 
 por_ctx_t *por_ctx_init(void);
 void por_ctx_free(por_ctx_t *ctx);
-ssize_t por_utf8_encode(const unsigned char *input, size_t input_len, 
+ssize_t por_utf8_encode(const unsigned char *input, size_t input_len,
         char *output, size_t output_len, uint16_t lookup[256]);
 ssize_t por_utf8_decode(
         const char *input, size_t input_len,
         char *output, size_t output_len,
         uint8_t *lookup, size_t lookup_len);
+/* Number of code points in a UTF-8 string, or -1 if it is malformed */
+ssize_t por_utf8_count(const char *input, size_t input_len);
+/* Exact base-30 expansion of a finite, nonzero double: fills trigs with
+ * digit values 0-29 (most significant first, no leading zeros) and sets
+ * *out_trig_places to the number of digits before the radix point (which may
+ * be negative or exceed the digit count). Returns the digit count or -1. */
+int por_double_to_trigs(double value, unsigned char *trigs, int max_trigs, int *out_trig_places);

@@ -6,22 +6,39 @@
 
 readstat_error_t submit_value_label(readstat_parser_t *parser, const char *labelset,
         label_type_t label_type, int64_t first_integer, int64_t last_integer,
-        double double_value, const char *string_value, const char *buf, void *user_ctx) {
+        double double_value, const char *string_value, const char *buf,
+        uint64_t *range_values_remaining, void *user_ctx) {
     if (!parser->handlers.value_label)
         return READSTAT_OK;
 
     int cb_retval = READSTAT_HANDLER_OK;
     if (label_type == LABEL_TYPE_RANGE) {
-        int64_t i;
-        for (i=first_integer; i<=last_integer; i++) {
-            readstat_value_t value = { 
+        if (first_integer > last_integer)
+            return READSTAT_OK;
+
+        /* A range is expanded into one label per integer. Cap the running
+         * total across the whole file so a range like "0 - 99999999999999999"
+         * cannot spin (unsigned arithmetic: the span can exceed INT64_MAX). */
+        uint64_t span = (uint64_t)last_integer - (uint64_t)first_integer;
+        if (span >= *range_values_remaining)
+            return READSTAT_ERROR_PARSE;
+        *range_values_remaining -= span + 1;
+
+        int64_t i = first_integer;
+        while (1) {
+            readstat_value_t value = {
                 .type = READSTAT_TYPE_DOUBLE,
                 .v = { .double_value = i } };
             cb_retval = parser->handlers.value_label(labelset, value, buf, user_ctx);
             if (cb_retval != READSTAT_HANDLER_OK)
                 goto cleanup;
+            /* Compare before incrementing so last_integer == INT64_MAX can't overflow */
+            if (i == last_integer)
+                break;
+            i++;
         }
     } else if (label_type != LABEL_TYPE_OTHER) {
+
         readstat_value_t value = { { 0 } };
         if (label_type == LABEL_TYPE_DOUBLE) {
             value.type = READSTAT_TYPE_DOUBLE;
