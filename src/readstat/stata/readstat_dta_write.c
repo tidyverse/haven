@@ -155,7 +155,7 @@ static readstat_error_t dta_emit_header_time_stamp(readstat_writer_t *writer, dt
     if (writer->timestamp != 0) {
         time_t now = writer->timestamp;
         struct tm time_buf;
-#if !defined _MSC_VER
+#if !defined(_WIN32)
         struct tm *time_s = localtime_r(&now, &time_buf);
 #else
         errno_t time_err = localtime_s(&time_buf, &now);
