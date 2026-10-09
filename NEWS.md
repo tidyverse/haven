@@ -5,7 +5,10 @@
   * Fix issue writing SAV files with labels for string values longer than 8 bytes (#550).
   * Fix issue reading SAS files with zero observations (#627).
   * Fix issue writing XPT V8 datasets with long variable labels (#784).
-  * FIx issue reading SAV files where an MR set name contains a non-ASCII character (#788).
+  * Fix issue reading SAV files where an MR set name contains a non-ASCII character (#788).
+
+* `median()` method for `haven_labelled` vectors now forwards the `na.rm`
+  argument instead of always using `na.rm = TRUE`.
 
 * `col_select` in the `read_*()` functions now correctly implements the
   tidyselect interface. Columns will be returned in the order specified in
