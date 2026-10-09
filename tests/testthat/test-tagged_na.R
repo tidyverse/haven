@@ -43,11 +43,14 @@ test_that("values are checked if required", {
 
 test_that("format_tagged_na displays tagged NA's specially", {
   x <- c(1, tagged_na("a"), NA)
-  expect_equal(format_tagged_na(x), c(
-    "    1",
-    "NA(a)",
-    "   NA"
-  ))
+  expect_equal(
+    format_tagged_na(x),
+    c(
+      "    1",
+      "NA(a)",
+      "   NA"
+    )
+  )
 })
 
 test_that("print_tagged_na is stable", {

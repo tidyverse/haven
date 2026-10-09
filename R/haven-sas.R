@@ -38,12 +38,23 @@
 #' @examples
 #' path <- system.file("examples", "iris.sas7bdat", package = "haven")
 #' read_sas(path)
-read_sas <- function(data_file, catalog_file = NULL,
-                     encoding = NULL, catalog_encoding = encoding,
-                     col_select = NULL, skip = 0L, n_max = Inf, cols_only = deprecated(),
-                     .name_repair = "unique") {
+read_sas <- function(
+  data_file,
+  catalog_file = NULL,
+  encoding = NULL,
+  catalog_encoding = encoding,
+  col_select = NULL,
+  skip = 0L,
+  n_max = Inf,
+  cols_only = deprecated(),
+  .name_repair = "unique"
+) {
   if (lifecycle::is_present(cols_only)) {
-    lifecycle::deprecate_warn("2.2.0", "read_sas(cols_only)", "read_sas(col_select)")
+    lifecycle::deprecate_warn(
+      "2.2.0",
+      "read_sas(cols_only)",
+      "read_sas(col_select)"
+    )
     stopifnot(is.character(cols_only)) # used to only work with a char vector
 
     # guarantee a quosure to keep NULL and tidyselect logic clean downstream
@@ -57,7 +68,13 @@ read_sas <- function(data_file, catalog_file = NULL,
   }
 
   spec_data <- readr::datasource(data_file)
-  cols <- select_cols(read_sas, !!col_select, spec_data, encoding = encoding, .name_repair = .name_repair)
+  cols <- select_cols(
+    read_sas,
+    !!col_select,
+    spec_data,
+    encoding = encoding,
+    .name_repair = .name_repair
+  )
   n_max <- validate_n_max(n_max)
 
   if (is.null(catalog_file)) {
@@ -66,9 +83,26 @@ read_sas <- function(data_file, catalog_file = NULL,
     spec_cat <- readr::datasource(catalog_file)
   }
 
-  data <- switch(class(spec_data)[1],
-    source_file = df_parse_sas_file(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols$skip, n_max = n_max, rows_skip = skip),
-    source_raw = df_parse_sas_raw(spec_data, spec_cat, encoding = encoding, catalog_encoding = catalog_encoding, cols_skip = cols$skip, n_max = n_max, rows_skip = skip),
+  data <- switch(
+    class(spec_data)[1],
+    source_file = df_parse_sas_file(
+      spec_data,
+      spec_cat,
+      encoding = encoding,
+      catalog_encoding = catalog_encoding,
+      cols_skip = cols$skip,
+      n_max = n_max,
+      rows_skip = skip
+    ),
+    source_raw = df_parse_sas_raw(
+      spec_data,
+      spec_cat,
+      encoding = encoding,
+      catalog_encoding = catalog_encoding,
+      cols_skip = cols$skip,
+      n_max = n_max,
+      rows_skip = skip
+    ),
     cli_abort("This kind of input is not handled.")
   )
 
@@ -102,7 +136,6 @@ write_sas <- function(data, path) {
 }
 
 
-
 #' Read and write SAS transport files
 #'
 #' The SAS transport format is an open format, as is required for submission
@@ -131,12 +164,24 @@ write_sas <- function(data, path) {
 #' tmp <- tempfile(fileext = ".xpt")
 #' write_xpt(mtcars, tmp)
 #' read_xpt(tmp)
-read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
+read_xpt <- function(
+  file,
+  col_select = NULL,
+  skip = 0,
+  n_max = Inf,
+  .name_repair = "unique"
+) {
   spec <- readr::datasource(file)
-  cols <- select_cols(read_xpt, {{ col_select }}, spec, .name_repair = .name_repair)
+  cols <- select_cols(
+    read_xpt,
+    {{ col_select }},
+    spec,
+    .name_repair = .name_repair
+  )
   n_max <- validate_n_max(n_max)
 
-  data <- switch(class(spec)[1],
+  data <- switch(
+    class(spec)[1],
     source_file = df_parse_xpt_file(spec, cols$skip, n_max, skip),
     source_raw = df_parse_xpt_raw(spec, cols$skip, n_max, skip),
     cli_abort("This kind of input is not handled.")
@@ -168,9 +213,18 @@ read_xpt <- function(file, col_select = NULL, skip = 0, n_max = Inf, .name_repai
 #'   * If `FALSE`, date-time values are written as the corresponding UTC value,
 #'   e.g. `"2010-01-01 09:00:00 NZDT"` will be written as
 #'   `"2009-12-31 20:00:00"`.
-write_xpt <- function(data, path, version = 8, name = NULL, label = attr(data, "label"), adjust_tz = TRUE) {
+write_xpt <- function(
+  data,
+  path,
+  version = 8,
+  name = NULL,
+  label = attr(data, "label"),
+  adjust_tz = TRUE
+) {
   if (!version %in% c(5, 8)) {
-    cli_abort("SAS transport file version {.val {version}} is not currently supported.")
+    cli_abort(
+      "SAS transport file version {.val {version}} is not currently supported."
+    )
   }
 
   if (is.null(name)) {

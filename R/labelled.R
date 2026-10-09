@@ -48,8 +48,13 @@ labelled <- function(x = double(), labels = NULL, label = NULL) {
   validate_labelled(new_labelled(x, labels = labels, label = label))
 }
 
-new_labelled <- function(x = double(), labels = NULL, label = NULL,
-                         ..., class = character()) {
+new_labelled <- function(
+  x = double(),
+  labels = NULL,
+  label = NULL,
+  ...,
+  class = character()
+) {
   if (!is.numeric(x) && !is.character(x)) {
     cli_abort("{.arg x} must be a numeric or a character vector.")
   }
@@ -60,7 +65,8 @@ new_labelled <- function(x = double(), labels = NULL, label = NULL,
     cli_abort("{.arg label} must be a character vector of length one.")
   }
 
-  new_vctr(x,
+  new_vctr(
+    x,
     labels = labels,
     label = label,
     ...,
@@ -108,7 +114,7 @@ median.haven_labelled <- function(x, na.rm = TRUE, ...) {
   if (is.character(x)) {
     cli_abort("Can't compute median of {.cls labelled<character>}.")
   }
-  median(vec_data(x), na.rm = TRUE, ...)
+  median(vec_data(x), na.rm = na.rm, ...)
 }
 
 #' @importFrom stats quantile
@@ -216,7 +222,8 @@ is.labelled <- function(x) inherits(x, "haven_labelled")
 #' @export
 vec_ptype2.double.haven_labelled <- function(x, y, ...) {
   data_type <- vec_ptype2(x, vec_data(y), ...)
-  new_labelled(data_type,
+  new_labelled(
+    data_type,
     labels = vec_cast_named(attr(y, "labels"), data_type),
     label = attr(y, "label", exact = TRUE)
   )
@@ -233,13 +240,25 @@ vec_ptype2.haven_labelled.integer <- vec_ptype2.haven_labelled.double
 vec_ptype2.haven_labelled.character <- vec_ptype2.haven_labelled.double
 
 #' @export
-vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "", y_arg = "") {
+vec_ptype2.haven_labelled.haven_labelled <- function(
+  x,
+  y,
+  ...,
+  x_arg = "",
+  y_arg = ""
+) {
   # Use x as the prototype if the input vectors have matching metadata
   if (identical(attributes(x), attributes(y))) {
     return(x)
   }
 
-  data_type <- vec_ptype2(vec_data(x), vec_data(y), ..., x_arg = x_arg, y_arg = y_arg)
+  data_type <- vec_ptype2(
+    vec_data(x),
+    vec_data(y),
+    ...,
+    x_arg = x_arg,
+    y_arg = y_arg
+  )
 
   # Prefer labels from LHS
   x_labels <- vec_cast_named(attr(x, "labels"), data_type, x_arg = x_arg)
@@ -256,7 +275,9 @@ vec_ptype2.haven_labelled.haven_labelled <- function(x, y, ..., x_arg = "", y_ar
 #' @export
 vec_cast.double.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
 #' @export
-vec_cast.integer.haven_labelled <- function(x, to, ...) vec_cast(vec_data(x), to)
+vec_cast.integer.haven_labelled <- function(x, to, ...) {
+  vec_cast(vec_data(x), to)
+}
 #' @export
 vec_cast.character.haven_labelled <- function(x, to, ...) {
   if (is.character(x)) {
@@ -267,19 +288,32 @@ vec_cast.character.haven_labelled <- function(x, to, ...) {
 }
 
 #' @export
-vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_arg = "") {
+vec_cast.haven_labelled.haven_labelled <- function(
+  x,
+  to,
+  ...,
+  x_arg = "",
+  to_arg = ""
+) {
   # Don't perform any processing if the input vectors have matching metadata
   if (identical(attributes(x), attributes(to))) {
     return(x)
   }
 
-  out_data <- vec_cast(vec_data(x), vec_data(to), ..., x_arg = x_arg, to_arg = to_arg)
+  out_data <- vec_cast(
+    vec_data(x),
+    vec_data(to),
+    ...,
+    x_arg = x_arg,
+    to_arg = to_arg
+  )
 
   x_labels <- attr(x, "labels")
   to_labels <- attr(to, "labels")
   out_labels <- to_labels %||% x_labels
 
-  out <- labelled(out_data,
+  out <- labelled(
+    out_data,
     labels = out_labels,
     label = attr(x, "label", exact = TRUE)
   )
@@ -287,7 +321,11 @@ vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_ar
   # do we lose tagged na values?
   if (is.double(x) && !is.double(out)) {
     lossy <- is_tagged_na(x)
-    maybe_lossy_cast(out, x, to, lossy,
+    maybe_lossy_cast(
+      out,
+      x,
+      to,
+      lossy,
       x_arg = x_arg,
       to_arg = to_arg,
       details = "Only doubles can hold tagged na values."
@@ -297,10 +335,20 @@ vec_cast.haven_labelled.haven_labelled <- function(x, to, ..., x_arg = "", to_ar
   # do any values become unlabelled?
   if (!is.null(to_labels)) {
     lossy <- x %in% x_labels[!x_labels %in% out_labels]
-    maybe_lossy_cast(out, x, to, lossy,
+    maybe_lossy_cast(
+      out,
+      x,
+      to,
+      lossy,
       x_arg = x_arg,
       to_arg = to_arg,
-      details = paste0("Values are labelled in `", x_arg, "` but not in `", to_arg, "`.")
+      details = paste0(
+        "Values are labelled in `",
+        x_arg,
+        "` but not in `",
+        to_arg,
+        "`."
+      )
     )
   }
 

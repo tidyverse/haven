@@ -74,6 +74,12 @@ test_that("implements methods that vctrs requires", {
   expect_equal(summary(x_chr), summary(letters[1:3]))
 })
 
+test_that("median() forwards na.rm", {
+  x_int <- labelled(c(1L, NA, 3L))
+  expect_equal(median(x_int, na.rm = FALSE), NA_integer_)
+  expect_equal(median(x_int, na.rm = TRUE), 2L)
+})
+
 
 # types -------------------------------------------------------------------
 
@@ -103,14 +109,26 @@ test_that("can cast labelled to atomic vectors", {
 
   expect_identical(vec_cast(x_int, integer()), 1:2)
   expect_identical(vec_cast(x_int, double()), c(1, 2))
-  expect_error(vec_cast(x_int, character()), class = "vctrs_error_incompatible_type")
+  expect_error(
+    vec_cast(x_int, character()),
+    class = "vctrs_error_incompatible_type"
+  )
 
   expect_identical(vec_cast(x_dbl, integer()), 1:2)
   expect_identical(vec_cast(x_dbl, double()), c(1, 2))
-  expect_error(vec_cast(x_dbl, character()), class = "vctrs_error_incompatible_type")
+  expect_error(
+    vec_cast(x_dbl, character()),
+    class = "vctrs_error_incompatible_type"
+  )
 
-  expect_error(vec_cast(x_chr, integer()), class = "vctrs_error_incompatible_type")
-  expect_error(vec_cast(x_chr, double()), class = "vctrs_error_incompatible_type")
+  expect_error(
+    vec_cast(x_chr, integer()),
+    class = "vctrs_error_incompatible_type"
+  )
+  expect_error(
+    vec_cast(x_chr, double()),
+    class = "vctrs_error_incompatible_type"
+  )
   expect_identical(vec_cast(x_chr, character()), c("a", "b"))
 })
 
@@ -125,7 +143,10 @@ test_that("can cast atomic vectors to labelled", {
 
   expect_identical(vec_cast(c(0, 1), x_int), labelled(0:1))
   expect_identical(vec_cast(c(0, 1), x_dbl), labelled(c(0, 1)))
-  expect_error(vec_cast(c(0, 1), x_chr), class = "vctrs_error_incompatible_type")
+  expect_error(
+    vec_cast(c(0, 1), x_chr),
+    class = "vctrs_error_incompatible_type"
+  )
 
   expect_error(vec_cast("a", x_int), class = "vctrs_error_incompatible_type")
   expect_error(vec_cast("a", x_dbl), class = "vctrs_error_incompatible_type")
@@ -178,18 +199,54 @@ test_that("warn only for conflicting labels", {
   })
 
   expect_snapshot_warning({
-    x <- labelled(1:2, c(a = 1, b = 2, c = 3, d = 4, e = 5, f = 6, g = 7, h = 8, i = 9, j = 10, k = 11, l = 12))
-    y <- labelled(1:2, c(A = 1, B = 2, C = 3, D = 4, E = 5, F = 6, G = 7, H = 8, I = 9, J = 10, K = 11, L = 12))
+    x <- labelled(
+      1:2,
+      c(
+        a = 1,
+        b = 2,
+        c = 3,
+        d = 4,
+        e = 5,
+        f = 6,
+        g = 7,
+        h = 8,
+        i = 9,
+        j = 10,
+        k = 11,
+        l = 12
+      )
+    )
+    y <- labelled(
+      1:2,
+      c(
+        A = 1,
+        B = 2,
+        C = 3,
+        D = 4,
+        E = 5,
+        F = 6,
+        G = 7,
+        H = 8,
+        I = 9,
+        J = 10,
+        K = 11,
+        L = 12
+      )
+    )
     c(x, y)
   })
 })
 
 test_that("combining picks label from the left", {
   expect_equal(
-    attr(vec_c(
-      labelled(label = "left"),
-      labelled(label = "right"),
-    ), "label", exact = TRUE),
+    attr(
+      vec_c(
+        labelled(label = "left"),
+        labelled(label = "right"),
+      ),
+      "label",
+      exact = TRUE
+    ),
     "left"
   )
 })
@@ -207,7 +264,10 @@ test_that("combining with bare vectors results in a labelled()", {
 test_that("casting to labelled throws lossy cast if not safe", {
   expect_incompatible_type(vec_cast("a", labelled()))
   expect_incompatible_type(vec_cast("a", labelled(integer())))
-  expect_error(vec_cast(1.1, labelled(integer())), class = "vctrs_error_cast_lossy")
+  expect_error(
+    vec_cast(1.1, labelled(integer())),
+    class = "vctrs_error_cast_lossy"
+  )
 })
 
 test_that("casting to a superset of labels works", {

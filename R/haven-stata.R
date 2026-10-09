@@ -78,16 +78,30 @@
 #' write_dta(mtcars, tmp)
 #' read_dta(tmp)
 #' read_stata(tmp)
-read_dta <- function(file, encoding = NULL, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
+read_dta <- function(
+  file,
+  encoding = NULL,
+  col_select = NULL,
+  skip = 0,
+  n_max = Inf,
+  .name_repair = "unique"
+) {
   if (is.null(encoding)) {
     encoding <- ""
   }
 
   spec <- readr::datasource(file)
-  cols <- select_cols(read_dta, {{ col_select }}, spec, encoding, .name_repair = .name_repair)
+  cols <- select_cols(
+    read_dta,
+    {{ col_select }},
+    spec,
+    encoding,
+    .name_repair = .name_repair
+  )
   n_max <- validate_n_max(n_max)
 
-  data <- switch(class(spec)[1],
+  data <- switch(
+    class(spec)[1],
     source_file = df_parse_dta_file(spec, encoding, cols$skip, n_max, skip),
     source_raw = df_parse_dta_raw(spec, encoding, cols$skip, n_max, skip),
     cli_abort("This kind of input is not handled.")
@@ -124,7 +138,14 @@ read_stata <- read_dta
 #'   * If `FALSE`, date-time values are written as the corresponding UTC value,
 #'   e.g. `"2010-01-01 09:00:00 NZDT"` will be written as
 #'   `"2009-12-31 20:00:00"`.
-write_dta <- function(data, path, version = 14, label = attr(data, "label"), strl_threshold = 2045, adjust_tz = TRUE) {
+write_dta <- function(
+  data,
+  path,
+  version = 14,
+  label = attr(data, "label"),
+  strl_threshold = 2045,
+  adjust_tz = TRUE
+) {
   data_out <- validate_dta(data, version = version)
   validate_dta_label(label)
 
@@ -160,7 +181,10 @@ stata_file_format <- function(version, call = caller_env()) {
   } else if (version %in% c(8L, 9L)) {
     113
   } else {
-    cli_abort("Stata version {.val {version}} is not currently supported.", call = call)
+    cli_abort(
+      "Stata version {.val {version}} is not currently supported.",
+      call = call
+    )
   }
 }
 
@@ -214,7 +238,6 @@ validate_dta_label <- function(label, call = caller_env()) {
     }
   }
 }
-
 
 
 # helpers -----------------------------------------------------------------

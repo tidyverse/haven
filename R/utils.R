@@ -70,7 +70,10 @@ select_cols <- function(reader, col_select = NULL, ..., call = caller_env()) {
 
 output_cols <- function(data, cols, name_repair, call = caller_env()) {
   if (is.null(cols$select)) {
-    set_names(data, vctrs::vec_as_names(names(data), repair = name_repair, call = call))
+    set_names(
+      data,
+      vctrs::vec_as_names(names(data), repair = name_repair, call = call)
+    )
   } else {
     set_names(data[rank(cols$select)], names(cols$select))
   }
@@ -78,7 +81,10 @@ output_cols <- function(data, cols, name_repair, call = caller_env()) {
 
 validate_n_max <- function(n, call = caller_env()) {
   if (!is.numeric(n) && !is.na(n)) {
-    cli_abort("{.arg n_max} must be {.cls numeric}, not {.cls {class(n)[1]}}.", call = call)
+    cli_abort(
+      "{.arg n_max} must be {.cls numeric}, not {.cls {class(n)[1]}}.",
+      call = call
+    )
   }
 
   if (length(n) != 1) {
