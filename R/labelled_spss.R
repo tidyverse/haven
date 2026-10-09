@@ -301,13 +301,11 @@ vec_cast.haven_labelled_spss.haven_labelled_spss <- function(
     lossy <- x %in% x_na_values
 
     if (!is.null(x_na_range)) {
-      lossy <- lossy |
-        (vec_data(x) >= x_na_range[1] & vec_data(x) <= x_na_range[2])
+      lossy <- lossy | in_range(vec_data(x), x_na_range)
     }
 
     if (!is.null(to_na_range)) {
-      lossy <- lossy &
-        !(vec_data(x) >= to_na_range[1] & vec_data(x) <= to_na_range[2])
+      lossy <- lossy & !in_range(vec_data(x), to_na_range)
     } else if (!is.null(to_na_values)) {
       lossy <- lossy & !x %in% to_na_values
     }
@@ -330,6 +328,10 @@ vec_cast.haven_labelled_spss.haven_labelled_spss <- function(
   }
 
   out
+}
+
+in_range <- function(x, range) {
+  !is.na(x) & x >= range[1] & x <= range[2]
 }
 
 #' @export
