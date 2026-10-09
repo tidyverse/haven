@@ -183,6 +183,22 @@ public:
     }
   }
 
+  void setTimestamp(time_t c_time, time_t m_time) {
+    if (c_time != 0) {
+      output_.attr("creation_timestamp") = timestamp(c_time);
+    }
+    if (m_time != 0) {
+      output_.attr("modified_timestamp") = timestamp(m_time);
+    }
+  }
+
+  cpp11::writable::doubles timestamp(time_t time) {
+    cpp11::writable::doubles out({(double) time});
+    out.attr("class") = {"POSIXct", "POSIXt"};
+    out.attr("tzone") = "UTC";
+    return out;
+  }
+
   void setNote(int note_index, const char *note) {
     if (note != NULL && strcmp(note, "") != 0) {
       notes_.push_back(note);
@@ -475,6 +491,7 @@ int dfreader_metadata(readstat_metadata_t *metadata, void *ctx) {
       readstat_get_var_count(metadata)
   );
   ((DfReader*) ctx)->setMetadata(readstat_get_file_label(metadata));
+  ((DfReader*) ctx)->setTimestamp(readstat_get_creation_time(metadata), readstat_get_modified_time(metadata));
   return 0;
 }
 

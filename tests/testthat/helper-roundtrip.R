@@ -1,9 +1,17 @@
+# Removes file metadata attributes (creation/modified timestamps)
+# that vary from run to run
+zap_file_metadata <- function(x) {
+  attr(x, "creation_timestamp") <- NULL
+  attr(x, "modified_timestamp") <- NULL
+  x
+}
+
 roundtrip_sav <- function(x, ...) {
   tmp <- tempfile()
   on.exit(unlink(tmp))
 
   write_sav(x, tmp, ...)
-  zap_formats(read_sav(tmp))
+  zap_file_metadata(zap_formats(read_sav(tmp)))
 }
 
 roundtrip_dta <- function(x, ...) {
@@ -11,7 +19,7 @@ roundtrip_dta <- function(x, ...) {
   on.exit(unlink(tmp))
 
   write_dta(x, tmp, ...)
-  zap_formats(read_dta(tmp))
+  zap_file_metadata(zap_formats(read_dta(tmp)))
 }
 
 roundtrip_sas <- function(x, ...) {
@@ -19,7 +27,7 @@ roundtrip_sas <- function(x, ...) {
   on.exit(unlink(tmp))
 
   write_sas(x, tmp, ...)
-  zap_formats(read_sas(tmp))
+  zap_file_metadata(zap_formats(read_sas(tmp)))
 }
 
 roundtrip_xpt <- function(x, ...) {
@@ -27,7 +35,7 @@ roundtrip_xpt <- function(x, ...) {
   on.exit(unlink(tmp))
 
   write_xpt(x, tmp, ...)
-  zap_formats(read_xpt(tmp))
+  zap_file_metadata(zap_formats(read_xpt(tmp)))
 }
 
 

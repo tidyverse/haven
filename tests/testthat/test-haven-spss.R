@@ -442,3 +442,21 @@ test_that("all compression types roundtrip successfully", {
   expect_equal(roundtrip_sav(df, compress = "none"), df)
   expect_equal(roundtrip_sav(df, compress = "zsav"), df)
 })
+
+# File metadata -----------------------------------------------------------
+
+test_that("read_sav attaches file timestamps", {
+  df <- tibble(x = 1:3)
+  before <- Sys.time()
+
+  path <- tempfile(fileext = ".sav")
+  write_sav(df, path)
+  out <- read_sav(path)
+
+  created <- attr(out, "creation_timestamp")
+  modified <- attr(out, "modified_timestamp")
+  expect_s3_class(created, "POSIXct")
+  expect_s3_class(modified, "POSIXct")
+  expect_true(created >= before - 60 && created <= Sys.time() + 60)
+  expect_true(modified >= before - 60 && modified <= Sys.time() + 60)
+})

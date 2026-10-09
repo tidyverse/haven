@@ -167,7 +167,7 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
 
   # This previously crashed with "attempt to set index 1/1 in SET_STRING_ELT"
   res <- read_xpt(path, col_select = id...1, .name_repair = "universal_quiet")
-  expect_equal(res, df[1])
+  expect_equal(zap_file_metadata(res), df[1])
 
   # Test selecting the first and third duplicate columns
   res2 <- read_xpt(
@@ -175,7 +175,7 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
     col_select = c(id...3, id...1),
     .name_repair = "universal_quiet"
   )
-  expect_equal(res2, df[c(3, 1)])
+  expect_equal(zap_file_metadata(res2), df[c(3, 1)])
 
   # Test renaming
   res3 <- read_xpt(
@@ -183,7 +183,7 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
     col_select = c(a = id...3, b = id...1),
     .name_repair = "universal_quiet"
   )
-  expect_equal(res3, set_names(df[c(3, 1)], c("a", "b")))
+  expect_equal(zap_file_metadata(res3), set_names(df[c(3, 1)], c("a", "b")))
 })
 
 test_that("date/times with character data throw a warning (#747)", {
@@ -319,7 +319,7 @@ test_that("can roundtrip format attribute", {
   path <- tempfile()
 
   write_xpt(df, path)
-  out <- read_xpt(path)
+  out <- zap_file_metadata(read_xpt(path))
 
   expect_identical(df, out)
 })
@@ -334,4 +334,35 @@ test_that("user width warns appropriately when data is wider than value", {
 
   path <- tempfile()
   expect_snapshot(write_xpt(df, path))
+})
+
+# File metadata -----------------------------------------------------------
+
+test_that("read_sas attaches file timestamps", {
+  out <- read_sas(test_path("sas/hadley.sas7bdat"))
+
+  expect_equal(
+    attr(out, "creation_timestamp"),
+    as.POSIXct("2015-02-09 20:55:12", tz = "UTC")
+  )
+  expect_equal(
+    attr(out, "modified_timestamp"),
+    as.POSIXct("2015-02-09 20:55:12", tz = "UTC")
+  )
+})
+
+test_that("read_xpt attaches file timestamps", {
+  df <- tibble(x = 1:3)
+  before <- Sys.time()
+
+  path <- tempfile(fileext = ".xpt")
+  write_xpt(df, path)
+  out <- read_xpt(path)
+
+  created <- attr(out, "creation_timestamp")
+  modified <- attr(out, "modified_timestamp")
+  expect_s3_class(created, "POSIXct")
+  expect_s3_class(modified, "POSIXct")
+  expect_true(created >= before - 60 && created <= Sys.time() + 60)
+  expect_true(modified >= before - 60 && modified <= Sys.time() + 60)
 })
