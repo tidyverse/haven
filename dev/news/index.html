@@ -55,14 +55,20 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="haven-development-version">haven (development version)<a class="anchor" aria-label="anchor" href="#haven-development-version"></a></h2>
-<ul><li><p><code><a href="../reference/read_dta.html">read_dta()</a></code>, <code><a href="../reference/read_spss.html">read_sav()</a></code>, <code><a href="../reference/read_spss.html">read_por()</a></code>, <code><a href="../reference/read_sas.html">read_sas()</a></code>, and <code><a href="../reference/read_xpt.html">read_xpt()</a></code> now attach file metadata as attributes: <code>creation_timestamp</code> and <code>modified_timestamp</code> (as POSIXct, in UTC) (<a href="https://github.com/tidyverse/haven/issues/733" class="external-link">#733</a>, <a href="https://github.com/SInginc" class="external-link">@SInginc</a>).</p></li>
-<li>
-<p>Updated to ReadStat dev a4984d5.</p>
-<ul><li>Fix issue writing SAV files with labels for string values longer than 8 bytes (<a href="https://github.com/tidyverse/haven/issues/550" class="external-link">#550</a>).</li>
-<li>Fix issue reading SAS files with zero observations (<a href="https://github.com/tidyverse/haven/issues/627" class="external-link">#627</a>).</li>
-<li>Fix issue writing XPT V8 datasets with long variable labels (<a href="https://github.com/tidyverse/haven/issues/784" class="external-link">#784</a>).</li>
-<li>Fix issue reading SAV files where an MR set name contains a non-ASCII character (<a href="https://github.com/tidyverse/haven/issues/788" class="external-link">#788</a>).</li>
+<ul><li>
+<p>Updated to ReadStat dev 835b88c.</p>
+<ul><li><p><code><a href="../reference/read_spss.html">write_sav()</a></code> no longer produces files that <code><a href="../reference/read_spss.html">read_sav()</a></code> reads back incorrectly when a long string variable’s internal segment name collides with another variable name (<a href="https://github.com/tidyverse/haven/issues/798" class="external-link">#798</a>).</p></li>
+<li><p>SAS catalog reader now correctly reads big-endian files.</p></li>
+<li><p>SAS reader now applies the timezone offset stored in the file header, so <code>creation_timestamp</code> and <code>modified_timestamp</code> attributes are now correctly reported in UTC.</p></li>
+<li><p>SAS reader now supports files with zero observations (<a href="https://github.com/tidyverse/haven/issues/627" class="external-link">#627</a>).</p></li>
+<li><p>SAS reader has improved support for RLE decompression and 16MiB page sizes.</p></li>
+<li><p>SAV reader now supports MR set names containing non-ASCII characters (<a href="https://github.com/tidyverse/haven/issues/788" class="external-link">#788</a>).</p></li>
+<li><p>SAV reader has improved support for Asian code pages and very long string records.</p></li>
+<li><p>SAV writer now supports labels for string values longer than 8 bytes (<a href="https://github.com/tidyverse/haven/issues/550" class="external-link">#550</a>).</p></li>
+<li><p>Stata reader no longer returns Stata’s internal note count (<code>_dta[note0]</code>) as a note, so <code>attr(df, "notes")</code> may contain one fewer note than before.</p></li>
+<li><p>XPT V8 writer now supports long variable labels (<a href="https://github.com/tidyverse/haven/issues/784" class="external-link">#784</a>).</p></li>
 </ul></li>
+<li><p><code><a href="../reference/read_dta.html">read_dta()</a></code>, <code><a href="../reference/read_spss.html">read_sav()</a></code>, <code><a href="../reference/read_spss.html">read_por()</a></code>, <code><a href="../reference/read_sas.html">read_sas()</a></code>, and <code><a href="../reference/read_xpt.html">read_xpt()</a></code> now attach file metadata as attributes: <code>creation_timestamp</code> and <code>modified_timestamp</code> (as POSIXct, in UTC) (<a href="https://github.com/tidyverse/haven/issues/733" class="external-link">#733</a>, <a href="https://github.com/SInginc" class="external-link">@SInginc</a>).</p></li>
 <li><p>Documentation for <code>read_*()</code> functions now more clearly explains that labelled vectors are an intermediate representation, and points users to <code><a href="../reference/as_factor.html">as_factor()</a></code> and <code><a href="../reference/zap_labels.html">zap_labels()</a></code> when preparing imported categorical variables for analysis (<a href="https://github.com/tidyverse/haven/issues/741" class="external-link">#741</a>).</p></li>
 <li><p><code><a href="https://rdrr.io/r/stats/median.html" class="external-link">median()</a></code> method for <code>haven_labelled</code> vectors now forwards the <code>na.rm</code> argument instead of always using <code>na.rm = TRUE</code>.</p></li>
 <li><p>Casting a <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> vector that contains <code>NA</code> to one with a different <code>na_range</code> no longer fails with “missing value where TRUE/FALSE needed”, which affected <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind()</a></code> and <code>dplyr::bind_rows()</code> (<a href="https://github.com/tidyverse/haven/issues/761" class="external-link">#761</a>, <a href="https://github.com/taekop" class="external-link">@taekop</a>).</p></li>
