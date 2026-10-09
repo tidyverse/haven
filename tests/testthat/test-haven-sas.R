@@ -167,7 +167,7 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
 
   # This previously crashed with "attempt to set index 1/1 in SET_STRING_ELT"
   res <- read_xpt(path, col_select = id...1, .name_repair = "universal")
-  expect_equal(res, df[1])
+  expect_equal(zap_file_metadata(res), df[1])
 
   # Test selecting the first and third duplicate columns
   res2 <- read_xpt(
@@ -175,7 +175,7 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
     col_select = c(id...3, id...1),
     .name_repair = "universal"
   )
-  expect_equal(res2, df[c(3, 1)])
+  expect_equal(zap_file_metadata(res2), df[c(3, 1)])
 
   # Test renaming
   res3 <- read_xpt(
@@ -183,7 +183,7 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
     col_select = c(a = id...3, b = id...1),
     .name_repair = "universal"
   )
-  expect_equal(res3, set_names(df[c(3, 1)], c("a", "b")))
+  expect_equal(zap_file_metadata(res3), set_names(df[c(3, 1)], c("a", "b")))
 })
 
 test_that("date/times with character data throw a warning (#747)", {
@@ -316,13 +316,10 @@ test_that("can roundtrip format attribute", {
     e = structure(100.12345, format.sas = "COMMA10.3")
   )
 
-  attr(df, "creation_timestamp") <- as.integer(Sys.time())
-  attr(df, "modified_timestamp") <- as.integer(Sys.time())
-
   path <- tempfile()
 
   write_xpt(df, path)
-  out <- read_xpt(path)
+  out <- zap_file_metadata(read_xpt(path))
 
   expect_identical(df, out)
 })

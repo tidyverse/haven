@@ -184,8 +184,19 @@ public:
   }
 
   void setTimestamp(time_t c_time, time_t m_time) {
-    output_.attr("creation_timestamp") = c_time;
-    output_.attr("modified_timestamp") = m_time;
+    if (c_time != 0) {
+      output_.attr("creation_timestamp") = timestamp(c_time);
+    }
+    if (m_time != 0) {
+      output_.attr("modified_timestamp") = timestamp(m_time);
+    }
+  }
+
+  cpp11::writable::doubles timestamp(time_t time) {
+    cpp11::writable::doubles out({(double) time});
+    out.attr("class") = {"POSIXct", "POSIXt"};
+    out.attr("tzone") = "UTC";
+    return out;
   }
 
   void setFileEncoding(const char *file_encoding) {

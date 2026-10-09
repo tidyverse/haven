@@ -1,5 +1,10 @@
 # haven (development version)
 
+* `read_dta()`, `read_sav()`, `read_por()`, `read_sas()`, and `read_xpt()` now
+  attach file metadata as attributes: `creation_timestamp` and
+  `modified_timestamp` (as POSIXct, in UTC) and, where recorded in the file,
+  `encoding` (#733, @SInginc).
+
 * Updated to ReadStat dev a4984d5.
 
   * Fix issue writing SAV files with labels for string values longer than 8 bytes (#550).
