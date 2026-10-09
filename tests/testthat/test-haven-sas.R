@@ -163,17 +163,17 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
   df <- set_names(data.frame(1:3, 4:6, 7:9), c("id", "id", "id"))
   path <- tempfile()
   write_xpt(df, path)
-  df <- tibble::as_tibble(df, .name_repair = "universal")
+  df <- tibble::as_tibble(df, .name_repair = "universal_quiet")
 
   # This previously crashed with "attempt to set index 1/1 in SET_STRING_ELT"
-  res <- read_xpt(path, col_select = id...1, .name_repair = "universal")
+  res <- read_xpt(path, col_select = id...1, .name_repair = "universal_quiet")
   expect_equal(res, df[1])
 
   # Test selecting the first and third duplicate columns
   res2 <- read_xpt(
     path,
     col_select = c(id...3, id...1),
-    .name_repair = "universal"
+    .name_repair = "universal_quiet"
   )
   expect_equal(res2, df[c(3, 1)])
 
@@ -181,7 +181,7 @@ test_that("col_select works with .name_repair and renaming for duplicate names",
   res3 <- read_xpt(
     path,
     col_select = c(a = id...3, b = id...1),
-    .name_repair = "universal"
+    .name_repair = "universal_quiet"
   )
   expect_equal(res3, set_names(df[c(3, 1)], c("a", "b")))
 })
