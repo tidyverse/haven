@@ -197,7 +197,12 @@ e.g. <code>"2010-01-01 09:00:00 NZDT"</code> will be written as
     <p>A tibble, data frame variant with nice defaults.</p>
 <p>Variable labels are stored in the "label" attribute of each variable.
 It is not printed on the console, but the RStudio viewer will show it.</p>
-<p><code>write_sav()</code> returns the input <code>data</code> invisibly.</p>
+<p>Value labels are preserved with the <code><a href="labelled.html">labelled()</a></code> class. Labelled vectors
+are an intermediate representation that preserves the original value
+labels, not a regular R factor. Convert labelled categorical variables
+with <code><a href="as_factor.html">as_factor()</a></code>, or remove value labels with <code><a href="zap_labels.html">zap_labels()</a></code> if you
+need plain R vectors for analysis. See <code><a href="../articles/semantics.html">vignette("semantics")</a></code> for more
+details.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

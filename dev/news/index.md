@@ -2,6 +2,15 @@
 
 ## haven (development version)
 
+- Documentation for `read_*()` functions now more clearly explains that
+  labelled vectors are an intermediate representation, and points users
+  to
+  [`as_factor()`](https://haven.tidyverse.org/dev/reference/as_factor.md)
+  and
+  [`zap_labels()`](https://haven.tidyverse.org/dev/reference/zap_labels.md)
+  when preparing imported categorical variables for analysis
+  ([\#741](https://github.com/tidyverse/haven/issues/741)).
+
 - [`median()`](https://rdrr.io/r/stats/median.html) method for
   `haven_labelled` vectors now forwards the `na.rm` argument instead of
   always using `na.rm = TRUE`.
