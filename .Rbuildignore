@@ -26,3 +26,4 @@
 ^\.cache$
 ^[.]?air[.]toml$
 ^\.vscode$
+^AGENTS\.md$
