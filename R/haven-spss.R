@@ -34,18 +34,47 @@ NULL
 
 #' @export
 #' @rdname read_spss
-read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
+read_sav <- function(
+  file,
+  encoding = NULL,
+  user_na = FALSE,
+  col_select = NULL,
+  skip = 0,
+  n_max = Inf,
+  .name_repair = "unique"
+) {
   if (is.null(encoding)) {
     encoding <- ""
   }
 
   spec <- readr::datasource(file)
-  cols <- select_cols(read_sav, {{ col_select }}, spec, encoding, .name_repair = .name_repair)
+  cols <- select_cols(
+    read_sav,
+    {{ col_select }},
+    spec,
+    encoding,
+    .name_repair = .name_repair
+  )
   n_max <- validate_n_max(n_max)
 
-  data <- switch(class(spec)[1],
-    source_file = df_parse_sav_file(spec, encoding, user_na, cols$skip, n_max, skip),
-    source_raw = df_parse_sav_raw(spec, encoding, user_na, cols$skip, n_max, skip),
+  data <- switch(
+    class(spec)[1],
+    source_file = df_parse_sav_file(
+      spec,
+      encoding,
+      user_na,
+      cols$skip,
+      n_max,
+      skip
+    ),
+    source_raw = df_parse_sav_raw(
+      spec,
+      encoding,
+      user_na,
+      cols$skip,
+      n_max,
+      skip
+    ),
     cli_abort("This kind of input is not handled.")
   )
 
@@ -54,14 +83,41 @@ read_sav <- function(file, encoding = NULL, user_na = FALSE, col_select = NULL, 
 
 #' @export
 #' @rdname read_spss
-read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
+read_por <- function(
+  file,
+  user_na = FALSE,
+  col_select = NULL,
+  skip = 0,
+  n_max = Inf,
+  .name_repair = "unique"
+) {
   spec <- readr::datasource(file)
-  cols <- select_cols(read_por, {{ col_select }}, spec, .name_repair = .name_repair)
+  cols <- select_cols(
+    read_por,
+    {{ col_select }},
+    spec,
+    .name_repair = .name_repair
+  )
   n_max <- validate_n_max(n_max)
 
-  data <- switch(class(spec)[1],
-    source_file = df_parse_por_file(spec, encoding = "", user_na = user_na, cols$skip, n_max, skip),
-    source_raw = df_parse_por_raw(spec, encoding = "", user_na = user_na, cols$skip, n_max, skip),
+  data <- switch(
+    class(spec)[1],
+    source_file = df_parse_por_file(
+      spec,
+      encoding = "",
+      user_na = user_na,
+      cols$skip,
+      n_max,
+      skip
+    ),
+    source_raw = df_parse_por_raw(
+      spec,
+      encoding = "",
+      user_na = user_na,
+      cols$skip,
+      n_max,
+      skip
+    ),
     cli_abort("This kind of input is not handled.")
   )
 
@@ -92,7 +148,12 @@ read_por <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max =
 #'   * If `FALSE`, date-time values are written as the corresponding UTC value,
 #'   e.g. `"2010-01-01 09:00:00 NZDT"` will be written as
 #'   `"2009-12-31 20:00:00"`.
-write_sav <- function(data, path, compress = c("byte", "none", "zsav"), adjust_tz = TRUE) {
+write_sav <- function(
+  data,
+  path,
+  compress = c("byte", "none", "zsav"),
+  adjust_tz = TRUE
+) {
   if (isTRUE(compress)) {
     compress <- "zsav"
   } else if (isFALSE(compress)) {
@@ -107,7 +168,11 @@ write_sav <- function(data, path, compress = c("byte", "none", "zsav"), adjust_t
     data_out <- adjust_tz(data_out)
   }
 
-  write_sav_(data_out, normalizePath(path, mustWork = FALSE), compress = compress)
+  write_sav_(
+    data_out,
+    normalizePath(path, mustWork = FALSE),
+    compress = compress
+  )
   invisible(data)
 }
 
@@ -116,13 +181,42 @@ write_sav <- function(data, path, compress = c("byte", "none", "zsav"), adjust_t
 #' @param user_na If `TRUE` variables with user defined missing will
 #'   be read into [labelled_spss()] objects. If `FALSE`, the
 #'   default, user-defined missings will be converted to `NA`.
-read_spss <- function(file, user_na = FALSE, col_select = NULL, skip = 0, n_max = Inf, .name_repair = "unique") {
+read_spss <- function(
+  file,
+  user_na = FALSE,
+  col_select = NULL,
+  skip = 0,
+  n_max = Inf,
+  .name_repair = "unique"
+) {
   ext <- tolower(tools::file_ext(file))
 
-  switch(ext,
-    sav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
-    zsav = read_sav(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
-    por = read_por(file, user_na = user_na, col_select = {{ col_select }}, n_max = n_max, skip = skip, .name_repair = .name_repair),
+  switch(
+    ext,
+    sav = read_sav(
+      file,
+      user_na = user_na,
+      col_select = {{ col_select }},
+      n_max = n_max,
+      skip = skip,
+      .name_repair = .name_repair
+    ),
+    zsav = read_sav(
+      file,
+      user_na = user_na,
+      col_select = {{ col_select }},
+      n_max = n_max,
+      skip = skip,
+      .name_repair = .name_repair
+    ),
+    por = read_por(
+      file,
+      user_na = user_na,
+      col_select = {{ col_select }},
+      n_max = n_max,
+      skip = skip,
+      .name_repair = .name_repair
+    ),
     cli_abort("Unknown extension {.file .{ext}}.")
   )
 }
@@ -141,11 +235,27 @@ validate_sav <- function(data, call = caller_env()) {
   #
   # For simplicity, we allow characters with the Unicode properties
   # letters (\pL), numbers (\pN) and currency symbols (\pSc).
-  bad_name <- !grepl("^[\\pL@]([\\pL\\pN\\pSc._$#@]*[\\pL\\pN\\pSc_$#@])?$", names(data), perl = TRUE)
+  bad_name <- !grepl(
+    "^[\\pL@]([\\pL\\pN\\pSc._$#@]*[\\pL\\pN\\pSc_$#@])?$",
+    names(data),
+    perl = TRUE
+  )
   reserved_keyword <-
-    toupper(names(data)) %in% c(
-      "ALL", "AND", "BY", "EQ", "GE", "GT", "LE",
-      "LT", "NE", "NOT", "OR", "TO", "WITH"
+    toupper(names(data)) %in%
+    c(
+      "ALL",
+      "AND",
+      "BY",
+      "EQ",
+      "GE",
+      "GT",
+      "LE",
+      "LT",
+      "NE",
+      "NOT",
+      "OR",
+      "TO",
+      "WITH"
     )
   bad_length <- nchar(names(data), type = "bytes") > 64
   bad_vars <- bad_length | bad_name | reserved_keyword

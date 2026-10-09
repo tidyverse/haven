@@ -4,16 +4,19 @@ test_that("stata data types read into expected types (#45)", {
   df <- read_stata(test_path("stata/types.dta"))
   types <- vapply(df, typeof, character(1))
 
-  expect_equal(types, c(
-    vfloat = "double",
-    vdouble = "double",
-    vlong = "double",
-    vint = "double",
-    vbyte = "double",
-    vstr = "character",
-    vdate = "double",
-    vdatetime = "double"
-  ))
+  expect_equal(
+    types,
+    c(
+      vfloat = "double",
+      vdouble = "double",
+      vlong = "double",
+      vint = "double",
+      vbyte = "double",
+      vstr = "character",
+      vdate = "double",
+      vdatetime = "double"
+    )
+  )
 })
 
 test_that("Stata %td (date) and %tc (datetime) read into expected classes", {
@@ -195,7 +198,10 @@ test_that("labels are converted to utf-8", {
   v_latin1 <- labelled(3:1, setNames(1:3, labels_latin1))
 
   expect_equal(names(attr(roundtrip_var(v_utf8, "dta"), "labels")), labels_utf8)
-  expect_equal(names(attr(roundtrip_var(v_latin1, "dta"), "labels")), labels_utf8)
+  expect_equal(
+    names(attr(roundtrip_var(v_latin1, "dta"), "labels")),
+    labels_utf8
+  )
 })
 
 test_that("supports stata version 15", {
@@ -258,7 +264,6 @@ test_that("can roundtrip long strings (strL)", {
 
 
 test_that("invisibly returns original data unaltered", {
-
   df <- tibble(
     x = 1:5,
     dt = seq(
