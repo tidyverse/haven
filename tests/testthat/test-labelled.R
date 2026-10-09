@@ -74,6 +74,12 @@ test_that("implements methods that vctrs requires", {
   expect_equal(summary(x_chr), summary(letters[1:3]))
 })
 
+test_that("median() forwards na.rm", {
+  x_int <- labelled(c(1L, NA, 3L))
+  expect_equal(median(x_int, na.rm = FALSE), NA_integer_)
+  expect_equal(median(x_int, na.rm = TRUE), 2L)
+})
+
 
 # types -------------------------------------------------------------------
 
