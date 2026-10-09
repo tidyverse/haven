@@ -2,6 +2,19 @@
 
 ## haven (development version)
 
+- Updated to ReadStat dev a4984d5.
+
+  - Fix issue writing SAV files with labels for string values longer
+    than 8 bytes
+    ([\#550](https://github.com/tidyverse/haven/issues/550)).
+  - Fix issue reading SAS files with zero observations
+    ([\#627](https://github.com/tidyverse/haven/issues/627)).
+  - Fix issue writing XPT V8 datasets with long variable labels
+    ([\#784](https://github.com/tidyverse/haven/issues/784)).
+  - Fix issue reading SAV files where an MR set name contains a
+    non-ASCII character
+    ([\#788](https://github.com/tidyverse/haven/issues/788)).
+
 - Documentation for `read_*()` functions now more clearly explains that
   labelled vectors are an intermediate representation, and points users
   to
@@ -77,7 +90,7 @@
 
 CRAN release: 2025-05-30
 
-- Updated ReadStat to fix stricter gcc diagnostics.
+- Updated to ReadStat dev b2d5407 to fix stricter gcc diagnostics.
 
 ## haven 2.5.4
 
