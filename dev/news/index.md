@@ -2,6 +2,17 @@
 
 ## haven (development version)
 
+- [`read_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md),
+  [`read_sav()`](https://haven.tidyverse.org/dev/reference/read_spss.md),
+  [`read_por()`](https://haven.tidyverse.org/dev/reference/read_spss.md),
+  [`read_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md),
+  and
+  [`read_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
+  now attach file metadata as attributes: `creation_timestamp` and
+  `modified_timestamp` (as POSIXct, in UTC)
+  ([\#733](https://github.com/tidyverse/haven/issues/733),
+  [@SInginc](https://github.com/SInginc)).
+
 - Updated to ReadStat dev a4984d5.
 
   - Fix issue writing SAV files with labels for string values longer

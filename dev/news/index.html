@@ -55,7 +55,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="haven-development-version">haven (development version)<a class="anchor" aria-label="anchor" href="#haven-development-version"></a></h2>
-<ul><li>
+<ul><li><p><code><a href="../reference/read_dta.html">read_dta()</a></code>, <code><a href="../reference/read_spss.html">read_sav()</a></code>, <code><a href="../reference/read_spss.html">read_por()</a></code>, <code><a href="../reference/read_sas.html">read_sas()</a></code>, and <code><a href="../reference/read_xpt.html">read_xpt()</a></code> now attach file metadata as attributes: <code>creation_timestamp</code> and <code>modified_timestamp</code> (as POSIXct, in UTC) (<a href="https://github.com/tidyverse/haven/issues/733" class="external-link">#733</a>, <a href="https://github.com/SInginc" class="external-link">@SInginc</a>).</p></li>
+<li>
 <p>Updated to ReadStat dev a4984d5.</p>
 <ul><li>Fix issue writing SAV files with labels for string values longer than 8 bytes (<a href="https://github.com/tidyverse/haven/issues/550" class="external-link">#550</a>).</li>
 <li>Fix issue reading SAS files with zero observations (<a href="https://github.com/tidyverse/haven/issues/627" class="external-link">#627</a>).</li>
