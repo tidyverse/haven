@@ -242,6 +242,20 @@ test_that("invalid files generate informative errors", {
   })
 })
 
+test_that("progress bar is closed when parsing fails", {
+  local_options(
+    cli.progress_show_after = 0,
+    cli.progress_handlers_only = "logger"
+  )
+  path <- tempfile(fileext = ".dta")
+  write_dta(mtcars, path)
+  bytes <- readBin(path, "raw", file.size(path))
+  writeBin(bytes[seq_len(length(bytes) - 100)], path)
+
+  out <- capture.output(try(read_dta(path, progress = TRUE), silent = TRUE))
+  expect_match(out, "terminated", fixed = TRUE, all = FALSE)
+})
+
 test_that("can't write non-integer labels (#401)", {
   expect_snapshot(error = TRUE, {
     df <- data.frame(x = labelled(c(1, 2.5, 3), c("b" = 1.5)))

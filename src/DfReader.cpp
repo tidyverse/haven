@@ -147,6 +147,7 @@ class DfReader {
 
   cpp11::sexp progressBar_ = R_NilValue;
   double lastInterruptCheck_ = 0;
+  SEXP pendingUnwind_ = NULL;
 
 public:
   DfReader(FileExt ext, bool user_na = false) :
@@ -460,16 +461,33 @@ public:
     progressBar_ = cpp11::safe[cli_progress_bar](100, R_NilValue);
   }
 
-  // `progress` is the fraction of the file that has been read so far
-  void updateProgress(double progress) {
-    // Check for user interrupts every 0.1% of the file
-    if (std::abs(progress - lastInterruptCheck_) >= 0.001) {
-      cpp11::check_user_interrupt();
-      lastInterruptCheck_ = progress;
-    }
+  // `progress` is the fraction of the file that has been read so far.
+  // Returns non-zero to ask ReadStat to abort; the caller must then call
+  // `rethrowPending()` after cleaning up.
+  int updateProgress(double progress) {
+    try {
+      // Check for user interrupts every 0.1% of the file
+      if (std::abs(progress - lastInterruptCheck_) >= 0.001) {
+        cpp11::check_user_interrupt();
+        lastInterruptCheck_ = progress;
+      }
 
-    if (CLI_SHOULD_TICK && !Rf_isNull(progressBar_)) {
-      cpp11::safe[cli_progress_set](progressBar_, progress * 100);
+      if (CLI_SHOULD_TICK && !Rf_isNull(progressBar_)) {
+        cpp11::safe[cli_progress_set](progressBar_, progress * 100);
+      }
+    } catch (cpp11::unwind_exception& e) {
+      // Don't throw through ReadStat's C code; let it abort cleanly instead
+      pendingUnwind_ = e.token;
+      return 1;
+    }
+    return 0;
+  }
+
+  void rethrowPending() {
+    if (pendingUnwind_ != NULL) {
+      SEXP token = pendingUnwind_;
+      pendingUnwind_ = NULL;
+      throw cpp11::unwind_exception(token);
     }
   }
 
@@ -544,8 +562,7 @@ int dfreader_value_label(const char *val_labels, readstat_value_t value,
   return 0;
 }
 int dfreader_progress(double progress, void *ctx) {
-  ((DfReader*) ctx)->updateProgress(progress);
-  return 0;
+  return ((DfReader*) ctx)->updateProgress(progress);
 }
 
 void print_error(const char* error_message, void* ctx) {
@@ -734,6 +751,7 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
     builder->doneProgress();
     std::string source = builder_input.source();
     readstat_parser_free(parser);
+    builder->rethrowPending(); // e.g. resume a user interrupt
     std::string msg(readstat_error_message(result));
     cpp11::stop("Failed to parse %s: %s.", source.c_str(), msg.c_str());
   }
