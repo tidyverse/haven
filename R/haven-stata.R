@@ -202,7 +202,7 @@ check_dta <- function(data, version, call = caller_env()) {
   if (any(bad_labels)) {
     cli_abort(
       c(
-        "Stata only supports labelling with integer variables.",
+        "Stata only supports labelling integers between -2,147,483,647 and 2,147,483,620.",
         x = "Problems: {.var {var_names(data, bad_labels)}}"
       ),
       call = call
@@ -240,20 +240,16 @@ has_non_integer_labels <- function(x) {
     return(FALSE)
   }
 
-  !is_integerish(attr(x, "labels"))
+  !is_stata_long(attr(x, "labels"))
 }
-# Adapted from rlang
-is_integerish <- function(x) {
+
+# Stata stores value label values as 4-byte integers, with values above
+# 2,147,483,620 reserved for missing values
+is_stata_long <- function(x) {
   if (!typeof(x) %in% c("double", "integer")) {
     return(FALSE)
   }
 
-  missing_elts <- is.na(x)
-  finite_elts <- is.finite(x) | missing_elts
-  if (!all(finite_elts)) {
-    return(FALSE)
-  }
-
-  x_finite <- x[finite_elts & !missing_elts]
-  all(x_finite == as.integer(x_finite))
+  x <- x[!is.na(x)]
+  all(x == trunc(x) & x >= -2147483647 & x <= 2147483620)
 }
