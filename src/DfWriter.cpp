@@ -404,7 +404,8 @@ public:
     if (ext_ == HAVEN_DTA && version_ >= 117 && user_width > strl_threshold_) {
       var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING_REF, user_width);
       for (int i = 0; i < x.size(); ++i) {
-        std::string val(string_utf8(x, i));
+        // Stata has no missing strL; use an empty string instead
+        std::string val(string_is_missing(x, i) ? "" : string_utf8(x, i));
         if (!string_ref_.count(val)) {
           string_ref_[val] = readstat_add_string_ref(writer_, val.c_str());
         }
@@ -469,11 +470,11 @@ public:
   }
 
   readstat_error_t insertValue(readstat_variable_t* var, const char* val, bool is_missing) {
-    if (is_missing) {
-      return readstat_insert_missing_value(writer_, var);
-    } else if (var->type == READSTAT_TYPE_STRING_REF) {
-      std::string val_s(val);
+    if (var->type == READSTAT_TYPE_STRING_REF) {
+      std::string val_s(is_missing ? "" : val);
       return readstat_insert_string_ref(writer_, var, string_ref_[val_s]);
+    } else if (is_missing) {
+      return readstat_insert_missing_value(writer_, var);
     } else {
       return readstat_insert_string_value(writer_, var, val);
     }
