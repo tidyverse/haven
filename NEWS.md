@@ -23,6 +23,7 @@
 * `read_sas()` and `read_xpt()` now supports all datetime, date and time formats (#780) and correctly recognises DATEAMPM as datetime (#789).
 * `tagged_na()` and `is_tagged_na()` now silently convert tagged `NA` values to lower case. These are case insensitive when reading and writing, so forcing lower case removes any potential ambiguity.
 * `write_*()` functions now take into account the width of value labels when calculating string variable widths. Previously it was possible to create value label sets with values that were wider than the string variable, causing issues when reading files (#537).
+* `write_dta()` now stores numeric columns using the smallest Stata storage type (`byte`, `int`, `long`, or `double`) that can exactly represent every value, like Stata's `compress`. This can substantially reduce file sizes (#651). Integers too large for Stata's `long` are now stored as `double` rather than failing to write.
 * `write_dta()` now errors when `strl_threshold` is outside 0-2045, instead of silently clamping it to 2045.
 * `write_xpt()` character limit checks now check for the number of bytes instead of the number of characters (#746).
 * `write_xpt()` now errors if variable names are too long for the XPT version: 8 bytes for version 5, 32 bytes for version 8. Previously, long names were silently truncated for version 5 and error messaging was inconsistent (#771).

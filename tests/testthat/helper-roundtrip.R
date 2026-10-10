@@ -57,3 +57,14 @@ roundtrip_var <- function(x, type = "sav", ...) {
     stop("Unsupported type")
   )
 }
+
+# Bytes used to store each value of x in a dta file
+dta_width <- function(x) {
+  path1 <- tempfile()
+  path2 <- tempfile()
+  on.exit(unlink(c(path1, path2)))
+
+  write_dta(tibble::tibble(x = x), path1)
+  write_dta(tibble::tibble(x = rep(x, 2)), path2)
+  (file.size(path2) - file.size(path1)) / length(x)
+}

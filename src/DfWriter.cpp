@@ -2,6 +2,8 @@
 #include "haven_types.h"
 #include "tagged_na.h"
 
+#include <algorithm>
+#include <cmath>
 #include <unordered_map>
 #include "cpp11/doubles.hpp"
 #include "cpp11/strings.hpp"
@@ -170,9 +172,9 @@ public:
       const char* format = var_format(col, type);
 
       switch(TYPEOF(col)) {
-        case LGLSXP:  status = defineVariable(cpp11::integers(cpp11::safe[Rf_coerceVector](col, INTSXP)), name, format); break;
-        case INTSXP:  status = defineVariable(cpp11::integers(col), name, format); break;
-        case REALSXP: status = defineVariable(cpp11::doubles(col), name, format);  break;
+        case LGLSXP:  status = defineVariable(cpp11::integers(cpp11::safe[Rf_coerceVector](col, INTSXP)), name, numericType(col, READSTAT_TYPE_INT32), format); break;
+        case INTSXP:  status = defineVariable(cpp11::integers(col), name, numericType(col, READSTAT_TYPE_INT32), format); break;
+        case REALSXP: status = defineVariable(cpp11::doubles(col), name, numericType(col, READSTAT_TYPE_DOUBLE), format);  break;
         case STRSXP:  status = defineVariable(cpp11::strings(col), name, format); break;
         default:      cpp11::stop("Columns of type %s not supported yet", Rf_type2char(TYPEOF(col)));
       }
@@ -191,12 +193,14 @@ public:
         switch (TYPEOF(col)) {
         case LGLSXP: {
           int val = LOGICAL(col)[i];
-          status = insertValue(var, val, val == NA_LOGICAL);
+          bool is_missing = val == NA_LOGICAL;
+          status = insertValue(var, is_missing ? NA_REAL : val, is_missing);
           break;
         }
         case INTSXP: {
           int val = INTEGER(col)[i];
-          status = insertValue(var, (int) adjustDatetimeFromR(vendor_, col, val), val == NA_INTEGER);
+          bool is_missing = val == NA_INTEGER;
+          status = insertValue(var, is_missing ? NA_REAL : adjustDatetimeFromR(vendor_, col, val), is_missing);
           break;
         }
         case REALSXP: {
@@ -268,7 +272,54 @@ public:
     return NULL;
   }
 
-  readstat_error_t defineVariable(cpp11::integers x, const char* name, const char* format = NULL) {
+  // Stata storage types are fixed width, so like Stata's `compress`, use the
+  // smallest integer type that can exactly represent every value.
+  readstat_type_t numericType(cpp11::sexp col, readstat_type_t default_type) {
+    if (ext_ != HAVEN_DTA)
+      return default_type;
+    // Datetimes are stored in milliseconds so need the precision of a double
+    if (numType(col) == HAVEN_DATETIME)
+      return READSTAT_TYPE_DOUBLE;
+
+    double min = 0, max = 0;
+    int n = Rf_length(col);
+    for (int i = 0; i < n; ++i) {
+      double val;
+      switch (TYPEOF(col)) {
+      case LGLSXP:
+        if (LOGICAL(col)[i] == NA_LOGICAL) continue;
+        val = LOGICAL(col)[i];
+        break;
+      case INTSXP:
+        if (INTEGER(col)[i] == NA_INTEGER) continue;
+        val = INTEGER(col)[i];
+        break;
+      default:
+        val = REAL(col)[i];
+        if (!R_finite(val)) continue;
+        break;
+      }
+
+      val = adjustDatetimeFromR(vendor_, col, val);
+      if (val != std::trunc(val))
+        return READSTAT_TYPE_DOUBLE;
+      min = std::min(min, val);
+      max = std::max(max, val);
+    }
+
+    // Stata reserves the largest values of each type for missing values
+    if (min >= -127 && max <= 100) {
+      return READSTAT_TYPE_INT8;
+    } else if (min >= -32767 && max <= 32740) {
+      return READSTAT_TYPE_INT16;
+    } else if (min >= -2147483647 && max <= 2147483620) {
+      return READSTAT_TYPE_INT32;
+    } else {
+      return READSTAT_TYPE_DOUBLE;
+    }
+  }
+
+  readstat_error_t defineVariable(cpp11::integers x, const char* name, readstat_type_t type, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (Rf_inherits(x, "factor")) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_INT32, name);
@@ -287,7 +338,7 @@ public:
     }
 
     readstat_variable_t* var =
-      readstat_add_variable(writer_, name, READSTAT_TYPE_INT32, userWidth(x));
+      readstat_add_variable(writer_, name, type, userWidth(x));
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
@@ -313,7 +364,7 @@ public:
     return readstat_validate_variable(writer_, var);
   }
 
-  readstat_error_t defineVariable(cpp11::doubles x, const char* name, const char* format = NULL) {
+  readstat_error_t defineVariable(cpp11::doubles x, const char* name, readstat_type_t type, const char* format = NULL) {
     readstat_label_set_t* labelSet = NULL;
     if (Rf_inherits(x, "haven_labelled") && TYPEOF(x.attr("labels")) != NILSXP) {
       labelSet = readstat_add_label_set(writer_, READSTAT_TYPE_DOUBLE, name);
@@ -335,7 +386,7 @@ public:
     }
 
     readstat_variable_t* var =
-      readstat_add_variable(writer_, name, READSTAT_TYPE_DOUBLE, userWidth(x));
+      readstat_add_variable(writer_, name, type, userWidth(x));
 
     readstat_variable_set_format(var, format);
     readstat_variable_set_label(var, var_label(x));
@@ -444,14 +495,6 @@ public:
 
   // Value helper -------------------------------------------------------------
 
-  readstat_error_t insertValue(readstat_variable_t* var, int val, bool is_missing) {
-    if (is_missing) {
-      return readstat_insert_missing_value(writer_, var);
-    } else {
-      return readstat_insert_int32_value(writer_, var, val);
-    }
-  }
-
   readstat_error_t insertValue(readstat_variable_t* var, double val, bool is_missing) {
     if (is_missing) {
       char tag = tagged_na_value(val);
@@ -463,8 +506,13 @@ public:
         }
         return readstat_insert_tagged_missing_value(writer_, var, tag);
       }
-    } else {
-      return readstat_insert_double_value(writer_, var, val);
+    }
+
+    switch (var->type) {
+    case READSTAT_TYPE_INT8:  return readstat_insert_int8_value(writer_, var, val);
+    case READSTAT_TYPE_INT16: return readstat_insert_int16_value(writer_, var, val);
+    case READSTAT_TYPE_INT32: return readstat_insert_int32_value(writer_, var, val);
+    default:                  return readstat_insert_double_value(writer_, var, val);
     }
   }
 
