@@ -139,6 +139,14 @@ test_that("can select columns when a catalog file is present", {
   )
 })
 
+test_that("catalog without encoding uses data file encoding (#836)", {
+  df <- read_sas(
+    test_path("sas/utf8-catalog.sas7bdat"),
+    test_path("sas/utf8-catalog.sas7bcat")
+  )
+  expect_equal(names(attr(df$x, "labels")), c("\u00c1ple", "Zebra"))
+})
+
 test_that("using cols_only warns about deprecation, but works", {
   expect_warning(
     out <- read_sas(test_path("sas/hadley.sas7bdat"), cols_only = "id"),

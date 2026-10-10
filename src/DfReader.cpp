@@ -681,6 +681,43 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
   }
 }
 
+// SAS catalogs typically don't record their encoding (header byte is 0), in
+// which case ReadStat falls back to WINDOWS-1252. Since catalogs are usually
+// written alongside their data file, the data file's encoding is a better guess.
+bool sas_encoding_unspecified(DfReaderInput& input) {
+  const int SAS_ENCODING_OFFSET = 70;
+  unsigned char code = 1;
+
+  if (input.open(&input) != 0)
+    return false;
+  bool ok = input.seek(SAS_ENCODING_OFFSET, READSTAT_SEEK_SET, &input) == SAS_ENCODING_OFFSET &&
+    input.read(&code, 1, &input) == 1;
+  input.seek(0, READSTAT_SEEK_SET, &input);
+  input.close(&input);
+
+  return ok && code == 0;
+}
+
+int sas_encoding_metadata(readstat_metadata_t *metadata, void *ctx) {
+  const char* encoding = readstat_get_file_encoding(metadata);
+  if (encoding != NULL) {
+    *((std::string*) ctx) = encoding;
+  }
+  return READSTAT_HANDLER_ABORT;
+}
+
+std::string sas_file_encoding(DfReaderInput& input) {
+  std::string encoding;
+
+  readstat_parser_t* parser = readstat_parser_init();
+  readstat_set_metadata_handler(parser, sas_encoding_metadata);
+  haven_init_io(parser, input);
+  readstat_parse_sas7bdat(parser, "", &encoding);
+  readstat_parser_free(parser);
+
+  return encoding;
+}
+
 template<FileExt ext, typename InputClass>
 cpp11::list df_parse(cpp11::list spec, cpp11::integers cols_skip,
               const long& n_max = -1, const long& rows_skip = 0,
@@ -696,12 +733,16 @@ cpp11::list df_parse(cpp11::list spec, cpp11::integers cols_skip,
   haven_set_row_limit(parser, n_max);
   readstat_set_row_offset(parser, rows_skip);
 
+  InputClass builder_input(spec, encoding);
+
   if (ext == HAVEN_SAS7BDAT && catalog_spec.size() != 0) {
     InputClass cat_builder_input(catalog_spec, catalog_encoding);
+    if (catalog_encoding == "" && sas_encoding_unspecified(cat_builder_input)) {
+      cat_builder_input.encoding = sas_file_encoding(builder_input);
+    }
     haven_parse<HAVEN_SAS7BCAT>(parser, cat_builder_input, &builder);
   }
 
-  InputClass builder_input(spec, encoding);
   haven_parse<ext>(parser, builder_input, &builder);
   readstat_parser_free(parser);
 
