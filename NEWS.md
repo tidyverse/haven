@@ -27,6 +27,7 @@
 * `write_dta()` no longer rejects single character variable names (e.g. `x`) when `version` is 13 or earlier.
 * `write_dta()` no longer fails when writing `NA` in a long string (strL) variable; missing values are written as empty strings, which is how Stata represents missing strings (#760).
 * `write_dta()` now gives an informative error when value labels are outside the range that Stata can store (-2,147,483,647 to 2,147,483,620). Previously, very large labels failed with "missing value where TRUE/FALSE needed" and labels just below 2^31 were silently converted to missing values (#739).
+* `write_dta()` now stores numeric columns using the smallest Stata storage type (`byte`, `int`, `long`, or `double`) that can exactly represent every value, like Stata's `compress`. This can substantially reduce file sizes (#651). Integers too large for Stata's `long` are now stored as `double` rather than failing to write.
 * `write_dta()` now errors when `strl_threshold` is outside 0-2045, instead of silently clamping it to 2045.
 * `write_xpt()` character limit checks now check for the number of bytes instead of the number of characters (#746).
 * `write_xpt()` now errors if variable names are too long for the XPT version: 8 bytes for version 5, 32 bytes for version 8. Previously, long names were silently truncated for version 5 and error messaging was inconsistent (#771).
