@@ -3,8 +3,9 @@
 #' `read_sas()` supports both sas7bdat files and the accompanying sas7bcat files
 #' that SAS uses to record value labels.
 #'
-#' @param data_file,catalog_file Path to data and catalog files. The files are
-#'   processed with [readr::datasource()].
+#' @param data_file,catalog_file Data and catalog files. Each can be a path,
+#'   a URL, a compressed file (`.gz`, `.bz2`, `.xz`, or `.zip`), a connection,
+#'   or a raw vector.
 #' @param encoding,catalog_encoding The character encoding used for the
 #'   `data_file` and `catalog_encoding` respectively. A value of `NULL` uses the
 #'   encoding specified in the file; use this argument to override it if it is
@@ -63,7 +64,7 @@ read_sas <- function(
   encoding <- encoding %||% ""
   catalog_encoding <- catalog_encoding %||% ""
 
-  spec_data <- readr::datasource(data_file)
+  spec_data <- datasource(data_file)
   cols <- select_cols(
     read_sas,
     !!col_select,
@@ -73,32 +74,19 @@ read_sas <- function(
   )
 
   if (is.null(catalog_file)) {
-    spec_cat <- list()
+    spec_cat <- NULL
   } else {
-    spec_cat <- readr::datasource(catalog_file)
+    spec_cat <- datasource(catalog_file)
   }
 
-  data <- switch(
-    class(spec_data)[1],
-    source_file = df_parse_sas_file(
-      spec_data,
-      spec_cat,
-      encoding = encoding,
-      catalog_encoding = catalog_encoding,
-      cols_skip = cols$skip,
-      n_max = n_max,
-      rows_skip = skip
-    ),
-    source_raw = df_parse_sas_raw(
-      spec_data,
-      spec_cat,
-      encoding = encoding,
-      catalog_encoding = catalog_encoding,
-      cols_skip = cols$skip,
-      n_max = n_max,
-      rows_skip = skip
-    ),
-    cli_abort("This kind of input is not handled.")
+  data <- df_parse_sas(
+    spec_data,
+    spec_cat,
+    encoding = encoding,
+    catalog_encoding = catalog_encoding,
+    cols_skip = cols$skip,
+    n_max = n_max,
+    rows_skip = skip
   )
 
   output_cols(data, cols, .name_repair)
@@ -171,7 +159,7 @@ read_xpt <- function(
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
 
-  spec <- readr::datasource(file)
+  spec <- datasource(file)
   cols <- select_cols(
     read_xpt,
     {{ col_select }},
@@ -179,12 +167,7 @@ read_xpt <- function(
     .name_repair = .name_repair
   )
 
-  data <- switch(
-    class(spec)[1],
-    source_file = df_parse_xpt_file(spec, cols$skip, n_max, skip),
-    source_raw = df_parse_xpt_raw(spec, cols$skip, n_max, skip),
-    cli_abort("This kind of input is not handled.")
-  )
+  data <- df_parse_xpt(spec, cols$skip, n_max, skip)
 
   output_cols(data, cols, .name_repair)
 }

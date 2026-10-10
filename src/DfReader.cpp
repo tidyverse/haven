@@ -1,3 +1,4 @@
+#include <memory>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -567,8 +568,7 @@ class DfReaderInputFile : public DfReaderInputStream<std::ifstream> {
   std::string filename_;
 
 public:
-  DfReaderInputFile(cpp11::list spec, std::string encoding = "") {
-    cpp11::strings path(spec[0]);
+  DfReaderInputFile(cpp11::strings path, std::string encoding = "") {
     filename_ = std::string(Rf_translateChar(path[0]));
     this->encoding = encoding;
   }
@@ -590,8 +590,7 @@ public:
 
 class DfReaderInputRaw : public DfReaderInputStream<std::istringstream> {
 public:
-  DfReaderInputRaw(cpp11::list spec, std::string encoding = "") {
-    cpp11::raws raw_data(spec[0]);
+  DfReaderInputRaw(cpp11::raws raw_data, std::string encoding = "") {
     std::string string_data((char*) RAW(raw_data), Rf_length(raw_data));
     file_.str(string_data);
     this->encoding = encoding;
@@ -681,12 +680,20 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
   }
 }
 
-template<FileExt ext, typename InputClass>
-cpp11::list df_parse(cpp11::list spec, cpp11::integers cols_skip,
+std::unique_ptr<DfReaderInput> make_input(SEXP spec, const std::string& encoding) {
+  switch (TYPEOF(spec)) {
+  case STRSXP: return std::unique_ptr<DfReaderInput>(new DfReaderInputFile(spec, encoding));
+  case RAWSXP: return std::unique_ptr<DfReaderInput>(new DfReaderInputRaw(spec, encoding));
+  default:     cpp11::stop("This kind of input is not handled.");
+  }
+}
+
+template<FileExt ext>
+cpp11::list df_parse(SEXP spec, cpp11::integers cols_skip,
               const long& n_max = -1, const long& rows_skip = 0,
               const std::string& encoding = "",
               const bool& user_na = false,
-              cpp11::list catalog_spec = cpp11::writable::list(R_xlen_t(0)),
+              SEXP catalog_spec = R_NilValue,
               const std::string& catalog_encoding = ""
               ) {
   DfReader builder(ext, user_na);
@@ -696,13 +703,13 @@ cpp11::list df_parse(cpp11::list spec, cpp11::integers cols_skip,
   haven_set_row_limit(parser, n_max);
   readstat_set_row_offset(parser, rows_skip);
 
-  if (ext == HAVEN_SAS7BDAT && catalog_spec.size() != 0) {
-    InputClass cat_builder_input(catalog_spec, catalog_encoding);
-    haven_parse<HAVEN_SAS7BCAT>(parser, cat_builder_input, &builder);
+  if (ext == HAVEN_SAS7BDAT && catalog_spec != R_NilValue) {
+    std::unique_ptr<DfReaderInput> cat_input = make_input(catalog_spec, catalog_encoding);
+    haven_parse<HAVEN_SAS7BCAT>(parser, *cat_input, &builder);
   }
 
-  InputClass builder_input(spec, encoding);
-  haven_parse<ext>(parser, builder_input, &builder);
+  std::unique_ptr<DfReaderInput> input = make_input(spec, encoding);
+  haven_parse<ext>(parser, *input, &builder);
   readstat_parser_free(parser);
 
   if (n_max >= 0) {
@@ -715,52 +722,30 @@ cpp11::list df_parse(cpp11::list spec, cpp11::integers cols_skip,
 // # nocov start
 
 [[cpp11::register]]
-cpp11::list df_parse_sas_file(cpp11::list spec_b7dat, cpp11::list spec_b7cat,
-                       std::string encoding, std::string catalog_encoding,
-                       cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, cols_skip, n_max, rows_skip, encoding, false, spec_b7cat, catalog_encoding);
-}
-[[cpp11::register]]
-cpp11::list df_parse_sas_raw(cpp11::list spec_b7dat, cpp11::list spec_b7cat,
-                      std::string encoding, std::string catalog_encoding,
-                      cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_SAS7BDAT, DfReaderInputRaw>(spec_b7dat, cols_skip, n_max, rows_skip, encoding, false, spec_b7cat, catalog_encoding);
+cpp11::list df_parse_sas(SEXP spec_b7dat, SEXP spec_b7cat,
+                         std::string encoding, std::string catalog_encoding,
+                         cpp11::integers cols_skip, long n_max, long rows_skip) {
+  return df_parse<HAVEN_SAS7BDAT>(spec_b7dat, cols_skip, n_max, rows_skip, encoding, false, spec_b7cat, catalog_encoding);
 }
 
 [[cpp11::register]]
-cpp11::list df_parse_xpt_file(cpp11::list spec, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_XPT, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip);
-}
-[[cpp11::register]]
-cpp11::list df_parse_xpt_raw(cpp11::list spec, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_XPT, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip);
+cpp11::list df_parse_xpt(SEXP spec, cpp11::integers cols_skip, long n_max, long rows_skip) {
+  return df_parse<HAVEN_XPT>(spec, cols_skip, n_max, rows_skip);
 }
 
 [[cpp11::register]]
-cpp11::list df_parse_dta_file(cpp11::list spec, std::string encoding, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_DTA, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding);
-}
-[[cpp11::register]]
-cpp11::list df_parse_dta_raw(cpp11::list spec, std::string encoding, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_DTA, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding);
+cpp11::list df_parse_dta(SEXP spec, std::string encoding, cpp11::integers cols_skip, long n_max, long rows_skip) {
+  return df_parse<HAVEN_DTA>(spec, cols_skip, n_max, rows_skip, encoding);
 }
 
 [[cpp11::register]]
-cpp11::list df_parse_sav_file(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_SAV, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
-}
-[[cpp11::register]]
-cpp11::list df_parse_sav_raw(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_SAV, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
+cpp11::list df_parse_sav(SEXP spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
+  return df_parse<HAVEN_SAV>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
 }
 
 [[cpp11::register]]
-cpp11::list df_parse_por_file(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_POR, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
-}
-[[cpp11::register]]
-cpp11::list df_parse_por_raw(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_POR, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
+cpp11::list df_parse_por(SEXP spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
+  return df_parse<HAVEN_POR>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
 }
 
 // # nocov end

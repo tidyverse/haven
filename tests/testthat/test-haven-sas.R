@@ -17,6 +17,15 @@ test_that("value labels parsed from bcat file", {
   expect_equal(attr(df$workshop, "labels"), c(R = 1, SAS = 2))
 })
 
+test_that("data and catalog files can be different kinds of input", {
+  data_path <- test_path("sas/hadley.sas7bdat")
+  cat_path <- test_path("sas/formats.sas7bcat")
+  data_raw <- readBin(data_path, "raw", file.size(data_path))
+
+  df <- read_sas(data_raw, cat_path)
+  expect_equal(attr(df$workshop, "labels"), c(R = 1, SAS = 2))
+})
+
 test_that("value labels read in as same type as vector", {
   df <- read_sas(
     test_path("sas/hadley.sas7bdat"),
@@ -206,6 +215,12 @@ test_that("date/times with character data throw a warning (#747)", {
     out$date,
     structure(c("20424", "20487"), label = "Date", format.sas = "DATE")
   )
+})
+
+test_that("trailing blank rows are preserved (#754)", {
+  path <- tempfile()
+  write_xpt(data.frame(a = c("a", "", "")), path)
+  expect_equal(read_xpt(path)$a, c("a", "", ""))
 })
 
 # write_xpt ---------------------------------------------------------------

@@ -49,7 +49,6 @@
 #' Only use `version = 15` if you need to write a dataset with more than 32,767
 #' variables and your recipients have access to Stata/MP.
 #'
-#' @inheritParams readr::datasource
 #' @inheritParams read_spss
 #' @param encoding The character encoding used for the file. Generally,
 #'   only needed for Stata 13 files and earlier. See Encoding section
@@ -78,7 +77,7 @@ read_dta <- function(
 
   encoding <- encoding %||% ""
 
-  spec <- readr::datasource(file)
+  spec <- datasource(file)
   cols <- select_cols(
     read_dta,
     {{ col_select }},
@@ -87,12 +86,7 @@ read_dta <- function(
     .name_repair = .name_repair
   )
 
-  data <- switch(
-    class(spec)[1],
-    source_file = df_parse_dta_file(spec, encoding, cols$skip, n_max, skip),
-    source_raw = df_parse_dta_raw(spec, encoding, cols$skip, n_max, skip),
-    cli_abort("This kind of input is not handled.")
-  )
+  data <- df_parse_dta(spec, encoding, cols$skip, n_max, skip)
 
   output_cols(data, cols, .name_repair)
 }

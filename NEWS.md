@@ -1,6 +1,7 @@
 # haven (development version)
 
 * Updated to ReadStat dev (b05b645).
+* haven no longer depends on readr (#834).
   * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
   * SAS catalog reader now correctly reads big-endian files.
   * SAS reader now applies the timezone offset stored in the file header, so `creation_timestamp` and `modified_timestamp` attributes are now correctly reported in UTC.
@@ -22,6 +23,7 @@
 * `read_*()` functions now warn and treat a string variable with a date and/or time format as a plain string instead of throwing an error (#747). This should not normally occur, but has been observed in files produced by 3rd party software.
 * `read_dta()`, `read_sav()`, `read_por()`, `read_sas()`, and `read_xpt()` now attach file metadata as attributes: `creation_timestamp` and `modified_timestamp` (as POSIXct, in UTC) (#733, @SInginc).
 * `read_sas()` and `read_xpt()` now supports all datetime, date and time formats (#780) and correctly recognises DATEAMPM as datetime (#789).
+* `read_xpt()` no longer drops trailing rows where every value is blank when reading version 8 files (#754).
 * `tagged_na()` and `is_tagged_na()` now silently convert tagged `NA` values to lower case. These are case insensitive when reading and writing, so forcing lower case removes any potential ambiguity.
 * `write_*()` functions now take into account the width of value labels when calculating string variable widths. Previously it was possible to create value label sets with values that were wider than the string variable, causing issues when reading files (#537).
 * `write_dta()` no longer rejects single character variable names (e.g. `x`) when `version` is 13 or earlier.

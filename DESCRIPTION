@@ -22,7 +22,6 @@ Imports:
     hms,
     lifecycle,
     methods,
-    readr (>= 0.1.0),
     rlang (>= 1.1.0),
     tibble,
     tidyselect,
