@@ -1,5 +1,6 @@
 # haven (development version)
 
+* haven no longer depends on readr (#834).
 * Updated to ReadStat dev 835b88c.
   * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
   * SAS catalog reader now correctly reads big-endian files.
@@ -21,6 +22,7 @@
 * `read_*()` functions now warn and treat a string variable with a date and/or time format as a plain string instead of throwing an error (#747). This should not normally occur, but has been observed in files produced by 3rd party software.
 * `read_dta()`, `read_sav()`, `read_por()`, `read_sas()`, and `read_xpt()` now attach file metadata as attributes: `creation_timestamp` and `modified_timestamp` (as POSIXct, in UTC) (#733, @SInginc).
 * `read_sas()` and `read_xpt()` now supports all datetime, date and time formats (#780) and correctly recognises DATEAMPM as datetime (#789).
+* `read_xpt()` no longer drops trailing rows where every value is blank when reading version 8 files (#754).
 * `tagged_na()` and `is_tagged_na()` now silently convert tagged `NA` values to lower case. These are case insensitive when reading and writing, so forcing lower case removes any potential ambiguity.
 * `write_*()` functions now take into account the width of value labels when calculating string variable widths. Previously it was possible to create value label sets with values that were wider than the string variable, causing issues when reading files (#537).
 * `write_dta()` now gives an informative error when value labels are outside the range that Stata can store (-2,147,483,647 to 2,147,483,620). Previously, very large labels failed with "missing value where TRUE/FALSE needed" and labels just below 2^31 were silently converted to missing values (#739).

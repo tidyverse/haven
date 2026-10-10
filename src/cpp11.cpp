@@ -6,73 +6,38 @@
 #include <R_ext/Visibility.h>
 
 // DfReader.cpp
-cpp11::list df_parse_sas_file(cpp11::list spec_b7dat, cpp11::list spec_b7cat, std::string encoding, std::string catalog_encoding, cpp11::integers cols_skip, long n_max, long rows_skip);
-extern "C" SEXP _haven_df_parse_sas_file(SEXP spec_b7dat, SEXP spec_b7cat, SEXP encoding, SEXP catalog_encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
+cpp11::list df_parse_sas(SEXP spec_b7dat, SEXP spec_b7cat, std::string encoding, std::string catalog_encoding, cpp11::integers cols_skip, long n_max, long rows_skip);
+extern "C" SEXP _haven_df_parse_sas(SEXP spec_b7dat, SEXP spec_b7cat, SEXP encoding, SEXP catalog_encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_sas_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7dat), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7cat), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<std::string>>(catalog_encoding), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
+    return cpp11::as_sexp(df_parse_sas(cpp11::as_cpp<cpp11::decay_t<SEXP>>(spec_b7dat), cpp11::as_cpp<cpp11::decay_t<SEXP>>(spec_b7cat), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<std::string>>(catalog_encoding), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_sas_raw(cpp11::list spec_b7dat, cpp11::list spec_b7cat, std::string encoding, std::string catalog_encoding, cpp11::integers cols_skip, long n_max, long rows_skip);
-extern "C" SEXP _haven_df_parse_sas_raw(SEXP spec_b7dat, SEXP spec_b7cat, SEXP encoding, SEXP catalog_encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
+cpp11::list df_parse_xpt(SEXP spec, cpp11::integers cols_skip, long n_max, long rows_skip);
+extern "C" SEXP _haven_df_parse_xpt(SEXP spec, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_sas_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7dat), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec_b7cat), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<std::string>>(catalog_encoding), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
+    return cpp11::as_sexp(df_parse_xpt(cpp11::as_cpp<cpp11::decay_t<SEXP>>(spec), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_xpt_file(cpp11::list spec, cpp11::integers cols_skip, long n_max, long rows_skip);
-extern "C" SEXP _haven_df_parse_xpt_file(SEXP spec, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
+cpp11::list df_parse_dta(SEXP spec, std::string encoding, cpp11::integers cols_skip, long n_max, long rows_skip);
+extern "C" SEXP _haven_df_parse_dta(SEXP spec, SEXP encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_xpt_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
+    return cpp11::as_sexp(df_parse_dta(cpp11::as_cpp<cpp11::decay_t<SEXP>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_xpt_raw(cpp11::list spec, cpp11::integers cols_skip, long n_max, long rows_skip);
-extern "C" SEXP _haven_df_parse_xpt_raw(SEXP spec, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
+cpp11::list df_parse_sav(SEXP spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip);
+extern "C" SEXP _haven_df_parse_sav(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_xpt_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
+    return cpp11::as_sexp(df_parse_sav(cpp11::as_cpp<cpp11::decay_t<SEXP>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
   END_CPP11
 }
 // DfReader.cpp
-cpp11::list df_parse_dta_file(cpp11::list spec, std::string encoding, cpp11::integers cols_skip, long n_max, long rows_skip);
-extern "C" SEXP _haven_df_parse_dta_file(SEXP spec, SEXP encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
+cpp11::list df_parse_por(SEXP spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip);
+extern "C" SEXP _haven_df_parse_por(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_dta_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
-  END_CPP11
-}
-// DfReader.cpp
-cpp11::list df_parse_dta_raw(cpp11::list spec, std::string encoding, cpp11::integers cols_skip, long n_max, long rows_skip);
-extern "C" SEXP _haven_df_parse_dta_raw(SEXP spec, SEXP encoding, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_dta_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
-  END_CPP11
-}
-// DfReader.cpp
-cpp11::list df_parse_sav_file(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip);
-extern "C" SEXP _haven_df_parse_sav_file(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_sav_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
-  END_CPP11
-}
-// DfReader.cpp
-cpp11::list df_parse_sav_raw(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip);
-extern "C" SEXP _haven_df_parse_sav_raw(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_sav_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
-  END_CPP11
-}
-// DfReader.cpp
-cpp11::list df_parse_por_file(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip);
-extern "C" SEXP _haven_df_parse_por_file(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_por_file(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
-  END_CPP11
-}
-// DfReader.cpp
-cpp11::list df_parse_por_raw(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip);
-extern "C" SEXP _haven_df_parse_por_raw(SEXP spec, SEXP encoding, SEXP user_na, SEXP cols_skip, SEXP n_max, SEXP rows_skip) {
-  BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_por_raw(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
+    return cpp11::as_sexp(df_parse_por(cpp11::as_cpp<cpp11::decay_t<SEXP>>(spec), cpp11::as_cpp<cpp11::decay_t<std::string>>(encoding), cpp11::as_cpp<cpp11::decay_t<bool>>(user_na), cpp11::as_cpp<cpp11::decay_t<cpp11::integers>>(cols_skip), cpp11::as_cpp<cpp11::decay_t<long>>(n_max), cpp11::as_cpp<cpp11::decay_t<long>>(rows_skip)));
   END_CPP11
 }
 // DfWriter.cpp
@@ -115,23 +80,18 @@ extern SEXP na_tag_(SEXP);
 extern SEXP tagged_na_(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_haven_df_parse_dta_file", (DL_FUNC) &_haven_df_parse_dta_file, 5},
-    {"_haven_df_parse_dta_raw",  (DL_FUNC) &_haven_df_parse_dta_raw,  5},
-    {"_haven_df_parse_por_file", (DL_FUNC) &_haven_df_parse_por_file, 6},
-    {"_haven_df_parse_por_raw",  (DL_FUNC) &_haven_df_parse_por_raw,  6},
-    {"_haven_df_parse_sas_file", (DL_FUNC) &_haven_df_parse_sas_file, 7},
-    {"_haven_df_parse_sas_raw",  (DL_FUNC) &_haven_df_parse_sas_raw,  7},
-    {"_haven_df_parse_sav_file", (DL_FUNC) &_haven_df_parse_sav_file, 6},
-    {"_haven_df_parse_sav_raw",  (DL_FUNC) &_haven_df_parse_sav_raw,  6},
-    {"_haven_df_parse_xpt_file", (DL_FUNC) &_haven_df_parse_xpt_file, 4},
-    {"_haven_df_parse_xpt_raw",  (DL_FUNC) &_haven_df_parse_xpt_raw,  4},
-    {"_haven_write_dta_",        (DL_FUNC) &_haven_write_dta_,        5},
-    {"_haven_write_sas_",        (DL_FUNC) &_haven_write_sas_,        2},
-    {"_haven_write_sav_",        (DL_FUNC) &_haven_write_sav_,        3},
-    {"_haven_write_xpt_",        (DL_FUNC) &_haven_write_xpt_,        5},
-    {"is_tagged_na_",            (DL_FUNC) &is_tagged_na_,            2},
-    {"na_tag_",                  (DL_FUNC) &na_tag_,                  1},
-    {"tagged_na_",               (DL_FUNC) &tagged_na_,               1},
+    {"_haven_df_parse_dta", (DL_FUNC) &_haven_df_parse_dta, 5},
+    {"_haven_df_parse_por", (DL_FUNC) &_haven_df_parse_por, 6},
+    {"_haven_df_parse_sas", (DL_FUNC) &_haven_df_parse_sas, 7},
+    {"_haven_df_parse_sav", (DL_FUNC) &_haven_df_parse_sav, 6},
+    {"_haven_df_parse_xpt", (DL_FUNC) &_haven_df_parse_xpt, 4},
+    {"_haven_write_dta_",   (DL_FUNC) &_haven_write_dta_,   5},
+    {"_haven_write_sas_",   (DL_FUNC) &_haven_write_sas_,   2},
+    {"_haven_write_sav_",   (DL_FUNC) &_haven_write_sav_,   3},
+    {"_haven_write_xpt_",   (DL_FUNC) &_haven_write_xpt_,   5},
+    {"is_tagged_na_",       (DL_FUNC) &is_tagged_na_,       2},
+    {"na_tag_",             (DL_FUNC) &na_tag_,             1},
+    {"tagged_na_",          (DL_FUNC) &tagged_na_,          1},
     {NULL, NULL, 0}
 };
 }

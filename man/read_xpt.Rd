@@ -23,19 +23,9 @@ write_xpt(
 )
 }
 \arguments{
-\item{file}{Either a path to a file, a connection, or literal data
-(either a single string or a raw vector).
-
-Files ending in \code{.gz}, \code{.bz2}, \code{.xz}, or \code{.zip} will
-be automatically uncompressed. Files starting with \verb{http://},
-\verb{https://}, \verb{ftp://}, or \verb{ftps://} will be automatically
-downloaded. Remote \code{.gz} files can also be automatically downloaded and
-decompressed.
-
-Literal data is most useful for examples and tests. To be recognised as
-literal data, wrap the input with \code{I()}.
-
-Using a value of \code{\link[readr:clipboard]{clipboard()}} will read from the system clipboard.}
+\item{file}{Either a path to a file, a URL, a compressed file (\code{.gz},
+\code{.bz2}, \code{.xz}, or \code{.zip}), a connection, or a raw vector. Remote and
+compressed files are downloaded or decompressed before reading.}
 
 \item{col_select}{Columns to include in the results. You can use the same
 mini-language as \code{dplyr::select()} to refer to the columns by name. Use

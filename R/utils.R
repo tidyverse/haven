@@ -98,3 +98,76 @@ adjust_tz <- function(df) {
 var_names <- function(data, i) {
   names(data)[i]
 }
+
+# Returns either a length-1 character vector (a path to a local,
+# uncompressed file) or a raw vector containing the file contents.
+datasource <- function(file, call = caller_env()) {
+  if (is.raw(file)) {
+    return(file)
+  } else if (inherits(file, "connection")) {
+    return(read_connection(file))
+  }
+  check_string(file, arg = "file", call = call)
+
+  if (grepl("^(https?|ftps?)://", file)) {
+    tmp <- tempfile(fileext = compression_ext(file))
+    on.exit(unlink(tmp), add = TRUE)
+    utils::download.file(file, tmp, quiet = TRUE, mode = "wb")
+    return(read_connection(compressed_con(tmp)))
+  }
+
+  file <- normalizePath(file, mustWork = FALSE)
+  if (!file.exists(file)) {
+    cli::cli_abort("{.path {file}} does not exist.", call = call)
+  }
+
+  if (compression_ext(file) == "") {
+    file
+  } else {
+    read_connection(compressed_con(file))
+  }
+}
+
+compression_ext <- function(path) {
+  ext <- regmatches(path, regexpr("\\.(gz|bz2|xz|zip)$", path))
+  if (length(ext) == 0) "" else ext
+}
+
+compressed_con <- function(path) {
+  switch(
+    compression_ext(path),
+    .gz = gzfile(path),
+    .bz2 = bzfile(path),
+    .xz = xzfile(path),
+    .zip = zip_con(path),
+    file(path)
+  )
+}
+
+zip_con <- function(path, call = caller_env()) {
+  files <- utils::unzip(path, list = TRUE)$Name
+  if (length(files) != 1) {
+    cli::cli_abort(
+      "{.path {path}} must contain exactly one file, not {length(files)}.",
+      call = call
+    )
+  }
+  unz(path, files)
+}
+
+read_connection <- function(con, chunk_size = 64 * 1024L) {
+  if (!isOpen(con)) {
+    open(con, "rb")
+    on.exit(close(con), add = TRUE)
+  }
+
+  chunks <- list()
+  repeat {
+    chunk <- readBin(con, "raw", chunk_size)
+    if (length(chunk) == 0) {
+      break
+    }
+    chunks[[length(chunks) + 1]] <- chunk
+  }
+  unlist(chunks, use.names = FALSE) %||% raw()
+}
