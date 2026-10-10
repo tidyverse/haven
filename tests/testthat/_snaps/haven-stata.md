@@ -38,3 +38,49 @@
       ! Stata only supports labelling with integer variables.
       x Problems: `x`
 
+# read_dta checks its inputs
+
+    Code
+      read_dta(path, encoding = 1)
+    Condition
+      Error in `read_dta()`:
+      ! `encoding` must be a single string or `NULL`, not the number 1.
+    Code
+      read_dta(path, skip = -1)
+    Condition
+      Error in `read_dta()`:
+      ! `skip` must be a whole number larger than or equal to 0, not the number -1.
+
+# write_dta checks its inputs
+
+    Code
+      write_dta(1, path)
+    Condition
+      Error in `write_dta()`:
+      ! `data` must be a data frame, not the number 1.
+    Code
+      write_dta(mtcars, path, version = 14.5)
+    Condition
+      Error in `write_dta()`:
+      ! `version` must be a whole number, not the number 14.5.
+    Code
+      write_dta(mtcars, path, label = 1)
+    Condition
+      Error in `write_dta()`:
+      ! `label` must be a single string, not the number 1.
+    Code
+      write_dta(mtcars, path, strl_threshold = -1)
+    Condition
+      Error in `write_dta()`:
+      ! `strl_threshold` must be a whole number between 0 and 2045, not the number -1.
+    Code
+      write_dta(mtcars, path, strl_threshold = 2046)
+    Condition
+      Error in `write_dta()`:
+      ! `strl_threshold` must be a whole number between 0 and 2045, not the number 2046.
+    Code
+      write_dta(mtcars, path, adjust_tz = "yes")
+    Condition
+      Error in `write_dta()`:
+      ! `adjust_tz` must be `TRUE` or `FALSE`, not the string "yes".
+

@@ -481,3 +481,20 @@ test_that("read_sav attaches file timestamps", {
   expect_true(created >= before - 60 && created <= Sys.time() + 60)
   expect_true(modified >= before - 60 && modified <= Sys.time() + 60)
 })
+
+test_that("read_sav checks its inputs", {
+  path <- test_path("spss/datetime.sav")
+  expect_snapshot(error = TRUE, {
+    read_sav(path, encoding = 1)
+    read_sav(path, user_na = "yes")
+    read_sav(path, skip = -1)
+  })
+})
+
+test_that("write_sav checks its inputs", {
+  path <- tempfile(fileext = ".sav")
+  expect_snapshot(error = TRUE, {
+    write_sav(1, path)
+    write_sav(mtcars, path, adjust_tz = "yes")
+  })
+})
