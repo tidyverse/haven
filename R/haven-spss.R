@@ -36,12 +36,15 @@ read_sav <- function(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_string(encoding, allow_null = TRUE)
   check_bool(user_na)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
+  progress <- progress %||% show_progress()
 
   encoding <- encoding %||% ""
 
@@ -62,7 +65,8 @@ read_sav <- function(
       user_na,
       cols$skip,
       n_max,
-      skip
+      skip,
+      progress
     ),
     source_raw = df_parse_sav_raw(
       spec,
@@ -70,7 +74,8 @@ read_sav <- function(
       user_na,
       cols$skip,
       n_max,
-      skip
+      skip,
+      progress
     ),
     cli_abort("This kind of input is not handled.")
   )
@@ -86,11 +91,14 @@ read_por <- function(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_bool(user_na)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
+  progress <- progress %||% show_progress()
 
   spec <- readr::datasource(file)
   cols <- select_cols(
@@ -108,7 +116,8 @@ read_por <- function(
       user_na = user_na,
       cols$skip,
       n_max,
-      skip
+      skip,
+      progress
     ),
     source_raw = df_parse_por_raw(
       spec,
@@ -116,7 +125,8 @@ read_por <- function(
       user_na = user_na,
       cols$skip,
       n_max,
-      skip
+      skip,
+      progress
     ),
     cli_abort("This kind of input is not handled.")
   )
@@ -190,11 +200,13 @@ read_spss <- function(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_bool(user_na)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
 
   ext <- tolower(tools::file_ext(file))
 
@@ -206,6 +218,7 @@ read_spss <- function(
       col_select = {{ col_select }},
       n_max = n_max,
       skip = skip,
+      progress = progress,
       .name_repair = .name_repair
     ),
     zsav = read_sav(
@@ -214,6 +227,7 @@ read_spss <- function(
       col_select = {{ col_select }},
       n_max = n_max,
       skip = skip,
+      progress = progress,
       .name_repair = .name_repair
     ),
     por = read_por(
@@ -222,6 +236,7 @@ read_spss <- function(
       col_select = {{ col_select }},
       n_max = n_max,
       skip = skip,
+      progress = progress,
       .name_repair = .name_repair
     ),
     cli_abort("Unknown extension {.file .{ext}}.")

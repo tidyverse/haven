@@ -13,6 +13,7 @@ read_sas(
   skip = 0L,
   n_max = Inf,
   cols_only = deprecated(),
+  progress = NULL,
   .name_repair = "unique"
 )
 }
@@ -40,6 +41,10 @@ Predicates using \code{\link[tidyselect:where]{where()}} are not supported.}
 
 \item{cols_only}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{cols_only} is no longer
 supported; use \code{col_select} instead.}
+
+\item{progress}{Display a progress bar? The default, \code{NULL}, only displays
+it in an interactive session. The automatic progress bar can be disabled
+with \code{options(haven.show_progress = FALSE)}.}
 
 \item{.name_repair}{Treatment of problematic column names:
 \itemize{
