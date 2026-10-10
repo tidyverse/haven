@@ -1,9 +1,7 @@
 # haven (development version)
 
 * Updated to ReadStat dev 835b88c.
-
   * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
-
   * SAS catalog reader now correctly reads big-endian files.
   * SAS reader now applies the timezone offset stored in the file header, so `creation_timestamp` and `modified_timestamp` attributes are now correctly reported in UTC.
   * SAS reader now supports files with zero observations (#627).
@@ -13,59 +11,20 @@
   * SAV writer now supports labels for string values longer than 8 bytes (#550).
   * Stata reader no longer returns Stata's internal note count (`_dta[note0]`) as a note, so `attr(df, "notes")` may contain one fewer note than before.
   * XPT V8 writer now supports long variable labels (#784).
-
-* `read_dta()`, `read_sav()`, `read_por()`, `read_sas()`, and `read_xpt()` now
-  attach file metadata as attributes: `creation_timestamp` and
-  `modified_timestamp` (as POSIXct, in UTC) (#733, @SInginc).
-
-* Documentation for `read_*()` functions now more clearly explains that
-  labelled vectors are an intermediate representation, and points users to
-  `as_factor()` and `zap_labels()` when preparing imported categorical
-  variables for analysis (#741).
-
-* `median()` method for `haven_labelled` vectors now forwards the `na.rm`
-  argument instead of always using `na.rm = TRUE`.
-
-* Casting a `labelled_spss()` vector that contains `NA` to one with a different
-  `na_range` no longer fails with "missing value where TRUE/FALSE needed", which
-  affected `rbind()` and `dplyr::bind_rows()` (#761, @taekop).
-
-* `col_select` in the `read_*()` functions now correctly implements the
-  tidyselect interface. Columns will be returned in the order specified in
-  `col_select` and can be renamed, e.g. `col_select = c(new = old)` (#685).
-
-* `col_select` works correctly when combined with `.name_repair` for files with
-  duplicate column names (#687).
-
-* `read_*()` functions now correctly load from non-file connections when using
-  `col_select` (#720).
-  
-* When a string variable has a date and/or time format `read_*()` functions now
-  warn and treat the variable as a plain string instead of throwing an error
-  (#747). This should not normally occur, but has been observed in files
-  produced by 3rd party software.
-
-* `write_*()` functions now take into account the width of value labels when
-  calculating string variable widths. Previously it was possible to create
-  value label sets with values that were wider than the string variable, causing
-  issues when reading files (#537).
-
-* `write_xpt()` now errors if variable names are too long for the XPT version:
-  8 bytes for version 5, 32 bytes for version 8. Previously, long names were
-  silently truncated for version 5 and error messaging was inconsistent (#771).
-
-* `read_sas()` and `read_xpt()` now supports all datetime, date and time
-  formats (#780) and correctly recognises DATEAMPM as datetime (#789). 
-
-* Fix bug that caused `write_xpt()` to fail when writing tagged `NA` values (#755).
-
-* Tagged `NA` values are now silently converted to lower case when they are
-  created in R with `tagged_na()` or checked with `is_tagged_na()`. These are
-  case insensitive when reading and writing, so forcing lower case removes any
-  potential ambiguity.
-
-* Character limit checks in `write_xpt()` now check for the number of bytes
-  instead of the number of characters (#746).
+* `col_select` in the `read_*()` functions now correctly implements the tidyselect interface. Columns will be returned in the order specified in `col_select` and can be renamed, e.g. `col_select = c(new = old)` (#685).
+* `col_select` works correctly when combined with `.name_repair` for files with duplicate column names (#687).
+* `labelled_spss()` vectors that contain `NA` can now be cast to a different `na_range` without failing with "missing value where TRUE/FALSE needed", which affected `rbind()` and `dplyr::bind_rows()` (#761, @taekop).
+* `median()` method for `haven_labelled` vectors now forwards the `na.rm` argument instead of always using `na.rm = TRUE`.
+* `read_*()` documentation now more clearly explains that labelled vectors are an intermediate representation, and points users to `as_factor()` and `zap_labels()` when preparing imported categorical variables for analysis (#741).
+* `read_*()` functions now correctly load from non-file connections when using `col_select` (#720).
+* `read_*()` functions now warn and treat a string variable with a date and/or time format as a plain string instead of throwing an error (#747). This should not normally occur, but has been observed in files produced by 3rd party software.
+* `read_dta()`, `read_sav()`, `read_por()`, `read_sas()`, and `read_xpt()` now attach file metadata as attributes: `creation_timestamp` and `modified_timestamp` (as POSIXct, in UTC) (#733, @SInginc).
+* `read_sas()` and `read_xpt()` now supports all datetime, date and time formats (#780) and correctly recognises DATEAMPM as datetime (#789).
+* `tagged_na()` and `is_tagged_na()` now silently convert tagged `NA` values to lower case. These are case insensitive when reading and writing, so forcing lower case removes any potential ambiguity.
+* `write_*()` functions now take into account the width of value labels when calculating string variable widths. Previously it was possible to create value label sets with values that were wider than the string variable, causing issues when reading files (#537).
+* `write_xpt()` character limit checks now check for the number of bytes instead of the number of characters (#746).
+* `write_xpt()` now errors if variable names are too long for the XPT version: 8 bytes for version 5, 32 bytes for version 8. Previously, long names were silently truncated for version 5 and error messaging was inconsistent (#771).
+* `write_xpt()` no longer fails when writing tagged `NA` values (#755).
 
 # haven 2.5.5
 
