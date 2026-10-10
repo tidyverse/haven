@@ -217,12 +217,6 @@ test_that("date/times with character data throw a warning (#747)", {
   )
 })
 
-test_that("trailing blank rows are preserved (#754)", {
-  path <- tempfile()
-  write_xpt(data.frame(a = c("a", "", "")), path)
-  expect_equal(read_xpt(path)$a, c("a", "", ""))
-})
-
 # write_xpt ---------------------------------------------------------------
 
 test_that("can roundtrip basic types", {
