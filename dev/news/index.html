@@ -92,6 +92,8 @@
 <li>
 <code>write_*()</code> functions now take into account the width of value labels when calculating string variable widths. Previously it was possible to create value label sets with values that were wider than the string variable, causing issues when reading files (<a href="https://github.com/tidyverse/haven/issues/537" class="external-link">#537</a>).</li>
 <li>
+<code><a href="../reference/read_dta.html">write_dta()</a></code> now gives an informative error when value labels are outside the range that Stata can store (-2,147,483,647 to 2,147,483,620). Previously, very large labels failed with “missing value where TRUE/FALSE needed” and labels just below 2^31 were silently converted to missing values (<a href="https://github.com/tidyverse/haven/issues/739" class="external-link">#739</a>).</li>
+<li>
 <code><a href="../reference/read_dta.html">write_dta()</a></code> now errors when <code>strl_threshold</code> is outside 0-2045, instead of silently clamping it to 2045.</li>
 <li>
 <code><a href="../reference/read_xpt.html">write_xpt()</a></code> character limit checks now check for the number of bytes instead of the number of characters (<a href="https://github.com/tidyverse/haven/issues/746" class="external-link">#746</a>).</li>

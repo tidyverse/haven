@@ -93,6 +93,12 @@
   variable, causing issues when reading files
   ([\#537](https://github.com/tidyverse/haven/issues/537)).
 - [`write_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md)
+  now gives an informative error when value labels are outside the range
+  that Stata can store (-2,147,483,647 to 2,147,483,620). Previously,
+  very large labels failed with “missing value where TRUE/FALSE needed”
+  and labels just below 2^31 were silently converted to missing values
+  ([\#739](https://github.com/tidyverse/haven/issues/739)).
+- [`write_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md)
   now errors when `strl_threshold` is outside 0-2045, instead of
   silently clamping it to 2045.
 - [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
