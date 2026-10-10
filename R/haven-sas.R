@@ -38,13 +38,20 @@ read_sas <- function(
   cols_only = deprecated(),
   .name_repair = "unique"
 ) {
+  check_string(encoding, allow_null = TRUE)
+  check_number_whole(skip, min = 0)
+  n_max <- check_n_max(n_max)
+
   if (lifecycle::is_present(cols_only)) {
     lifecycle::deprecate_warn(
       "2.2.0",
       "read_sas(cols_only)",
       "read_sas(col_select)"
     )
-    stopifnot(is.character(cols_only)) # used to only work with a char vector
+    # used to only work with a char vector
+    if (!is.character(cols_only)) {
+      cli_abort("{.arg cols_only} must be a character vector.")
+    }
 
     # guarantee a quosure to keep NULL and tidyselect logic clean downstream
     col_select <- quo(c(!!!cols_only))
@@ -52,9 +59,8 @@ read_sas <- function(
     col_select <- enquo(col_select)
   }
 
-  if (is.null(encoding)) {
-    encoding <- ""
-  }
+  encoding <- encoding %||% ""
+  check_string(catalog_encoding, allow_null = TRUE)
 
   spec_data <- readr::datasource(data_file)
   cols <- select_cols(
@@ -64,7 +70,6 @@ read_sas <- function(
     encoding = encoding,
     .name_repair = .name_repair
   )
-  n_max <- validate_n_max(n_max)
 
   if (is.null(catalog_file)) {
     spec_cat <- list()
@@ -117,7 +122,9 @@ read_sas <- function(
 write_sas <- function(data, path) {
   lifecycle::deprecate_warn("2.5.2", "write_sas()", "write_xpt()")
 
-  validate_sas(data)
+  check_data_frame(data)
+  check_string(path)
+
   data_out <- adjust_tz(data)
   write_sas_(data_out, normalizePath(path, mustWork = FALSE))
 
@@ -160,6 +167,9 @@ read_xpt <- function(
   n_max = Inf,
   .name_repair = "unique"
 ) {
+  check_number_whole(skip, min = 0)
+  n_max <- check_n_max(n_max)
+
   spec <- readr::datasource(file)
   cols <- select_cols(
     read_xpt,
@@ -167,7 +177,6 @@ read_xpt <- function(
     spec,
     .name_repair = .name_repair
   )
-  n_max <- validate_n_max(n_max)
 
   data <- switch(
     class(spec)[1],
@@ -210,27 +219,23 @@ write_xpt <- function(
   label = attr(data, "label"),
   adjust_tz = TRUE
 ) {
-  if (!version %in% c(5, 8)) {
-    cli_abort(
-      "SAS transport file version {.val {version}} is not currently supported."
-    )
-  }
+  check_data_frame(data)
+  check_string(path)
+  check_xpt_version(version)
 
-  if (is.null(name)) {
-    name <- tools::file_path_sans_ext(basename(path))
-  }
-  name <- validate_xpt_name(name, version)
-  label <- validate_xpt_label(label)
-  data <- validate_xpt_var_names(data, version)
+  name <- name %||% tools::file_path_sans_ext(basename(path))
+  check_xpt_name(name, version)
+  check_xpt_label(label)
+  check_bool(adjust_tz)
 
-  data_out <- validate_sas(data)
+  check_xpt_var_names(data, version)
 
   if (isTRUE(adjust_tz)) {
-    data_out <- adjust_tz(data_out)
+    data <- adjust_tz(data)
   }
 
   write_xpt_(
-    data_out,
+    data,
     normalizePath(path, mustWork = FALSE),
     version = version,
     name = name,
@@ -240,14 +245,25 @@ write_xpt <- function(
 }
 
 
-# Validation --------------------------------------------------------------
+# Checks ------------------------------------------------------------------
 
-validate_sas <- function(data) {
-  stopifnot(is.data.frame(data))
-  invisible(data)
+check_xpt_version <- function(
+  version,
+  arg = caller_arg(version),
+  call = caller_env()
+) {
+  check_number_whole(version, arg = arg, call = call)
+
+  if (!version %in% c(5, 8)) {
+    cli_abort(
+      "SAS transport file version {.val {version}} is not currently supported.",
+      call = call
+    )
+  }
 }
 
-validate_xpt_name <- function(name, version, call = caller_env()) {
+check_xpt_name <- function(name, version, call = caller_env()) {
+  check_string(name, allow_null = TRUE, call = call)
   if (version == 5) {
     if (nchar(name, type = "bytes") > 8) {
       cli_abort("{.arg name} must be 8 characters or fewer.", call = call)
@@ -257,21 +273,16 @@ validate_xpt_name <- function(name, version, call = caller_env()) {
       cli_abort("{.arg name} must be 32 characters or fewer.", call = call)
     }
   }
-  invisible(name)
 }
 
-validate_xpt_label <- function(label, call = caller_env()) {
-  if (!is.null(label)) {
-    stopifnot(is.character(label), length(label) == 1)
-
-    if (nchar(label, type = "bytes") > 40) {
-      cli_abort("{.arg label} must be 40 characters or fewer.", call = call)
-    }
+check_xpt_label <- function(label, call = caller_env()) {
+  check_string(label, call = call, allow_null = TRUE)
+  if (!is.null(label) && nchar(label, type = "bytes") > 40) {
+    cli_abort("{.arg label} must be 40 characters or fewer.", call = call)
   }
-  invisible(label)
 }
 
-validate_xpt_var_names <- function(data, version, call = caller_env()) {
+check_xpt_var_names <- function(data, version, call = caller_env()) {
   max_len <- if (version == 5) 8L else 32L
   bad_length <- nchar(names(data), type = "bytes") > max_len
 
@@ -284,5 +295,4 @@ validate_xpt_var_names <- function(data, version, call = caller_env()) {
       call = call
     )
   }
-  invisible(data)
 }

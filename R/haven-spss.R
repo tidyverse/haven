@@ -38,9 +38,12 @@ read_sav <- function(
   n_max = Inf,
   .name_repair = "unique"
 ) {
-  if (is.null(encoding)) {
-    encoding <- ""
-  }
+  check_string(encoding, allow_null = TRUE)
+  check_bool(user_na)
+  check_number_whole(skip, min = 0)
+  n_max <- check_n_max(n_max)
+
+  encoding <- encoding %||% ""
 
   spec <- readr::datasource(file)
   cols <- select_cols(
@@ -50,7 +53,6 @@ read_sav <- function(
     encoding,
     .name_repair = .name_repair
   )
-  n_max <- validate_n_max(n_max)
 
   data <- switch(
     class(spec)[1],
@@ -86,6 +88,10 @@ read_por <- function(
   n_max = Inf,
   .name_repair = "unique"
 ) {
+  check_bool(user_na)
+  check_number_whole(skip, min = 0)
+  n_max <- check_n_max(n_max)
+
   spec <- readr::datasource(file)
   cols <- select_cols(
     read_por,
@@ -93,7 +99,6 @@ read_por <- function(
     spec,
     .name_repair = .name_repair
   )
-  n_max <- validate_n_max(n_max)
 
   data <- switch(
     class(spec)[1],
@@ -149,6 +154,10 @@ write_sav <- function(
   compress = c("byte", "none", "zsav"),
   adjust_tz = TRUE
 ) {
+  check_sav(data)
+  check_string(path)
+  check_bool(adjust_tz)
+
   if (isTRUE(compress)) {
     compress <- "zsav"
   } else if (isFALSE(compress)) {
@@ -157,10 +166,10 @@ write_sav <- function(
     compress <- arg_match(compress)
   }
 
-  data_out <- validate_sav(data)
-
   if (isTRUE(adjust_tz)) {
-    data_out <- adjust_tz(data_out)
+    data_out <- adjust_tz(data)
+  } else {
+    data_out <- data
   }
 
   write_sav_(
@@ -216,8 +225,8 @@ read_spss <- function(
   )
 }
 
-validate_sav <- function(data, call = caller_env()) {
-  stopifnot(is.data.frame(data))
+check_sav <- function(data, call = caller_env()) {
+  check_data_frame(data, call = call)
 
   # Check variable names
   # https://www.ibm.com/docs/en/spss-statistics/28.0.0?topic=variables-variable-names
@@ -291,7 +300,6 @@ validate_sav <- function(data, call = caller_env()) {
       call = call
     )
   }
-  invisible(data)
 }
 
 # Helpers -----------------------------------------------------------------

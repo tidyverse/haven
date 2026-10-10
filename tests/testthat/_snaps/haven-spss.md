@@ -50,3 +50,34 @@
       ! Variables in `data` must have valid SPSS variable names.
       x Problems: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` and `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`
 
+# read_sav checks its inputs
+
+    Code
+      read_sav(path, encoding = 1)
+    Condition
+      Error in `read_sav()`:
+      ! `encoding` must be a single string or `NULL`, not the number 1.
+    Code
+      read_sav(path, user_na = "yes")
+    Condition
+      Error in `read_sav()`:
+      ! `user_na` must be `TRUE` or `FALSE`, not the string "yes".
+    Code
+      read_sav(path, skip = -1)
+    Condition
+      Error in `read_sav()`:
+      ! `skip` must be a whole number larger than or equal to 0, not the number -1.
+
+# write_sav checks its inputs
+
+    Code
+      write_sav(1, path)
+    Condition
+      Error in `write_sav()`:
+      ! `data` must be a data frame, not the number 1.
+    Code
+      write_sav(mtcars, path, adjust_tz = "yes")
+    Condition
+      Error in `write_sav()`:
+      ! `adjust_tz` must be `TRUE` or `FALSE`, not the string "yes".
+

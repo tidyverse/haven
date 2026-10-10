@@ -72,9 +72,10 @@ read_dta <- function(
   n_max = Inf,
   .name_repair = "unique"
 ) {
-  if (is.null(encoding)) {
-    encoding <- ""
-  }
+  check_string(encoding, allow_null = TRUE)
+  encoding <- encoding %||% ""
+  check_number_whole(skip, min = 0)
+  n_max <- check_n_max(n_max)
 
   spec <- readr::datasource(file)
   cols <- select_cols(
@@ -84,7 +85,6 @@ read_dta <- function(
     encoding,
     .name_repair = .name_repair
   )
-  n_max <- validate_n_max(n_max)
 
   data <- switch(
     class(spec)[1],
@@ -132,11 +132,18 @@ write_dta <- function(
   strl_threshold = 2045,
   adjust_tz = TRUE
 ) {
-  data_out <- validate_dta(data, version = version)
-  validate_dta_label(label)
+  check_data_frame(data)
+  check_string(path)
+  check_number_whole(version)
+  check_dta_label(label)
+  check_number_whole(strl_threshold, min = 0, max = 2045)
+  check_bool(adjust_tz)
+  check_dta(data, version)
 
   if (isTRUE(adjust_tz)) {
-    data_out <- adjust_tz(data_out)
+    data_out <- adjust_tz(data)
+  } else {
+    data_out <- data
   }
 
   write_dta_(
@@ -144,14 +151,14 @@ write_dta <- function(
     normalizePath(path, mustWork = FALSE),
     version = stata_file_format(version),
     label = label,
-    strl_threshold = validate_strl_threshold(strl_threshold)
+    strl_threshold = strl_threshold
   )
 
   invisible(data)
 }
 
 stata_file_format <- function(version, call = caller_env()) {
-  stopifnot(is.numeric(version), length(version) == 1)
+  check_number_whole(version, call = call)
   version <- as.integer(version)
 
   if (version == 15L) {
@@ -174,19 +181,7 @@ stata_file_format <- function(version, call = caller_env()) {
   }
 }
 
-validate_strl_threshold <- function(strl_threshold, call = caller_env()) {
-  stopifnot(is.numeric(strl_threshold), length(strl_threshold) == 1)
-
-  if (strl_threshold < 0 || strl_threshold > 2045) {
-    2045
-  } else {
-    strl_threshold
-  }
-}
-
-validate_dta <- function(data, version, call = caller_env()) {
-  stopifnot(is.data.frame(data))
-
+check_dta <- function(data, version, call = caller_env()) {
   # Check variable names
   bad_name <- !grepl("^[A-Za-z_]{1}[A-Za-z0-9_]+$", names(data))
   bad_length <- nchar(names(data)) > 32
@@ -212,12 +207,15 @@ validate_dta <- function(data, version, call = caller_env()) {
       call = call
     )
   }
-  invisible(data)
 }
 
-validate_dta_label <- function(label, call = caller_env()) {
+check_dta_label <- function(
+  label,
+  arg = caller_arg(label),
+  call = caller_env()
+) {
   if (!is.null(label)) {
-    stopifnot(is.character(label), length(label) == 1)
+    check_string(label, arg = arg, call = call)
 
     if (nchar(label) > 80) {
       cli_abort("{.arg label} must be 80 characters or fewer.", call = call)
