@@ -262,6 +262,11 @@ test_that("can roundtrip long strings (strL)", {
   expect_equal(roundtrip_var(x, "dta"), x)
 })
 
+test_that("missing values in strL are written as empty strings (#760)", {
+  x <- c("a", NA, strrep("a", 2046))
+  expect_equal(roundtrip_var(x, "dta"), c("a", "", strrep("a", 2046)))
+})
+
 
 test_that("invisibly returns original data unaltered", {
   df <- tibble(
