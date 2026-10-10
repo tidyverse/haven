@@ -1,6 +1,6 @@
 # haven (development version)
 
-* Updated to ReadStat dev 835b88c.
+* Updated to ReadStat dev 629a938.
   * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
   * SAS catalog reader now correctly reads big-endian files.
   * SAS reader now applies the timezone offset stored in the file header, so `creation_timestamp` and `modified_timestamp` attributes are now correctly reported in UTC.
@@ -20,6 +20,7 @@
 * `read_*()` functions now warn and treat a string variable with a date and/or time format as a plain string instead of throwing an error (#747). This should not normally occur, but has been observed in files produced by 3rd party software.
 * `read_dta()`, `read_sav()`, `read_por()`, `read_sas()`, and `read_xpt()` now attach file metadata as attributes: `creation_timestamp` and `modified_timestamp` (as POSIXct, in UTC) (#733, @SInginc).
 * `read_sas()` and `read_xpt()` now supports all datetime, date and time formats (#780) and correctly recognises DATEAMPM as datetime (#789).
+* `read_sas()` now supports sas7bdat files with an alternative magic number and `TK` revision tags (#724, WizardMac/ReadStat#355).
 * `tagged_na()` and `is_tagged_na()` now silently convert tagged `NA` values to lower case. These are case insensitive when reading and writing, so forcing lower case removes any potential ambiguity.
 * `write_*()` functions now take into account the width of value labels when calculating string variable widths. Previously it was possible to create value label sets with values that were wider than the string variable, causing issues when reading files (#537).
 * `write_xpt()` character limit checks now check for the number of bytes instead of the number of characters (#746).
