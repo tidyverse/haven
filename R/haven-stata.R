@@ -73,9 +73,10 @@ read_dta <- function(
   .name_repair = "unique"
 ) {
   check_string(encoding, allow_null = TRUE)
-  encoding <- encoding %||% ""
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+
+  encoding <- encoding %||% ""
 
   spec <- readr::datasource(file)
   cols <- select_cols(

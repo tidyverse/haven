@@ -156,8 +156,6 @@ write_sav <- function(
 ) {
   check_sav(data)
   check_string(path)
-  check_bool(adjust_tz)
-
   if (isTRUE(compress)) {
     compress <- "zsav"
   } else if (isFALSE(compress)) {
@@ -165,6 +163,7 @@ write_sav <- function(
   } else {
     compress <- arg_match(compress)
   }
+  check_bool(adjust_tz)
 
   if (isTRUE(adjust_tz)) {
     data_out <- adjust_tz(data)
@@ -193,6 +192,10 @@ read_spss <- function(
   n_max = Inf,
   .name_repair = "unique"
 ) {
+  check_bool(user_na)
+  check_number_whole(skip, min = 0)
+  n_max <- check_n_max(n_max)
+
   ext <- tolower(tools::file_ext(file))
 
   switch(

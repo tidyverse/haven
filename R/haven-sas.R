@@ -39,6 +39,7 @@ read_sas <- function(
   .name_repair = "unique"
 ) {
   check_string(encoding, allow_null = TRUE)
+  check_string(catalog_encoding, allow_null = TRUE)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
 
@@ -60,7 +61,7 @@ read_sas <- function(
   }
 
   encoding <- encoding %||% ""
-  check_string(catalog_encoding, allow_null = TRUE)
+  catalog_encoding <- catalog_encoding %||% ""
 
   spec_data <- readr::datasource(data_file)
   cols <- select_cols(
