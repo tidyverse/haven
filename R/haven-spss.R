@@ -10,7 +10,9 @@
 #' SPSS are handled in R.
 #'
 #' @inheritParams read_sas
-#' @inheritParams readr::datasource
+#' @param file Either a path to a file, a URL, a compressed file (`.gz`,
+#'   `.bz2`, `.xz`, or `.zip`), a connection, or a raw vector. Remote and
+#'   compressed files are downloaded or decompressed before reading.
 #' @param path Path to a file where the data will be written.
 #' @param data Data frame to write.
 #' @param encoding The character encoding used for the file. The default,
@@ -45,7 +47,7 @@ read_sav <- function(
 
   encoding <- encoding %||% ""
 
-  spec <- readr::datasource(file)
+  spec <- datasource(file)
   cols <- select_cols(
     read_sav,
     {{ col_select }},
@@ -54,26 +56,7 @@ read_sav <- function(
     .name_repair = .name_repair
   )
 
-  data <- switch(
-    class(spec)[1],
-    source_file = df_parse_sav_file(
-      spec,
-      encoding,
-      user_na,
-      cols$skip,
-      n_max,
-      skip
-    ),
-    source_raw = df_parse_sav_raw(
-      spec,
-      encoding,
-      user_na,
-      cols$skip,
-      n_max,
-      skip
-    ),
-    cli_abort("This kind of input is not handled.")
-  )
+  data <- df_parse_sav(spec, encoding, user_na, cols$skip, n_max, skip)
 
   output_cols(data, cols, .name_repair)
 }
@@ -92,7 +75,7 @@ read_por <- function(
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
 
-  spec <- readr::datasource(file)
+  spec <- datasource(file)
   cols <- select_cols(
     read_por,
     {{ col_select }},
@@ -100,26 +83,7 @@ read_por <- function(
     .name_repair = .name_repair
   )
 
-  data <- switch(
-    class(spec)[1],
-    source_file = df_parse_por_file(
-      spec,
-      encoding = "",
-      user_na = user_na,
-      cols$skip,
-      n_max,
-      skip
-    ),
-    source_raw = df_parse_por_raw(
-      spec,
-      encoding = "",
-      user_na = user_na,
-      cols$skip,
-      n_max,
-      skip
-    ),
-    cli_abort("This kind of input is not handled.")
-  )
+  data <- df_parse_por(spec, "", user_na, cols$skip, n_max, skip)
 
   output_cols(data, cols, .name_repair)
 }
