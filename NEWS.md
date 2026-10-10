@@ -17,6 +17,7 @@
 * `median()` method for `haven_labelled` vectors now forwards the `na.rm` argument instead of always using `na.rm = TRUE`.
 * `read_*()` documentation now more clearly explains that labelled vectors are an intermediate representation, and points users to `as_factor()` and `zap_labels()` when preparing imported categorical variables for analysis (#741).
 * `read_*()` functions now correctly load from non-file connections when using `col_select` (#720).
+* `read_*()` functions gain a `progress` argument that displays a progress bar when reading large files. Like readr, it is shown by default in interactive sessions and can be turned off with `options(haven.show_progress = FALSE)` (#730).
 * The `read_*()` and `write_*()` functions now use rlang's standard argument checkers, giving clearer error messages when arguments have the wrong type (#737).
 * `read_*()` functions now warn and treat a string variable with a date and/or time format as a plain string instead of throwing an error (#747). This should not normally occur, but has been observed in files produced by 3rd party software.
 * `read_dta()`, `read_sav()`, `read_por()`, `read_sas()`, and `read_xpt()` now attach file metadata as attributes: `creation_timestamp` and `modified_timestamp` (as POSIXct, in UTC) (#733, @SInginc).

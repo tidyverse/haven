@@ -89,6 +89,12 @@ check_n_max <- function(n, arg = caller_arg(n), call = caller_env()) {
   as.integer(n)
 }
 
+show_progress <- function() {
+  isTRUE(getOption("haven.show_progress", TRUE)) &&
+    is_interactive() &&
+    !isTRUE(getOption("rstudio.notebook.executing"))
+}
+
 adjust_tz <- function(df) {
   datetime <- vapply(df, inherits, "POSIXt", FUN.VALUE = logical(1))
   df[datetime] <- lapply(df[datetime], force_utc)

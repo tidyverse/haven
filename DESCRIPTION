@@ -37,6 +37,7 @@ Suggests:
     testthat (>= 3.0.0),
     utf8
 LinkingTo: 
+    cli,
     cpp11
 VignetteBuilder: 
     knitr

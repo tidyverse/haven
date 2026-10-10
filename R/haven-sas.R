@@ -20,6 +20,9 @@
 #'   Predicates using [`where()`][tidyselect::where] are not supported.
 #' @param skip Number of lines to skip before reading data.
 #' @param n_max Maximum number of lines to read.
+#' @param progress Display a progress bar? The default, `NULL`, displays when
+#'   in an interactive session. The automatic progress bar can be disabled
+#'   with `options(haven.show_progress = FALSE)`.
 #' @param cols_only `r lifecycle::badge("deprecated")` `cols_only` is no longer
 #'   supported; use `col_select` instead.
 #' @inherit labelled-output return
@@ -36,12 +39,15 @@ read_sas <- function(
   skip = 0L,
   n_max = Inf,
   cols_only = deprecated(),
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_string(encoding, allow_null = TRUE)
   check_string(catalog_encoding, allow_null = TRUE)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
+  progress <- progress %||% show_progress()
 
   if (lifecycle::is_present(cols_only)) {
     lifecycle::deprecate_warn(
@@ -87,7 +93,8 @@ read_sas <- function(
       catalog_encoding = catalog_encoding,
       cols_skip = cols$skip,
       n_max = n_max,
-      rows_skip = skip
+      rows_skip = skip,
+      progress = progress
     ),
     source_raw = df_parse_sas_raw(
       spec_data,
@@ -96,7 +103,8 @@ read_sas <- function(
       catalog_encoding = catalog_encoding,
       cols_skip = cols$skip,
       n_max = n_max,
-      rows_skip = skip
+      rows_skip = skip,
+      progress = progress
     ),
     cli_abort("This kind of input is not handled.")
   )
@@ -166,10 +174,13 @@ read_xpt <- function(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
+  progress <- progress %||% show_progress()
 
   spec <- readr::datasource(file)
   cols <- select_cols(
@@ -181,8 +192,8 @@ read_xpt <- function(
 
   data <- switch(
     class(spec)[1],
-    source_file = df_parse_xpt_file(spec, cols$skip, n_max, skip),
-    source_raw = df_parse_xpt_raw(spec, cols$skip, n_max, skip),
+    source_file = df_parse_xpt_file(spec, cols$skip, n_max, skip, progress),
+    source_raw = df_parse_xpt_raw(spec, cols$skip, n_max, skip, progress),
     cli_abort("This kind of input is not handled.")
   )
 
