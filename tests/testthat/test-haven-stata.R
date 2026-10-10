@@ -249,6 +249,22 @@ test_that("can't write non-integer labels (#401)", {
   })
 })
 
+test_that("can't write labels outside Stata's integer range (#739)", {
+  df <- data.frame(x = labelled(c(1, 2), c(a = 9999999999)))
+  expect_snapshot(write_dta(df, tempfile()), error = TRUE)
+
+  df <- data.frame(x = labelled(c(1, 2), c(a = 2147483621)))
+  expect_snapshot(write_dta(df, tempfile()), error = TRUE)
+})
+
+test_that("can write labels at the limits of Stata's integer range", {
+  labels <- c(a = -2147483647, b = 2147483620, c = tagged_na("a"))
+  df <- data.frame(x = labelled(c(1, 2), labels))
+  path <- tempfile()
+  write_dta(df, path)
+  expect_equal(attr(read_dta(path)$x, "labels"), labels)
+})
+
 test_that("can roundtrip long strings (strL)", {
   long_string <- function(n, m) {
     do.call("paste0", replicate(m, sample(LETTERS, n, TRUE), simplify = FALSE))
