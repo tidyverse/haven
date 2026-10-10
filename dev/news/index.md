@@ -55,6 +55,10 @@
 - `read_*()` functions now correctly load from non-file connections when
   using `col_select`
   ([\#720](https://github.com/tidyverse/haven/issues/720)).
+- The `read_*()` and `write_*()` functions now use rlang’s standard
+  argument checkers, giving clearer error messages when arguments have
+  the wrong type
+  ([\#737](https://github.com/tidyverse/haven/issues/737)).
 - `read_*()` functions now warn and treat a string variable with a date
   and/or time format as a plain string instead of throwing an error
   ([\#747](https://github.com/tidyverse/haven/issues/747)). This should
@@ -88,6 +92,9 @@
   create value label sets with values that were wider than the string
   variable, causing issues when reading files
   ([\#537](https://github.com/tidyverse/haven/issues/537)).
+- [`write_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md)
+  now errors when `strl_threshold` is outside 0-2045, instead of
+  silently clamping it to 2045.
 - [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
   character limit checks now check for the number of bytes instead of
   the number of characters
