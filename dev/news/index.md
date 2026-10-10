@@ -3,42 +3,63 @@
 ## haven (development version)
 
 - Updated to ReadStat dev 835b88c.
-
   - [`write_sav()`](https://haven.tidyverse.org/dev/reference/read_spss.md)
     no longer produces files that
     [`read_sav()`](https://haven.tidyverse.org/dev/reference/read_spss.md)
     reads back incorrectly when a long string variable’s internal
     segment name collides with another variable name
     ([\#798](https://github.com/tidyverse/haven/issues/798)).
-
   - SAS catalog reader now correctly reads big-endian files.
-
   - SAS reader now applies the timezone offset stored in the file
     header, so `creation_timestamp` and `modified_timestamp` attributes
     are now correctly reported in UTC.
-
   - SAS reader now supports files with zero observations
     ([\#627](https://github.com/tidyverse/haven/issues/627)).
-
   - SAS reader has improved support for RLE decompression and 16MiB page
     sizes.
-
   - SAV reader now supports MR set names containing non-ASCII characters
     ([\#788](https://github.com/tidyverse/haven/issues/788)).
-
   - SAV reader has improved support for Asian code pages and very long
     string records.
-
   - SAV writer now supports labels for string values longer than 8 bytes
     ([\#550](https://github.com/tidyverse/haven/issues/550)).
-
   - Stata reader no longer returns Stata’s internal note count
     (`_dta[note0]`) as a note, so `attr(df, "notes")` may contain one
     fewer note than before.
-
   - XPT V8 writer now supports long variable labels
     ([\#784](https://github.com/tidyverse/haven/issues/784)).
-
+- `col_select` in the `read_*()` functions now correctly implements the
+  tidyselect interface. Columns will be returned in the order specified
+  in `col_select` and can be renamed, e.g. `col_select = c(new = old)`
+  ([\#685](https://github.com/tidyverse/haven/issues/685)).
+- `col_select` works correctly when combined with `.name_repair` for
+  files with duplicate column names
+  ([\#687](https://github.com/tidyverse/haven/issues/687)).
+- [`labelled_spss()`](https://haven.tidyverse.org/dev/reference/labelled_spss.md)
+  vectors that contain `NA` can now be cast to a different `na_range`
+  without failing with “missing value where TRUE/FALSE needed”, which
+  affected [`rbind()`](https://rdrr.io/r/base/cbind.html) and
+  `dplyr::bind_rows()`
+  ([\#761](https://github.com/tidyverse/haven/issues/761),
+  [@taekop](https://github.com/taekop)).
+- [`median()`](https://rdrr.io/r/stats/median.html) method for
+  `haven_labelled` vectors now forwards the `na.rm` argument instead of
+  always using `na.rm = TRUE`.
+- `read_*()` documentation now more clearly explains that labelled
+  vectors are an intermediate representation, and points users to
+  [`as_factor()`](https://haven.tidyverse.org/dev/reference/as_factor.md)
+  and
+  [`zap_labels()`](https://haven.tidyverse.org/dev/reference/zap_labels.md)
+  when preparing imported categorical variables for analysis
+  ([\#741](https://github.com/tidyverse/haven/issues/741)).
+- `read_*()` functions now correctly load from non-file connections when
+  using `col_select`
+  ([\#720](https://github.com/tidyverse/haven/issues/720)).
+- `read_*()` functions now warn and treat a string variable with a date
+  and/or time format as a plain string instead of throwing an error
+  ([\#747](https://github.com/tidyverse/haven/issues/747)). This should
+  not normally occur, but has been observed in files produced by 3rd
+  party software.
 - [`read_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md),
   [`read_sav()`](https://haven.tidyverse.org/dev/reference/read_spss.md),
   [`read_por()`](https://haven.tidyverse.org/dev/reference/read_spss.md),
@@ -49,61 +70,6 @@
   `modified_timestamp` (as POSIXct, in UTC)
   ([\#733](https://github.com/tidyverse/haven/issues/733),
   [@SInginc](https://github.com/SInginc)).
-
-- Documentation for `read_*()` functions now more clearly explains that
-  labelled vectors are an intermediate representation, and points users
-  to
-  [`as_factor()`](https://haven.tidyverse.org/dev/reference/as_factor.md)
-  and
-  [`zap_labels()`](https://haven.tidyverse.org/dev/reference/zap_labels.md)
-  when preparing imported categorical variables for analysis
-  ([\#741](https://github.com/tidyverse/haven/issues/741)).
-
-- [`median()`](https://rdrr.io/r/stats/median.html) method for
-  `haven_labelled` vectors now forwards the `na.rm` argument instead of
-  always using `na.rm = TRUE`.
-
-- Casting a
-  [`labelled_spss()`](https://haven.tidyverse.org/dev/reference/labelled_spss.md)
-  vector that contains `NA` to one with a different `na_range` no longer
-  fails with “missing value where TRUE/FALSE needed”, which affected
-  [`rbind()`](https://rdrr.io/r/base/cbind.html) and
-  `dplyr::bind_rows()`
-  ([\#761](https://github.com/tidyverse/haven/issues/761),
-  [@taekop](https://github.com/taekop)).
-
-- `col_select` in the `read_*()` functions now correctly implements the
-  tidyselect interface. Columns will be returned in the order specified
-  in `col_select` and can be renamed, e.g. `col_select = c(new = old)`
-  ([\#685](https://github.com/tidyverse/haven/issues/685)).
-
-- `col_select` works correctly when combined with `.name_repair` for
-  files with duplicate column names
-  ([\#687](https://github.com/tidyverse/haven/issues/687)).
-
-- `read_*()` functions now correctly load from non-file connections when
-  using `col_select`
-  ([\#720](https://github.com/tidyverse/haven/issues/720)).
-
-- When a string variable has a date and/or time format `read_*()`
-  functions now warn and treat the variable as a plain string instead of
-  throwing an error
-  ([\#747](https://github.com/tidyverse/haven/issues/747)). This should
-  not normally occur, but has been observed in files produced by 3rd
-  party software.
-
-- `write_*()` functions now take into account the width of value labels
-  when calculating string variable widths. Previously it was possible to
-  create value label sets with values that were wider than the string
-  variable, causing issues when reading files
-  ([\#537](https://github.com/tidyverse/haven/issues/537)).
-
-- [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
-  now errors if variable names are too long for the XPT version: 8 bytes
-  for version 5, 32 bytes for version 8. Previously, long names were
-  silently truncated for version 5 and error messaging was inconsistent
-  ([\#771](https://github.com/tidyverse/haven/issues/771)).
-
 - [`read_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
   and
   [`read_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
@@ -111,24 +77,29 @@
   ([\#780](https://github.com/tidyverse/haven/issues/780)) and correctly
   recognises DATEAMPM as datetime
   ([\#789](https://github.com/tidyverse/haven/issues/789)).
-
-- Fix bug that caused
-  [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
-  to fail when writing tagged `NA` values
-  ([\#755](https://github.com/tidyverse/haven/issues/755)).
-
-- Tagged `NA` values are now silently converted to lower case when they
-  are created in R with
-  [`tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md)
-  or checked with
-  [`is_tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md).
-  These are case insensitive when reading and writing, so forcing lower
-  case removes any potential ambiguity.
-
-- Character limit checks in
-  [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
-  now check for the number of bytes instead of the number of characters
+- [`tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md)
+  and
+  [`is_tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md)
+  now silently convert tagged `NA` values to lower case. These are case
+  insensitive when reading and writing, so forcing lower case removes
+  any potential ambiguity.
+- `write_*()` functions now take into account the width of value labels
+  when calculating string variable widths. Previously it was possible to
+  create value label sets with values that were wider than the string
+  variable, causing issues when reading files
+  ([\#537](https://github.com/tidyverse/haven/issues/537)).
+- [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
+  character limit checks now check for the number of bytes instead of
+  the number of characters
   ([\#746](https://github.com/tidyverse/haven/issues/746)).
+- [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
+  now errors if variable names are too long for the XPT version: 8 bytes
+  for version 5, 32 bytes for version 8. Previously, long names were
+  silently truncated for version 5 and error messaging was inconsistent
+  ([\#771](https://github.com/tidyverse/haven/issues/771)).
+- [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
+  no longer fails when writing tagged `NA` values
+  ([\#755](https://github.com/tidyverse/haven/issues/755)).
 
 ## haven 2.5.5
 
