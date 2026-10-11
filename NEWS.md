@@ -1,5 +1,6 @@
 # haven (development version)
 
+* haven now links against `libiconv` when R itself does, fixing `undefined symbol: libiconv` load failures in conda environments (#774).
 * Updated to ReadStat dev 835b88c.
   * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
   * SAS catalog reader now correctly reads big-endian files.
