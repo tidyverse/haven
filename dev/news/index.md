@@ -93,6 +93,11 @@
   variable, causing issues when reading files
   ([\#537](https://github.com/tidyverse/haven/issues/537)).
 - [`write_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md)
+  no longer fails when writing `NA` in a long string (strL) variable;
+  missing values are written as empty strings, which is how Stata
+  represents missing strings
+  ([\#760](https://github.com/tidyverse/haven/issues/760)).
+- [`write_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md)
   now gives an informative error when value labels are outside the range
   that Stata can store (-2,147,483,647 to 2,147,483,620). Previously,
   very large labels failed with “missing value where TRUE/FALSE needed”
