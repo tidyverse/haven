@@ -1,5 +1,13 @@
 # nocov start
-update_readstat <- function(branch = "master") {
+# Update the vendored copy of ReadStat in src/readstat.
+#
+# We track the dev branch because ReadStat releases are slow, and then apply
+# the small set of local patches in patches/readstat/. Each patch is a git
+# diff with a header explaining what it does and why; patches that backport an
+# upstream fix are named after the ReadStat PR and link to the PR and the
+# haven issue they fix. Remove a patch once it's no longer needed (e.g. its
+# PR is merged into the branch we track).
+update_readstat <- function(branch = "dev") {
   tmp <- tempfile()
   utils::download.file(
     paste0("https://github.com/WizardMac/ReadStat/archive/", branch, ".zip"),
@@ -18,32 +26,39 @@ update_readstat <- function(branch = "master") {
   fs::file_copy(fs::path(base, "LICENSE"), out_dir)
   fs::file_copy(fs::path(base, "NEWS"), out_dir)
 
-  apply_iconv_hack()
+  apply_readstat_patches()
 
   invisible()
 }
 
-apply_iconv_hack <- function() {
-  path <- fs::path("src", "readstat", "readstat_iconv.h")
-  lines <- readLines(path)
-
-  # Replace the autotools ICONV_CONST fallback with platform-specific logic
-  # Also update the comment to reflect that we're manually hacking this
-  ifndef_line <- which(lines == "#ifndef ICONV_CONST")
-  comment_line <- grep("^/\\* ICONV_CONST", lines)
-
-  if (length(ifndef_line) == 1 && length(comment_line) == 1) {
-    lines <- c(
-      lines[1:(comment_line - 1)],
-      "/* ICONV_CONST defined by autotools; so we hack this in manually */",
-      "#if defined(_WIN32) || defined(__sun)",
-      "  #define ICONV_CONST const",
-      "#else",
-      "  #define ICONV_CONST",
-      "#endif",
-      lines[(ifndef_line + 3):length(lines)]
-    )
-    writeLines(lines, path)
+apply_readstat_patches <- function() {
+  patch_dir <- fs::path("patches", "readstat")
+  if (!fs::dir_exists(patch_dir)) {
+    return(invisible())
   }
+
+  for (patch in sort(fs::dir_ls(patch_dir, glob = "*.patch"))) {
+    cli::cli_inform("Applying {.file {patch}}")
+    # Patch paths are a/src/... relative to the ReadStat repo root; strip a/
+    # and src/ so they apply inside src/readstat
+    status <- system2(
+      "git",
+      c(
+        "apply",
+        "-p2",
+        "--directory",
+        shQuote(fs::path("src", "readstat")),
+        shQuote(patch)
+      )
+    )
+    if (!identical(status, 0L)) {
+      cli::cli_abort(c(
+        "Failed to apply {.file {patch}}.",
+        i = "Is it no longer needed (e.g. merged upstream)? If so, delete it."
+      ))
+    }
+  }
+
+  invisible()
 }
 # nocov end

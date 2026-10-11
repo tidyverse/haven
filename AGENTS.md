@@ -1,6 +1,13 @@
 ## This package
 
-<!-- Insert package-specific content here. use_tidy_agents() will preserve this section when updating the rest of the file. -->
+* If a fix requires a change to `src/readstat`, also prepare a PR for WizardMac/ReadStat and apply the fix using the machinery in `apply_readstat_patches()`:
+    * `src/readstat` is a vendored copy of the ReadStat `dev` branch (updated with `update_readstat()`); never edit it directly.
+    * Local changes live as git diffs in `patches/readstat/`, applied automatically by `update_readstat()` in alphabetical order via `git apply -p2` (patch paths are `a/src/...` relative to the ReadStat repo root).
+    * Patches that backport an upstream fix are named after the ReadStat PR (e.g. `PR-355.patch`); purely local patches get a descriptive name prefixed with `00-` (e.g. `00-iconv-const.patch`) so they apply first.
+    * Each patch starts with a `#` comment header linking to the ReadStat PR and the haven issue it fixes, and noting when it can be deleted (e.g. once the PR is merged into the branch we track).
+    * Generate patches with `git diff` in a checkout of the ReadStat branch we track.
+    * The news bullet should cite both the haven issue and the upstream ReadStat PR in one set of parentheses, e.g. `(#724, WizardMac/ReadStat#355)`
+
 
 ## Package development
 
