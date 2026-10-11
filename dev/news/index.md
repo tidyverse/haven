@@ -2,7 +2,7 @@
 
 ## haven (development version)
 
-- Updated to ReadStat dev 835b88c.
+- Updated to ReadStat dev (b05b645).
   - [`write_sav()`](https://haven.tidyverse.org/dev/reference/read_spss.md)
     no longer produces files that
     [`read_sav()`](https://haven.tidyverse.org/dev/reference/read_spss.md)
@@ -26,6 +26,9 @@
   - Stata reader no longer returns Stata’s internal note count
     (`_dta[note0]`) as a note, so `attr(df, "notes")` may contain one
     fewer note than before.
+  - XPT V8 reader no longer drops trailing rows that contain only empty
+    strings or missing values
+    ([\#754](https://github.com/tidyverse/haven/issues/754)).
   - XPT V8 writer now supports long variable labels
     ([\#784](https://github.com/tidyverse/haven/issues/784)).
 - `col_select` in the `read_*()` functions now correctly implements the
