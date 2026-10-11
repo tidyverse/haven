@@ -249,6 +249,22 @@ test_that("can't write non-integer labels (#401)", {
   })
 })
 
+test_that("can't write labels outside Stata's integer range (#739)", {
+  df <- data.frame(x = labelled(c(1, 2), c(a = 9999999999)))
+  expect_snapshot(write_dta(df, tempfile()), error = TRUE)
+
+  df <- data.frame(x = labelled(c(1, 2), c(a = 2147483621)))
+  expect_snapshot(write_dta(df, tempfile()), error = TRUE)
+})
+
+test_that("can write labels at the limits of Stata's integer range", {
+  labels <- c(a = -2147483647, b = 2147483620, c = tagged_na("a"))
+  df <- data.frame(x = labelled(c(1, 2), labels))
+  path <- tempfile()
+  write_dta(df, path)
+  expect_equal(attr(read_dta(path)$x, "labels"), labels)
+})
+
 test_that("can roundtrip long strings (strL)", {
   long_string <- function(n, m) {
     do.call("paste0", replicate(m, sample(LETTERS, n, TRUE), simplify = FALSE))
@@ -301,4 +317,24 @@ test_that("read_dta attaches file timestamps", {
   # dta files only store timestamps with minute resolution
   expect_true(created >= before - 60 && created <= Sys.time() + 60)
   expect_true(modified >= before - 60 && modified <= Sys.time() + 60)
+})
+
+test_that("read_dta checks its inputs", {
+  path <- test_path("stata/notes.dta")
+  expect_snapshot(error = TRUE, {
+    read_dta(path, encoding = 1)
+    read_dta(path, skip = -1)
+  })
+})
+
+test_that("write_dta checks its inputs", {
+  path <- tempfile(fileext = ".dta")
+  expect_snapshot(error = TRUE, {
+    write_dta(1, path)
+    write_dta(mtcars, path, version = 14.5)
+    write_dta(mtcars, path, label = 1)
+    write_dta(mtcars, path, strl_threshold = -1)
+    write_dta(mtcars, path, strl_threshold = 2046)
+    write_dta(mtcars, path, adjust_tz = "yes")
+  })
 })

@@ -79,17 +79,8 @@ output_cols <- function(data, cols, name_repair, call = caller_env()) {
   }
 }
 
-validate_n_max <- function(n, call = caller_env()) {
-  if (!is.numeric(n) && !is.na(n)) {
-    cli_abort(
-      "{.arg n_max} must be {.cls numeric}, not {.cls {class(n)[1]}}.",
-      call = call
-    )
-  }
-
-  if (length(n) != 1) {
-    cli_abort("{.arg n_max} must have length 1, not {length(n)}.", call = call)
-  }
+check_n_max <- function(n, arg = caller_arg(n), call = caller_env()) {
+  check_number_decimal(n, allow_na = TRUE, arg = arg, call = call)
 
   if (is.na(n) || is.infinite(n) || n < 0) {
     return(-1L)

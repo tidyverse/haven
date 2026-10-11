@@ -23,7 +23,7 @@ Imports:
     lifecycle,
     methods,
     readr (>= 0.1.0),
-    rlang (>= 0.4.0),
+    rlang (>= 1.1.0),
     tibble,
     tidyselect,
     vctrs (>= 0.3.0)

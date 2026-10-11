@@ -97,8 +97,10 @@ test_that("throws informative error on bad row limit", {
     nrow(read_sas(test_path("sas/hadley.sas7bdat"), n_max = n))
   }
 
-  expect_error(rows_with_limit(1:5), "must have length 1")
-  expect_error(rows_with_limit("foo"), "must be <numeric>")
+  expect_snapshot(error = TRUE, {
+    rows_with_limit(1:5)
+    rows_with_limit("foo")
+  })
 })
 
 # Column selection --------------------------------------------------------
@@ -365,4 +367,23 @@ test_that("read_xpt attaches file timestamps", {
   expect_s3_class(modified, "POSIXct")
   expect_true(created >= before - 60 && created <= Sys.time() + 60)
   expect_true(modified >= before - 60 && modified <= Sys.time() + 60)
+})
+
+test_that("read_sas checks its inputs", {
+  path <- test_path("sas/hadley.sas7bdat")
+  expect_snapshot(error = TRUE, {
+    read_sas(path, encoding = 1)
+    read_sas(path, skip = -1)
+  })
+})
+
+test_that("write_xpt checks its inputs", {
+  path <- tempfile(fileext = ".xpt")
+  expect_snapshot(error = TRUE, {
+    write_xpt(mtcars, path, version = 8.5)
+    write_xpt(mtcars, path, name = 1)
+    write_xpt(mtcars, path, label = 1)
+    write_xpt(mtcars, path, adjust_tz = "yes")
+    write_xpt(1, path)
+  })
 })
