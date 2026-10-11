@@ -1,6 +1,6 @@
 # haven (development version)
 
-* Updated to ReadStat dev 835b88c.
+* Updated to ReadStat dev (b05b645).
   * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
   * SAS catalog reader now correctly reads big-endian files.
   * SAS reader now applies the timezone offset stored in the file header, so `creation_timestamp` and `modified_timestamp` attributes are now correctly reported in UTC.
@@ -10,6 +10,7 @@
   * SAV reader has improved support for Asian code pages and very long string records.
   * SAV writer now supports labels for string values longer than 8 bytes (#550).
   * Stata reader no longer returns Stata's internal note count (`_dta[note0]`) as a note, so `attr(df, "notes")` may contain one fewer note than before.
+  * XPT V8 reader no longer drops trailing rows that contain only empty strings or missing values (#754).
   * XPT V8 writer now supports long variable labels (#784).
 * `col_select` in the `read_*()` functions now correctly implements the tidyselect interface. Columns will be returned in the order specified in `col_select` and can be renamed, e.g. `col_select = c(new = old)` (#685).
 * `col_select` works correctly when combined with `.name_repair` for files with duplicate column names (#687).

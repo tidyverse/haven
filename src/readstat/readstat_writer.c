@@ -51,7 +51,17 @@ readstat_writer_t *readstat_writer_init(void) {
     writer->string_refs = calloc(STRING_REFS_INITIAL_CAPACITY, sizeof(readstat_string_ref_t *));
     writer->string_refs_capacity = STRING_REFS_INITIAL_CAPACITY;
 
+#ifdef TIME_UTC
+    struct timespec now;
+    if (timespec_get(&now, TIME_UTC) == TIME_UTC) {
+        writer->timestamp = now.tv_sec;
+        writer->timestamp_fraction = now.tv_nsec / 1e9;
+    } else {
+        writer->timestamp = time(NULL);
+    }
+#else
     writer->timestamp = time(NULL);
+#endif
     writer->is_64bit = 1;
     writer->callbacks.write_row = &readstat_write_row_default_callback;
 
@@ -515,6 +525,7 @@ readstat_error_t readstat_writer_set_file_label(readstat_writer_t *writer, const
 
 readstat_error_t readstat_writer_set_file_timestamp(readstat_writer_t *writer, time_t timestamp) {
     writer->timestamp = timestamp;
+    writer->timestamp_fraction = 0.0;
     return READSTAT_OK;
 }
 

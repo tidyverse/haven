@@ -437,18 +437,19 @@ readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *
 
     memcpy(&header[84], header_start.file_type, sizeof(header_start.file_type));
 
-    /* Dataset name: 64 bytes, space padded */
+    /* Dataset name: 64 bytes. SAS space-pads the name to 32 bytes (the
+     * maximum length of a SAS name) and leaves the rest as NULs. */
     if (writer->table_name[0]) {
-        sas_write_padded_ascii((char *)&header[92], 64, writer->table_name, ' ');
+        sas_write_padded_ascii((char *)&header[92], 32, writer->table_name, ' ');
     } else {
-        sas_write_padded_ascii((char *)&header[92], 64, "DATASET", ' ');
+        sas_write_padded_ascii((char *)&header[92], 32, "DATASET", ' ');
     }
 
     memcpy(&header[156], header_start.file_info, sizeof(header_start.file_info));
 
     double utc_offset = sas_local_utc_offset(writer->timestamp);
-    double creation_time = (double)(hinfo->creation_time - epoch) + utc_offset;
-    double modification_time = (double)(hinfo->modification_time - epoch) + utc_offset;
+    double creation_time = (double)(hinfo->creation_time - epoch) + utc_offset + writer->timestamp_fraction;
+    double modification_time = (double)(hinfo->modification_time - epoch) + utc_offset + writer->timestamp_fraction;
 
     off = 164 + a1;
     memcpy(&header[off], &creation_time, sizeof(double));
@@ -472,26 +473,31 @@ readstat_error_t sas_write_header(readstat_writer_t *writer, sas_header_info_t *
 
     char release[9];
     if (writer->version == 9) {
-        snprintf(release, sizeof(release), "9.0401M2");
+        snprintf(release, sizeof(release), "9.0401M5");
     } else {
         snprintf(release, sizeof(release), "%1d.0202M0", (unsigned int)writer->version % 10);
     }
     memcpy(&header[off], release, 8);
     sas_write_padded_ascii((char *)&header[off+8], 16, "Linux", '\0');   /* host */
-    sas_write_padded_ascii((char *)&header[off+24], 16, "", '\0');       /* OS version */
+    sas_write_padded_ascii((char *)&header[off+24], 16, "3.10.0-1160.11.1", '\0'); /* OS version */
     sas_write_padded_ascii((char *)&header[off+40], 16, "", '\0');       /* OS vendor */
     sas_write_padded_ascii((char *)&header[off+56], 16, "x86_64", '\0'); /* OS name */
 
-    /* Bytes 288-303 are involved in the READ-password check. SAS derives them
-     * from the creation date (and the password, if any); the derivation is not
-     * known, so use a pair of values copied from an unencrypted SAS dataset,
-     * which SAS accepts. */
-    uint32_t pattern1 = 0xD4C8C038;
-    uint32_t pattern2 = 0xB1A78E74;
-    memcpy(&header[off+72], &pattern1, sizeof(uint32_t));
-    memcpy(&header[off+76], &pattern2, sizeof(uint32_t));
-    memcpy(&header[off+80], &pattern2, sizeof(uint32_t));
-    memcpy(&header[off+84], &pattern2, sizeof(uint32_t));
+    /* Bytes 288-303 are a password checksum. The first 4 bytes are the low
+     * 32 bits of the creation time (as stored, in native byte order). The
+     * next three 4-byte fields correspond to SAS's three dataset passwords
+     * (READ=, WRITE= and ALTER=). For a dataset without passwords, each one
+     * is the first 4 bytes XORed with "LNoe". This holds in every
+     * SAS-written file we have examined. */
+    const unsigned char *salt = (const unsigned char *)&creation_time;
+    if (!machine_is_little_endian())
+        salt += 4;
+    for (int i=0; i<4; i++) {
+        header[off+72+i] = salt[i];
+        header[off+76+i] = salt[i] ^ "LNoe"[i];
+        header[off+80+i] = salt[i] ^ "LNoe"[i];
+        header[off+84+i] = salt[i] ^ "LNoe"[i];
+    }
 
     /* 304-319: zeros */
 
