@@ -277,19 +277,17 @@ public:
   readstat_type_t numericType(cpp11::sexp col, readstat_type_t default_type) {
     if (ext_ != HAVEN_DTA)
       return default_type;
+    if (TYPEOF(col) == LGLSXP)
+      return READSTAT_TYPE_INT8;
     // Datetimes are stored in milliseconds so need the precision of a double
     if (numType(col) == HAVEN_DATETIME)
       return READSTAT_TYPE_DOUBLE;
 
-    double min = 0, max = 0;
+    double min = R_PosInf, max = R_NegInf;
     int n = Rf_length(col);
     for (int i = 0; i < n; ++i) {
       double val;
       switch (TYPEOF(col)) {
-      case LGLSXP:
-        if (LOGICAL(col)[i] == NA_LOGICAL) continue;
-        val = LOGICAL(col)[i];
-        break;
       case INTSXP:
         if (INTEGER(col)[i] == NA_INTEGER) continue;
         val = INTEGER(col)[i];
@@ -300,12 +298,14 @@ public:
         break;
       }
 
-      val = adjustDatetimeFromR(vendor_, col, val);
       if (val != std::trunc(val))
         return READSTAT_TYPE_DOUBLE;
       min = std::min(min, val);
       max = std::max(max, val);
     }
+    // Remaining adjustments are integer shifts, so only affect the range
+    min = adjustDatetimeFromR(vendor_, col, min);
+    max = adjustDatetimeFromR(vendor_, col, max);
 
     // Stata reserves the largest values of each type for missing values
     if (min >= -127 && max <= 100) {
