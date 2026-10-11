@@ -48,17 +48,11 @@ read_sav <- function(
   encoding <- encoding %||% ""
 
   spec <- datasource(file)
-  cols <- select_cols(
-    read_sav,
-    {{ col_select }},
-    spec,
-    encoding,
-    .name_repair = .name_repair
-  )
+  header <- df_parse_sav(spec, encoding, FALSE, integer(), 0L, 0L)
+  cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
   data <- df_parse_sav(spec, encoding, user_na, cols$skip, n_max, skip)
-
-  output_cols(data, cols, .name_repair)
+  output_cols(data, cols)
 }
 
 #' @export
@@ -76,16 +70,12 @@ read_por <- function(
   n_max <- check_n_max(n_max)
 
   spec <- datasource(file)
-  cols <- select_cols(
-    read_por,
-    {{ col_select }},
-    spec,
-    .name_repair = .name_repair
-  )
+  header <- df_parse_por(spec, "", FALSE, integer(), 0L, 0L)
+  cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
   data <- df_parse_por(spec, "", user_na, cols$skip, n_max, skip)
 
-  output_cols(data, cols, .name_repair)
+  output_cols(data, cols)
 }
 
 #' @export

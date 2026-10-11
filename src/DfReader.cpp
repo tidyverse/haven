@@ -143,6 +143,7 @@ class DfReader {
   std::vector<std::string> notes_;
 
   std::set<int> colsSkip_;
+  bool quiet_;
 
 public:
   DfReader(FileExt ext, bool user_na = false) :
@@ -150,7 +151,13 @@ public:
     nrows_(0),
     ncols_(0),
     output_(static_cast<R_xlen_t>(0)),
-    user_na_(user_na) { }
+    user_na_(user_na),
+    quiet_(false) { }
+
+  // Suppress metadata warnings, e.g. when only reading the header
+  void setQuiet(bool quiet) {
+    quiet_ = quiet;
+  }
 
   void skipCols(cpp11::integers cols) {
     std::set<int> cols_set(cols.begin(), cols.end());
@@ -250,7 +257,8 @@ public:
     // Files have been observed in the wild with a date format applied to a string variable.
     // This should not be possible, so we throw a warning, don't apply a class and continue.
     if (var_type != HAVEN_DEFAULT && readstat_variable_get_type_class(variable) == READSTAT_TYPE_CLASS_STRING) {
-      Rf_warning("String variable '%s' has incompatible format '%s' and will be returned as a regular string variable.", name, var_format);
+      if (!quiet_)
+        Rf_warning("String variable '%s' has incompatible format '%s' and will be returned as a regular string variable.", name, var_format);
     } else {
       switch (var_type) {
       case HAVEN_DATE:
@@ -423,7 +431,8 @@ public:
       label_set.add(haven_double_value(value), label_s);
       break;
     default:
-      Rf_warning("Unsupported label type: %i", value.type);
+      if (!quiet_)
+        Rf_warning("Unsupported label type: %i", value.type);
     }
   }
 
@@ -698,6 +707,7 @@ cpp11::list df_parse(SEXP spec, cpp11::integers cols_skip,
               ) {
   DfReader builder(ext, user_na);
   builder.skipCols(cols_skip);
+  builder.setQuiet(n_max == 0);
 
   readstat_parser_t* parser = haven_init_parser();
   haven_set_row_limit(parser, n_max);

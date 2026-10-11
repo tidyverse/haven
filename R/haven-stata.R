@@ -78,17 +78,11 @@ read_dta <- function(
   encoding <- encoding %||% ""
 
   spec <- datasource(file)
-  cols <- select_cols(
-    read_dta,
-    {{ col_select }},
-    spec,
-    encoding,
-    .name_repair = .name_repair
-  )
+  header <- df_parse_dta(spec, encoding, integer(), 0L, 0L)
+  cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
   data <- df_parse_dta(spec, encoding, cols$skip, n_max, skip)
-
-  output_cols(data, cols, .name_repair)
+  output_cols(data, cols)
 }
 
 #' @export

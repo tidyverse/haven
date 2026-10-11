@@ -54,24 +54,16 @@ read_sas <- function(
     if (!is.character(cols_only)) {
       cli_abort("{.arg cols_only} must be a character vector.")
     }
-
-    # guarantee a quosure to keep NULL and tidyselect logic clean downstream
-    col_select <- quo(c(!!!cols_only))
-  } else {
-    col_select <- enquo(col_select)
+    # not correct, but we're going to deprecate this soon anyway
+    col_select <- cols_only
   }
 
   encoding <- encoding %||% ""
   catalog_encoding <- catalog_encoding %||% ""
 
   spec_data <- datasource(data_file)
-  cols <- select_cols(
-    read_sas,
-    !!col_select,
-    spec_data,
-    encoding = encoding,
-    .name_repair = .name_repair
-  )
+  header <- df_parse_sas(spec_data, NULL, encoding, "", integer(), 0L, 0L)
+  cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
   if (is.null(catalog_file)) {
     spec_cat <- NULL
@@ -88,8 +80,7 @@ read_sas <- function(
     n_max = n_max,
     rows_skip = skip
   )
-
-  output_cols(data, cols, .name_repair)
+  output_cols(data, cols)
 }
 
 #' Write SAS files
@@ -160,16 +151,12 @@ read_xpt <- function(
   n_max <- check_n_max(n_max)
 
   spec <- datasource(file)
-  cols <- select_cols(
-    read_xpt,
-    {{ col_select }},
-    spec,
-    .name_repair = .name_repair
-  )
+  header <- df_parse_xpt(spec, integer(), 0L, 0L)
+  cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
   data <- df_parse_xpt(spec, cols$skip, n_max, skip)
 
-  output_cols(data, cols, .name_repair)
+  output_cols(data, cols)
 }
 
 #' @export

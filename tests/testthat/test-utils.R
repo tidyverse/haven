@@ -42,3 +42,28 @@ test_that("datasource() gives useful errors", {
     datasource(1)
   })
 })
+
+test_that("select_cols() returns positions and zero-based columns to skip", {
+  expect_equal(
+    select_cols(c("a", "b", "c"), c(c, a)),
+    list(select = c(c = 3L, a = 1L), skip = 1L)
+  )
+  expect_equal(
+    select_cols(c("a", "b"), c(x = b)),
+    list(select = c(x = 2L), skip = 0L)
+  )
+})
+
+test_that("select_cols() with NULL selects everything", {
+  expect_equal(
+    select_cols(c("a", "a"), NULL, "unique_quiet"),
+    list(select = c(a...1 = 1L, a...2 = 2L), skip = integer())
+  )
+})
+
+test_that("select_cols() repairs names before selecting", {
+  expect_equal(
+    select_cols(c("a", "a"), a...2, "unique_quiet")$select,
+    c(a...2 = 2L)
+  )
+})
