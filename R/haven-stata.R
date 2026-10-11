@@ -70,11 +70,14 @@ read_dta <- function(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_string(encoding, allow_null = TRUE)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
+  progress <- progress %||% show_progress()
 
   encoding <- encoding %||% ""
 
@@ -89,8 +92,22 @@ read_dta <- function(
 
   data <- switch(
     class(spec)[1],
-    source_file = df_parse_dta_file(spec, encoding, cols$skip, n_max, skip),
-    source_raw = df_parse_dta_raw(spec, encoding, cols$skip, n_max, skip),
+    source_file = df_parse_dta_file(
+      spec,
+      encoding,
+      cols$skip,
+      n_max,
+      skip,
+      progress
+    ),
+    source_raw = df_parse_dta_raw(
+      spec,
+      encoding,
+      cols$skip,
+      n_max,
+      skip,
+      progress
+    ),
     cli_abort("This kind of input is not handled.")
   )
 

@@ -92,6 +92,20 @@ test_that("can limit the number of rows to read", {
   expect_equal(rows_with_limit(-1), n)
 })
 
+test_that("progress controls the progress bar", {
+  local_options(
+    cli.progress_show_after = 0,
+    cli.progress_handlers_only = "logger"
+  )
+  path <- test_path("sas/hadley.sas7bdat")
+
+  out <- capture.output(df <- read_sas(path, progress = TRUE))
+  expect_match(out, "terminated (done)", fixed = TRUE, all = FALSE)
+
+  out <- capture.output(df <- read_sas(path, progress = FALSE))
+  expect_equal(out, character())
+})
+
 test_that("throws informative error on bad row limit", {
   rows_with_limit <- function(n) {
     nrow(read_sas(test_path("sas/hadley.sas7bdat"), n_max = n))

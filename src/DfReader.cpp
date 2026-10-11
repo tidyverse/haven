@@ -21,6 +21,8 @@
 #include "cpp11/protect.hpp"
 #include "cpp11/function.hpp"
 
+#include <cli/progress.h>
+
 double haven_double_value_udm(readstat_value_t value, readstat_variable_t* var, bool user_na) {
   if (readstat_value_is_tagged_missing(value)) {
     return make_tagged_na(tolower(readstat_value_tag(value)));
@@ -142,6 +144,10 @@ class DfReader {
   std::vector<std::string> notes_;
 
   std::set<int> colsSkip_;
+
+  cpp11::sexp progressBar_ = R_NilValue;
+  double lastInterruptCheck_ = 0;
+  SEXP pendingUnwind_ = NULL;
 
 public:
   DfReader(FileExt ext, bool user_na = false) :
@@ -451,6 +457,47 @@ public:
     }
   }
 
+  void startProgress() {
+    progressBar_ = cpp11::safe[cli_progress_bar](100, R_NilValue);
+  }
+
+  // `progress` is the fraction of the file that has been read so far.
+  // Returns non-zero to ask ReadStat to abort; the caller must then call
+  // `rethrowPending()` after cleaning up.
+  int updateProgress(double progress) {
+    try {
+      // Check for user interrupts every 0.1% of the file
+      if (std::abs(progress - lastInterruptCheck_) >= 0.001) {
+        cpp11::check_user_interrupt();
+        lastInterruptCheck_ = progress;
+      }
+
+      if (CLI_SHOULD_TICK && !Rf_isNull(progressBar_)) {
+        cpp11::safe[cli_progress_set](progressBar_, progress * 100);
+      }
+    } catch (cpp11::unwind_exception& e) {
+      // Don't throw through ReadStat's C code; let it abort cleanly instead
+      pendingUnwind_ = e.token;
+      return 1;
+    }
+    return 0;
+  }
+
+  void rethrowPending() {
+    if (pendingUnwind_ != NULL) {
+      SEXP token = pendingUnwind_;
+      pendingUnwind_ = NULL;
+      throw cpp11::unwind_exception(token);
+    }
+  }
+
+  void doneProgress() {
+    if (!Rf_isNull(progressBar_)) {
+      cpp11::safe[cli_progress_done](progressBar_);
+      progressBar_ = R_NilValue;
+    }
+  }
+
   cpp11::list output() {
     if (nrows_ != nrowsAlloc_)
       resizeCols(nrows_);
@@ -506,10 +553,6 @@ int dfreader_variable(int index, readstat_variable_t *variable,
 }
 int dfreader_value(int obs_index, readstat_variable_t *variable,
                    readstat_value_t value, void *ctx) {
-  // Check for user interrupts every 10,000 rows or cols
-  if ((obs_index + 1) % 10000 == 0 || (variable->index + 1) % 10000 == 0)
-    cpp11::check_user_interrupt();
-
   ((DfReader*) ctx)->setValue(obs_index, variable, value);
   return 0;
 }
@@ -517,6 +560,9 @@ int dfreader_value_label(const char *val_labels, readstat_value_t value,
                          const char *label, void *ctx) {
   ((DfReader*) ctx)->setValueLabels(val_labels, value, label);
   return 0;
+}
+int dfreader_progress(double progress, void *ctx) {
+  return ((DfReader*) ctx)->updateProgress(progress);
 }
 
 void print_error(const char* error_message, void* ctx) {
@@ -534,6 +580,7 @@ public:
   virtual int close(void* io_ctx) = 0;
   virtual readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence, void *io_ctx) = 0;
   virtual ssize_t read(void *buf, size_t nbyte, void *io_ctx) = 0;
+  virtual readstat_off_t tell() = 0;
   virtual std::string source() const = 0; // human readable description of input source
   std::string encoding;
 };
@@ -542,6 +589,8 @@ template <typename Stream>
 class DfReaderInputStream : public DfReaderInput {
 protected:
   Stream file_;
+  // Track the position ourselves because tellg() is too slow to call per row
+  readstat_off_t pos_ = 0;
 
 public:
   readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence, void *io_ctx) {
@@ -554,12 +603,23 @@ public:
     }
 
     file_.seekg(offset, dir);
-    return file_.tellg(); // returns -1 if failed
+    pos_ = file_.tellg(); // returns -1 if failed
+    return pos_;
   }
 
   ssize_t read(void *buf, size_t nbyte, void *io_ctx) {
     file_.read((char*) buf, nbyte);
-    return (file_.good() || file_.eof()) ? file_.gcount() : -1;
+    if (!file_.good() && !file_.eof()) {
+      return -1;
+    }
+    if (pos_ >= 0) {
+      pos_ += file_.gcount();
+    }
+    return file_.gcount();
+  }
+
+  readstat_off_t tell() {
+    return pos_;
   }
 };
 
@@ -624,6 +684,19 @@ ssize_t dfreader_read(void* buf, size_t nbyte, void* io_ctx) {
   return ((DfReaderInput*) io_ctx)->read(buf, nbyte, io_ctx);
 }
 readstat_error_t dfreader_update(long file_size, readstat_progress_handler progress_handler, void *user_ctx, void *io_ctx) {
+  if (progress_handler == NULL || file_size <= 0) {
+    return READSTAT_OK;
+  }
+
+  readstat_off_t offset = ((DfReaderInput*) io_ctx)->tell();
+  if (offset < 0) {
+    // e.g. after a short read at the end of the file; not worth failing for
+    return READSTAT_OK;
+  }
+
+  if (progress_handler((double) offset / file_size, user_ctx)) {
+    return READSTAT_ERROR_USER_ABORT;
+  }
   return READSTAT_OK;
 }
 
@@ -636,6 +709,7 @@ readstat_parser_t* haven_init_parser() {
   readstat_set_variable_handler(parser, dfreader_variable);
   readstat_set_value_handler(parser, dfreader_value);
   readstat_set_value_label_handler(parser, dfreader_value_label);
+  readstat_set_progress_handler(parser, dfreader_progress);
   readstat_set_error_handler(parser, print_error);
   return parser;
 }
@@ -674,8 +748,10 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
   }
 
   if (result != READSTAT_OK) {
+    builder->doneProgress();
     std::string source = builder_input.source();
     readstat_parser_free(parser);
+    builder->rethrowPending(); // e.g. resume a user interrupt
     std::string msg(readstat_error_message(result));
     cpp11::stop("Failed to parse %s: %s.", source.c_str(), msg.c_str());
   }
@@ -684,6 +760,7 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
 template<FileExt ext, typename InputClass>
 cpp11::list df_parse(cpp11::list spec, cpp11::integers cols_skip,
               const long& n_max = -1, const long& rows_skip = 0,
+              const bool& progress = false,
               const std::string& encoding = "",
               const bool& user_na = false,
               cpp11::list catalog_spec = cpp11::writable::list(R_xlen_t(0)),
@@ -701,9 +778,14 @@ cpp11::list df_parse(cpp11::list spec, cpp11::integers cols_skip,
     haven_parse<HAVEN_SAS7BCAT>(parser, cat_builder_input, &builder);
   }
 
+  if (progress) {
+    builder.startProgress();
+  }
+
   InputClass builder_input(spec, encoding);
   haven_parse<ext>(parser, builder_input, &builder);
   readstat_parser_free(parser);
+  builder.doneProgress();
 
   if (n_max >= 0) {
     builder.limitRows(n_max); // must enforce n_max = 0
@@ -717,50 +799,50 @@ cpp11::list df_parse(cpp11::list spec, cpp11::integers cols_skip,
 [[cpp11::register]]
 cpp11::list df_parse_sas_file(cpp11::list spec_b7dat, cpp11::list spec_b7cat,
                        std::string encoding, std::string catalog_encoding,
-                       cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, cols_skip, n_max, rows_skip, encoding, false, spec_b7cat, catalog_encoding);
+                       cpp11::integers cols_skip, long n_max, long rows_skip, bool progress) {
+  return df_parse<HAVEN_SAS7BDAT, DfReaderInputFile>(spec_b7dat, cols_skip, n_max, rows_skip, progress, encoding, false, spec_b7cat, catalog_encoding);
 }
 [[cpp11::register]]
 cpp11::list df_parse_sas_raw(cpp11::list spec_b7dat, cpp11::list spec_b7cat,
                       std::string encoding, std::string catalog_encoding,
-                      cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_SAS7BDAT, DfReaderInputRaw>(spec_b7dat, cols_skip, n_max, rows_skip, encoding, false, spec_b7cat, catalog_encoding);
+                      cpp11::integers cols_skip, long n_max, long rows_skip, bool progress) {
+  return df_parse<HAVEN_SAS7BDAT, DfReaderInputRaw>(spec_b7dat, cols_skip, n_max, rows_skip, progress, encoding, false, spec_b7cat, catalog_encoding);
 }
 
 [[cpp11::register]]
-cpp11::list df_parse_xpt_file(cpp11::list spec, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_XPT, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip);
+cpp11::list df_parse_xpt_file(cpp11::list spec, cpp11::integers cols_skip, long n_max, long rows_skip, bool progress) {
+  return df_parse<HAVEN_XPT, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, progress);
 }
 [[cpp11::register]]
-cpp11::list df_parse_xpt_raw(cpp11::list spec, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_XPT, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip);
-}
-
-[[cpp11::register]]
-cpp11::list df_parse_dta_file(cpp11::list spec, std::string encoding, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_DTA, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding);
-}
-[[cpp11::register]]
-cpp11::list df_parse_dta_raw(cpp11::list spec, std::string encoding, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_DTA, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding);
+cpp11::list df_parse_xpt_raw(cpp11::list spec, cpp11::integers cols_skip, long n_max, long rows_skip, bool progress) {
+  return df_parse<HAVEN_XPT, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, progress);
 }
 
 [[cpp11::register]]
-cpp11::list df_parse_sav_file(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_SAV, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
+cpp11::list df_parse_dta_file(cpp11::list spec, std::string encoding, cpp11::integers cols_skip, long n_max, long rows_skip, bool progress) {
+  return df_parse<HAVEN_DTA, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, progress, encoding);
 }
 [[cpp11::register]]
-cpp11::list df_parse_sav_raw(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_SAV, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
+cpp11::list df_parse_dta_raw(cpp11::list spec, std::string encoding, cpp11::integers cols_skip, long n_max, long rows_skip, bool progress) {
+  return df_parse<HAVEN_DTA, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, progress, encoding);
 }
 
 [[cpp11::register]]
-cpp11::list df_parse_por_file(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_POR, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
+cpp11::list df_parse_sav_file(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip, bool progress) {
+  return df_parse<HAVEN_SAV, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, progress, encoding, user_na);
 }
 [[cpp11::register]]
-cpp11::list df_parse_por_raw(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_POR, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
+cpp11::list df_parse_sav_raw(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip, bool progress) {
+  return df_parse<HAVEN_SAV, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, progress, encoding, user_na);
+}
+
+[[cpp11::register]]
+cpp11::list df_parse_por_file(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip, bool progress) {
+  return df_parse<HAVEN_POR, DfReaderInputFile>(spec, cols_skip, n_max, rows_skip, progress, encoding, user_na);
+}
+[[cpp11::register]]
+cpp11::list df_parse_por_raw(cpp11::list spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip, bool progress) {
+  return df_parse<HAVEN_POR, DfReaderInputRaw>(spec, cols_skip, n_max, rows_skip, progress, encoding, user_na);
 }
 
 // # nocov end

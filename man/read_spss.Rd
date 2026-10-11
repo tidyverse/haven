@@ -14,6 +14,7 @@ read_sav(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 )
 
@@ -23,6 +24,7 @@ read_por(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 )
 
@@ -34,6 +36,7 @@ read_spss(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 )
 }
@@ -72,6 +75,10 @@ Predicates using \code{\link[tidyselect:where]{where()}} are not supported.}
 \item{skip}{Number of lines to skip before reading data.}
 
 \item{n_max}{Maximum number of lines to read.}
+
+\item{progress}{Display a progress bar? The default, \code{NULL}, only displays
+it in an interactive session. The automatic progress bar can be disabled
+with \code{options(haven.show_progress = FALSE)}.}
 
 \item{.name_repair}{Treatment of problematic column names:
 \itemize{
