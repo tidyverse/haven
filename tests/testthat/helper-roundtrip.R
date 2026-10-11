@@ -42,12 +42,6 @@ roundtrip_xpt <- function(x, ...) {
 roundtrip_var <- function(x, type = "sav", ...) {
   df <- tibble::tibble(x = x)
 
-  # Forces xpt files to be correct length even when ending with
-  # empty character strings
-  if (type == "xpt") {
-    df$y <- seq_along(x)
-  }
-
   switch(
     type,
     sav = roundtrip_sav(df, ...)$x,
