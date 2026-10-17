@@ -28,8 +28,7 @@ test_that("Stata %td (date) and %tc (datetime) read into expected classes", {
 
 
 test_that("Old %d format read into Date class", {
-  rlang::local_options(lifecycle_verbosity = "quiet")
-  df <- zap_formats(read_stata(test_path("stata/datetime-d.dta")))
+  df <- zap_meta(read_stata(test_path("stata/datetime-d.dta")))
   expect_equal(df$date, as.Date("2015-11-02"))
 })
 
@@ -54,7 +53,7 @@ test_that("file label and notes stored as attributes", {
   df <- read_dta(test_path("stata/notes.dta"))
 
   expect_equal(attr(df, "label"), "This is a test dataset.")
-  expect_length(attr(df, "notes"), 1)
+  expect_length(meta(df)@notes, 1)
 })
 
 test_that("only selected columns are read", {
@@ -206,15 +205,14 @@ test_that("labels are converted to utf-8", {
 })
 
 test_that("supports stata version 15", {
-  rlang::local_options(lifecycle_verbosity = "quiet")
   df <- tibble(x = factor(letters), y = runif(26))
 
   path <- tempfile()
   write_dta(df, path, version = 15)
-  df2 <- zap_file_metadata(read_dta(path))
+  df2 <- zap_meta(read_dta(path))
 
   df2$x <- as_factor(df2$x)
-  df2$y <- zap_formats(df2$y)
+  df2$y <- zap_meta(df2$y)
   expect_equal(df2, df)
 })
 
@@ -304,6 +302,29 @@ test_that("invisibly returns original data unaltered", {
 
 # File metadata -----------------------------------------------------------
 
+test_that("read_dta captures storage types", {
+  out <- read_dta(test_path("stata/types.dta"))
+  types <- vapply(out, \(x) meta(x)@type %||% NA_character_, character(1))
+
+  expect_equal(
+    unname(types),
+    c("float", "double", "long", "int", "byte", NA, "long", "double")
+  )
+  expect_null(attr(out$vfloat, "format.stata"))
+
+  path <- tempfile(fileext = ".dta")
+  write_dta(tibble(x = c("a", strrep("a", 3000))), path)
+  expect_equal(meta(read_dta(path)$x)@type, "strL")
+})
+
+test_that("read_dta captures file version", {
+  expect_equal(meta(read_dta(test_path("stata/types.dta")))@version, 13L)
+
+  path <- tempfile(fileext = ".dta")
+  write_dta(tibble(xx = 1), path, version = 8)
+  expect_equal(meta(read_dta(path))@version, 8L)
+})
+
 test_that("read_dta attaches file timestamps", {
   df <- tibble(x = 1:3)
   before <- Sys.time()
@@ -312,8 +333,8 @@ test_that("read_dta attaches file timestamps", {
   write_dta(df, path)
   out <- read_dta(path)
 
-  created <- attr(out, "creation_timestamp")
-  modified <- attr(out, "modified_timestamp")
+  created <- meta(out)@created
+  modified <- meta(out)@modified
   expect_s3_class(created, "POSIXct")
   expect_s3_class(modified, "POSIXct")
   # dta files only store timestamps with minute resolution

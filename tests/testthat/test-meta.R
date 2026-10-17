@@ -76,6 +76,14 @@ test_that("meta() and meta<- check vendor and type", {
   })
 })
 
+test_that("readers create objects identical to validated objects", {
+  reconstruct <- function(x) inject(S7::S7_class(x)(!!!S7::props(x)))
+  df <- read_sav(test_path("spss/labelled-str.sav"))
+
+  expect_identical(meta(df), reconstruct(meta(df)))
+  expect_identical(meta(df[[1]]), reconstruct(meta(df[[1]])))
+})
+
 test_that("legacy column attributes are used as fallback", {
   x <- structure(1, format.sas = "DATE9.", width = 8)
   expect_equal(meta(x), meta_var_sas(format = "DATE9.", width = 8))

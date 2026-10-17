@@ -261,6 +261,14 @@ S7_class_name <- function(class) {
   paste0(class@package, "::", class@name)
 }
 
+# Readers ------------------------------------------------------------------
+
+# Called from C++: the readers fill in the properties of these empty objects
+# directly, skipping validation (which is too slow for files with many columns)
+meta_proto <- function(vendor, df) {
+  meta_class(vendor, df)()
+}
+
 # Legacy attributes --------------------------------------------------------
 
 legacy_meta <- function(x, vendor = NULL) {

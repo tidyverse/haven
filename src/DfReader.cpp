@@ -127,7 +127,55 @@ public:
 
 // DfReader ------------------------------------------------------------------
 
+inline bool is_empty(const char* x) {
+  return x == NULL || strcmp(x, "") == 0;
+}
+
+// Maps Stata file format to the version used by write_dta()
+inline int stata_version(int format) {
+  switch(format) {
+  case 113: return 8;
+  case 114: return 10;
+  case 115: return 12;
+  case 117: return 13;
+  case 118: return 14;
+  case 119: return 15;
+  default:  return 0;
+  }
+}
+
+// Builds an S7 metadata object by setting property attributes on a copy of an
+// empty prototype. This skips S7's validation, which is too slow for files
+// with many columns.
+class MetaBuilder {
+  cpp11::sexp obj_;
+  bool empty_;
+
+public:
+  MetaBuilder(SEXP proto) : obj_(Rf_shallow_duplicate(proto)), empty_(true) {}
+
+  template <typename T>
+  void set(const char* name, T value) {
+    obj_.attr(name) = value;
+    empty_ = false;
+  }
+
+  SEXP get() const {
+    return empty_ ? R_NilValue : static_cast<SEXP>(obj_);
+  }
+};
+
+inline const char* vendorName(FileVendor vendor) {
+  switch(vendor) {
+  case HAVEN_SAS:   return "sas";
+  case HAVEN_SPSS:  return "spss";
+  case HAVEN_STATA: return "stata";
+  }
+  return "";
+}
+
 class DfReader {
+  FileExt ext_;
   FileVendor vendor_;
 
   int nrows_, nrowsAlloc_;
@@ -141,15 +189,32 @@ class DfReader {
   std::vector<VarType> var_types_;
   std::vector<std::string> notes_;
 
+  // File-level metadata
+  time_t created_, modified_;
+  std::string table_name_;
+  int version_;
+  cpp11::sexp mr_sets_;
+
+  cpp11::sexp var_proto_, df_proto_;
+
   std::set<int> colsSkip_;
 
 public:
   DfReader(FileExt ext, bool user_na = false) :
+    ext_(ext),
     vendor_(extVendor(ext)),
     nrows_(0),
     ncols_(0),
     output_(static_cast<R_xlen_t>(0)),
-    user_na_(user_na) { }
+    user_na_(user_na),
+    created_(0),
+    modified_(0),
+    version_(0),
+    mr_sets_(R_NilValue) {
+    cpp11::function meta_proto = cpp11::package("haven")["meta_proto"];
+    var_proto_ = meta_proto(vendorName(vendor_), false);
+    df_proto_ = meta_proto(vendorName(vendor_), true);
+  }
 
   void skipCols(cpp11::integers cols) {
     std::set<int> cols_set(cols.begin(), cols.end());
@@ -177,19 +242,53 @@ public:
     var_types_.resize(ncols_);
   }
 
-  void setMetadata(const char *file_label) {
-    if (file_label != NULL && strcmp(file_label, "") != 0) {
+  void setMetadata(readstat_metadata_t *metadata) {
+    const char* file_label = readstat_get_file_label(metadata);
+    if (!is_empty(file_label)) {
       output_.attr("label") = file_label;
+    }
+
+    // Called for both catalog and data file; the data file comes last so wins
+    created_ = readstat_get_creation_time(metadata);
+    modified_ = readstat_get_modified_time(metadata);
+
+    const char* table_name = readstat_get_table_name(metadata);
+    table_name_ = is_empty(table_name) ? "" : table_name;
+
+    version_ = readstat_get_file_format_version(metadata);
+
+    size_t n_mr_sets = readstat_get_multiple_response_sets_length(metadata);
+    if (n_mr_sets > 0) {
+      mr_sets_ = mrSets(readstat_get_multiple_response_sets(metadata), n_mr_sets);
     }
   }
 
-  void setTimestamp(time_t c_time, time_t m_time) {
-    if (c_time != 0) {
-      output_.attr("creation_timestamp") = timestamp(c_time);
+  cpp11::writable::list mrSets(const mr_set_t* mr_sets, size_t n) {
+    using namespace cpp11::literals;
+    cpp11::writable::list out(n);
+    cpp11::writable::strings names(n);
+
+    for (size_t i = 0; i < n; ++i) {
+      const mr_set_t& mr_set = mr_sets[i];
+      names[i] = mr_set.name;
+
+      cpp11::writable::strings variables(mr_set.num_subvars);
+      for (int j = 0; j < mr_set.num_subvars; ++j) {
+        variables[j] = mr_set.subvariables[j];
+      }
+
+      cpp11::writable::list set({
+        "label"_nm = mr_set.label == NULL ? "" : mr_set.label,
+        "type"_nm = mr_set.is_dichotomy ? "dichotomy" : "category",
+        "counted_value"_nm = mr_set.counted_string == NULL ?
+          cpp11::sexp(R_NilValue) : cpp11::sexp(cpp11::as_sexp(std::string(mr_set.counted_string))),
+        "variables"_nm = variables
+      });
+      out[i] = set;
     }
-    if (m_time != 0) {
-      output_.attr("modified_timestamp") = timestamp(m_time);
-    }
+
+    out.attr("names") = names;
+    return out;
   }
 
   cpp11::writable::doubles timestamp(time_t time) {
@@ -347,18 +446,130 @@ public:
     }
 
 
-    // Store original format as attribute
-    if (var_format != NULL && strcmp(var_format, "") != 0) {
-      col.attr(formatAttribute(vendor_)) = var_format;
-    }
-
-    // Store original display width as attribute if it differs from the default
-    int display_width = readstat_variable_get_display_width(variable);
-    if (vendor_ == HAVEN_SPSS && display_width != 8) {
-      col.attr("display_width") = Rf_ScalarInteger(display_width);
+    SEXP meta = varMeta(variable);
+    if (meta != R_NilValue) {
+      col.attr("haven_meta") = meta;
     }
 
     return READSTAT_HANDLER_OK;
+  }
+
+  SEXP varMeta(readstat_variable_t *variable) {
+    MetaBuilder meta(var_proto_);
+
+    const char* format = readstat_variable_get_format(variable);
+    if (!is_empty(format)) {
+      meta.set("format", format);
+    }
+
+    readstat_type_class_t type_class = readstat_variable_get_type_class(variable);
+    int width = readstat_variable_get_storage_width(variable);
+
+    switch(vendor_) {
+    case HAVEN_SAS: {
+      const char* informat = readstat_variable_get_informat(variable);
+      if (!is_empty(informat)) {
+        meta.set("informat", informat);
+      }
+      if (width > 0) {
+        meta.set("width", width);
+      }
+      break;
+    }
+    case HAVEN_SPSS: {
+      int display_width = readstat_variable_get_display_width(variable);
+      if (display_width > 0) {
+        meta.set("display_width", display_width);
+      }
+      // Numeric variables are always 8 bytes
+      if (type_class == READSTAT_TYPE_CLASS_STRING && width > 0) {
+        meta.set("width", width);
+      }
+      switch(readstat_variable_get_measure(variable)) {
+      case READSTAT_MEASURE_NOMINAL: meta.set("measure", "nominal"); break;
+      case READSTAT_MEASURE_ORDINAL: meta.set("measure", "ordinal"); break;
+      case READSTAT_MEASURE_SCALE:   meta.set("measure", "scale"); break;
+      default: break;
+      }
+      switch(readstat_variable_get_alignment(variable)) {
+      case READSTAT_ALIGNMENT_LEFT:   meta.set("alignment", "left"); break;
+      case READSTAT_ALIGNMENT_CENTER: meta.set("alignment", "center"); break;
+      case READSTAT_ALIGNMENT_RIGHT:  meta.set("alignment", "right"); break;
+      default: break;
+      }
+      break;
+    }
+    case HAVEN_STATA: {
+      switch(readstat_variable_get_type(variable)) {
+      case READSTAT_TYPE_INT8:       meta.set("type", "byte"); break;
+      case READSTAT_TYPE_INT16:      meta.set("type", "int"); break;
+      case READSTAT_TYPE_INT32:      meta.set("type", "long"); break;
+      case READSTAT_TYPE_FLOAT:      meta.set("type", "float"); break;
+      case READSTAT_TYPE_DOUBLE:     meta.set("type", "double"); break;
+      // ReadStat reports strLs as strings with no storage width
+      case READSTAT_TYPE_STRING:
+        if (width == 0) {
+          meta.set("type", "strL");
+        }
+        break;
+      default: break;
+      }
+      break;
+    }
+    }
+
+    return meta.get();
+  }
+
+  SEXP dfMeta() {
+    MetaBuilder meta(df_proto_);
+
+    if (created_ != 0) {
+      meta.set("created", timestamp(created_));
+    }
+    if (modified_ != 0) {
+      meta.set("modified", timestamp(modified_));
+    }
+
+    switch(vendor_) {
+    case HAVEN_SAS:
+      if (table_name_ != "") {
+        meta.set("table_name", table_name_);
+      }
+      if (ext_ == HAVEN_XPT && (version_ == 5 || version_ == 8)) {
+        meta.set("xpt_version", version_);
+      }
+      break;
+    case HAVEN_SPSS:
+      if (notes_.size() > 0) {
+        meta.set("notes", notes());
+      }
+      if (mr_sets_ != R_NilValue) {
+        meta.set("mr_sets", mr_sets_);
+      }
+      break;
+    case HAVEN_STATA: {
+      if (notes_.size() > 0) {
+        meta.set("notes", notes());
+      }
+      int version = stata_version(version_);
+      if (version != 0) {
+        meta.set("version", version);
+      }
+      break;
+    }
+    }
+
+    return meta.get();
+  }
+
+  cpp11::writable::strings notes() {
+    int n = notes_.size();
+    cpp11::writable::strings out(n);
+    for (int i = 0; i < n; ++i) {
+      out[i] = notes_[i].c_str();
+    }
+    return out;
   }
 
   void setValue(int obs_index, readstat_variable_t *variable, readstat_value_t value) {
@@ -466,15 +677,9 @@ public:
       }
     }
 
-    int nNotes = notes_.size();
-    if (nNotes > 0) {
-      cpp11::writable::strings notes(nNotes);
-
-      for (int i = 0; i < nNotes; ++i) {
-        notes[i] = notes_[i].c_str();
-      }
-
-      output_.attr("notes") = notes_;
+    SEXP meta = dfMeta();
+    if (meta != R_NilValue) {
+      output_.attr("haven_meta") = meta;
     }
 
     output_.attr("names") = names_;
@@ -490,8 +695,7 @@ int dfreader_metadata(readstat_metadata_t *metadata, void *ctx) {
       readstat_get_row_count(metadata),
       readstat_get_var_count(metadata)
   );
-  ((DfReader*) ctx)->setMetadata(readstat_get_file_label(metadata));
-  ((DfReader*) ctx)->setTimestamp(readstat_get_creation_time(metadata), readstat_get_modified_time(metadata));
+  ((DfReader*) ctx)->setMetadata(metadata);
   return 0;
 }
 
