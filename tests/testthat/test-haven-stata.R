@@ -242,6 +242,12 @@ test_that("invalid files generate informative errors", {
   })
 })
 
+test_that("can write single character variable names in older versions", {
+  path <- tempfile()
+  write_dta(data.frame(x = 1), path, version = 13)
+  expect_named(read_dta(path), "x")
+})
+
 test_that("can't write non-integer labels (#401)", {
   expect_snapshot(error = TRUE, {
     df <- data.frame(x = labelled(c(1, 2.5, 3), c("b" = 1.5)))
