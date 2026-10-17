@@ -27,4 +27,5 @@
 ^[.]?air[.]toml$
 ^\.vscode$
 ^AGENTS\.md$
-^src/\.clang-format$
+^src/.clang-format$
+^plan.md$
