@@ -10,16 +10,28 @@ zap_formats(x)
 \item{x}{A vector or data frame.}
 }
 \description{
-To provide some mild support for round-tripping variables between Stata/SPSS
-and R, haven stores variable formats in an attribute: \code{format.stata},
-\code{format.spss}, or \code{format.sas}. If this causes problems for your
-code, you can get rid of them with \code{zap_formats}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated because haven now stores formats in the
+\code{haven_meta} attribute (see \code{\link[=meta]{meta()}}). Please use \code{\link[=zap_meta]{zap_meta()}} instead.
+
+\code{zap_formats()} only removes the legacy \code{format.stata}, \code{format.spss}, and
+\code{format.sas} attributes.
+}
+\examples{
+x <- structure(1:3, format.sas = "BEST12.")
+
+# Old:
+zap_formats(x)
+# New:
+zap_meta(x)
 }
 \seealso{
 Other zappers:
 \code{\link[=zap_empty]{zap_empty()}},
 \code{\link[=zap_label]{zap_label()}},
 \code{\link[=zap_labels]{zap_labels()}},
+\code{\link[=zap_meta]{zap_meta()}},
 \code{\link[=zap_widths]{zap_widths()}}
 }
 \concept{zappers}
