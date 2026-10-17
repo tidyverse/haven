@@ -6,9 +6,10 @@
 #' @param data_file,catalog_file Data and catalog files. Each can be a path,
 #'   a URL, a connection, or a raw vector.
 #' @param encoding,catalog_encoding The character encoding used for the
-#'   `data_file` and `catalog_encoding` respectively. A value of `NULL` uses the
+#'   `data_file` and `catalog_file` respectively. A value of `NULL` uses the
 #'   encoding specified in the file; use this argument to override it if it is
-#'   incorrect.
+#'   incorrect. Catalog files often don't specify an encoding, in which case
+#'   the encoding of `data_file` is used.
 #' @inheritParams tibble::as_tibble
 #' @inheritParams read_spss
 #' @param cols_only `r lifecycle::badge("deprecated")` `cols_only` is no longer

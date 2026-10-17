@@ -655,9 +655,12 @@ void haven_init_io(readstat_parser_t* parser, DfReaderInput& builder_input) {
   readstat_set_read_handler(parser, dfreader_read);
   readstat_set_update_handler(parser, dfreader_update);
   readstat_set_io_ctx(parser, (void*) &builder_input);
-  if (builder_input.encoding != "") {
-    readstat_set_file_character_encoding(parser, builder_input.encoding.c_str());
-  }
+  // Always set the encoding (NULL clears it) since the parser is reused
+  // across the catalog and data file parses.
+  readstat_set_file_character_encoding(
+    parser,
+    builder_input.encoding == "" ? NULL : builder_input.encoding.c_str()
+  );
 }
 
 void haven_set_row_limit(readstat_parser_t* parser, long n) {
@@ -689,6 +692,45 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
   }
 }
 
+// SAS catalogs typically don't record their encoding (header byte is 0), in
+// which case ReadStat falls back to WINDOWS-1252. Since catalogs are usually
+// written alongside their data file, the data file's encoding is a better guess.
+// TODO: once https://github.com/WizardMac/ReadStat/pull/404 is merged and
+// vendored here, detect this via readstat_get_file_encoding() instead.
+bool sas_encoding_unspecified(DfReaderInput& input) {
+  const int SAS_ENCODING_OFFSET = 70;
+  unsigned char code = 1;
+
+  if (input.open(&input) != 0)
+    return false;
+  bool ok = input.seek(SAS_ENCODING_OFFSET, READSTAT_SEEK_SET, &input) == SAS_ENCODING_OFFSET &&
+    input.read(&code, 1, &input) == 1;
+  input.seek(0, READSTAT_SEEK_SET, &input);
+  input.close(&input);
+
+  return ok && code == 0;
+}
+
+int sas_encoding_metadata(readstat_metadata_t *metadata, void *ctx) {
+  const char* encoding = readstat_get_file_encoding(metadata);
+  if (encoding != NULL) {
+    *((std::string*) ctx) = encoding;
+  }
+  return READSTAT_HANDLER_ABORT;
+}
+
+std::string sas_file_encoding(DfReaderInput& input) {
+  std::string encoding;
+
+  readstat_parser_t* parser = readstat_parser_init();
+  readstat_set_metadata_handler(parser, sas_encoding_metadata);
+  haven_init_io(parser, input);
+  readstat_parse_sas7bdat(parser, "", &encoding);
+  readstat_parser_free(parser);
+
+  return encoding;
+}
+
 std::unique_ptr<DfReaderInput> make_input(SEXP spec, const std::string& encoding) {
   switch (TYPEOF(spec)) {
   case STRSXP: return std::unique_ptr<DfReaderInput>(new DfReaderInputFile(spec, encoding));
@@ -713,12 +755,16 @@ cpp11::list df_parse(SEXP spec, cpp11::integers cols_skip,
   haven_set_row_limit(parser, n_max);
   readstat_set_row_offset(parser, rows_skip);
 
+  std::unique_ptr<DfReaderInput> input = make_input(spec, encoding);
+
   if (ext == HAVEN_SAS7BDAT && catalog_spec != R_NilValue) {
     std::unique_ptr<DfReaderInput> cat_input = make_input(catalog_spec, catalog_encoding);
+    if (catalog_encoding == "" && sas_encoding_unspecified(*cat_input)) {
+      cat_input->encoding = sas_file_encoding(*input);
+    }
     haven_parse<HAVEN_SAS7BCAT>(parser, *cat_input, &builder);
   }
 
-  std::unique_ptr<DfReaderInput> input = make_input(spec, encoding);
   haven_parse<ext>(parser, *input, &builder);
   readstat_parser_free(parser);
 
