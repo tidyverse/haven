@@ -6,10 +6,10 @@
 #include <R_ext/Visibility.h>
 
 // DfReader.cpp
-cpp11::list df_parse_file(SEXP spec, cpp11::list options);
-extern "C" SEXP _haven_df_parse_file(SEXP spec, SEXP options) {
+cpp11::list read(SEXP spec, cpp11::list options);
+extern "C" SEXP _haven_read(SEXP spec, SEXP options) {
   BEGIN_CPP11
-    return cpp11::as_sexp(df_parse_file(cpp11::as_cpp<cpp11::decay_t<SEXP>>(spec), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(options)));
+    return cpp11::as_sexp(read(cpp11::as_cpp<cpp11::decay_t<SEXP>>(spec), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(options)));
   END_CPP11
 }
 // DfWriter.cpp
@@ -52,14 +52,14 @@ extern SEXP na_tag_(SEXP);
 extern SEXP tagged_na_(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_haven_df_parse_file", (DL_FUNC) &_haven_df_parse_file, 2},
-    {"_haven_write_dta_",    (DL_FUNC) &_haven_write_dta_,    5},
-    {"_haven_write_sas_",    (DL_FUNC) &_haven_write_sas_,    2},
-    {"_haven_write_sav_",    (DL_FUNC) &_haven_write_sav_,    3},
-    {"_haven_write_xpt_",    (DL_FUNC) &_haven_write_xpt_,    5},
-    {"is_tagged_na_",        (DL_FUNC) &is_tagged_na_,        2},
-    {"na_tag_",              (DL_FUNC) &na_tag_,              1},
-    {"tagged_na_",           (DL_FUNC) &tagged_na_,           1},
+    {"_haven_read",       (DL_FUNC) &_haven_read,       2},
+    {"_haven_write_dta_", (DL_FUNC) &_haven_write_dta_, 5},
+    {"_haven_write_sas_", (DL_FUNC) &_haven_write_sas_, 2},
+    {"_haven_write_sav_", (DL_FUNC) &_haven_write_sav_, 3},
+    {"_haven_write_xpt_", (DL_FUNC) &_haven_write_xpt_, 5},
+    {"is_tagged_na_",     (DL_FUNC) &is_tagged_na_,     2},
+    {"na_tag_",           (DL_FUNC) &na_tag_,           1},
+    {"tagged_na_",        (DL_FUNC) &tagged_na_,        1},
     {NULL, NULL, 0}
 };
 }

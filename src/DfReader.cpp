@@ -799,7 +799,7 @@ struct ReaderOptions {
 };
 
 [[cpp11::register]]
-cpp11::list df_parse_file(SEXP spec, cpp11::list options) {
+cpp11::list read(SEXP spec, cpp11::list options) {
   ReaderOptions opts(options);
   std::string vendor = cpp11::as_cpp<std::string>(options["vendor"]);
 

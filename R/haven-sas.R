@@ -53,7 +53,7 @@ read_sas <- function(
   catalog_encoding <- catalog_encoding %||% ""
 
   spec_data <- datasource(data_file)
-  header <- df_parse_file(spec_data, df_parse_options("sas7bdat", encoding))
+  header <- read(spec_data, df_parse_options("sas7bdat", encoding))
   cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
   if (is.null(catalog_file)) {
@@ -71,7 +71,7 @@ read_sas <- function(
     n_max = n_max,
     rows_skip = skip
   )
-  data <- df_parse_file(spec_data, options)
+  data <- read(spec_data, options)
   output_cols(data, cols)
 }
 
@@ -143,7 +143,7 @@ read_xpt <- function(
   n_max <- check_n_max(n_max)
 
   spec <- datasource(file)
-  header <- df_parse_file(spec, df_parse_options("xpt"))
+  header <- read(spec, df_parse_options("xpt"))
   cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
   options <- df_parse_options(
@@ -152,7 +152,7 @@ read_xpt <- function(
     n_max = n_max,
     rows_skip = skip
   )
-  data <- df_parse_file(spec, options)
+  data <- read(spec, options)
 
   output_cols(data, cols)
 }

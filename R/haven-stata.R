@@ -78,7 +78,7 @@ read_dta <- function(
   encoding <- encoding %||% ""
 
   spec <- datasource(file)
-  header <- df_parse_file(spec, df_parse_options("dta", encoding))
+  header <- read(spec, df_parse_options("dta", encoding))
   cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
   options <- df_parse_options(
@@ -88,7 +88,7 @@ read_dta <- function(
     n_max = n_max,
     rows_skip = skip
   )
-  data <- df_parse_file(spec, options)
+  data <- read(spec, options)
   output_cols(data, cols)
 }
 
