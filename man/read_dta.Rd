@@ -27,7 +27,7 @@ read_stata(
 write_dta(
   data,
   path,
-  version = 14,
+  version = NULL,
   label = attr(data, "label"),
   strl_threshold = 2045,
   adjust_tz = TRUE
@@ -76,8 +76,10 @@ to enforce them.}
 
 \item{path}{Path to a file where the data will be written.}
 
-\item{version}{File version to use. Supports versions 8-15. See the
-"Stata versions" section below for details on compatibility.}
+\item{version}{File version to use. Supports versions 8-15. Defaults to
+the version recorded in the metadata of \code{data} (if it was read with
+\code{\link[=read_dta]{read_dta()}}), otherwise 14. See the "Stata versions" section below for
+details on compatibility.}
 
 \item{label}{Dataset label to use, or \code{NULL}. Defaults to the value stored in
 the "label" attribute of \code{data}. Must be <= 80 characters.}

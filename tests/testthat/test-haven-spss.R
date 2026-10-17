@@ -60,7 +60,8 @@ test_that("formats roundtrip", {
 
   expect_equal(
     lapply(df2, \(x) meta(x)@format),
-    lapply(df, \(x) attr(x, "format.spss"))
+    # ReadStat now sets the string format width to match the stored width
+    list(a = "F1.0", b = "F2.1", c = "N2", d = "A4")
   )
 })
 
@@ -82,6 +83,31 @@ test_that("widths roundtrip", {
     lapply(df2, \(x) meta(x)@display_width),
     list(a = 10L, b = 11L, c = 12L, d = 10L)
   )
+})
+
+test_that("write_sav() roundtrips metadata", {
+  created <- as.POSIXct("2020-01-01 10:00:00", tz = "UTC")
+  df <- tibble::tibble(x = c(1, 2), y = c("a", "b"))
+  meta(df$x) <- meta_var_spss(
+    format = "F8.2",
+    display_width = 12,
+    measure = "ordinal",
+    alignment = "center"
+  )
+  meta(df$y) <- meta_var_spss(
+    format = "A20",
+    width = 20,
+    display_width = 15,
+    measure = "nominal",
+    alignment = "left"
+  )
+  meta(df) <- meta_df_spss(created = created, notes = c("note 1", "note 2"))
+
+  out <- roundtrip_file(df, "sav")
+  expect_equal(meta(out$x), meta(df$x))
+  expect_equal(meta(out$y), meta(df$y))
+  expect_equal(meta(out)@created, created)
+  expect_equal(meta(out)@notes, c("note 1", "note 2"))
 })
 
 test_that("long string ghost names don't collide with real variables", {
@@ -161,6 +187,18 @@ test_that("system missings read as NA", {
 
 
 # write_sav ---------------------------------------------------------------
+
+test_that("write_sav() writes file label", {
+  df <- structure(tibble(x = 1), label = "abc")
+  expect_equal(attr(roundtrip_sav(df), "label"), "abc")
+  expect_equal(attr(roundtrip_sav(df, label = "def"), "label"), "def")
+  expect_null(attr(roundtrip_sav(df, label = NULL), "label"))
+
+  expect_snapshot(
+    write_sav(df, tempfile(), label = strrep("a", 65)),
+    error = TRUE
+  )
+})
 
 test_that("can roundtrip basic types", {
   x <- runif(10)

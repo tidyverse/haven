@@ -16,7 +16,7 @@ read_xpt(
 write_xpt(
   data,
   path,
-  version = 8,
+  version = NULL,
   name = NULL,
   label = attr(data, "label"),
   adjust_tz = TRUE
@@ -61,9 +61,12 @@ to enforce them.}
 
 \item{path}{Path to a file where the data will be written.}
 
-\item{version}{Version of transport file specification to use: either 5 or 8.}
+\item{version}{Version of transport file specification to use: either 5 or 8.
+Defaults to the version recorded in the metadata of \code{data} (if it was read
+with \code{\link[=read_xpt]{read_xpt()}}), otherwise 8.}
 
-\item{name}{Member name to record in file. Defaults to file name sans
+\item{name}{Member name to record in file. Defaults to the table name
+recorded in the metadata of \code{data}, otherwise the file name sans
 extension. Must be <= 8 characters for version 5, and <= 32 characters
 for version 8.}
 

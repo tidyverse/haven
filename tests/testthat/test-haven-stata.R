@@ -237,6 +237,65 @@ test_that("supports stata version 15", {
   expect_equal(df2, df)
 })
 
+test_that("write_dta() roundtrips metadata", {
+  created <- as.POSIXct("2020-01-01 10:00:00", tz = "UTC")
+  df <- tibble(aa = c(1, 2), bb = c(1, 2), cc = c(1.5, 2), dd = "x")
+  meta(df$aa) <- meta_var_stata(format = "%8.0g", type = "byte")
+  meta(df$bb) <- meta_var_stata(type = "int")
+  meta(df$cc) <- meta_var_stata(type = "float")
+  meta(df$dd) <- meta_var_stata(type = "strL")
+  meta(df) <- meta_df_stata(
+    created = created,
+    notes = c("note 1", "note 2"),
+    version = 13
+  )
+
+  out <- roundtrip_file(df, "dta")
+  expect_equal(meta(out$aa)@format, "%8.0g")
+  expect_equal(
+    vapply(out, \(x) meta(x)@type, character(1)),
+    c(aa = "byte", bb = "int", cc = "float", dd = "strL")
+  )
+  expect_equal(meta(out)@created, created)
+  expect_equal(meta(out)@notes, c("note 1", "note 2"))
+  expect_equal(meta(out)@version, 13L)
+
+  out <- roundtrip_file(df, "dta", version = 14)
+  expect_equal(meta(out)@version, 14L)
+})
+
+test_that("write_dta() roundtrips storage types from file", {
+  df <- read_dta(test_path("stata/types.dta"))
+  out <- roundtrip_file(df, "dta")
+
+  expect_equal(lapply(out, meta), lapply(df, meta))
+})
+
+test_that("write_dta() ignores storage types that values don't fit", {
+  df <- tibble(a = c(1, 1000), b = 1.5, c = 1 / 3, d = NA)
+  meta(df$a) <- meta_var_stata(type = "byte")
+  meta(df$b) <- meta_var_stata(type = "int")
+  meta(df$c) <- meta_var_stata(type = "float")
+  meta(df$d) <- meta_var_stata(type = "byte")
+
+  out <- roundtrip_file(df, "dta")
+  expect_equal(
+    vapply(out, \(x) meta(x)@type, character(1)),
+    c(a = "int", b = "double", c = "double", d = "byte")
+  )
+})
+
+test_that("writers ignore column metadata from other vendors", {
+  created <- as.POSIXct("2020-01-01 10:00:00", tz = "UTC")
+  df <- tibble(x = 1)
+  meta(df$x) <- meta_var_sas(format = "DATE9")
+  meta(df) <- meta_df_sas(created = created, table_name = "FOO")
+
+  out <- roundtrip_file(df, "dta")
+  expect_equal(meta(out$x)@format, "%8.0g")
+  expect_equal(meta(out)@created, created)
+})
+
 test_that("can roundtrip file labels", {
   df <- tibble(x = 1)
   expect_null(attr(roundtrip_dta(df), "label"))

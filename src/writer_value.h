@@ -54,6 +54,8 @@ inline readstat_error_t insertValue(
     return readstat_insert_int16_value(writer, var, val);
   case READSTAT_TYPE_INT32:
     return readstat_insert_int32_value(writer, var, val);
+  case READSTAT_TYPE_FLOAT:
+    return readstat_insert_float_value(writer, var, val);
   default:
     return readstat_insert_double_value(writer, var, val);
   }
