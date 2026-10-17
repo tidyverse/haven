@@ -21,9 +21,10 @@ read_sas(
 processed with \code{\link[readr:datasource]{readr::datasource()}}.}
 
 \item{encoding, catalog_encoding}{The character encoding used for the
-\code{data_file} and \code{catalog_encoding} respectively. A value of \code{NULL} uses the
+\code{data_file} and \code{catalog_file} respectively. A value of \code{NULL} uses the
 encoding specified in the file; use this argument to override it if it is
-incorrect.}
+incorrect. Catalog files often don't specify an encoding, in which case
+the encoding of \code{data_file} is used.}
 
 \item{col_select}{Columns to include in the results. You can use the same
 mini-language as \code{dplyr::select()} to refer to the columns by name. Use
