@@ -27,3 +27,4 @@
 ^[.]?air[.]toml$
 ^\.vscode$
 ^AGENTS\.md$
+^plan\.md$
