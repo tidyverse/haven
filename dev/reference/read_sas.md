@@ -23,8 +23,8 @@ read_sas(
 
 - data_file, catalog_file:
 
-  Path to data and catalog files. The files are processed with
-  [`readr::datasource()`](https://readr.tidyverse.org/reference/datasource.html).
+  Data and catalog files. Each can be a path, a URL, a connection, or a
+  raw vector.
 
 - encoding, catalog_encoding:
 

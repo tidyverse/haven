@@ -2,6 +2,10 @@
 
 ## haven (development version)
 
+- haven no longer depends on readr
+  ([\#834](https://github.com/tidyverse/haven/issues/834)). As a
+  consequence, the `read_*()` functions no longer read compressed
+  (`.gz`, `.bz2`, `.xz`, `.zip`) files; decompress them before reading.
 - Updated to ReadStat dev (b05b645).
   - [`write_sav()`](https://haven.tidyverse.org/dev/reference/read_spss.md)
     no longer produces files that

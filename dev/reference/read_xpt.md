@@ -28,21 +28,8 @@ write_xpt(
 
 - file:
 
-  Either a path to a file, a connection, or literal data (either a
-  single string or a raw vector).
-
-  Files ending in `.gz`, `.bz2`, `.xz`, or `.zip` will be automatically
-  uncompressed. Files starting with `http://`, `https://`, `ftp://`, or
-  `ftps://` will be automatically downloaded. Remote `.gz` files can
-  also be automatically downloaded and decompressed.
-
-  Literal data is most useful for examples and tests. To be recognised
-  as literal data, wrap the input with
-  [`I()`](https://rdrr.io/r/base/AsIs.html).
-
-  Using a value of
-  [`clipboard()`](https://readr.tidyverse.org/reference/clipboard.html)
-  will read from the system clipboard.
+  Either a path to a file, a URL, a connection, or a raw vector. Remote
+  files are downloaded before reading.
 
 - col_select:
 
