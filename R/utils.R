@@ -115,12 +115,11 @@ datasource <- function(file, call = caller_env()) {
     return(tmp)
   }
 
-  file <- normalizePath(file, mustWork = FALSE)
   if (!file.exists(file)) {
     cli::cli_abort("{.path {file}} does not exist.", call = call)
   }
 
-  file
+  normalizePath(file)
 }
 
 read_connection <- function(con, chunk_size = 64 * 1024L) {
