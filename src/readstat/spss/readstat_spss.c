@@ -264,6 +264,16 @@ readstat_error_t spss_format_for_variable(readstat_variable_t *r_variable,
             retval = READSTAT_ERROR_BAD_FORMAT_STRING;
             goto cleanup;
         }
+        /* When the caller gave a string width, the format can't contradict it (#321) */
+        if (r_variable->type == READSTAT_TYPE_STRING && r_variable->user_width) {
+            if (spss_format->type == SPSS_FORMAT_TYPE_AHEX) {
+                spss_format->width = 2 * (int)r_variable->user_width;
+            } else {
+                spss_format->type = SPSS_FORMAT_TYPE_A;
+                spss_format->width = (int)r_variable->user_width;
+            }
+            spss_format->decimal_places = 0;
+        }
     }
 
 cleanup:

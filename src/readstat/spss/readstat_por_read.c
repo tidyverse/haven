@@ -214,8 +214,10 @@ static readstat_error_t maybe_read_string(por_ctx_t *ctx, char *data, size_t len
     string_length = (size_t)value;
     
     if (string_length > ctx->string_buffer_len) {
+        unsigned char *new_string_buf = realloc(ctx->string_buffer, string_length);
+        if (new_string_buf == NULL) { retval = READSTAT_ERROR_MALLOC; goto cleanup; }
+        ctx->string_buffer = new_string_buf;
         ctx->string_buffer_len = string_length;
-        ctx->string_buffer = realloc(ctx->string_buffer, ctx->string_buffer_len);
         memset(ctx->string_buffer, 0, ctx->string_buffer_len);
     }
     
@@ -549,8 +551,11 @@ static readstat_error_t read_variable_label_record(por_ctx_t *ctx) {
         goto cleanup;
     }
 
-    varinfo->label = realloc(varinfo->label, 4*strlen(string) + 1);
-    retval = readstat_convert(varinfo->label, 4*strlen(string) + 1, string, strlen(string), ctx->converter);
+    size_t label_alloc_len = 4*strlen(string) + 1;
+    char *new_label = realloc(varinfo->label, label_alloc_len);
+    if (new_label == NULL) { retval = READSTAT_ERROR_MALLOC; goto cleanup; }
+    varinfo->label = new_label;
+    retval = readstat_convert(varinfo->label, label_alloc_len, string, strlen(string), ctx->converter);
 
 cleanup:
     return retval;

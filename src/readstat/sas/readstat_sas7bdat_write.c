@@ -1500,7 +1500,7 @@ static readstat_error_t sas7bdat_metadata_ok(void *writer_ctx) {
             writer->compression != READSTAT_COMPRESS_ROWS)
         return READSTAT_ERROR_UNSUPPORTED_COMPRESSION;
 
-    return READSTAT_OK;
+    return sas_validate_unique_names(writer);
 }
 
 readstat_error_t readstat_begin_writing_sas7bdat(readstat_writer_t *writer, void *user_ctx, long row_count) {

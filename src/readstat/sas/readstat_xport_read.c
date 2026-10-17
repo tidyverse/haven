@@ -348,8 +348,14 @@ static readstat_error_t xport_read_labels_v8(xport_ctx_t *ctx, int label_count) 
             goto cleanup;
         }
 
-        name = realloc(name, name_len + 1);
-        label = realloc(label, label_len + 1);
+        char *tmp_name = realloc(name, name_len + 1);
+        if (tmp_name == NULL) { retval = READSTAT_ERROR_MALLOC; goto cleanup; }
+        name = tmp_name;
+
+        char *tmp_label = realloc(label, label_len + 1);
+        if (tmp_label == NULL) { retval = READSTAT_ERROR_MALLOC; goto cleanup; }
+        label = tmp_label;
+
         readstat_variable_t *variable = ctx->variables[index-1];
 
         if (read_bytes(ctx, name, name_len) != name_len ||
@@ -418,10 +424,21 @@ static readstat_error_t xport_read_labels_v9(xport_ctx_t *ctx, int label_count) 
             goto cleanup;
         }
 
-        name = realloc(name, name_len + 1);
-        label = realloc(label, label_len + 1);
-        format = realloc(format, format_len + 1);
-        informat = realloc(informat, informat_len + 1);
+        char *tmp_name = realloc(name, name_len + 1);
+        if (tmp_name == NULL) { retval = READSTAT_ERROR_MALLOC; goto cleanup; }
+        name = tmp_name;
+
+        char *tmp_label = realloc(label, label_len + 1);
+        if (tmp_label == NULL) { retval = READSTAT_ERROR_MALLOC; goto cleanup; }
+        label = tmp_label;
+
+        char *tmp_format = realloc(format, format_len + 1);
+        if (tmp_format == NULL) { retval = READSTAT_ERROR_MALLOC; goto cleanup; }
+        format = tmp_format;
+
+        char *tmp_informat = realloc(informat, informat_len + 1);
+        if (tmp_informat == NULL) { retval = READSTAT_ERROR_MALLOC; goto cleanup; }
+        informat = tmp_informat;
 
         readstat_variable_t *variable = ctx->variables[index-1];
 
@@ -712,6 +729,21 @@ static readstat_error_t xport_read_data(xport_ctx_t *ctx) {
 
         if (ctx->row_limit > 0 && ctx->parsed_row_count == ctx->row_limit)
             break;
+    }
+
+    /* Padding never fills a whole line, so blank rows at least a line
+     * wide are data rather than end-of-file padding */
+    if (ctx->row_length >= LINE_LEN) {
+        while (num_blank_rows) {
+            if (ctx->row_limit > 0 && ctx->parsed_row_count == ctx->row_limit)
+                break;
+
+            retval = xport_process_row(ctx, blank_row, ctx->row_length);
+            if (retval != READSTAT_OK)
+                goto cleanup;
+
+            num_blank_rows--;
+        }
     }
 
 cleanup:

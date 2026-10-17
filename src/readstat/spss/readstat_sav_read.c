@@ -202,7 +202,7 @@ static readstat_error_t sav_skip_variable_record(sav_ctx_t *ctx) {
             goto cleanup;
         }
         label_len = ctx->bswap ? byteswap4(label_len) : label_len;
-        uint32_t label_capacity = (label_len + 3) / 4 * 4;
+        readstat_off_t label_capacity = ((readstat_off_t)label_len + 3) / 4 * 4;
         if (io->seek(label_capacity, READSTAT_SEEK_CUR, io->io_ctx) == -1) {
             retval = READSTAT_ERROR_SEEK;
             goto cleanup;
@@ -226,7 +226,8 @@ cleanup:
 static readstat_error_t sav_read_variable_label(spss_varinfo_t *info, sav_ctx_t *ctx) {
     readstat_io_t *io = ctx->io;
     readstat_error_t retval = READSTAT_OK;
-    uint32_t label_len, label_capacity;
+    uint32_t label_len;
+    size_t label_capacity;
     size_t out_label_len;
     char *label_buf = NULL;
     if (io->read(&label_len, sizeof(uint32_t), io->io_ctx) < sizeof(uint32_t)) {
@@ -238,7 +239,7 @@ static readstat_error_t sav_read_variable_label(spss_varinfo_t *info, sav_ctx_t 
     if (label_len == 0)
         goto cleanup;
 
-    label_capacity = (label_len + 3) / 4 * 4;
+    label_capacity = ((size_t)label_len + 3) / 4 * 4;
     if ((label_buf = readstat_malloc(label_capacity)) == NULL) {
         retval = READSTAT_ERROR_MALLOC;
         goto cleanup;
@@ -344,6 +345,22 @@ static readstat_error_t sav_read_variable_missing_values(spss_varinfo_t *info, s
     return sav_read_variable_missing_string_values(info, ctx);
 }
 
+/* Some writers (e.g. IBM SPSS Modeler) omit the type -1 continuation
+ * records that normally follow a string variable wider than 8 bytes,
+ * even though the case data still contains ceil(width/8) 8-byte
+ * columns. Synthesize the missing columns so that data offsets line up. */
+static void sav_synthesize_missing_continuations(sav_ctx_t *ctx) {
+    if (ctx->var_index == 0)
+        return;
+    spss_varinfo_t *info = ctx->varinfo[ctx->var_index-1];
+    if (info->type == READSTAT_TYPE_STRING && info->width == 1 &&
+            info->string_length > 8 && info->string_length <= 255) {
+        int needed = (info->string_length + 7) / 8;
+        ctx->var_offset += needed - 1;
+        info->width = needed;
+    }
+}
+
 static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
     readstat_io_t *io = ctx->io;
     sav_variable_record_t variable = { 0 };
@@ -386,6 +403,8 @@ static readstat_error_t sav_read_variable_record(sav_ctx_t *ctx) {
         ctx->varinfo[ctx->var_index-1]->width++;
         return retval;
     }
+
+    sav_synthesize_missing_continuations(ctx);
 
     if ((info = readstat_calloc(1, sizeof(spss_varinfo_t))) == NULL) {
         retval = READSTAT_ERROR_MALLOC;
@@ -721,6 +740,7 @@ static readstat_error_t sav_read_dictionary_termination_record(sav_ctx_t *ctx) {
     int32_t filler;
     readstat_error_t retval = READSTAT_OK;
     readstat_io_t *io = ctx->io;
+    sav_synthesize_missing_continuations(ctx);
     if (io->read(&filler, sizeof(int32_t), io->io_ctx) < sizeof(int32_t)) {
         retval = READSTAT_ERROR_READ;
     }
@@ -1222,7 +1242,7 @@ static readstat_error_t sav_parse_long_string_value_labels_record(const void *da
 
         for (i=0; i<label_count; i++) {
             uint32_t value_len = 0, label_len = 0;
-            uint32_t value_buffer_len = 0, label_buffer_len = 0;
+            size_t value_buffer_len = 0, label_buffer_len = 0;
 
             if (data_ptr + sizeof(uint32_t) > data_end) {
                 retval = READSTAT_ERROR_PARSE;
@@ -1235,7 +1255,7 @@ static readstat_error_t sav_parse_long_string_value_labels_record(const void *da
 
             data_ptr += sizeof(uint32_t);
 
-            value_buffer_len = value_len*4+1;
+            value_buffer_len = (size_t)value_len*4+1;
             value_buffer = readstat_realloc(value_buffer, value_buffer_len);
             if (value_buffer == NULL) {
                 retval = READSTAT_ERROR_MALLOC;
@@ -1264,7 +1284,7 @@ static readstat_error_t sav_parse_long_string_value_labels_record(const void *da
 
             data_ptr += sizeof(uint32_t);
 
-            label_buffer_len = label_len*4+1;
+            label_buffer_len = (size_t)label_len*4+1;
             label_buffer = readstat_realloc(label_buffer, label_buffer_len);
             if (label_buffer == NULL) {
                 retval = READSTAT_ERROR_MALLOC;
