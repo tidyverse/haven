@@ -10,15 +10,27 @@ zap_widths(x)
 \item{x}{A vector or data frame.}
 }
 \description{
-To provide some mild support for round-tripping variables between SPSS
-and R, haven stores display widths in an attribute: \code{display_width}. If this
-causes problems for your code, you can get rid of them with \code{zap_widths}.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated because haven now stores display widths in the
+\code{haven_meta} attribute (see \code{\link[=meta]{meta()}}). Please use \code{\link[=zap_meta]{zap_meta()}} instead.
+
+\code{zap_widths()} only removes the legacy \code{display_width} attribute.
+}
+\examples{
+x <- structure(1:3, display_width = 10)
+
+# Old:
+zap_widths(x)
+# New:
+zap_meta(x)
 }
 \seealso{
 Other zappers:
 \code{\link[=zap_empty]{zap_empty()}},
 \code{\link[=zap_formats]{zap_formats()}},
 \code{\link[=zap_label]{zap_label()}},
-\code{\link[=zap_labels]{zap_labels()}}
+\code{\link[=zap_labels]{zap_labels()}},
+\code{\link[=zap_meta]{zap_meta()}}
 }
 \concept{zappers}

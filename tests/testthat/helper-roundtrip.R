@@ -7,6 +7,7 @@ zap_file_metadata <- function(x) {
 }
 
 roundtrip_sav <- function(x, ...) {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   tmp <- tempfile()
   on.exit(unlink(tmp))
 
@@ -15,6 +16,7 @@ roundtrip_sav <- function(x, ...) {
 }
 
 roundtrip_dta <- function(x, ...) {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   tmp <- tempfile()
   on.exit(unlink(tmp))
 
@@ -23,6 +25,7 @@ roundtrip_dta <- function(x, ...) {
 }
 
 roundtrip_sas <- function(x, ...) {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   tmp <- tempfile()
   on.exit(unlink(tmp))
 
@@ -31,6 +34,7 @@ roundtrip_sas <- function(x, ...) {
 }
 
 roundtrip_xpt <- function(x, ...) {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   tmp <- tempfile()
   on.exit(unlink(tmp))
 

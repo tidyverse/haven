@@ -24,6 +24,7 @@ Other zappers:
 \code{\link[=zap_formats]{zap_formats()}},
 \code{\link[=zap_label]{zap_label()}},
 \code{\link[=zap_labels]{zap_labels()}},
+\code{\link[=zap_meta]{zap_meta()}},
 \code{\link[=zap_widths]{zap_widths()}}
 }
 \concept{zappers}

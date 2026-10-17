@@ -42,8 +42,10 @@ reference:
   - labelled
   - print_labels
   - as_factor
+  - zap_label
+  - zap_labels
 
-- title: Tagged missing values
+- title: Missing values
   desc: >
     Both SAS and Stata supported tagged missing values, where a missing value
     can have multiple "types", given by an letter from A through Z.
@@ -53,14 +55,18 @@ reference:
 
   contents:
   - tagged_na
+  - zap_missing
+  - zap_empty
 
-- title: Remove attributes
-  desc: >
-    There are a number of SPSS/SAS/Stata features that have no direct
-    equivalent in R. Haven preserves them so you can choose what do with
-    them. To simply eliminate them, use one of the zap functions.
+- title: Metadata
   contents:
-  - starts_with("zap")
+  - zap_meta
+
+- title: Deprecated
+  contents:
+  - zap_formats
+  - zap_widths
+  - write_sas
 
 news:
   releases:

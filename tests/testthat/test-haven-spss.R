@@ -6,6 +6,7 @@ test_that("variable label stored as attributes", {
 })
 
 test_that("value labels stored as labelled class", {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   num <- zap_formats(read_spss(test_path("spss/labelled-num.sav")))
   str <- zap_formats(read_spss(test_path("spss/labelled-str.sav")))
 

@@ -50,6 +50,7 @@ Other zappers:
 \code{\link[=zap_empty]{zap_empty()}},
 \code{\link[=zap_formats]{zap_formats()}},
 \code{\link[=zap_label]{zap_label()}},
+\code{\link[=zap_meta]{zap_meta()}},
 \code{\link[=zap_widths]{zap_widths()}}
 }
 \concept{zappers}
