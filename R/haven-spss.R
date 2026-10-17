@@ -9,13 +9,24 @@
 #' and factors. See [labelled_spss()] for how labelled variables in
 #' SPSS are handled in R.
 #'
-#' @inheritParams read_sas
-#' @inheritParams readr::datasource
+#' @inheritParams tibble::as_tibble
+#' @param file Either a path to a file, a URL, a connection, or a raw vector.
+#'   Remote files are downloaded before reading.
 #' @param path Path to a file where the data will be written.
 #' @param data Data frame to write.
 #' @param encoding The character encoding used for the file. The default,
 #'   `NULL`, use the encoding specified in the file, but sometimes this
 #'   value is incorrect and it is useful to be able to override it.
+#' @param col_select Columns to include in the results. You can use the same
+#'   mini-language as `dplyr::select()` to refer to the columns by name. Use
+#'   `c()` to use more than one selection expression. Although this
+#'   usage is less common, `col_select` also accepts a numeric column index. See
+#'   [`?tidyselect::language`][tidyselect::language] for full details on the
+#'   selection language.
+#'
+#'   Predicates using [`where()`][tidyselect::where] are not supported.
+#' @param skip Number of lines to skip before reading data.
+#' @param n_max Maximum number of lines to read.
 #' @inherit labelled-output return
 #' @name read_spss
 #' @examples
@@ -45,37 +56,12 @@ read_sav <- function(
 
   encoding <- encoding %||% ""
 
-  spec <- readr::datasource(file)
-  cols <- select_cols(
-    read_sav,
-    {{ col_select }},
-    spec,
-    encoding,
-    .name_repair = .name_repair
-  )
+  spec <- datasource(file)
+  header <- df_parse_sav(spec, encoding, FALSE, integer(), 0L, 0L)
+  cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
-  data <- switch(
-    class(spec)[1],
-    source_file = df_parse_sav_file(
-      spec,
-      encoding,
-      user_na,
-      cols$skip,
-      n_max,
-      skip
-    ),
-    source_raw = df_parse_sav_raw(
-      spec,
-      encoding,
-      user_na,
-      cols$skip,
-      n_max,
-      skip
-    ),
-    cli_abort("This kind of input is not handled.")
-  )
-
-  output_cols(data, cols, .name_repair)
+  data <- df_parse_sav(spec, encoding, user_na, cols$skip, n_max, skip)
+  output_cols(data, cols)
 }
 
 #' @export
@@ -92,36 +78,13 @@ read_por <- function(
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
 
-  spec <- readr::datasource(file)
-  cols <- select_cols(
-    read_por,
-    {{ col_select }},
-    spec,
-    .name_repair = .name_repair
-  )
+  spec <- datasource(file)
+  header <- df_parse_por(spec, "", FALSE, integer(), 0L, 0L)
+  cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
-  data <- switch(
-    class(spec)[1],
-    source_file = df_parse_por_file(
-      spec,
-      encoding = "",
-      user_na = user_na,
-      cols$skip,
-      n_max,
-      skip
-    ),
-    source_raw = df_parse_por_raw(
-      spec,
-      encoding = "",
-      user_na = user_na,
-      cols$skip,
-      n_max,
-      skip
-    ),
-    cli_abort("This kind of input is not handled.")
-  )
+  data <- df_parse_por(spec, "", user_na, cols$skip, n_max, skip)
 
-  output_cols(data, cols, .name_repair)
+  output_cols(data, cols)
 }
 
 #' @export

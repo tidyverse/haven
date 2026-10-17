@@ -3,23 +3,14 @@
 #' `read_sas()` supports both sas7bdat files and the accompanying sas7bcat files
 #' that SAS uses to record value labels.
 #'
-#' @param data_file,catalog_file Path to data and catalog files. The files are
-#'   processed with [readr::datasource()].
+#' @param data_file,catalog_file Data and catalog files. Each can be a path,
+#'   a URL, a connection, or a raw vector.
 #' @param encoding,catalog_encoding The character encoding used for the
 #'   `data_file` and `catalog_encoding` respectively. A value of `NULL` uses the
 #'   encoding specified in the file; use this argument to override it if it is
 #'   incorrect.
 #' @inheritParams tibble::as_tibble
-#' @param col_select Columns to include in the results. You can use the same
-#'   mini-language as `dplyr::select()` to refer to the columns by name. Use
-#'   `c()` to use more than one selection expression. Although this
-#'   usage is less common, `col_select` also accepts a numeric column index. See
-#'   [`?tidyselect::language`][tidyselect::language] for full details on the
-#'   selection language.
-#'
-#'   Predicates using [`where()`][tidyselect::where] are not supported.
-#' @param skip Number of lines to skip before reading data.
-#' @param n_max Maximum number of lines to read.
+#' @inheritParams read_spss
 #' @param cols_only `r lifecycle::badge("deprecated")` `cols_only` is no longer
 #'   supported; use `col_select` instead.
 #' @inherit labelled-output return
@@ -53,55 +44,33 @@ read_sas <- function(
     if (!is.character(cols_only)) {
       cli_abort("{.arg cols_only} must be a character vector.")
     }
-
-    # guarantee a quosure to keep NULL and tidyselect logic clean downstream
-    col_select <- quo(c(!!!cols_only))
-  } else {
-    col_select <- enquo(col_select)
+    # not correct, but we're going to deprecate this soon anyway
+    col_select <- cols_only
   }
 
   encoding <- encoding %||% ""
   catalog_encoding <- catalog_encoding %||% ""
 
-  spec_data <- readr::datasource(data_file)
-  cols <- select_cols(
-    read_sas,
-    !!col_select,
-    spec_data,
-    encoding = encoding,
-    .name_repair = .name_repair
-  )
+  spec_data <- datasource(data_file)
+  header <- df_parse_sas(spec_data, NULL, encoding, "", integer(), 0L, 0L)
+  cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
   if (is.null(catalog_file)) {
-    spec_cat <- list()
+    spec_cat <- NULL
   } else {
-    spec_cat <- readr::datasource(catalog_file)
+    spec_cat <- datasource(catalog_file)
   }
 
-  data <- switch(
-    class(spec_data)[1],
-    source_file = df_parse_sas_file(
-      spec_data,
-      spec_cat,
-      encoding = encoding,
-      catalog_encoding = catalog_encoding,
-      cols_skip = cols$skip,
-      n_max = n_max,
-      rows_skip = skip
-    ),
-    source_raw = df_parse_sas_raw(
-      spec_data,
-      spec_cat,
-      encoding = encoding,
-      catalog_encoding = catalog_encoding,
-      cols_skip = cols$skip,
-      n_max = n_max,
-      rows_skip = skip
-    ),
-    cli_abort("This kind of input is not handled.")
+  data <- df_parse_sas(
+    spec_data,
+    spec_cat,
+    encoding = encoding,
+    catalog_encoding = catalog_encoding,
+    cols_skip = cols$skip,
+    n_max = n_max,
+    rows_skip = skip
   )
-
-  output_cols(data, cols, .name_repair)
+  output_cols(data, cols)
 }
 
 #' Write SAS files
@@ -171,22 +140,13 @@ read_xpt <- function(
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
 
-  spec <- readr::datasource(file)
-  cols <- select_cols(
-    read_xpt,
-    {{ col_select }},
-    spec,
-    .name_repair = .name_repair
-  )
+  spec <- datasource(file)
+  header <- df_parse_xpt(spec, integer(), 0L, 0L)
+  cols <- select_cols(names(header), {{ col_select }}, .name_repair)
 
-  data <- switch(
-    class(spec)[1],
-    source_file = df_parse_xpt_file(spec, cols$skip, n_max, skip),
-    source_raw = df_parse_xpt_raw(spec, cols$skip, n_max, skip),
-    cli_abort("This kind of input is not handled.")
-  )
+  data <- df_parse_xpt(spec, cols$skip, n_max, skip)
 
-  output_cols(data, cols, .name_repair)
+  output_cols(data, cols)
 }
 
 #' @export

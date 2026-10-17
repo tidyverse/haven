@@ -44,13 +44,19 @@ force_utc <- function(x) {
   }
 }
 
-select_cols <- function(reader, col_select = NULL, ..., call = caller_env()) {
+select_cols <- function(
+  cols,
+  col_select = NULL,
+  name_repair = "unique",
+  call = caller_env()
+) {
+  cols <- vctrs::vec_as_names(cols, repair = name_repair, call = call)
+
   col_select <- enquo(col_select)
   if (quo_is_null(col_select)) {
-    return(list(pos = NULL, skip = integer()))
+    return(list(select = set_names(seq_along(cols), cols), skip = integer()))
   }
 
-  cols <- names(reader(..., n_max = 0L))
   data <- as.list(stats::setNames(seq_along(cols), cols))
 
   pos <- tidyselect::eval_select(
@@ -68,15 +74,8 @@ select_cols <- function(reader, col_select = NULL, ..., call = caller_env()) {
   )
 }
 
-output_cols <- function(data, cols, name_repair, call = caller_env()) {
-  if (is.null(cols$select)) {
-    set_names(
-      data,
-      vctrs::vec_as_names(names(data), repair = name_repair, call = call)
-    )
-  } else {
-    set_names(data[rank(cols$select)], names(cols$select))
-  }
+output_cols <- function(data, cols) {
+  set_names(data[rank(cols$select)], names(cols$select))
 }
 
 check_n_max <- function(n, arg = caller_arg(n), call = caller_env()) {
@@ -97,4 +96,45 @@ adjust_tz <- function(df) {
 
 var_names <- function(data, i) {
   names(data)[i]
+}
+
+# Returns either a length-1 character vector (a path to a local,
+# uncompressed file) or a raw vector containing the file contents.
+datasource <- function(file, call = caller_env()) {
+  if (is.raw(file)) {
+    return(file)
+  } else if (inherits(file, "connection")) {
+    return(read_connection(file))
+  }
+  check_string(file, arg = "file", call = call)
+
+  if (grepl("^(https?|ftps?)://", file)) {
+    tmp <- tempfile(fileext = paste0(".", tools::file_ext(file)))
+    on.exit(unlink(tmp), add = TRUE)
+    utils::download.file(file, tmp, quiet = TRUE, mode = "wb")
+    return(tmp)
+  }
+
+  if (!file.exists(file)) {
+    cli::cli_abort("{.path {file}} does not exist.", call = call)
+  }
+
+  normalizePath(file)
+}
+
+read_connection <- function(con, chunk_size = 64 * 1024L) {
+  if (!isOpen(con)) {
+    open(con, "rb")
+    on.exit(close(con), add = TRUE)
+  }
+
+  chunks <- list()
+  repeat {
+    chunk <- readBin(con, "raw", chunk_size)
+    if (length(chunk) == 0) {
+      break
+    }
+    chunks[[length(chunks) + 1]] <- chunk
+  }
+  unlist(chunks, use.names = FALSE) %||% raw()
 }

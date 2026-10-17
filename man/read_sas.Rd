@@ -17,8 +17,8 @@ read_sas(
 )
 }
 \arguments{
-\item{data_file, catalog_file}{Path to data and catalog files. The files are
-processed with \code{\link[readr:datasource]{readr::datasource()}}.}
+\item{data_file, catalog_file}{Data and catalog files. Each can be a path,
+a URL, a connection, or a raw vector.}
 
 \item{encoding, catalog_encoding}{The character encoding used for the
 \code{data_file} and \code{catalog_encoding} respectively. A value of \code{NULL} uses the
