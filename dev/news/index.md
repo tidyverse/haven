@@ -96,6 +96,9 @@
   variable, causing issues when reading files
   ([\#537](https://github.com/tidyverse/haven/issues/537)).
 - [`write_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md)
+  no longer rejects single character variable names (e.g. `x`) when
+  `version` is 13 or earlier.
+- [`write_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md)
   no longer fails when writing `NA` in a long string (strL) variable;
   missing values are written as empty strings, which is how Stata
   represents missing strings
