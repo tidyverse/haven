@@ -110,6 +110,13 @@
   and labels just below 2^31 were silently converted to missing values
   ([\#739](https://github.com/tidyverse/haven/issues/739)).
 - [`write_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md)
+  now stores numeric columns using the smallest Stata storage type
+  (`byte`, `int`, `long`, or `double`) that can exactly represent every
+  value, like Stata’s `compress`. This can substantially reduce file
+  sizes ([\#651](https://github.com/tidyverse/haven/issues/651)).
+  Integers too large for Stata’s `long` are now stored as `double`
+  rather than failing to write.
+- [`write_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md)
   now errors when `strl_threshold` is outside 0-2045, instead of
   silently clamping it to 2045.
 - [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)

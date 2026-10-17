@@ -99,6 +99,8 @@
 <li>
 <code><a href="../reference/read_dta.html">write_dta()</a></code> now gives an informative error when value labels are outside the range that Stata can store (-2,147,483,647 to 2,147,483,620). Previously, very large labels failed with “missing value where TRUE/FALSE needed” and labels just below 2^31 were silently converted to missing values (<a href="https://github.com/tidyverse/haven/issues/739" class="external-link">#739</a>).</li>
 <li>
+<code><a href="../reference/read_dta.html">write_dta()</a></code> now stores numeric columns using the smallest Stata storage type (<code>byte</code>, <code>int</code>, <code>long</code>, or <code>double</code>) that can exactly represent every value, like Stata’s <code>compress</code>. This can substantially reduce file sizes (<a href="https://github.com/tidyverse/haven/issues/651" class="external-link">#651</a>). Integers too large for Stata’s <code>long</code> are now stored as <code>double</code> rather than failing to write.</li>
+<li>
 <code><a href="../reference/read_dta.html">write_dta()</a></code> now errors when <code>strl_threshold</code> is outside 0-2045, instead of silently clamping it to 2045.</li>
 <li>
 <code><a href="../reference/read_xpt.html">write_xpt()</a></code> character limit checks now check for the number of bytes instead of the number of characters (<a href="https://github.com/tidyverse/haven/issues/746" class="external-link">#746</a>).</li>
