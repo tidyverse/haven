@@ -777,31 +777,45 @@ cpp11::list df_parse(SEXP spec, cpp11::integers cols_skip,
 
 // # nocov start
 
-[[cpp11::register]]
-cpp11::list df_parse_sas(SEXP spec_b7dat, SEXP spec_b7cat,
-                         std::string encoding, std::string catalog_encoding,
-                         cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_SAS7BDAT>(spec_b7dat, cols_skip, n_max, rows_skip, encoding, false, spec_b7cat, catalog_encoding);
-}
+struct ReaderOptions {
+  std::string encoding = "";
+  std::string catalog_encoding = "";
+  SEXP catalog_spec = R_NilValue;
+  bool user_na = false;
+  cpp11::integers cols_skip = cpp11::integers();
+  long n_max = 0;
+  long rows_skip = 0;
+
+  ReaderOptions(cpp11::list opts) {
+    SEXP x;
+    if ((x = opts["encoding"]) != R_NilValue) encoding = cpp11::as_cpp<std::string>(x);
+    if ((x = opts["catalog_encoding"]) != R_NilValue) catalog_encoding = cpp11::as_cpp<std::string>(x);
+    if ((x = opts["catalog_file"]) != R_NilValue) catalog_spec = x;
+    if ((x = opts["user_na"]) != R_NilValue) user_na = cpp11::as_cpp<bool>(x);
+    if ((x = opts["cols_skip"]) != R_NilValue) cols_skip = cpp11::as_cpp<cpp11::integers>(x);
+    if ((x = opts["n_max"]) != R_NilValue) n_max = cpp11::as_cpp<long>(x);
+    if ((x = opts["rows_skip"]) != R_NilValue) rows_skip = cpp11::as_cpp<long>(x);
+  }
+};
 
 [[cpp11::register]]
-cpp11::list df_parse_xpt(SEXP spec, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_XPT>(spec, cols_skip, n_max, rows_skip);
-}
+cpp11::list df_parse_file(SEXP spec, cpp11::list options) {
+  ReaderOptions opts(options);
+  std::string vendor = cpp11::as_cpp<std::string>(options["vendor"]);
 
-[[cpp11::register]]
-cpp11::list df_parse_dta(SEXP spec, std::string encoding, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_DTA>(spec, cols_skip, n_max, rows_skip, encoding);
-}
-
-[[cpp11::register]]
-cpp11::list df_parse_sav(SEXP spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_SAV>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
-}
-
-[[cpp11::register]]
-cpp11::list df_parse_por(SEXP spec, std::string encoding, bool user_na, cpp11::integers cols_skip, long n_max, long rows_skip) {
-  return df_parse<HAVEN_POR>(spec, cols_skip, n_max, rows_skip, encoding, user_na);
+  if (vendor == "sas7bdat") {
+    return df_parse<HAVEN_SAS7BDAT>(spec, opts.cols_skip, opts.n_max, opts.rows_skip, opts.encoding, false, opts.catalog_spec, opts.catalog_encoding);
+  } else if (vendor == "xpt") {
+    return df_parse<HAVEN_XPT>(spec, opts.cols_skip, opts.n_max, opts.rows_skip);
+  } else if (vendor == "dta") {
+    return df_parse<HAVEN_DTA>(spec, opts.cols_skip, opts.n_max, opts.rows_skip, opts.encoding);
+  } else if (vendor == "sav") {
+    return df_parse<HAVEN_SAV>(spec, opts.cols_skip, opts.n_max, opts.rows_skip, opts.encoding, opts.user_na);
+  } else if (vendor == "por") {
+    return df_parse<HAVEN_POR>(spec, opts.cols_skip, opts.n_max, opts.rows_skip, opts.encoding, opts.user_na);
+  } else {
+    cpp11::stop("Unknown vendor: %s", vendor.c_str());
+  }
 }
 
 // # nocov end
