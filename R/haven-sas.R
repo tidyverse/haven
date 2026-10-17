@@ -4,8 +4,7 @@
 #' that SAS uses to record value labels.
 #'
 #' @param data_file,catalog_file Data and catalog files. Each can be a path,
-#'   a URL, a compressed file (`.gz`, `.bz2`, `.xz`, or `.zip`), a connection,
-#'   or a raw vector.
+#'   a URL, a connection, or a raw vector.
 #' @param encoding,catalog_encoding The character encoding used for the
 #'   `data_file` and `catalog_encoding` respectively. A value of `NULL` uses the
 #'   encoding specified in the file; use this argument to override it if it is

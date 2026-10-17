@@ -23,9 +23,8 @@ write_xpt(
 )
 }
 \arguments{
-\item{file}{Either a path to a file, a URL, a compressed file (\code{.gz},
-\code{.bz2}, \code{.xz}, or \code{.zip}), a connection, or a raw vector. Remote and
-compressed files are downloaded or decompressed before reading.}
+\item{file}{Either a path to a file, a URL, a connection, or a raw vector.
+Remote files are downloaded before reading.}
 
 \item{col_select}{Columns to include in the results. You can use the same
 mini-language as \code{dplyr::select()} to refer to the columns by name. Use

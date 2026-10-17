@@ -10,9 +10,8 @@
 #' SPSS are handled in R.
 #'
 #' @inheritParams read_sas
-#' @param file Either a path to a file, a URL, a compressed file (`.gz`,
-#'   `.bz2`, `.xz`, or `.zip`), a connection, or a raw vector. Remote and
-#'   compressed files are downloaded or decompressed before reading.
+#' @param file Either a path to a file, a URL, a connection, or a raw vector.
+#'   Remote files are downloaded before reading.
 #' @param path Path to a file where the data will be written.
 #' @param data Data frame to write.
 #' @param encoding The character encoding used for the file. The default,

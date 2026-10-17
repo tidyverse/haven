@@ -61,12 +61,6 @@ test_that("connections are read", {
   expect_identical(read_sas(file_conn), read_sas("sas/hadley.sas7bdat"))
 })
 
-test_that("zip files are read", {
-  expect_identical(
-    read_sas(test_path("sas/hadley.zip")),
-    read_sas(test_path("sas/hadley.sas7bdat"))
-  )
-})
 
 # Row skipping ------------------------------------------------------------
 

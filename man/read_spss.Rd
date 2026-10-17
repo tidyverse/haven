@@ -38,9 +38,8 @@ read_spss(
 )
 }
 \arguments{
-\item{file}{Either a path to a file, a URL, a compressed file (\code{.gz},
-\code{.bz2}, \code{.xz}, or \code{.zip}), a connection, or a raw vector. Remote and
-compressed files are downloaded or decompressed before reading.}
+\item{file}{Either a path to a file, a URL, a connection, or a raw vector.
+Remote files are downloaded before reading.}
 
 \item{encoding}{The character encoding used for the file. The default,
 \code{NULL}, use the encoding specified in the file, but sometimes this

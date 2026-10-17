@@ -1,7 +1,7 @@
 # haven (development version)
 
 * Updated to ReadStat dev (b05b645).
-* haven no longer depends on readr (#834).
+* haven no longer depends on readr (#834). As a consequence, the `read_*()` functions no longer read compressed (`.gz`, `.bz2`, `.xz`, `.zip`) files; decompress them before reading.
   * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
   * SAS catalog reader now correctly reads big-endian files.
   * SAS reader now applies the timezone offset stored in the file header, so `creation_timestamp` and `modified_timestamp` attributes are now correctly reported in UTC.

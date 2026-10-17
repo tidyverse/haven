@@ -109,10 +109,10 @@ datasource <- function(file, call = caller_env()) {
   check_string(file, arg = "file", call = call)
 
   if (grepl("^(https?|ftps?)://", file)) {
-    tmp <- tempfile(fileext = compression_ext(file))
+    tmp <- tempfile(fileext = paste0(".", tools::file_ext(file)))
     on.exit(unlink(tmp), add = TRUE)
     utils::download.file(file, tmp, quiet = TRUE, mode = "wb")
-    return(read_connection(compressed_con(tmp)))
+    return(tmp)
   }
 
   file <- normalizePath(file, mustWork = FALSE)
@@ -120,38 +120,7 @@ datasource <- function(file, call = caller_env()) {
     cli::cli_abort("{.path {file}} does not exist.", call = call)
   }
 
-  if (compression_ext(file) == "") {
-    file
-  } else {
-    read_connection(compressed_con(file))
-  }
-}
-
-compression_ext <- function(path) {
-  ext <- regmatches(path, regexpr("\\.(gz|bz2|xz|zip)$", path))
-  if (length(ext) == 0) "" else ext
-}
-
-compressed_con <- function(path) {
-  switch(
-    compression_ext(path),
-    .gz = gzfile(path),
-    .bz2 = bzfile(path),
-    .xz = xzfile(path),
-    .zip = zip_con(path),
-    file(path)
-  )
-}
-
-zip_con <- function(path, call = caller_env()) {
-  files <- utils::unzip(path, list = TRUE)$Name
-  if (length(files) != 1) {
-    cli::cli_abort(
-      "{.path {path}} must contain exactly one file, not {length(files)}.",
-      call = call
-    )
-  }
-  unz(path, files)
+  file
 }
 
 read_connection <- function(con, chunk_size = 64 * 1024L) {
