@@ -141,6 +141,27 @@ test_that("can roundtrip tagged NAs", {
   expect_equal(roundtrip_var(y, "dta"), y)
 })
 
+test_that("numeric columns use smallest storage type (#651)", {
+  expect_equal(dta_width(c(-127, 100, NA)), 1)
+  expect_equal(dta_width(c(TRUE, NA)), 1)
+  expect_equal(dta_width(101L), 2)
+  expect_equal(dta_width(-32767), 2)
+  expect_equal(dta_width(32741), 4)
+  expect_equal(dta_width(2147483621), 8)
+  expect_equal(dta_width(1.5), 8)
+
+  # uses Stata's date offset
+  expect_equal(dta_width(as.Date("1960-01-02")), 1)
+  expect_equal(dta_width(as.Date("1970-01-01")), 2)
+  expect_equal(dta_width(as.POSIXct("1960-01-01", tz = "UTC")), 8)
+})
+
+test_that("can roundtrip values at storage type boundaries", {
+  x <- c(-127, 100, 101, -32767, 32740, 32741, 2147483620, 2147483621)
+  expect_equal(roundtrip_var(x, "dta"), x)
+  expect_equal(roundtrip_var(.Machine$integer.max, "dta"), .Machine$integer.max)
+})
+
 test_that("infinity gets converted to NA", {
   expect_equal(roundtrip_var(c(Inf, 0, -Inf), "dta"), c(NA, 0, NA))
 })
