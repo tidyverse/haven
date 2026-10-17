@@ -1,6 +1,6 @@
 # haven (development version)
 
-* Updated to ReadStat dev 835b88c.
+* Updated to ReadStat dev (b05b645).
   * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
   * SAS catalog reader now correctly reads big-endian files.
   * SAS reader now applies the timezone offset stored in the file header, so `creation_timestamp` and `modified_timestamp` attributes are now correctly reported in UTC.
@@ -10,6 +10,7 @@
   * SAV reader has improved support for Asian code pages and very long string records.
   * SAV writer now supports labels for string values longer than 8 bytes (#550).
   * Stata reader no longer returns Stata's internal note count (`_dta[note0]`) as a note, so `attr(df, "notes")` may contain one fewer note than before.
+  * XPT V8 reader no longer drops trailing rows that contain only empty strings or missing values (#754).
   * XPT V8 writer now supports long variable labels (#784).
 * `col_select` in the `read_*()` functions now correctly implements the tidyselect interface. Columns will be returned in the order specified in `col_select` and can be renamed, e.g. `col_select = c(new = old)` (#685).
 * `col_select` works correctly when combined with `.name_repair` for files with duplicate column names (#687).
@@ -24,6 +25,8 @@
 * `tagged_na()` and `is_tagged_na()` now silently convert tagged `NA` values to lower case. These are case insensitive when reading and writing, so forcing lower case removes any potential ambiguity.
 * `write_*()` functions now take into account the width of value labels when calculating string variable widths. Previously it was possible to create value label sets with values that were wider than the string variable, causing issues when reading files (#537).
 * `write_dta()` no longer rejects single character variable names (e.g. `x`) when `version` is 13 or earlier.
+* `write_dta()` no longer fails when writing `NA` in a long string (strL) variable; missing values are written as empty strings, which is how Stata represents missing strings (#760).
+* `write_dta()` now gives an informative error when value labels are outside the range that Stata can store (-2,147,483,647 to 2,147,483,620). Previously, very large labels failed with "missing value where TRUE/FALSE needed" and labels just below 2^31 were silently converted to missing values (#739).
 * `write_dta()` now errors when `strl_threshold` is outside 0-2045, instead of silently clamping it to 2045.
 * `write_xpt()` character limit checks now check for the number of bytes instead of the number of characters (#746).
 * `write_xpt()` now errors if variable names are too long for the XPT version: 8 bytes for version 5, 32 bytes for version 8. Previously, long names were silently truncated for version 5 and error messaging was inconsistent (#771).

@@ -35,7 +35,25 @@
       write_dta(df, tempfile())
     Condition
       Error in `write_dta()`:
-      ! Stata only supports labelling with integer variables.
+      ! Stata only supports labelling integers between -2,147,483,647 and 2,147,483,620.
+      x Problems: `x`
+
+# can't write labels outside Stata's integer range (#739)
+
+    Code
+      write_dta(df, tempfile())
+    Condition
+      Error in `write_dta()`:
+      ! Stata only supports labelling integers between -2,147,483,647 and 2,147,483,620.
+      x Problems: `x`
+
+---
+
+    Code
+      write_dta(df, tempfile())
+    Condition
+      Error in `write_dta()`:
+      ! Stata only supports labelling integers between -2,147,483,647 and 2,147,483,620.
       x Problems: `x`
 
 # read_dta checks its inputs

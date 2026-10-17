@@ -259,6 +259,11 @@ test_that("can roundtrip tagged NAs", {
   expect_equal(roundtrip_var(y, "xpt"), x)
 })
 
+test_that("can roundtrip trailing empty rows in xpt v8 (#754)", {
+  df <- tibble::tibble(a = c("a", "", ""))
+  expect_equal(nrow(roundtrip_xpt(df, version = 8)), 3)
+})
+
 test_that("invalid files generate informative errors", {
   expect_snapshot(error = TRUE, {
     write_xpt(mtcars, file.path(tempdir(), " temp.xpt"))

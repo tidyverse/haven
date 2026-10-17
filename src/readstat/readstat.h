@@ -489,6 +489,7 @@ typedef struct readstat_writer_s {
     int                         is_64bit; // SAS only
     readstat_compress_t         compression;
     time_t                      timestamp;
+    double                      timestamp_fraction; // sub-second part of timestamp
 
     readstat_variable_t       **variables;
     long                        variables_count;
