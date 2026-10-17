@@ -82,6 +82,11 @@
   ([\#733](https://github.com/tidyverse/haven/issues/733),
   [@SInginc](https://github.com/SInginc)).
 - [`read_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
+  now uses the data file’s encoding for a catalog file that doesn’t
+  specify its own encoding, rather than assuming WINDOWS-1252. This
+  fixes failures and garbled value labels when reading UTF-8 catalogs
+  ([\#836](https://github.com/tidyverse/haven/issues/836)).
+- [`read_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
   and
   [`read_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
   now supports all datetime, date and time formats

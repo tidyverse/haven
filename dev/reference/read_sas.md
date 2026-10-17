@@ -28,9 +28,11 @@ read_sas(
 
 - encoding, catalog_encoding:
 
-  The character encoding used for the `data_file` and `catalog_encoding`
+  The character encoding used for the `data_file` and `catalog_file`
   respectively. A value of `NULL` uses the encoding specified in the
-  file; use this argument to override it if it is incorrect.
+  file; use this argument to override it if it is incorrect. Catalog
+  files often don't specify an encoding, in which case the encoding of
+  `data_file` is used.
 
 - col_select:
 

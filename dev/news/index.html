@@ -88,6 +88,8 @@
 <li>
 <code><a href="../reference/read_dta.html">read_dta()</a></code>, <code><a href="../reference/read_spss.html">read_sav()</a></code>, <code><a href="../reference/read_spss.html">read_por()</a></code>, <code><a href="../reference/read_sas.html">read_sas()</a></code>, and <code><a href="../reference/read_xpt.html">read_xpt()</a></code> now attach file metadata as attributes: <code>creation_timestamp</code> and <code>modified_timestamp</code> (as POSIXct, in UTC) (<a href="https://github.com/tidyverse/haven/issues/733" class="external-link">#733</a>, <a href="https://github.com/SInginc" class="external-link">@SInginc</a>).</li>
 <li>
+<code><a href="../reference/read_sas.html">read_sas()</a></code> now uses the data file’s encoding for a catalog file that doesn’t specify its own encoding, rather than assuming WINDOWS-1252. This fixes failures and garbled value labels when reading UTF-8 catalogs (<a href="https://github.com/tidyverse/haven/issues/836" class="external-link">#836</a>).</li>
+<li>
 <code><a href="../reference/read_sas.html">read_sas()</a></code> and <code><a href="../reference/read_xpt.html">read_xpt()</a></code> now supports all datetime, date and time formats (<a href="https://github.com/tidyverse/haven/issues/780" class="external-link">#780</a>) and correctly recognises DATEAMPM as datetime (<a href="https://github.com/tidyverse/haven/issues/789" class="external-link">#789</a>).</li>
 <li>
 <code><a href="../reference/tagged_na.html">tagged_na()</a></code> and <code><a href="../reference/tagged_na.html">is_tagged_na()</a></code> now silently convert tagged <code>NA</code> values to lower case. These are case insensitive when reading and writing, so forcing lower case removes any potential ambiguity.</li>

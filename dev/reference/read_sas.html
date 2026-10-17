@@ -87,9 +87,10 @@ a URL, a connection, or a raw vector.</p></dd>
 
 <dt id="arg-encoding-catalog-encoding">encoding, catalog_encoding<a class="anchor" aria-label="anchor" href="#arg-encoding-catalog-encoding"></a></dt>
 <dd><p>The character encoding used for the
-<code>data_file</code> and <code>catalog_encoding</code> respectively. A value of <code>NULL</code> uses the
+<code>data_file</code> and <code>catalog_file</code> respectively. A value of <code>NULL</code> uses the
 encoding specified in the file; use this argument to override it if it is
-incorrect.</p></dd>
+incorrect. Catalog files often don't specify an encoding, in which case
+the encoding of <code>data_file</code> is used.</p></dd>
 
 
 <dt id="arg-col-select">col_select<a class="anchor" aria-label="anchor" href="#arg-col-select"></a></dt>
