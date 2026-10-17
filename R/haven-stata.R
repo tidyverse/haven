@@ -103,8 +103,10 @@ read_stata <- read_dta
 
 #' @export
 #' @rdname read_dta
-#' @param version File version to use. Supports versions 8-15. See the
-#'   "Stata versions" section below for details on compatibility.
+#' @param version File version to use. Supports versions 8-15. Defaults to
+#'   the version recorded in the metadata of `data` (if it was read with
+#'   [read_dta()]), otherwise 14. See the "Stata versions" section below for
+#'   details on compatibility.
 #' @param label Dataset label to use, or `NULL`. Defaults to the value stored in
 #'   the "label" attribute of `data`. Must be <= 80 characters.
 #' @param strl_threshold Any character vectors with a maximum length greater
@@ -128,13 +130,14 @@ read_stata <- read_dta
 write_dta <- function(
   data,
   path,
-  version = 14,
+  version = NULL,
   label = attr(data, "label"),
   strl_threshold = 2045,
   adjust_tz = TRUE
 ) {
   check_data_frame(data)
   check_string(path)
+  version <- version %||% meta_df_field(data, "stata", "version") %||% 14
   check_number_whole(version)
   check_dta_label(label)
   check_number_whole(strl_threshold, min = 0, max = 2045)
@@ -152,7 +155,8 @@ write_dta <- function(
     normalizePath(path, mustWork = FALSE),
     version = stata_file_format(version),
     label = label,
-    strl_threshold = strl_threshold
+    strl_threshold = strl_threshold,
+    meta = writer_meta(data_out, "stata")
   )
 
   invisible(data)

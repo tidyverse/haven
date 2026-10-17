@@ -34,7 +34,6 @@ enum VarType {
   HAVEN_DATETIME
 };
 
-std::string formatAttribute(FileVendor vendor);
 bool hasPrefix(std::string x, std::string prefix);
 VarType numType(SEXP x);
 VarType numType(FileVendor vendor, const char* var_format);
