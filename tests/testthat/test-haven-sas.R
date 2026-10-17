@@ -48,9 +48,9 @@ test_that("date times are converted into corresponding R types", {
 test_that("dates after year 4000 match SAS's calendar (#728)", {
   df <- read_xpt(test_path("sas/far-future-dates.xpt"))
   dates <- as.Date(c("2022-08-10", "7777-07-07", "9999-09-09"))
-  expect_equal(zap_formats(df$date), dates)
+  expect_equal(zap_meta(df$date), dates)
   expect_equal(
-    zap_formats(df$datetime),
+    zap_meta(df$datetime),
     as.POSIXct(paste(dates, "12:00"), tz = "UTC")
   )
 })
@@ -188,9 +188,10 @@ test_that("date/times with character data throw a warning (#747)", {
   )
 
   expect_equal(
-    out$date,
-    structure(c("20424", "20487"), label = "Date", format.sas = "DATE")
+    zap_meta(out$date),
+    structure(c("20424", "20487"), label = "Date")
   )
+  expect_equal(meta(out$date)@format, "DATE")
 })
 
 # write_xpt ---------------------------------------------------------------
@@ -319,9 +320,13 @@ test_that("can roundtrip format attribute", {
   path <- tempfile()
 
   write_xpt(df, path)
-  out <- zap_file_metadata(read_xpt(path))
+  out <- read_xpt(path)
 
-  expect_identical(df, out)
+  expect_equal(
+    lapply(out, \(x) meta(x)@format),
+    lapply(df, \(x) attr(x, "format.sas"))
+  )
+  expect_identical(zap_meta(out), zap_meta(df))
 })
 
 test_that("user width warns appropriately when data is wider than value", {
@@ -342,13 +347,35 @@ test_that("read_sas attaches file timestamps", {
   out <- read_sas(test_path("sas/hadley.sas7bdat"))
 
   expect_equal(
-    attr(out, "creation_timestamp"),
+    meta(out)@created,
     as.POSIXct("2015-02-09 20:55:12", tz = "UTC")
   )
   expect_equal(
-    attr(out, "modified_timestamp"),
+    meta(out)@modified,
     as.POSIXct("2015-02-09 20:55:12", tz = "UTC")
   )
+})
+
+test_that("read_sas captures metadata", {
+  out <- read_sas(test_path("sas/hadley.sas7bdat"))
+
+  expect_equal(meta(out)@table_name, "HADLEY")
+  expect_null(meta(out)@xpt_version)
+  expect_equal(meta(out$workshop), meta_var_sas(format = "WORKSHOP", width = 8))
+  expect_null(attr(out$workshop, "format.sas"))
+})
+
+test_that("read_xpt captures table name and version", {
+  path <- tempfile(fileext = ".xpt")
+
+  write_xpt(tibble(x = 1, y = "abc"), path, version = 5, name = "FOO")
+  out <- read_xpt(path)
+  expect_equal(meta(out)@table_name, "FOO")
+  expect_equal(meta(out)@xpt_version, 5L)
+  expect_equal(meta(out$y)@width, 3L)
+
+  write_xpt(tibble(x = 1), path, version = 8)
+  expect_equal(meta(read_xpt(path))@xpt_version, 8L)
 })
 
 test_that("read_xpt attaches file timestamps", {
@@ -359,8 +386,8 @@ test_that("read_xpt attaches file timestamps", {
   write_xpt(df, path)
   out <- read_xpt(path)
 
-  created <- attr(out, "creation_timestamp")
-  modified <- attr(out, "modified_timestamp")
+  created <- meta(out)@created
+  modified <- meta(out)@modified
   expect_s3_class(created, "POSIXct")
   expect_s3_class(modified, "POSIXct")
   expect_true(created >= before - 60 && created <= Sys.time() + 60)

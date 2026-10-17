@@ -6,9 +6,8 @@ test_that("variable label stored as attributes", {
 })
 
 test_that("value labels stored as labelled class", {
-  rlang::local_options(lifecycle_verbosity = "quiet")
-  num <- zap_formats(read_spss(test_path("spss/labelled-num.sav")))
-  str <- zap_formats(read_spss(test_path("spss/labelled-str.sav")))
+  num <- zap_meta(read_spss(test_path("spss/labelled-num.sav")))
+  str <- zap_meta(read_spss(test_path("spss/labelled-str.sav")))
 
   expect_equal(num[[1]], labelled(1, c("This is one" = 1)))
   expect_equal(str[[1]], labelled(c("M", "F"), c(Female = "F", Male = "M")))
@@ -59,11 +58,10 @@ test_that("formats roundtrip", {
   write_sav(df, tmp)
   df2 <- read_sav(tmp)
 
-  expect_equal(df2$a, df$a)
-  expect_equal(df2$b, df$b)
-  expect_equal(df2$c, df$c)
-  # ReadStat now sets the string format width to match the stored width
-  expect_equal(df2$d, structure(df$d, format.spss = "A4"))
+  expect_equal(
+    lapply(df2, \(x) meta(x)@format),
+    lapply(df, \(x) attr(x, "format.spss"))
+  )
 })
 
 test_that("widths roundtrip", {
@@ -74,12 +72,16 @@ test_that("widths roundtrip", {
     d = structure(c("Text", "Text", ""), display_width = 10)
   )
 
-  df2 <- roundtrip_sav(df)
+  tmp <- tempfile()
+  on.exit(unlink(tmp))
 
-  expect_equal(df2$a, df$a)
-  expect_equal(df2$b, df$b)
-  expect_equal(df2$c, df$c)
-  expect_equal(df2$d, df$d)
+  write_sav(df, tmp)
+  df2 <- read_sav(tmp)
+
+  expect_equal(
+    lapply(df2, \(x) meta(x)@display_width),
+    list(a = 10L, b = 11L, c = 12L, d = 10L)
+  )
 })
 
 test_that("long string ghost names don't collide with real variables", {
@@ -468,6 +470,22 @@ test_that("all compression types roundtrip successfully", {
 
 # File metadata -----------------------------------------------------------
 
+test_that("read_sav captures variable metadata", {
+  out <- read_sav(test_path("spss/labelled-str.sav"))
+
+  expect_equal(
+    meta(out[[1]]),
+    meta_var_spss(
+      format = "A1",
+      display_width = 8,
+      width = 1,
+      measure = "nominal",
+      alignment = "left"
+    )
+  )
+  expect_null(attr(out[[1]], "format.spss"))
+})
+
 test_that("read_sav attaches file timestamps", {
   df <- tibble(x = 1:3)
   before <- Sys.time()
@@ -476,8 +494,8 @@ test_that("read_sav attaches file timestamps", {
   write_sav(df, path)
   out <- read_sav(path)
 
-  created <- attr(out, "creation_timestamp")
-  modified <- attr(out, "modified_timestamp")
+  created <- meta(out)@created
+  modified <- meta(out)@modified
   expect_s3_class(created, "POSIXct")
   expect_s3_class(modified, "POSIXct")
   expect_true(created >= before - 60 && created <= Sys.time() + 60)

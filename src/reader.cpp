@@ -38,11 +38,7 @@ int reader_metadata(readstat_metadata_t* metadata, void* ctx) {
   ((Reader*)ctx)
       ->setInfo(
           readstat_get_row_count(metadata), readstat_get_var_count(metadata));
-  ((Reader*)ctx)->setMetadata(readstat_get_file_label(metadata));
-  ((Reader*)ctx)
-      ->setTimestamp(
-          readstat_get_creation_time(metadata),
-          readstat_get_modified_time(metadata));
+  ((Reader*)ctx)->setMetadata(metadata);
   return 0;
 }
 
