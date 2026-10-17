@@ -2,19 +2,15 @@
 #define __HAVEN_TYPES__
 
 #include <cmath>
-#include <string>
 #include <cpp11/R.hpp>
+#include <cpp11/integers.hpp>
 #include <cpp11/list.hpp>
 #include <cpp11/strings.hpp>
-#include <cpp11/integers.hpp>
+#include <string>
 
 #define CPP11_PARTIAL
 
-enum FileVendor {
-  HAVEN_SPSS,
-  HAVEN_STATA,
-  HAVEN_SAS
-};
+enum FileVendor { HAVEN_SPSS, HAVEN_STATA, HAVEN_SAS };
 
 enum FileExt {
   HAVEN_SAV,
@@ -27,12 +23,7 @@ enum FileExt {
 
 FileVendor extVendor(FileExt ext);
 
-enum VarType {
-  HAVEN_DEFAULT,
-  HAVEN_DATE,
-  HAVEN_TIME,
-  HAVEN_DATETIME
-};
+enum VarType { HAVEN_DEFAULT, HAVEN_DATE, HAVEN_TIME, HAVEN_DATETIME };
 
 std::string formatAttribute(FileVendor vendor);
 bool hasPrefix(std::string x, std::string prefix);
