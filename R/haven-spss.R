@@ -9,7 +9,7 @@
 #' and factors. See [labelled_spss()] for how labelled variables in
 #' SPSS are handled in R.
 #'
-#' @inheritParams read_sas
+#' @inheritParams tibble::as_tibble
 #' @param file Either a path to a file, a URL, a connection, or a raw vector.
 #'   Remote files are downloaded before reading.
 #' @param path Path to a file where the data will be written.
@@ -17,6 +17,16 @@
 #' @param encoding The character encoding used for the file. The default,
 #'   `NULL`, use the encoding specified in the file, but sometimes this
 #'   value is incorrect and it is useful to be able to override it.
+#' @param col_select Columns to include in the results. You can use the same
+#'   mini-language as `dplyr::select()` to refer to the columns by name. Use
+#'   `c()` to use more than one selection expression. Although this
+#'   usage is less common, `col_select` also accepts a numeric column index. See
+#'   [`?tidyselect::language`][tidyselect::language] for full details on the
+#'   selection language.
+#'
+#'   Predicates using [`where()`][tidyselect::where] are not supported.
+#' @param skip Number of lines to skip before reading data.
+#' @param n_max Maximum number of lines to read.
 #' @inherit labelled-output return
 #' @name read_spss
 #' @examples

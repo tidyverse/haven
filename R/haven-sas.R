@@ -10,16 +10,7 @@
 #'   encoding specified in the file; use this argument to override it if it is
 #'   incorrect.
 #' @inheritParams tibble::as_tibble
-#' @param col_select Columns to include in the results. You can use the same
-#'   mini-language as `dplyr::select()` to refer to the columns by name. Use
-#'   `c()` to use more than one selection expression. Although this
-#'   usage is less common, `col_select` also accepts a numeric column index. See
-#'   [`?tidyselect::language`][tidyselect::language] for full details on the
-#'   selection language.
-#'
-#'   Predicates using [`where()`][tidyselect::where] are not supported.
-#' @param skip Number of lines to skip before reading data.
-#' @param n_max Maximum number of lines to read.
+#' @inheritParams read_spss
 #' @param cols_only `r lifecycle::badge("deprecated")` `cols_only` is no longer
 #'   supported; use `col_select` instead.
 #' @inherit labelled-output return
