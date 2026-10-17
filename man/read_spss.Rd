@@ -26,7 +26,13 @@ read_por(
   .name_repair = "unique"
 )
 
-write_sav(data, path, compress = c("byte", "none", "zsav"), adjust_tz = TRUE)
+write_sav(
+  data,
+  path,
+  compress = c("byte", "none", "zsav"),
+  adjust_tz = TRUE,
+  label = attr(data, "label")
+)
 
 read_spss(
   file,
@@ -120,6 +126,9 @@ preserving between-time-point differences is critical.
 e.g. \code{"2010-01-01 09:00:00 NZDT"} will be written as
 \code{"2009-12-31 20:00:00"}.
 }}
+
+\item{label}{Dataset label to use, or \code{NULL}. Defaults to the value stored in
+the "label" attribute of \code{data}. Must be <= 64 bytes.}
 }
 \value{
 A tibble, data frame variant with nice defaults.

@@ -40,18 +40,18 @@ df_parse_por_raw <- function(spec, encoding, user_na, cols_skip, n_max, rows_ski
   .Call(`_haven_df_parse_por_raw`, spec, encoding, user_na, cols_skip, n_max, rows_skip)
 }
 
-write_sav_ <- function(data, path, compress) {
-  invisible(.Call(`_haven_write_sav_`, data, path, compress))
+write_sav_ <- function(data, path, compress, label, meta) {
+  invisible(.Call(`_haven_write_sav_`, data, path, compress, label, meta))
 }
 
-write_dta_ <- function(data, path, version, label, strl_threshold) {
-  invisible(.Call(`_haven_write_dta_`, data, path, version, label, strl_threshold))
+write_dta_ <- function(data, path, version, label, strl_threshold, meta) {
+  invisible(.Call(`_haven_write_dta_`, data, path, version, label, strl_threshold, meta))
 }
 
-write_sas_ <- function(data, path) {
-  invisible(.Call(`_haven_write_sas_`, data, path))
+write_sas_ <- function(data, path, meta) {
+  invisible(.Call(`_haven_write_sas_`, data, path, meta))
 }
 
-write_xpt_ <- function(data, path, version, name, label) {
-  invisible(.Call(`_haven_write_xpt_`, data, path, version, name, label))
+write_xpt_ <- function(data, path, version, name, label, meta) {
+  invisible(.Call(`_haven_write_xpt_`, data, path, version, name, label, meta))
 }

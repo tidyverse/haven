@@ -148,14 +148,18 @@ read_por <- function(
 #'   * If `FALSE`, date-time values are written as the corresponding UTC value,
 #'   e.g. `"2010-01-01 09:00:00 NZDT"` will be written as
 #'   `"2009-12-31 20:00:00"`.
+#' @param label Dataset label to use, or `NULL`. Defaults to the value stored in
+#'   the "label" attribute of `data`. Must be <= 64 bytes.
 write_sav <- function(
   data,
   path,
   compress = c("byte", "none", "zsav"),
-  adjust_tz = TRUE
+  adjust_tz = TRUE,
+  label = attr(data, "label")
 ) {
   check_sav(data)
   check_string(path)
+  check_sav_label(label)
   if (isTRUE(compress)) {
     compress <- "zsav"
   } else if (isFALSE(compress)) {
@@ -174,7 +178,9 @@ write_sav <- function(
   write_sav_(
     data_out,
     normalizePath(path, mustWork = FALSE),
-    compress = compress
+    compress = compress,
+    label = label,
+    meta = writer_meta(data_out, "spss")
   )
   invisible(data)
 }
@@ -226,6 +232,17 @@ read_spss <- function(
     ),
     cli_abort("Unknown extension {.file .{ext}}.")
   )
+}
+
+check_sav_label <- function(
+  label,
+  arg = caller_arg(label),
+  call = caller_env()
+) {
+  check_string(label, allow_null = TRUE, arg = arg, call = call)
+  if (!is.null(label) && nchar(label, type = "bytes") > 64) {
+    cli_abort("{.arg {arg}} must be 64 bytes or fewer.", call = call)
+  }
 }
 
 check_sav <- function(data, call = caller_env()) {

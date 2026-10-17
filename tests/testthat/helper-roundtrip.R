@@ -1,45 +1,36 @@
-roundtrip_sav <- function(x, ...) {
+# Writes and reads back, keeping metadata
+roundtrip_file <- function(x, type, ...) {
   tmp <- tempfile()
   on.exit(unlink(tmp))
-
-  write_sav(x, tmp, ...)
-  zap_meta(read_sav(tmp))
-}
-
-roundtrip_dta <- function(x, ...) {
-  tmp <- tempfile()
-  on.exit(unlink(tmp))
-
-  write_dta(x, tmp, ...)
-  zap_meta(read_dta(tmp))
-}
-
-roundtrip_sas <- function(x, ...) {
-  tmp <- tempfile()
-  on.exit(unlink(tmp))
-
-  write_sas(x, tmp, ...)
-  zap_meta(read_sas(tmp))
-}
-
-roundtrip_xpt <- function(x, ...) {
-  tmp <- tempfile()
-  on.exit(unlink(tmp))
-
-  write_xpt(x, tmp, ...)
-  zap_meta(read_xpt(tmp))
-}
-
-
-roundtrip_var <- function(x, type = "sav", ...) {
-  df <- tibble::tibble(x = x)
 
   switch(
     type,
-    sav = roundtrip_sav(df, ...)$x,
-    dta = roundtrip_dta(df, ...)$x,
-    sas = roundtrip_sas(df, ...)$x,
-    xpt = roundtrip_xpt(df, ...)$x,
+    sav = {
+      write_sav(x, tmp, ...)
+      read_sav(tmp)
+    },
+    dta = {
+      write_dta(x, tmp, ...)
+      read_dta(tmp)
+    },
+    sas = {
+      write_sas(x, tmp, ...)
+      read_sas(tmp)
+    },
+    xpt = {
+      write_xpt(x, tmp, ...)
+      read_xpt(tmp)
+    },
     stop("Unsupported type")
   )
+}
+
+roundtrip_sav <- function(x, ...) zap_meta(roundtrip_file(x, "sav", ...))
+roundtrip_dta <- function(x, ...) zap_meta(roundtrip_file(x, "dta", ...))
+roundtrip_sas <- function(x, ...) zap_meta(roundtrip_file(x, "sas", ...))
+roundtrip_xpt <- function(x, ...) zap_meta(roundtrip_file(x, "xpt", ...))
+
+roundtrip_var <- function(x, type = "sav", ...) {
+  df <- tibble::tibble(x = x)
+  zap_meta(roundtrip_file(df, type, ...))$x
 }

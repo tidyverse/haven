@@ -76,34 +76,34 @@ extern "C" SEXP _haven_df_parse_por_raw(SEXP spec, SEXP encoding, SEXP user_na, 
   END_CPP11
 }
 // DfWriter.cpp
-void write_sav_(cpp11::list data, cpp11::strings path, std::string compress);
-extern "C" SEXP _haven_write_sav_(SEXP data, SEXP path, SEXP compress) {
+void write_sav_(cpp11::list data, cpp11::strings path, std::string compress, cpp11::sexp label, cpp11::list meta);
+extern "C" SEXP _haven_write_sav_(SEXP data, SEXP path, SEXP compress, SEXP label, SEXP meta) {
   BEGIN_CPP11
-    write_sav_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<std::string>>(compress));
+    write_sav_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<std::string>>(compress), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(label), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(meta));
     return R_NilValue;
   END_CPP11
 }
 // DfWriter.cpp
-void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label, int strl_threshold);
-extern "C" SEXP _haven_write_dta_(SEXP data, SEXP path, SEXP version, SEXP label, SEXP strl_threshold) {
+void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label, int strl_threshold, cpp11::list meta);
+extern "C" SEXP _haven_write_dta_(SEXP data, SEXP path, SEXP version, SEXP label, SEXP strl_threshold, SEXP meta) {
   BEGIN_CPP11
-    write_dta_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<int>>(version), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(label), cpp11::as_cpp<cpp11::decay_t<int>>(strl_threshold));
+    write_dta_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<int>>(version), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(label), cpp11::as_cpp<cpp11::decay_t<int>>(strl_threshold), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(meta));
     return R_NilValue;
   END_CPP11
 }
 // DfWriter.cpp
-void write_sas_(cpp11::list data, cpp11::strings path);
-extern "C" SEXP _haven_write_sas_(SEXP data, SEXP path) {
+void write_sas_(cpp11::list data, cpp11::strings path, cpp11::list meta);
+extern "C" SEXP _haven_write_sas_(SEXP data, SEXP path, SEXP meta) {
   BEGIN_CPP11
-    write_sas_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path));
+    write_sas_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(meta));
     return R_NilValue;
   END_CPP11
 }
 // DfWriter.cpp
-void write_xpt_(cpp11::list data, cpp11::strings path, int version, std::string name, cpp11::sexp label);
-extern "C" SEXP _haven_write_xpt_(SEXP data, SEXP path, SEXP version, SEXP name, SEXP label) {
+void write_xpt_(cpp11::list data, cpp11::strings path, int version, std::string name, cpp11::sexp label, cpp11::list meta);
+extern "C" SEXP _haven_write_xpt_(SEXP data, SEXP path, SEXP version, SEXP name, SEXP label, SEXP meta) {
   BEGIN_CPP11
-    write_xpt_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<int>>(version), cpp11::as_cpp<cpp11::decay_t<std::string>>(name), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(label));
+    write_xpt_(cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(data), cpp11::as_cpp<cpp11::decay_t<cpp11::strings>>(path), cpp11::as_cpp<cpp11::decay_t<int>>(version), cpp11::as_cpp<cpp11::decay_t<std::string>>(name), cpp11::as_cpp<cpp11::decay_t<cpp11::sexp>>(label), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(meta));
     return R_NilValue;
   END_CPP11
 }
@@ -125,10 +125,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_haven_df_parse_sav_raw",  (DL_FUNC) &_haven_df_parse_sav_raw,  6},
     {"_haven_df_parse_xpt_file", (DL_FUNC) &_haven_df_parse_xpt_file, 4},
     {"_haven_df_parse_xpt_raw",  (DL_FUNC) &_haven_df_parse_xpt_raw,  4},
-    {"_haven_write_dta_",        (DL_FUNC) &_haven_write_dta_,        5},
-    {"_haven_write_sas_",        (DL_FUNC) &_haven_write_sas_,        2},
-    {"_haven_write_sav_",        (DL_FUNC) &_haven_write_sav_,        3},
-    {"_haven_write_xpt_",        (DL_FUNC) &_haven_write_xpt_,        5},
+    {"_haven_write_dta_",        (DL_FUNC) &_haven_write_dta_,        6},
+    {"_haven_write_sas_",        (DL_FUNC) &_haven_write_sas_,        3},
+    {"_haven_write_sav_",        (DL_FUNC) &_haven_write_sav_,        5},
+    {"_haven_write_xpt_",        (DL_FUNC) &_haven_write_xpt_,        6},
     {"is_tagged_na_",            (DL_FUNC) &is_tagged_na_,            2},
     {"na_tag_",                  (DL_FUNC) &na_tag_,                  1},
     {"tagged_na_",               (DL_FUNC) &tagged_na_,               1},

@@ -336,6 +336,38 @@ test_that("can roundtrip format attribute", {
   expect_identical(zap_meta(out), zap_meta(df))
 })
 
+test_that("write_xpt() roundtrips metadata", {
+  created <- as.POSIXct("2020-01-01 10:00:00", tz = "UTC")
+  df <- tibble(x = 1, y = "abc")
+  meta(df$x) <- meta_var_sas(format = "DATE9", informat = "DATE9", width = 4)
+  meta(df$y) <- meta_var_sas(format = "$CHAR10", width = 10)
+  meta(df) <- meta_df_sas(
+    created = created,
+    table_name = "FOO",
+    xpt_version = 5
+  )
+
+  out <- roundtrip_file(df, "xpt")
+  expect_equal(meta(out$x), meta(df$x))
+  expect_equal(meta(out$y), meta(df$y))
+  expect_equal(meta(out)@created, created)
+  expect_equal(meta(out)@table_name, "FOO")
+  expect_equal(meta(out)@xpt_version, 5L)
+
+  out <- roundtrip_file(df, "xpt", version = 8, name = "BAR")
+  expect_equal(meta(out)@table_name, "BAR")
+  expect_equal(meta(out)@xpt_version, 8L)
+})
+
+test_that("sas7bdat metadata carries over to xpt", {
+  df <- read_sas(system.file("examples", "iris.sas7bdat", package = "haven"))
+  out <- roundtrip_file(df, "xpt")
+
+  expect_equal(lapply(out, meta), lapply(df, meta))
+  expect_equal(meta(out)@table_name, meta(df)@table_name)
+  expect_equal(meta(out)@created, meta(df)@created)
+})
+
 test_that("user width warns appropriately when data is wider than value", {
   df <- tibble(
     a = c("a", NA_character_),

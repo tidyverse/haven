@@ -269,56 +269,105 @@ meta_proto <- function(vendor, df) {
   meta_class(vendor, df)()
 }
 
+# Writers ------------------------------------------------------------------
+
+# Flattens metadata into plain lists for the C++ writers. Columns only use
+# metadata from the writer's vendor; data frames also use the timestamps
+# from any vendor.
+writer_meta <- function(data, vendor) {
+  class_name <- S7_class_name(meta_class(vendor, df = FALSE))
+  list(
+    vars = unname(lapply(
+      data,
+      writer_meta_var,
+      vendor = vendor,
+      class_name = class_name
+    )),
+    df = writer_meta_df(data, vendor)
+  )
+}
+
+# Called once per column, so avoids slower S7 helpers
+writer_meta_var <- function(x, vendor, class_name) {
+  meta <- attr(x, "haven_meta", exact = TRUE)
+  if (is.null(meta)) {
+    legacy_fields_var(x, vendor)
+  } else if (inherits(meta, class_name)) {
+    meta_fields(meta)
+  } else {
+    list()
+  }
+}
+
+writer_meta_df <- function(data, vendor) {
+  meta <- attr(data, "haven_meta", exact = TRUE)
+  if (is.null(meta)) {
+    legacy_fields_df(data, vendor)
+  } else if (S7::S7_inherits(meta, meta_class(vendor, df = TRUE))) {
+    meta_fields(meta)
+  } else {
+    compact(meta_fields(meta)[c("created", "modified")])
+  }
+}
+
+# Properties are stored as attributes, and NULL properties are absent
+meta_fields <- function(x) {
+  fields <- attributes(x)
+  fields$class <- NULL
+  fields$S7_class <- NULL
+  fields
+}
+
+compact <- function(x) {
+  x[!vapply(x, is.null, logical(1))]
+}
+
 # Legacy attributes --------------------------------------------------------
 
 legacy_meta <- function(x, vendor = NULL) {
-  if (is.data.frame(x)) {
-    legacy_meta_df(x, vendor)
+  df <- is.data.frame(x)
+  if (df) {
+    vendors <- compact(lapply(x, legacy_vendor))
+    vendor <- if (length(vendors)) vendors[[1]] else vendor
   } else {
-    legacy_meta_var(x, vendor)
+    vendor <- legacy_vendor(x) %||% vendor
   }
-}
-
-legacy_meta_var <- function(x, vendor = NULL) {
-  vendor <- legacy_vendor(x) %||% vendor
   if (is.null(vendor)) {
     return(NULL)
   }
 
-  format <- attr(x, paste0("format.", vendor), exact = TRUE)
-  width <- attr(x, "width", exact = TRUE)
-  display_width <- attr(x, "display_width", exact = TRUE)
-
-  switch(
-    vendor,
-    sas = meta_var_sas(format = format, width = width),
-    spss = meta_var_spss(
-      format = format,
-      width = width,
-      display_width = display_width
-    ),
-    stata = meta_var_stata(format = format)
-  )
+  fields <- if (df) {
+    legacy_fields_df(x, vendor)
+  } else {
+    legacy_fields_var(x, vendor)
+  }
+  inject(meta_class(vendor, df)(!!!fields))
 }
 
-legacy_meta_df <- function(x, vendor = NULL) {
-  vendors <- lapply(x, legacy_vendor)
-  vendors <- Filter(Negate(is.null), vendors)
-  vendor <- if (length(vendors)) vendors[[1]] else vendor
-  if (is.null(vendor)) {
-    return(NULL)
+legacy_fields_var <- function(x, vendor) {
+  if (is.null(attributes(x))) {
+    return(list())
   }
 
-  created <- attr(x, "creation_timestamp", exact = TRUE)
-  modified <- attr(x, "modified_timestamp", exact = TRUE)
-  notes <- attr(x, "notes", exact = TRUE)
+  fields <- list(format = attr(x, paste0("format.", vendor), exact = TRUE))
+  if (vendor %in% c("sas", "spss")) {
+    fields$width <- attr(x, "width", exact = TRUE)
+  }
+  if (vendor == "spss") {
+    fields$display_width <- attr(x, "display_width", exact = TRUE)
+  }
+  compact(fields)
+}
 
-  switch(
-    vendor,
-    sas = meta_df_sas(created = created, modified = modified),
-    spss = meta_df_spss(created = created, modified = modified, notes = notes),
-    stata = meta_df_stata(created = created, modified = modified, notes = notes)
+legacy_fields_df <- function(x, vendor) {
+  fields <- list(
+    created = attr(x, "creation_timestamp", exact = TRUE),
+    modified = attr(x, "modified_timestamp", exact = TRUE)
   )
+  if (vendor %in% c("spss", "stata")) {
+    fields$notes <- attr(x, "notes", exact = TRUE)
+  }
+  compact(fields)
 }
 
 legacy_vendor <- function(x) {
@@ -333,5 +382,13 @@ legacy_vendor <- function(x) {
     "stata"
   } else {
     NULL
+  }
+}
+
+# Used for default arguments of the writers
+meta_df_field <- function(data, vendor, name) {
+  meta <- attr(data, "haven_meta", exact = TRUE)
+  if (S7::S7_inherits(meta, meta_class(vendor, df = TRUE))) {
+    S7::prop(meta, name)
   }
 }

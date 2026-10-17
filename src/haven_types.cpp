@@ -17,16 +17,6 @@ FileVendor extVendor(FileExt ext) {
   return HAVEN_SAS;
 }
 
-std::string formatAttribute(FileVendor vendor) {
-  switch (vendor) {
-  case HAVEN_STATA: return "format.stata";
-  case HAVEN_SPSS:  return "format.spss";
-  case HAVEN_SAS:   return "format.sas";
-  }
-
-  return "";
-}
-
 bool hasPrefix(std::string x, std::string prefix) {
   return x.compare(0, prefix.size(), prefix) == 0;
 }
