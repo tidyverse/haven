@@ -58,7 +58,7 @@ dta_width <- function(x) {
   path2 <- tempfile()
   on.exit(unlink(c(path1, path2)))
 
-  write_dta(tibble::tibble(x = x), path1)
-  write_dta(tibble::tibble(x = rep(x, 2)), path2)
+  write_dta(data.frame(x = x), path1)
+  write_dta(data.frame(x = rep(x, 2)), path2)
   (file.size(path2) - file.size(path1)) / length(x)
 }

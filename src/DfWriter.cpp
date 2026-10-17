@@ -172,9 +172,9 @@ public:
       const char* format = var_format(col, type);
 
       switch(TYPEOF(col)) {
-        case LGLSXP:  status = defineVariable(cpp11::integers(cpp11::safe[Rf_coerceVector](col, INTSXP)), name, numericType(col, READSTAT_TYPE_INT32), format); break;
-        case INTSXP:  status = defineVariable(cpp11::integers(col), name, numericType(col, READSTAT_TYPE_INT32), format); break;
-        case REALSXP: status = defineVariable(cpp11::doubles(col), name, numericType(col, READSTAT_TYPE_DOUBLE), format);  break;
+        case LGLSXP:  status = defineVariable(cpp11::integers(cpp11::safe[Rf_coerceVector](col, INTSXP)), name, stataNumericType(col, READSTAT_TYPE_INT32), format); break;
+        case INTSXP:  status = defineVariable(cpp11::integers(col), name, stataNumericType(col, READSTAT_TYPE_INT32), format); break;
+        case REALSXP: status = defineVariable(cpp11::doubles(col), name, stataNumericType(col, READSTAT_TYPE_DOUBLE), format);  break;
         case STRSXP:  status = defineVariable(cpp11::strings(col), name, format); break;
         default:      cpp11::stop("Columns of type %s not supported yet", Rf_type2char(TYPEOF(col)));
       }
@@ -193,14 +193,12 @@ public:
         switch (TYPEOF(col)) {
         case LGLSXP: {
           int val = LOGICAL(col)[i];
-          bool is_missing = val == NA_LOGICAL;
-          status = insertValue(var, is_missing ? NA_REAL : val, is_missing);
+          status = insertValue(var, val, val == NA_LOGICAL);
           break;
         }
         case INTSXP: {
           int val = INTEGER(col)[i];
-          bool is_missing = val == NA_INTEGER;
-          status = insertValue(var, is_missing ? NA_REAL : adjustDatetimeFromR(vendor_, col, val), is_missing);
+          status = insertValue(var, adjustDatetimeFromR(vendor_, col, val), val == NA_INTEGER);
           break;
         }
         case REALSXP: {
@@ -274,7 +272,7 @@ public:
 
   // Stata storage types are fixed width, so like Stata's `compress`, use the
   // smallest integer type that can exactly represent every value.
-  readstat_type_t numericType(cpp11::sexp col, readstat_type_t default_type) {
+  readstat_type_t stataNumericType(cpp11::sexp col, readstat_type_t default_type) {
     if (ext_ != HAVEN_DTA)
       return default_type;
     if (TYPEOF(col) == LGLSXP)
@@ -283,6 +281,8 @@ public:
     if (numType(col) == HAVEN_DATETIME)
       return READSTAT_TYPE_DOUBLE;
 
+    // Compute the range of non-missing values to find the smallest integer
+    // type that can hold them; a fractional value forces double
     double min = R_PosInf, max = R_NegInf;
     int n = Rf_length(col);
     for (int i = 0; i < n; ++i) {
