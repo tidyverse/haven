@@ -1,10 +1,84 @@
 #include "datetime.h"
 #include <cmath>
 #include <string>
+#include <vector>
 
-static bool hasPrefix(std::string x, std::string prefix) {
-  return x.compare(0, prefix.size(), prefix) == 0;
+namespace {
+
+typedef std::vector<std::string> Prefixes;
+
+bool hasAnyPrefix(const std::string& x, const Prefixes& prefixes) {
+  for (const std::string& prefix : prefixes) {
+    if (x.compare(0, prefix.size(), prefix) == 0)
+      return true;
+  }
+  return false;
 }
+
+VarType matchFormat(
+    const std::string& format,
+    const Prefixes& datetime,
+    const Prefixes& date,
+    const Prefixes& time) {
+  if (hasAnyPrefix(format, datetime))
+    return HAVEN_DATETIME;
+  if (hasAnyPrefix(format, date))
+    return HAVEN_DATE;
+  if (hasAnyPrefix(format, time))
+    return HAVEN_TIME;
+  return HAVEN_DEFAULT;
+}
+
+// http://support.sas.com/documentation/cdl/en/lrdict/64316/HTML/default/viewer.htm#a000589916.htm
+const Prefixes sas_datetime = {
+    "DATETIME",
+    "DT",
+    "DATEAMPM",
+    "MDYAMPM",
+    "NLDATMT",
+    "NLDATM",
+    "IS8601DN",
+    "IS8601DT",
+    "IS8601DZ",
+    "B8601DN",
+    "B8601DT",
+    "B8601DX",
+    "B8601DZ",
+    "B8601LX",
+    "E8601DN",
+    "E8601DT",
+    "E8601DX",
+    "E8601DZ",
+    "E8601LX"};
+const Prefixes sas_date = {
+    "DATE",   "NLDATE", "DOWNAME", "IS8601DA", "B8601DA", "E8601DA",
+    "DAY",    "WEEK",   "MON",     "QTR",      "YEAR",    "MMDDYY",
+    "DDMMYY", "YYMMDD", "MMYY",    "YYMM",     "YY",      "WORDDAT",
+    "NENGO",  "JULIAN", "JULDAY",  "PDJULG",   "PDJULI"};
+const Prefixes sas_time = {
+    "TIME",
+    "TIMEAMPM",
+    "NLTIM",
+    "TOD",
+    "HOUR",
+    "HHMM",
+    "MMSS",
+    "IS8601T",
+    "B8601T",
+    "B8601LZ",
+    "E8601T",
+    "E8601LZ"};
+
+// http://www-01.ibm.com/support/knowledgecenter/?lang=en#!/SSLVMB_20.0.0/com.ibm.spss.statistics.help/syn_date_and_time_date_time_formats.htm
+const Prefixes spss_datetime = {"DATETIME"};
+const Prefixes spss_date = {"DATE", "ADATE", "EDATE", "JDATE", "SDATE"};
+const Prefixes spss_time = {"TIME", "DTIME"};
+
+const Prefixes stata_datetime = {"%tC", "%tc"};
+const Prefixes stata_date = {"%td", "%d"};
+const Prefixes stata_time = {};
+
+} // namespace
 
 VarType numType(SEXP x) {
   if (Rf_inherits(x, "Date")) {
@@ -23,151 +97,13 @@ VarType numType(FileVendor vendor, const char* var_format) {
     return HAVEN_DEFAULT;
 
   std::string format(var_format);
-
   switch (vendor) {
   case HAVEN_SAS:
-    // http://support.sas.com/documentation/cdl/en/lrdict/64316/HTML/default/viewer.htm#a000589916.htm
-    if (hasPrefix(format, "DATETIME"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "DT"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "DATEAMPM"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "MDYAMPM"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "NLDATMT"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "NLDATM"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "IS8601DN"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "IS8601DT"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "IS8601DZ"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "B8601DN"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "B8601DT"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "B8601DX"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "B8601DZ"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "B8601LX"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "E8601DN"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "E8601DT"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "E8601DX"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "E8601DZ"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "E8601LX"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "DATE"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "NLDATE"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "DOWNAME"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "IS8601DA"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "B8601DA"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "E8601DA"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "DAY"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "WEEK"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "MON"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "QTR"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "YEAR"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "MMDDYY"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "DDMMYY"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "YYMMDD"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "MMYY"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "YYMM"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "YY"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "WORDDAT"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "NENGO"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "JULIAN"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "JULDAY"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "PDJULG"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "PDJULI"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "TIME"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "TIMEAMPM"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "NLTIM"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "TOD"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "HOUR"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "HHMM"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "MMSS"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "IS8601T"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "B8601T"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "B8601LZ"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "E8601T"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "E8601LZ"))
-      return HAVEN_TIME;
-    else
-      return HAVEN_DEFAULT;
+    return matchFormat(format, sas_datetime, sas_date, sas_time);
   case HAVEN_SPSS:
-    // http://www-01.ibm.com/support/knowledgecenter/?lang=en#!/SSLVMB_20.0.0/com.ibm.spss.statistics.help/syn_date_and_time_date_time_formats.htm
-    if (hasPrefix(format, "DATETIME"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "DATE"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "ADATE"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "EDATE"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "JDATE"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "SDATE"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "TIME"))
-      return HAVEN_TIME;
-    else if (hasPrefix(format, "DTIME"))
-      return HAVEN_TIME;
-    else
-      return HAVEN_DEFAULT;
+    return matchFormat(format, spss_datetime, spss_date, spss_time);
   case HAVEN_STATA:
-    if (hasPrefix(format, "%tC"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "%tc"))
-      return HAVEN_DATETIME;
-    else if (hasPrefix(format, "%td"))
-      return HAVEN_DATE;
-    else if (hasPrefix(format, "%d"))
-      return HAVEN_DATE;
-    else
-      return HAVEN_DEFAULT;
+    return matchFormat(format, stata_datetime, stata_date, stata_time);
   }
 
   return HAVEN_DEFAULT;
