@@ -82,8 +82,6 @@ void print_error(const char* error_message, void* ctx) {
   Rprintf("%s\n", error_message);
 }
 
-} // namespace
-
 readstat_parser_t* haven_init_parser() {
   readstat_parser_t* parser = readstat_parser_init();
   readstat_set_metadata_handler(parser, reader_metadata);
@@ -274,6 +272,8 @@ struct ReaderOptions {
       rows_skip = cpp11::as_cpp<long>(x);
   }
 };
+
+} // namespace
 
 [[cpp11::register]]
 cpp11::list read(SEXP spec, cpp11::list options) {
