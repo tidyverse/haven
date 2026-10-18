@@ -17,6 +17,14 @@
 
 inline ssize_t data_writer(const void* data, size_t len, void* ctx);
 
+// Logicals are written as integers; coercion preserves attributes
+inline cpp11::sexp normaliseColumn(SEXP col) {
+  if (TYPEOF(col) == LGLSXP) {
+    return cpp11::safe[Rf_coerceVector](col, INTSXP);
+  }
+  return col;
+}
+
 // Owns the output file and readstat writer, and orchestrates writing:
 // beginning the file, defining variables (via VariableDefiner), then writing
 // data row by row.
@@ -33,17 +41,22 @@ class Writer {
 
 public:
   Writer(FileExt ext, cpp11::list x, cpp11::strings pathEnc)
-      : ext_(ext), vendor_(extVendor(ext)), x_(x) {
+      : ext_(ext),
+        vendor_(extVendor(ext)),
+        x_(x),
+        writer_(readstat_writer_init()),
+        pOut_(NULL),
+        definer_(writer_, ext, &string_ref_) {
     std::string path(Rf_translateChar(pathEnc[0]));
 
     pOut_ = fopen(path.c_str(), "wb");
-    if (pOut_ == NULL)
+    if (pOut_ == NULL) {
+      // The destructor doesn't run if the constructor throws
+      readstat_writer_free(writer_);
       cpp11::stop("Failed to open '%s' for writing", path.c_str());
+    }
 
-    writer_ = readstat_writer_init();
     checkStatus(readstat_set_data_writer(writer_, data_writer));
-
-    definer_ = VariableDefiner(writer_, ext_, &string_ref_);
   }
 
   ~Writer() {
@@ -116,32 +129,18 @@ public:
     }
 
     cpp11::strings names(x_.attr("names"));
-    std::vector<VarType> types(p);
+    std::vector<cpp11::sexp> cols;
+    std::vector<VarType> types;
+    cols.reserve(p);
+    types.reserve(p);
 
     // Define variables
     for (int j = 0; j < p; ++j) {
-      cpp11::sexp col = x_[j];
+      cols.push_back(normaliseColumn(x_[j]));
+      types.push_back(varTypeFromR(cols[j]));
       const char* name = string_utf8(names, j);
-      types[j] = varTypeFromR(col);
 
-      switch (TYPEOF(col)) {
-      case LGLSXP:
-        status = definer_.defineVariable(
-            cpp11::integers(cpp11::safe[Rf_coerceVector](col, INTSXP)), name);
-        break;
-      case INTSXP:
-        status = definer_.defineVariable(cpp11::integers(col), name);
-        break;
-      case REALSXP:
-        status = definer_.defineVariable(cpp11::doubles(col), name);
-        break;
-      case STRSXP:
-        status = definer_.defineVariable(cpp11::strings(col), name);
-        break;
-      default:
-        cpp11::stop(
-            "Columns of type %s not supported yet", Rf_type2char(TYPEOF(col)));
-      }
+      status = definer_.defineVariable(cols[j], types[j], name);
       if (status) {
         cpp11::stop(
             "Failed to create column `%s`: %s.",
@@ -154,15 +153,10 @@ public:
     for (int i = 0; i < n; ++i) {
       checkStatus(readstat_begin_row(writer_));
       for (int j = 0; j < p; ++j) {
-        cpp11::sexp col(x_[j]);
+        SEXP col = cols[j];
         readstat_variable_t* var = readstat_get_variable(writer_, j);
 
         switch (TYPEOF(col)) {
-        case LGLSXP: {
-          int val = LOGICAL(col)[i];
-          status = insertValue(writer_, vendor_, var, val, val == NA_LOGICAL);
-          break;
-        }
         case INTSXP: {
           int val = INTEGER(col)[i];
           status = insertValue(
@@ -193,6 +187,7 @@ public:
           break;
         }
         default:
+          // Unreachable: defineVariable() rejects other types
           status = READSTAT_OK;
           break;
         }

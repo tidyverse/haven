@@ -62,14 +62,6 @@ class VariableDefiner {
   readstat_writer_t* writer_;
 
 public:
-  VariableDefiner()
-      : ext_(HAVEN_DTA),
-        vendor_(HAVEN_STATA),
-        version_(0),
-        strl_threshold_(0),
-        string_ref_(NULL),
-        writer_(NULL) {}
-
   VariableDefiner(
       readstat_writer_t* writer,
       FileExt ext,
@@ -87,53 +79,67 @@ public:
     strl_threshold_ = strl_threshold;
   }
 
-  readstat_error_t defineVariable(cpp11::integers x, const char* name) {
-    readstat_label_set_t* labelSet = label_set(x, name);
-    readstat_variable_t* var = readstat_add_variable(
-        writer_, name, stataNumericType(x, READSTAT_TYPE_INT32), userWidth(x));
-    setMetadata(var, x, labelSet);
+  // `x` must be an integer, double, or character vector
+  readstat_error_t
+  defineVariable(cpp11::sexp x, VarType type, const char* name) {
+    readstat_label_set_t* labelSet;
+    readstat_variable_t* var;
+
+    switch (TYPEOF(x)) {
+    case INTSXP:
+      labelSet = label_set(cpp11::integers(x), name);
+      var = readstat_add_variable(
+          writer_,
+          name,
+          stataNumericType(x, type, READSTAT_TYPE_INT32),
+          userWidth(x));
+      break;
+    case REALSXP:
+      labelSet = label_set(cpp11::doubles(x), name);
+      var = readstat_add_variable(
+          writer_,
+          name,
+          stataNumericType(x, type, READSTAT_TYPE_DOUBLE),
+          userWidth(x));
+      break;
+    case STRSXP:
+      labelSet = label_set(cpp11::strings(x), name);
+      var = addStringVariable(cpp11::strings(x), name, labelSet);
+      break;
+    default:
+      cpp11::stop(
+          "Columns of type %s not supported yet", Rf_type2char(TYPEOF(x)));
+    }
+
+    setMetadata(var, x, type, labelSet);
     addSpssMissing(var, x);
     return readstat_validate_variable(writer_, var);
   }
 
-  readstat_error_t defineVariable(cpp11::doubles x, const char* name) {
-    readstat_label_set_t* labelSet = label_set(x, name);
-    readstat_variable_t* var = readstat_add_variable(
-        writer_, name, stataNumericType(x, READSTAT_TYPE_DOUBLE), userWidth(x));
-    setMetadata(var, x, labelSet);
-    addSpssMissing(var, x);
-    return readstat_validate_variable(writer_, var);
-  }
-
-  readstat_error_t defineVariable(cpp11::strings x, const char* name) {
-    readstat_label_set_t* labelSet = label_set(x, name);
+private:
+  readstat_variable_t* addStringVariable(
+      cpp11::strings x, const char* name, readstat_label_set_t* labelSet) {
     int width = stringWidth(x, name, labelSet);
 
     // Use strL for "long" strings in stata. strL has an 80 byte overhead so
     // we use it when it's likely to be more efficient. The main downside of
     // strL is that it can't be used as a join key but this seems unlikely for
     // very long strings.
-    readstat_variable_t* var;
-    if (ext_ == HAVEN_DTA && version_ >= 117 && width > strl_threshold_) {
-      var =
-          readstat_add_variable(writer_, name, READSTAT_TYPE_STRING_REF, width);
-      for (int i = 0; i < x.size(); ++i) {
-        // Stata has no missing strL; use an empty string instead
-        std::string val(string_is_missing(x, i) ? "" : string_utf8(x, i));
-        if (!string_ref_->count(val)) {
-          (*string_ref_)[val] = readstat_add_string_ref(writer_, val.c_str());
-        }
-      }
-    } else {
-      var = readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, width);
+    if (ext_ != HAVEN_DTA || version_ < 117 || width <= strl_threshold_) {
+      return readstat_add_variable(writer_, name, READSTAT_TYPE_STRING, width);
     }
 
-    setMetadata(var, x, labelSet);
-    addSpssMissing(var, x);
-    return readstat_validate_variable(writer_, var);
+    for (int i = 0; i < x.size(); ++i) {
+      // Stata has no missing strL; use an empty string instead
+      std::string val(string_is_missing(x, i) ? "" : string_utf8(x, i));
+      if (!string_ref_->count(val)) {
+        (*string_ref_)[val] = readstat_add_string_ref(writer_, val.c_str());
+      }
+    }
+    return readstat_add_variable(
+        writer_, name, READSTAT_TYPE_STRING_REF, width);
   }
 
-private:
   // Label sets ---------------------------------------------------------------
 
   readstat_label_set_t* label_set(cpp11::integers x, const char* name) {
@@ -202,8 +208,11 @@ private:
   // ----------------------------------------------------------
 
   void setMetadata(
-      readstat_variable_t* var, cpp11::sexp x, readstat_label_set_t* labelSet) {
-    readstat_variable_set_format(var, var_format(x));
+      readstat_variable_t* var,
+      cpp11::sexp x,
+      VarType type,
+      readstat_label_set_t* labelSet) {
+    readstat_variable_set_format(var, var_format(x, type));
     readstat_variable_set_label(var, var_label(x));
     readstat_variable_set_label_set(var, labelSet);
     readstat_variable_set_measure(var, measureType(x));
@@ -219,13 +228,13 @@ private:
     return string_utf8(label, 0);
   }
 
-  const char* var_format(cpp11::sexp x) {
+  const char* var_format(cpp11::sexp x, VarType type) {
     // Use attribute, if present
     cpp11::sexp format(x.attr(formatAttribute(vendor_).c_str()));
     if (format != R_NilValue)
       return string_utf8(format, 0);
 
-    return defaultFormat(vendor_, varTypeFromR(x));
+    return defaultFormat(vendor_, type);
   }
 
   int userWidth(cpp11::sexp x) { return intAttribute(x, "width"); }
@@ -235,11 +244,10 @@ private:
 
   // Stata storage types are fixed width, so like Stata's `compress`, use the
   // smallest integer type that can exactly represent every value.
-  readstat_type_t
-  stataNumericType(cpp11::sexp col, readstat_type_t default_type) {
+  readstat_type_t stataNumericType(
+      cpp11::sexp col, VarType type, readstat_type_t default_type) {
     if (ext_ != HAVEN_DTA)
       return default_type;
-    VarType type = varTypeFromR(col);
     // Datetimes are stored in milliseconds so need the precision of a double
     if (type == HAVEN_DATETIME)
       return READSTAT_TYPE_DOUBLE;
