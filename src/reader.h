@@ -259,14 +259,7 @@ public:
       }
     }
 
-    int nNotes = notes_.size();
-    if (nNotes > 0) {
-      cpp11::writable::strings notes(nNotes);
-
-      for (int i = 0; i < nNotes; ++i) {
-        notes[i] = notes_[i].c_str();
-      }
-
+    if (!notes_.empty()) {
       output_.attr("notes") = notes_;
     }
 

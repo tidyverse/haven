@@ -16,11 +16,11 @@ class ReaderInput {
 public:
   virtual ~ReaderInput() {};
 
-  virtual int open(void* io_ctx) = 0;
-  virtual int close(void* io_ctx) = 0;
+  virtual int open() = 0;
+  virtual int close() = 0;
   virtual readstat_off_t
-  seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) = 0;
-  virtual ssize_t read(void* buf, size_t nbyte, void* io_ctx) = 0;
+  seek(readstat_off_t offset, readstat_io_flags_t whence) = 0;
+  virtual ssize_t read(void* buf, size_t nbyte) = 0;
   virtual std::string
   source() const = 0; // human readable description of input source
   std::string encoding;
@@ -31,8 +31,7 @@ protected:
   Stream file_;
 
 public:
-  readstat_off_t
-  seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) {
+  readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence) {
     std::ios_base::seekdir dir;
     switch (whence) {
     case READSTAT_SEEK_SET:
@@ -51,7 +50,7 @@ public:
     return file_.tellg(); // returns -1 if failed
   }
 
-  ssize_t read(void* buf, size_t nbyte, void* io_ctx) {
+  ssize_t read(void* buf, size_t nbyte) {
     file_.read((char*)buf, nbyte);
     return (file_.good() || file_.eof()) ? file_.gcount() : -1;
   }
@@ -68,12 +67,12 @@ public:
 
   std::string source() const { return filename_; }
 
-  int open(void* io_ctx) {
+  int open() {
     file_.open(filename_.c_str(), std::ifstream::binary);
     return file_.is_open() ? 0 : -1;
   }
 
-  int close(void* io_ctx) {
+  int close() {
     file_.close();
     return file_.is_open() ? -1 : 0;
   }
@@ -89,9 +88,9 @@ public:
 
   std::string source() const { return "file"; }
 
-  int open(void* io_ctx) { return 0; }
+  int open() { return 0; }
 
-  int close(void* io_ctx) { return 0; }
+  int close() { return 0; }
 };
 
 #endif

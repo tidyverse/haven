@@ -15,15 +15,15 @@
 namespace {
 
 int reader_open(const char* path, void* io_ctx) {
-  return ((ReaderInput*)io_ctx)->open(io_ctx);
+  return ((ReaderInput*)io_ctx)->open();
 }
-int reader_close(void* io_ctx) { return ((ReaderInput*)io_ctx)->close(io_ctx); }
+int reader_close(void* io_ctx) { return ((ReaderInput*)io_ctx)->close(); }
 readstat_off_t
 reader_seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) {
-  return ((ReaderInput*)io_ctx)->seek(offset, whence, io_ctx);
+  return ((ReaderInput*)io_ctx)->seek(offset, whence);
 }
 ssize_t reader_read(void* buf, size_t nbyte, void* io_ctx) {
-  return ((ReaderInput*)io_ctx)->read(buf, nbyte, io_ctx);
+  return ((ReaderInput*)io_ctx)->read(buf, nbyte);
 }
 readstat_error_t reader_update(
     long file_size,
@@ -169,13 +169,13 @@ bool sas_encoding_unspecified(ReaderInput& input) {
   const int SAS_ENCODING_OFFSET = 70;
   unsigned char code = 1;
 
-  if (input.open(&input) != 0)
+  if (input.open() != 0)
     return false;
-  bool ok = input.seek(SAS_ENCODING_OFFSET, READSTAT_SEEK_SET, &input) ==
+  bool ok = input.seek(SAS_ENCODING_OFFSET, READSTAT_SEEK_SET) ==
                 SAS_ENCODING_OFFSET &&
-            input.read(&code, 1, &input) == 1;
-  input.seek(0, READSTAT_SEEK_SET, &input);
-  input.close(&input);
+            input.read(&code, 1) == 1;
+  input.seek(0, READSTAT_SEEK_SET);
+  input.close();
 
   return ok && code == 0;
 }
