@@ -2,6 +2,11 @@
 
 ## This package
 
+- C code in `src/` is styled with clang-format using `src/.clang-format`
+  (the same config as vroom). After editing C code, run
+  `clang-format -i` on the changed files. Do not reformat the vendored
+  `src/readstat/` directory, which is upstream code.
+
 ## Package development
 
 ### Key commands
