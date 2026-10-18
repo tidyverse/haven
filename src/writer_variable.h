@@ -53,7 +53,7 @@ inline bool has_labels(cpp11::sexp x) {
 // Defines variables (and their label sets and missing values) in a
 // readstat writer, choosing storage types and formats appropriate for
 // the file format.
-class VarDefiner {
+class VariableDefiner {
   FileExt ext_;
   FileVendor vendor_;
   int version_;
@@ -62,7 +62,7 @@ class VarDefiner {
   readstat_writer_t* writer_;
 
 public:
-  VarDefiner()
+  VariableDefiner()
       : ext_(HAVEN_DTA),
         vendor_(HAVEN_STATA),
         version_(0),
@@ -70,7 +70,7 @@ public:
         string_ref_(NULL),
         writer_(NULL) {}
 
-  VarDefiner(
+  VariableDefiner(
       readstat_writer_t* writer,
       FileExt ext,
       std::unordered_map<std::string, readstat_string_ref_t*>* string_ref)

@@ -13,7 +13,7 @@
 #include "cpp11/strings.hpp"
 
 // Stateless helpers for constructing the R vectors and attributes that
-// DfReader produces.
+// Reader produces.
 
 // Allocates a vector of the appropriate R type for a readstat variable
 inline cpp11::sexp

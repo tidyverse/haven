@@ -47,7 +47,7 @@ inline double haven_double_value(readstat_value_t value) {
   }
 }
 
-class DfReader {
+class Reader {
   FileVendor vendor_;
 
   int nrows_, nrowsAlloc_;
@@ -65,7 +65,7 @@ class DfReader {
   bool quiet_;
 
 public:
-  DfReader(FileExt ext, bool user_na = false)
+  Reader(FileExt ext, bool user_na = false)
       : vendor_(extVendor(ext)),
         nrows_(0),
         ncols_(0),

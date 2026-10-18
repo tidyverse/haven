@@ -12,9 +12,9 @@
 
 // IO handling -----------------------------------------------------------
 
-class DfReaderInput {
+class ReaderInput {
 public:
-  virtual ~DfReaderInput() {};
+  virtual ~ReaderInput() {};
 
   virtual int open(void* io_ctx) = 0;
   virtual int close(void* io_ctx) = 0;
@@ -26,7 +26,7 @@ public:
   std::string encoding;
 };
 
-template <typename Stream> class DfReaderInputStream : public DfReaderInput {
+template <typename Stream> class ReaderInputStream : public ReaderInput {
 protected:
   Stream file_;
 
@@ -57,11 +57,11 @@ public:
   }
 };
 
-class DfReaderInputFile : public DfReaderInputStream<std::ifstream> {
+class ReaderInputFile : public ReaderInputStream<std::ifstream> {
   std::string filename_;
 
 public:
-  DfReaderInputFile(cpp11::strings path, std::string encoding = "") {
+  ReaderInputFile(cpp11::strings path, std::string encoding = "") {
     filename_ = std::string(Rf_translateChar(path[0]));
     this->encoding = encoding;
   }
@@ -79,9 +79,9 @@ public:
   }
 };
 
-class DfReaderInputRaw : public DfReaderInputStream<std::istringstream> {
+class ReaderInputRaw : public ReaderInputStream<std::istringstream> {
 public:
-  DfReaderInputRaw(cpp11::raws raw_data, std::string encoding = "") {
+  ReaderInputRaw(cpp11::raws raw_data, std::string encoding = "") {
     std::string string_data((char*)RAW(raw_data), Rf_length(raw_data));
     file_.str(string_data);
     this->encoding = encoding;

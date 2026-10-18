@@ -17,7 +17,7 @@
 inline ssize_t data_writer(const void* data, size_t len, void* ctx);
 
 // Owns the output file and readstat writer, and orchestrates writing:
-// beginning the file, defining variables (via VarDefiner), then writing
+// beginning the file, defining variables (via VariableDefiner), then writing
 // data row by row.
 class Writer {
   FileExt ext_;
@@ -28,7 +28,7 @@ class Writer {
   FILE* pOut_;
 
   std::unordered_map<std::string, readstat_string_ref_t*> string_ref_;
-  VarDefiner definer_;
+  VariableDefiner definer_;
 
 public:
   Writer(FileExt ext, cpp11::list x, cpp11::strings pathEnc)
@@ -42,7 +42,7 @@ public:
     writer_ = readstat_writer_init();
     checkStatus(readstat_set_data_writer(writer_, data_writer));
 
-    definer_ = VarDefiner(writer_, ext_, &string_ref_);
+    definer_ = VariableDefiner(writer_, ext_, &string_ref_);
   }
 
   ~Writer() {

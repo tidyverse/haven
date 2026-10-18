@@ -14,20 +14,18 @@
 
 namespace {
 
-int dfreader_open(const char* path, void* io_ctx) {
-  return ((DfReaderInput*)io_ctx)->open(io_ctx);
+int reader_open(const char* path, void* io_ctx) {
+  return ((ReaderInput*)io_ctx)->open(io_ctx);
 }
-int dfreader_close(void* io_ctx) {
-  return ((DfReaderInput*)io_ctx)->close(io_ctx);
-}
+int reader_close(void* io_ctx) { return ((ReaderInput*)io_ctx)->close(io_ctx); }
 readstat_off_t
-dfreader_seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) {
-  return ((DfReaderInput*)io_ctx)->seek(offset, whence, io_ctx);
+reader_seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) {
+  return ((ReaderInput*)io_ctx)->seek(offset, whence, io_ctx);
 }
-ssize_t dfreader_read(void* buf, size_t nbyte, void* io_ctx) {
-  return ((DfReaderInput*)io_ctx)->read(buf, nbyte, io_ctx);
+ssize_t reader_read(void* buf, size_t nbyte, void* io_ctx) {
+  return ((ReaderInput*)io_ctx)->read(buf, nbyte, io_ctx);
 }
-readstat_error_t dfreader_update(
+readstat_error_t reader_update(
     long file_size,
     readstat_progress_handler progress_handler,
     void* user_ctx,
@@ -35,31 +33,31 @@ readstat_error_t dfreader_update(
   return READSTAT_OK;
 }
 
-int dfreader_metadata(readstat_metadata_t* metadata, void* ctx) {
-  ((DfReader*)ctx)
+int reader_metadata(readstat_metadata_t* metadata, void* ctx) {
+  ((Reader*)ctx)
       ->setInfo(
           readstat_get_row_count(metadata), readstat_get_var_count(metadata));
-  ((DfReader*)ctx)->setMetadata(readstat_get_file_label(metadata));
-  ((DfReader*)ctx)
+  ((Reader*)ctx)->setMetadata(readstat_get_file_label(metadata));
+  ((Reader*)ctx)
       ->setTimestamp(
           readstat_get_creation_time(metadata),
           readstat_get_modified_time(metadata));
   return 0;
 }
 
-int dfreader_note(int note_index, const char* note, void* ctx) {
-  ((DfReader*)ctx)->setNote(note_index, note);
+int reader_note(int note_index, const char* note, void* ctx) {
+  ((Reader*)ctx)->setNote(note_index, note);
   return 0;
 }
 
-int dfreader_variable(
+int reader_variable(
     int index,
     readstat_variable_t* variable,
     const char* val_labels,
     void* ctx) {
-  return ((DfReader*)ctx)->createVariable(index, variable, val_labels);
+  return ((Reader*)ctx)->createVariable(index, variable, val_labels);
 }
-int dfreader_value(
+int reader_value(
     int obs_index,
     readstat_variable_t* variable,
     readstat_value_t value,
@@ -68,15 +66,15 @@ int dfreader_value(
   if ((obs_index + 1) % 10000 == 0 || (variable->index + 1) % 10000 == 0)
     cpp11::check_user_interrupt();
 
-  ((DfReader*)ctx)->setValue(obs_index, variable, value);
+  ((Reader*)ctx)->setValue(obs_index, variable, value);
   return 0;
 }
-int dfreader_value_label(
+int reader_value_label(
     const char* val_labels,
     readstat_value_t value,
     const char* label,
     void* ctx) {
-  ((DfReader*)ctx)->setValueLabels(val_labels, value, label);
+  ((Reader*)ctx)->setValueLabels(val_labels, value, label);
   return 0;
 }
 
@@ -88,21 +86,21 @@ void print_error(const char* error_message, void* ctx) {
 
 readstat_parser_t* haven_init_parser() {
   readstat_parser_t* parser = readstat_parser_init();
-  readstat_set_metadata_handler(parser, dfreader_metadata);
-  readstat_set_note_handler(parser, dfreader_note);
-  readstat_set_variable_handler(parser, dfreader_variable);
-  readstat_set_value_handler(parser, dfreader_value);
-  readstat_set_value_label_handler(parser, dfreader_value_label);
+  readstat_set_metadata_handler(parser, reader_metadata);
+  readstat_set_note_handler(parser, reader_note);
+  readstat_set_variable_handler(parser, reader_variable);
+  readstat_set_value_handler(parser, reader_value);
+  readstat_set_value_label_handler(parser, reader_value_label);
   readstat_set_error_handler(parser, print_error);
   return parser;
 }
 
-void haven_init_io(readstat_parser_t* parser, DfReaderInput& builder_input) {
-  readstat_set_open_handler(parser, dfreader_open);
-  readstat_set_close_handler(parser, dfreader_close);
-  readstat_set_seek_handler(parser, dfreader_seek);
-  readstat_set_read_handler(parser, dfreader_read);
-  readstat_set_update_handler(parser, dfreader_update);
+void haven_init_io(readstat_parser_t* parser, ReaderInput& builder_input) {
+  readstat_set_open_handler(parser, reader_open);
+  readstat_set_close_handler(parser, reader_close);
+  readstat_set_seek_handler(parser, reader_seek);
+  readstat_set_read_handler(parser, reader_read);
+  readstat_set_update_handler(parser, reader_update);
   readstat_set_io_ctx(parser, (void*)&builder_input);
   // Always set the encoding (NULL clears it) since the parser is reused
   // across the catalog and data file parses.
@@ -118,14 +116,12 @@ void haven_set_row_limit(readstat_parser_t* parser, long n) {
 
 template <FileExt ext>
 void haven_parse(
-    readstat_parser_t* parser,
-    DfReaderInput& builder_input,
-    DfReader* builder) {
+    readstat_parser_t* parser, ReaderInput& builder_input, Reader* builder) {
   haven_init_io(parser, builder_input);
 
   readstat_error_t result;
   switch (ext) {
-  // the path for readstat_parse_* is baked into the io context (DfReaderInput)
+  // the path for readstat_parse_* is baked into the io context (ReaderInput)
   case HAVEN_SAS7BDAT:
     result = readstat_parse_sas7bdat(parser, "", builder);
     break;
@@ -163,7 +159,7 @@ void haven_parse(
 // guess.
 // TODO: once https://github.com/WizardMac/ReadStat/pull/404 is merged and
 // vendored here, detect this via readstat_get_file_encoding() instead.
-bool sas_encoding_unspecified(DfReaderInput& input) {
+bool sas_encoding_unspecified(ReaderInput& input) {
   const int SAS_ENCODING_OFFSET = 70;
   unsigned char code = 1;
 
@@ -186,7 +182,7 @@ int sas_encoding_metadata(readstat_metadata_t* metadata, void* ctx) {
   return READSTAT_HANDLER_ABORT;
 }
 
-std::string sas_file_encoding(DfReaderInput& input) {
+std::string sas_file_encoding(ReaderInput& input) {
   std::string encoding;
 
   readstat_parser_t* parser = readstat_parser_init();
@@ -198,14 +194,13 @@ std::string sas_file_encoding(DfReaderInput& input) {
   return encoding;
 }
 
-std::unique_ptr<DfReaderInput>
+std::unique_ptr<ReaderInput>
 make_input(SEXP spec, const std::string& encoding) {
   switch (TYPEOF(spec)) {
   case STRSXP:
-    return std::unique_ptr<DfReaderInput>(
-        new DfReaderInputFile(spec, encoding));
+    return std::unique_ptr<ReaderInput>(new ReaderInputFile(spec, encoding));
   case RAWSXP:
-    return std::unique_ptr<DfReaderInput>(new DfReaderInputRaw(spec, encoding));
+    return std::unique_ptr<ReaderInput>(new ReaderInputRaw(spec, encoding));
   default:
     cpp11::stop("This kind of input is not handled.");
   }
@@ -221,7 +216,7 @@ cpp11::list df_parse(
     const bool& user_na = false,
     SEXP catalog_spec = R_NilValue,
     const std::string& catalog_encoding = "") {
-  DfReader builder(ext, user_na);
+  Reader builder(ext, user_na);
   builder.skipCols(cols_skip);
   builder.setQuiet(n_max == 0);
 
@@ -229,10 +224,10 @@ cpp11::list df_parse(
   haven_set_row_limit(parser, n_max);
   readstat_set_row_offset(parser, rows_skip);
 
-  std::unique_ptr<DfReaderInput> input = make_input(spec, encoding);
+  std::unique_ptr<ReaderInput> input = make_input(spec, encoding);
 
   if (ext == HAVEN_SAS7BDAT && catalog_spec != R_NilValue) {
-    std::unique_ptr<DfReaderInput> cat_input =
+    std::unique_ptr<ReaderInput> cat_input =
         make_input(catalog_spec, catalog_encoding);
     if (catalog_encoding == "" && sas_encoding_unspecified(*cat_input)) {
       cat_input->encoding = sas_file_encoding(*input);
