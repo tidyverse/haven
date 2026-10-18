@@ -5,11 +5,14 @@
 
 enum VarType { HAVEN_DEFAULT, HAVEN_DATE, HAVEN_TIME, HAVEN_DATETIME };
 
-VarType numType(SEXP x);
-VarType numType(FileVendor vendor, const char* var_format);
+// Classifies an R vector by its class (Date, POSIXct, or hms)
+VarType varTypeFromR(SEXP x);
+// Classifies a variable by its vendor-specific format string
+VarType varTypeFromFormat(FileVendor vendor, const char* format);
+// The vendor-specific format to use for a VarType, or NULL if none
+const char* defaultFormat(FileVendor vendor, VarType type);
 
-int daysOffset(FileVendor vendor);
-double adjustDatetimeToR(FileVendor vendor, VarType var, double value);
-double adjustDatetimeFromR(FileVendor vendor, SEXP col, double value);
+double adjustDatetimeToR(FileVendor vendor, VarType type, double value);
+double adjustDatetimeFromR(FileVendor vendor, VarType type, double value);
 
 #endif

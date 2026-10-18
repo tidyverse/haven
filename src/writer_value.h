@@ -10,16 +10,15 @@
 #include <string>
 #include <unordered_map>
 
-// SAS formats use uppercase tagged NAs
 inline const char* string_utf8(SEXP x, int i) {
   return Rf_translateCharUTF8(STRING_ELT(x, i));
 }
 
-inline const bool string_is_missing(SEXP x, int i) {
+inline bool string_is_missing(SEXP x, int i) {
   return STRING_ELT(x, i) == NA_STRING;
 }
 
-inline const int string_len_missing(SEXP x, int i) {
+inline int string_len_missing(SEXP x, int i) {
   if (string_is_missing(x, i)) {
     return 0;
   } else {
@@ -27,16 +26,14 @@ inline const int string_len_missing(SEXP x, int i) {
   }
 }
 
-inline char write_tag(char tag, FileExt ext) {
-  if (ext == HAVEN_XPT || ext == HAVEN_SAS7BDAT || ext == HAVEN_SAS7BCAT) {
-    return toupper(tag);
-  }
-  return tag;
+// SAS formats use uppercase tagged NAs
+inline char write_tag(char tag, FileVendor vendor) {
+  return vendor == HAVEN_SAS ? toupper(tag) : tag;
 }
 
 inline readstat_error_t insertValue(
     readstat_writer_t* writer,
-    FileExt ext,
+    FileVendor vendor,
     readstat_variable_t* var,
     double val,
     bool is_missing) {
@@ -46,7 +43,7 @@ inline readstat_error_t insertValue(
       return readstat_insert_missing_value(writer, var);
     } else {
       return readstat_insert_tagged_missing_value(
-          writer, var, write_tag(tag, ext));
+          writer, var, write_tag(tag, vendor));
     }
   }
 

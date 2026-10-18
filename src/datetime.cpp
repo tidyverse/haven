@@ -78,39 +78,6 @@ const Prefixes stata_datetime = {"%tC", "%tc"};
 const Prefixes stata_date = {"%td", "%d"};
 const Prefixes stata_time = {};
 
-} // namespace
-
-VarType numType(SEXP x) {
-  if (Rf_inherits(x, "Date")) {
-    return HAVEN_DATE;
-  } else if (Rf_inherits(x, "POSIXct")) {
-    return HAVEN_DATETIME;
-  } else if (Rf_inherits(x, "hms")) {
-    return HAVEN_TIME;
-  } else {
-    return HAVEN_DEFAULT;
-  }
-}
-
-VarType numType(FileVendor vendor, const char* var_format) {
-  if (var_format == NULL)
-    return HAVEN_DEFAULT;
-
-  std::string format(var_format);
-  switch (vendor) {
-  case HAVEN_SAS:
-    return matchFormat(format, sas_datetime, sas_date, sas_time);
-  case HAVEN_SPSS:
-    return matchFormat(format, spss_datetime, spss_date, spss_time);
-  case HAVEN_STATA:
-    return matchFormat(format, stata_datetime, stata_date, stata_time);
-  }
-
-  return HAVEN_DEFAULT;
-}
-
-// Value conversion -----------------------------------------------------------
-
 int daysOffset(FileVendor vendor) {
   switch (vendor) {
   case HAVEN_SAS:
@@ -124,13 +91,62 @@ int daysOffset(FileVendor vendor) {
   return 0;
 }
 
-double adjustDatetimeToR(FileVendor vendor, VarType var, double value) {
+} // namespace
+
+// Format classification ------------------------------------------------------
+
+VarType varTypeFromR(SEXP x) {
+  if (Rf_inherits(x, "Date")) {
+    return HAVEN_DATE;
+  } else if (Rf_inherits(x, "POSIXct")) {
+    return HAVEN_DATETIME;
+  } else if (Rf_inherits(x, "hms")) {
+    return HAVEN_TIME;
+  } else {
+    return HAVEN_DEFAULT;
+  }
+}
+
+VarType varTypeFromFormat(FileVendor vendor, const char* format) {
+  if (format == NULL)
+    return HAVEN_DEFAULT;
+
+  std::string format_s(format);
+  switch (vendor) {
+  case HAVEN_SAS:
+    return matchFormat(format_s, sas_datetime, sas_date, sas_time);
+  case HAVEN_SPSS:
+    return matchFormat(format_s, spss_datetime, spss_date, spss_time);
+  case HAVEN_STATA:
+    return matchFormat(format_s, stata_datetime, stata_date, stata_time);
+  }
+
+  return HAVEN_DEFAULT;
+}
+
+const char* defaultFormat(FileVendor vendor, VarType type) {
+  switch (type) {
+  case HAVEN_DATETIME:
+    return vendor == HAVEN_STATA ? "%tc" : "DATETIME";
+  case HAVEN_DATE:
+    return vendor == HAVEN_STATA ? "%td" : "DATE";
+  case HAVEN_TIME:
+    // Stata doesn't have a pure time type
+    return vendor == HAVEN_STATA ? NULL : "TIME";
+  default:
+    return NULL;
+  }
+}
+
+// Value conversion -----------------------------------------------------------
+
+double adjustDatetimeToR(FileVendor vendor, VarType type, double value) {
   if (std::isnan(value))
     return value;
 
   double offset = daysOffset(vendor);
 
-  switch (var) {
+  switch (type) {
   case HAVEN_DATETIME:
     if (vendor == HAVEN_STATA) // stored in milliseconds
       value /= 1000;
@@ -144,13 +160,13 @@ double adjustDatetimeToR(FileVendor vendor, VarType var, double value) {
   }
 }
 
-double adjustDatetimeFromR(FileVendor vendor, SEXP col, double value) {
+double adjustDatetimeFromR(FileVendor vendor, VarType type, double value) {
   if (std::isnan(value))
     return value;
 
   double offset = daysOffset(vendor);
 
-  switch (numType(col)) {
+  switch (type) {
   case HAVEN_DATETIME:
     value += offset * 86400;
     if (vendor == HAVEN_STATA) // stored in milliseconds

@@ -176,7 +176,7 @@ private:
             labelSet, values[i], string_utf8(labels, i));
       } else {
         readstat_label_tagged_value(
-            labelSet, write_tag(tag, ext_), string_utf8(labels, i));
+            labelSet, write_tag(tag, vendor_), string_utf8(labels, i));
       }
     }
     return labelSet;
@@ -225,40 +225,7 @@ private:
     if (format != R_NilValue)
       return string_utf8(format, 0);
 
-    switch (numType(x)) {
-    case HAVEN_DEFAULT:
-      return NULL;
-
-    case HAVEN_DATETIME:
-      switch (vendor_) {
-      case HAVEN_SAS:
-        return "DATETIME";
-      case HAVEN_SPSS:
-        return "DATETIME";
-      case HAVEN_STATA:
-        return "%tc";
-      }
-    case HAVEN_DATE:
-      switch (vendor_) {
-      case HAVEN_SAS:
-        return "DATE";
-      case HAVEN_SPSS:
-        return "DATE";
-      case HAVEN_STATA:
-        return "%td";
-      }
-    case HAVEN_TIME:
-      switch (vendor_) {
-      case HAVEN_SAS:
-        return "TIME";
-      case HAVEN_SPSS:
-        return "TIME";
-      case HAVEN_STATA:
-        return NULL; // Stata doesn't have a pure time type
-      }
-    }
-
-    return NULL;
+    return defaultFormat(vendor_, varTypeFromR(x));
   }
 
   int userWidth(cpp11::sexp x) { return intAttribute(x, "width"); }
@@ -272,8 +239,9 @@ private:
   stataNumericType(cpp11::sexp col, readstat_type_t default_type) {
     if (ext_ != HAVEN_DTA)
       return default_type;
+    VarType type = varTypeFromR(col);
     // Datetimes are stored in milliseconds so need the precision of a double
-    if (numType(col) == HAVEN_DATETIME)
+    if (type == HAVEN_DATETIME)
       return READSTAT_TYPE_DOUBLE;
 
     // Compute the range of non-missing values to find the smallest integer
@@ -301,8 +269,8 @@ private:
       max = std::max(max, val);
     }
     // Remaining adjustments are integer shifts, so only affect the range
-    min = adjustDatetimeFromR(vendor_, col, min);
-    max = adjustDatetimeFromR(vendor_, col, max);
+    min = adjustDatetimeFromR(vendor_, type, min);
+    max = adjustDatetimeFromR(vendor_, type, max);
 
     // Stata reserves the largest values of each type for missing values
     if (min >= -127 && max <= 100) {

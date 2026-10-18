@@ -131,7 +131,7 @@ public:
     const char* name = readstat_variable_get_name(variable);
     int var_index = readstat_variable_get_index_after_skipping(variable);
     const char* var_format = readstat_variable_get_format(variable);
-    VarType var_type = numType(vendor_, var_format);
+    VarType var_type = varTypeFromFormat(vendor_, var_format);
     // Rcout << name << ": " << var_format << " [" << var_type << "]\n";
 
     names_[var_index] = name;

@@ -13,6 +13,7 @@
 #include "cpp11/sexp.hpp"
 #include "cpp11/strings.hpp"
 #include <unordered_map>
+#include <vector>
 
 inline ssize_t data_writer(const void* data, size_t len, void* ctx);
 
@@ -115,11 +116,13 @@ public:
     }
 
     cpp11::strings names(x_.attr("names"));
+    std::vector<VarType> types(p);
 
     // Define variables
     for (int j = 0; j < p; ++j) {
       cpp11::sexp col = x_[j];
       const char* name = string_utf8(names, j);
+      types[j] = varTypeFromR(col);
 
       switch (TYPEOF(col)) {
       case LGLSXP:
@@ -157,16 +160,16 @@ public:
         switch (TYPEOF(col)) {
         case LGLSXP: {
           int val = LOGICAL(col)[i];
-          status = insertValue(writer_, ext_, var, val, val == NA_LOGICAL);
+          status = insertValue(writer_, vendor_, var, val, val == NA_LOGICAL);
           break;
         }
         case INTSXP: {
           int val = INTEGER(col)[i];
           status = insertValue(
               writer_,
-              ext_,
+              vendor_,
               var,
-              adjustDatetimeFromR(vendor_, col, val),
+              adjustDatetimeFromR(vendor_, types[j], val),
               val == NA_INTEGER);
           break;
         }
@@ -174,9 +177,9 @@ public:
           double val = REAL(col)[i];
           status = insertValue(
               writer_,
-              ext_,
+              vendor_,
               var,
-              adjustDatetimeFromR(vendor_, col, val),
+              adjustDatetimeFromR(vendor_, types[j], val),
               !R_finite(val));
           break;
         }
