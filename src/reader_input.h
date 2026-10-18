@@ -1,5 +1,5 @@
-#ifndef __DF_READER_INPUT__
-#define __DF_READER_INPUT__
+#ifndef HAVEN_READER_INPUT_H
+#define HAVEN_READER_INPUT_H
 
 #include <fstream>
 #include <sstream>

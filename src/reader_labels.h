@@ -1,40 +1,15 @@
-#ifndef __DF_READER_LABEL_SET__
-#define __DF_READER_LABEL_SET__
+#ifndef HAVEN_READER_LABELS_H
+#define HAVEN_READER_LABELS_H
 
 #include <string>
 #include <vector>
 
 #include "readstat.h"
-#include "tagged_na.h"
 
 #include "cpp11/doubles.hpp"
 #include "cpp11/integers.hpp"
 #include "cpp11/sexp.hpp"
 #include "cpp11/strings.hpp"
-
-// Converts a readstat double to an R double, handling user-defined missings:
-// tagged missings become tagged NAs, and defined/system missings become
-// NA_REAL unless `user_na` is true.
-double haven_double_value_with_user_na(
-    readstat_value_t value, readstat_variable_t* var, bool user_na) {
-  if (readstat_value_is_tagged_missing(value)) {
-    return make_tagged_na(tolower(readstat_value_tag(value)));
-  } else if (!user_na && readstat_value_is_defined_missing(value, var)) {
-    return NA_REAL;
-  } else if (readstat_value_is_system_missing(value)) {
-    return NA_REAL;
-  } else {
-    return readstat_double_value(value);
-  }
-}
-
-double haven_double_value(readstat_value_t value) {
-  if (readstat_value_is_tagged_missing(value)) {
-    return make_tagged_na(tolower(readstat_value_tag(value)));
-  } else {
-    return readstat_double_value(value);
-  }
-}
 
 class LabelSet {
   std::vector<std::string> labels_;

@@ -1,10 +1,11 @@
-#ifndef __HAVEN_DFWRITER__
-#define __HAVEN_DFWRITER__
+#ifndef HAVEN_WRITER_H
+#define HAVEN_WRITER_H
 
-#include "DfWriterValue.h"
-#include "DfWriterVariable.h"
+#include "datetime.h"
 #include "haven_types.h"
 #include "readstat.h"
+#include "writer_value.h"
+#include "writer_variable.h"
 
 #include "cpp11/doubles.hpp"
 #include "cpp11/integers.hpp"
@@ -13,7 +14,7 @@
 #include "cpp11/strings.hpp"
 #include <unordered_map>
 
-ssize_t data_writer(const void* data, size_t len, void* ctx);
+inline ssize_t data_writer(const void* data, size_t len, void* ctx);
 
 // Owns the output file and readstat writer, and orchestrates writing:
 // beginning the file, defining variables (via VarDefiner), then writing
@@ -220,7 +221,7 @@ public:
   }
 };
 
-ssize_t data_writer(const void* data, size_t len, void* ctx) {
+inline ssize_t data_writer(const void* data, size_t len, void* ctx) {
   return ((Writer*)ctx)->write(data, len);
 }
 

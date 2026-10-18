@@ -1,9 +1,9 @@
 #include <memory>
 #include <string>
 
-#include "DfReader.h"
-#include "DfReaderInput.h"
 #include "haven_types.h"
+#include "reader.h"
+#include "reader_input.h"
 #include "readstat.h"
 
 #include "cpp11/integers.hpp"

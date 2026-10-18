@@ -1,10 +1,11 @@
-#ifndef __HAVEN_DFWRITER_VARIABLE__
-#define __HAVEN_DFWRITER_VARIABLE__
+#ifndef HAVEN_WRITER_VARIABLE_H
+#define HAVEN_WRITER_VARIABLE_H
 
-#include "DfWriterValue.h"
+#include "datetime.h"
 #include "haven_types.h"
 #include "readstat.h"
 #include "tagged_na.h"
+#include "writer_value.h"
 
 #include "cpp11/doubles.hpp"
 #include "cpp11/integers.hpp"
@@ -14,22 +15,6 @@
 #include <cmath>
 #include <string>
 #include <unordered_map>
-
-inline const char* string_utf8(SEXP x, int i) {
-  return Rf_translateCharUTF8(STRING_ELT(x, i));
-}
-
-inline const bool string_is_missing(SEXP x, int i) {
-  return STRING_ELT(x, i) == NA_STRING;
-}
-
-inline const int string_len_missing(SEXP x, int i) {
-  if (string_is_missing(x, i)) {
-    return 0;
-  } else {
-    return strlen(string_utf8(x, i));
-  }
-}
 
 inline readstat_measure_e measureType(SEXP x) {
   if (Rf_inherits(x, "ordered")) {

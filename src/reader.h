@@ -1,15 +1,17 @@
-#ifndef __DF_READER__
-#define __DF_READER__
+#ifndef HAVEN_READER_H
+#define HAVEN_READER_H
 
 #include <map>
 #include <set>
 #include <string>
 #include <vector>
 
-#include "DfReaderLabelSet.h"
-#include "RVectorBuilder.h"
+#include "datetime.h"
 #include "haven_types.h"
+#include "reader_attributes.h"
+#include "reader_labels.h"
 #include "readstat.h"
+#include "tagged_na.h"
 
 #include "cpp11/doubles.hpp"
 #include "cpp11/integers.hpp"
@@ -20,6 +22,30 @@
 
 #include "cpp11/function.hpp"
 #include "cpp11/protect.hpp"
+
+// Converts a readstat double to an R double, handling user-defined missings:
+// tagged missings become tagged NAs, and defined/system missings become
+// NA_REAL unless `user_na` is true.
+inline double haven_double_value_with_user_na(
+    readstat_value_t value, readstat_variable_t* var, bool user_na) {
+  if (readstat_value_is_tagged_missing(value)) {
+    return make_tagged_na(tolower(readstat_value_tag(value)));
+  } else if (!user_na && readstat_value_is_defined_missing(value, var)) {
+    return NA_REAL;
+  } else if (readstat_value_is_system_missing(value)) {
+    return NA_REAL;
+  } else {
+    return readstat_double_value(value);
+  }
+}
+
+inline double haven_double_value(readstat_value_t value) {
+  if (readstat_value_is_tagged_missing(value)) {
+    return make_tagged_na(tolower(readstat_value_tag(value)));
+  } else {
+    return readstat_double_value(value);
+  }
+}
 
 class DfReader {
   FileVendor vendor_;

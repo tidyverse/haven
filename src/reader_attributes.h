@@ -1,8 +1,9 @@
-#ifndef __R_VECTOR_BUILDER__
-#define __R_VECTOR_BUILDER__
+#ifndef HAVEN_READER_ATTRIBUTES_H
+#define HAVEN_READER_ATTRIBUTES_H
 
 #include <vector>
 
+#include "datetime.h"
 #include "haven_types.h"
 #include "readstat.h"
 
@@ -15,7 +16,8 @@
 // DfReader produces.
 
 // Allocates a vector of the appropriate R type for a readstat variable
-cpp11::sexp make_variable_vector(readstat_variable_t* variable, R_xlen_t n) {
+inline cpp11::sexp
+make_variable_vector(readstat_variable_t* variable, R_xlen_t n) {
   switch (readstat_variable_get_type(variable)) {
   case READSTAT_TYPE_STRING_REF:
   case READSTAT_TYPE_STRING:
@@ -26,7 +28,7 @@ cpp11::sexp make_variable_vector(readstat_variable_t* variable, R_xlen_t n) {
 }
 
 // Sets the variable label, original format, and display width attributes
-void set_metadata_attributes(
+inline void set_metadata_attributes(
     cpp11::sexp col, readstat_variable_t* variable, FileVendor vendor) {
   const char* var_label = readstat_variable_get_label(variable);
   if (var_label != NULL && strcmp(var_label, "") != 0) {
@@ -47,7 +49,7 @@ void set_metadata_attributes(
 }
 
 // A length-1 POSIXct vector in UTC
-cpp11::writable::doubles make_timestamp(time_t time) {
+inline cpp11::writable::doubles make_timestamp(time_t time) {
   cpp11::writable::doubles out({(double)time});
   out.attr("class") = {"POSIXct", "POSIXt"};
   out.attr("tzone") = "UTC";
@@ -58,7 +60,7 @@ cpp11::writable::doubles make_timestamp(time_t time) {
 // if the format is incompatible with the variable's storage type. Files have
 // been observed in the wild with a date format applied to a string variable,
 // which should not be possible.
-void set_format_class(
+inline void set_format_class(
     cpp11::sexp col,
     readstat_variable_t* variable,
     VarType var_type,
@@ -93,7 +95,8 @@ void set_format_class(
 
 // Sets the `na_values`/`na_range` attributes for SPSS user-defined missing
 // values and upgrades `col` to haven_labelled_spss
-void set_user_na_attributes(cpp11::sexp col, readstat_variable_t* variable) {
+inline void
+set_user_na_attributes(cpp11::sexp col, readstat_variable_t* variable) {
   int n_ranges = readstat_variable_get_missing_ranges_count(variable);
   if (n_ranges == 0) {
     return;

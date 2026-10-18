@@ -1,15 +1,32 @@
-#ifndef __HAVEN_DFWRITER_VALUE__
-#define __HAVEN_DFWRITER_VALUE__
+#ifndef HAVEN_WRITER_VALUE_H
+#define HAVEN_WRITER_VALUE_H
 
 #include "haven_types.h"
 #include "readstat.h"
 #include "tagged_na.h"
 
 #include <cmath>
+#include <cstring>
 #include <string>
 #include <unordered_map>
 
 // SAS formats use uppercase tagged NAs
+inline const char* string_utf8(SEXP x, int i) {
+  return Rf_translateCharUTF8(STRING_ELT(x, i));
+}
+
+inline const bool string_is_missing(SEXP x, int i) {
+  return STRING_ELT(x, i) == NA_STRING;
+}
+
+inline const int string_len_missing(SEXP x, int i) {
+  if (string_is_missing(x, i)) {
+    return 0;
+  } else {
+    return strlen(string_utf8(x, i));
+  }
+}
+
 inline char write_tag(char tag, FileExt ext) {
   if (ext == HAVEN_XPT || ext == HAVEN_SAS7BDAT || ext == HAVEN_SAS7BCAT) {
     return toupper(tag);
