@@ -94,25 +94,4 @@ public:
   int close(void* io_ctx) { return 0; }
 };
 
-int dfreader_open(const char* path, void* io_ctx) {
-  return ((DfReaderInput*)io_ctx)->open(io_ctx);
-}
-int dfreader_close(void* io_ctx) {
-  return ((DfReaderInput*)io_ctx)->close(io_ctx);
-}
-readstat_off_t
-dfreader_seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) {
-  return ((DfReaderInput*)io_ctx)->seek(offset, whence, io_ctx);
-}
-ssize_t dfreader_read(void* buf, size_t nbyte, void* io_ctx) {
-  return ((DfReaderInput*)io_ctx)->read(buf, nbyte, io_ctx);
-}
-readstat_error_t dfreader_update(
-    long file_size,
-    readstat_progress_handler progress_handler,
-    void* user_ctx,
-    void* io_ctx) {
-  return READSTAT_OK;
-}
-
 #endif

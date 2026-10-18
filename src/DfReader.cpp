@@ -12,6 +12,80 @@
 
 // Parser wrappers -------------------------------------------------------------
 
+namespace {
+
+int dfreader_open(const char* path, void* io_ctx) {
+  return ((DfReaderInput*)io_ctx)->open(io_ctx);
+}
+int dfreader_close(void* io_ctx) {
+  return ((DfReaderInput*)io_ctx)->close(io_ctx);
+}
+readstat_off_t
+dfreader_seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) {
+  return ((DfReaderInput*)io_ctx)->seek(offset, whence, io_ctx);
+}
+ssize_t dfreader_read(void* buf, size_t nbyte, void* io_ctx) {
+  return ((DfReaderInput*)io_ctx)->read(buf, nbyte, io_ctx);
+}
+readstat_error_t dfreader_update(
+    long file_size,
+    readstat_progress_handler progress_handler,
+    void* user_ctx,
+    void* io_ctx) {
+  return READSTAT_OK;
+}
+
+int dfreader_metadata(readstat_metadata_t* metadata, void* ctx) {
+  ((DfReader*)ctx)
+      ->setInfo(
+          readstat_get_row_count(metadata), readstat_get_var_count(metadata));
+  ((DfReader*)ctx)->setMetadata(readstat_get_file_label(metadata));
+  ((DfReader*)ctx)
+      ->setTimestamp(
+          readstat_get_creation_time(metadata),
+          readstat_get_modified_time(metadata));
+  return 0;
+}
+
+int dfreader_note(int note_index, const char* note, void* ctx) {
+  ((DfReader*)ctx)->setNote(note_index, note);
+  return 0;
+}
+
+int dfreader_variable(
+    int index,
+    readstat_variable_t* variable,
+    const char* val_labels,
+    void* ctx) {
+  return ((DfReader*)ctx)->createVariable(index, variable, val_labels);
+}
+int dfreader_value(
+    int obs_index,
+    readstat_variable_t* variable,
+    readstat_value_t value,
+    void* ctx) {
+  // Check for user interrupts every 10,000 rows or cols
+  if ((obs_index + 1) % 10000 == 0 || (variable->index + 1) % 10000 == 0)
+    cpp11::check_user_interrupt();
+
+  ((DfReader*)ctx)->setValue(obs_index, variable, value);
+  return 0;
+}
+int dfreader_value_label(
+    const char* val_labels,
+    readstat_value_t value,
+    const char* label,
+    void* ctx) {
+  ((DfReader*)ctx)->setValueLabels(val_labels, value, label);
+  return 0;
+}
+
+void print_error(const char* error_message, void* ctx) {
+  Rprintf("%s\n", error_message);
+}
+
+} // namespace
+
 readstat_parser_t* haven_init_parser() {
   readstat_parser_t* parser = readstat_parser_init();
   readstat_set_metadata_handler(parser, dfreader_metadata);
