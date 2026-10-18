@@ -1,8 +1,8 @@
 #define R_NO_REMAP
 #include <R.h>
 #include <Rinternals.h>
-#include <stdbool.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 // Scalar operators -------------------------------------------------------
 
@@ -19,10 +19,9 @@
 // bit)
 
 typedef union {
-  double value;           // 8 bytes
-  char byte[8];           // 8 * 1 bytes
+  double value; // 8 bytes
+  char byte[8]; // 8 * 1 bytes
 } ieee_double;
-
 
 #ifdef WORDS_BIGENDIAN
 // First two bytes are sign & expoonent
@@ -123,7 +122,8 @@ SEXP is_tagged_na_(SEXP x, SEXP tag_) {
     check_tag = '\0';
   } else if (TYPEOF(tag_) == STRSXP) {
     if (Rf_length(tag_) != 1)
-      Rf_errorcall(R_NilValue, "`tag` must be a character vector of length one.");
+      Rf_errorcall(
+          R_NilValue, "`tag` must be a character vector of length one.");
     has_tag = true;
     check_tag = tolower(first_char(STRING_ELT(tag_, 0)));
   } else {

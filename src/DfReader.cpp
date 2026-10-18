@@ -1,28 +1,29 @@
-#include <memory>
 #include <fstream>
 #include <iostream>
-#include <sstream>
-#include <vector>
-#include <string>
 #include <map>
+#include <memory>
 #include <set>
+#include <sstream>
+#include <string>
+#include <vector>
 
-#include "readstat.h"
 #include "haven_types.h"
+#include "readstat.h"
 #include "tagged_na.h"
 
-#include "cpp11/strings.hpp"
 #include "cpp11/doubles.hpp"
 #include "cpp11/integers.hpp"
-#include "cpp11/r_string.hpp"
 #include "cpp11/list.hpp"
+#include "cpp11/r_string.hpp"
 #include "cpp11/raws.hpp"
 #include "cpp11/sexp.hpp"
+#include "cpp11/strings.hpp"
 
-#include "cpp11/protect.hpp"
 #include "cpp11/function.hpp"
+#include "cpp11/protect.hpp"
 
-double haven_double_value_udm(readstat_value_t value, readstat_variable_t* var, bool user_na) {
+double haven_double_value_udm(
+    readstat_value_t value, readstat_variable_t* var, bool user_na) {
   if (readstat_value_is_tagged_missing(value)) {
     return make_tagged_na(tolower(readstat_value_tag(value)));
   } else if (!user_na && readstat_value_is_defined_missing(value, var)) {
@@ -41,7 +42,6 @@ double haven_double_value(readstat_value_t value) {
     return readstat_double_value(value);
   }
 }
-
 
 // LabelSet -------------------------------------------------------------------
 
@@ -78,9 +78,7 @@ public:
     labels_.push_back(label);
   }
 
-  size_t size() const {
-    return labels_.size();
-  }
+  size_t size() const { return labels_.size(); }
 
   cpp11::sexp labels() const {
     cpp11::sexp out;
@@ -146,18 +144,16 @@ class DfReader {
   bool quiet_;
 
 public:
-  DfReader(FileExt ext, bool user_na = false) :
-    vendor_(extVendor(ext)),
-    nrows_(0),
-    ncols_(0),
-    output_(static_cast<R_xlen_t>(0)),
-    user_na_(user_na),
-    quiet_(false) { }
+  DfReader(FileExt ext, bool user_na = false)
+      : vendor_(extVendor(ext)),
+        nrows_(0),
+        ncols_(0),
+        output_(static_cast<R_xlen_t>(0)),
+        user_na_(user_na),
+        quiet_(false) {}
 
   // Suppress metadata warnings, e.g. when only reading the header
-  void setQuiet(bool quiet) {
-    quiet_ = quiet;
-  }
+  void setQuiet(bool quiet) { quiet_ = quiet; }
 
   void skipCols(cpp11::integers cols) {
     std::set<int> cols_set(cols.begin(), cols.end());
@@ -185,7 +181,7 @@ public:
     var_types_.resize(ncols_);
   }
 
-  void setMetadata(const char *file_label) {
+  void setMetadata(const char* file_label) {
     if (file_label != NULL && strcmp(file_label, "") != 0) {
       output_.attr("label") = file_label;
     }
@@ -201,19 +197,20 @@ public:
   }
 
   cpp11::writable::doubles timestamp(time_t time) {
-    cpp11::writable::doubles out({(double) time});
+    cpp11::writable::doubles out({(double)time});
     out.attr("class") = {"POSIXct", "POSIXt"};
     out.attr("tzone") = "UTC";
     return out;
   }
 
-  void setNote(int note_index, const char *note) {
+  void setNote(int note_index, const char* note) {
     if (note != NULL && strcmp(note, "") != 0) {
       notes_.push_back(note);
     }
   }
 
-  int createVariable(int index, readstat_variable_t *variable, const char *val_labels) {
+  int createVariable(
+      int index, readstat_variable_t* variable, const char* val_labels) {
 
     const char* name = readstat_variable_get_name(variable);
 
@@ -225,7 +222,7 @@ public:
 
     names_[var_index] = name;
 
-    switch(readstat_variable_get_type(variable)) {
+    switch (readstat_variable_get_type(variable)) {
     case READSTAT_TYPE_STRING_REF:
     case READSTAT_TYPE_STRING:
       output_[var_index] = cpp11::writable::strings(nrowsAlloc_);
@@ -254,11 +251,18 @@ public:
     VarType var_type = numType(vendor_, var_format);
     // Rcout << name << ": " << var_format << " [" << var_type << "]\n";
     var_types_[var_index] = var_type;
-    // Files have been observed in the wild with a date format applied to a string variable.
-    // This should not be possible, so we throw a warning, don't apply a class and continue.
-    if (var_type != HAVEN_DEFAULT && readstat_variable_get_type_class(variable) == READSTAT_TYPE_CLASS_STRING) {
+    // Files have been observed in the wild with a date format applied to a
+    // string variable. This should not be possible, so we throw a warning,
+    // don't apply a class and continue.
+    if (var_type != HAVEN_DEFAULT &&
+        readstat_variable_get_type_class(variable) ==
+            READSTAT_TYPE_CLASS_STRING) {
       if (!quiet_)
-        Rf_warning("String variable '%s' has incompatible format '%s' and will be returned as a regular string variable.", name, var_format);
+        Rf_warning(
+            "String variable '%s' has incompatible format '%s' and will "
+            "be returned as a regular string variable.",
+            name,
+            var_format);
     } else {
       switch (var_type) {
       case HAVEN_DATE:
@@ -280,25 +284,26 @@ public:
     // User defined missing values
     int n_ranges = readstat_variable_get_missing_ranges_count(variable);
     if (user_na_ && n_ranges > 0) {
-      switch(readstat_variable_get_type(variable)) {
+      switch (readstat_variable_get_type(variable)) {
       case READSTAT_TYPE_STRING_REF:
-      case READSTAT_TYPE_STRING:
-      {
+      case READSTAT_TYPE_STRING: {
         cpp11::writable::strings na_values(R_xlen_t(0));
         cpp11::writable::strings na_range(2);
         bool has_range = false;
 
         for (int i = 0; i < n_ranges; ++i) {
-          readstat_value_t
-            lo_value = readstat_variable_get_missing_range_lo(variable, i),
-            hi_value = readstat_variable_get_missing_range_hi(variable, i);
+          readstat_value_t lo_value = readstat_variable_get_missing_range_lo(
+                               variable, i),
+                           hi_value = readstat_variable_get_missing_range_hi(
+                               variable, i);
 
           const char* lo = readstat_string_value(lo_value);
           const char* hi = readstat_string_value(hi_value);
 
           if (lo == hi) {
             // single value
-            na_values.push_back(lo == NULL ? cpp11::r_string(NA_STRING) : cpp11::r_string(lo));
+            na_values.push_back(
+                lo == NULL ? cpp11::r_string(NA_STRING) : cpp11::r_string(lo));
           } else {
             has_range = true;
             // Can only ever be one range
@@ -312,27 +317,27 @@ public:
         if (has_range)
           col.attr("na_range") = na_range;
 
-        col.attr("class") = {"haven_labelled_spss", "haven_labelled", "vctrs_vctr", "character"};
+        col.attr("class") = {
+            "haven_labelled_spss", "haven_labelled", "vctrs_vctr", "character"};
         break;
       }
       case READSTAT_TYPE_INT8:
       case READSTAT_TYPE_INT16:
       case READSTAT_TYPE_INT32:
       case READSTAT_TYPE_FLOAT:
-      case READSTAT_TYPE_DOUBLE:
-      {
+      case READSTAT_TYPE_DOUBLE: {
         std::vector<double> na_values;
         cpp11::writable::doubles na_range(2);
         bool has_range = false;
 
         for (int i = 0; i < n_ranges; ++i) {
-          readstat_value_t
-            lo_value = readstat_variable_get_missing_range_lo(variable, i),
-            hi_value = readstat_variable_get_missing_range_hi(variable, i);
+          readstat_value_t lo_value = readstat_variable_get_missing_range_lo(
+                               variable, i),
+                           hi_value = readstat_variable_get_missing_range_hi(
+                               variable, i);
 
-          double
-            lo = readstat_double_value(lo_value),
-            hi = readstat_double_value(hi_value);
+          double lo = readstat_double_value(lo_value),
+                 hi = readstat_double_value(hi_value);
 
           if (lo == hi) {
             // Single value
@@ -350,11 +355,11 @@ public:
         if (has_range)
           col.attr("na_range") = na_range;
 
-        col.attr("class") = {"haven_labelled_spss", "haven_labelled", "vctrs_vctr", "double"};
+        col.attr("class") = {
+            "haven_labelled_spss", "haven_labelled", "vctrs_vctr", "double"};
       }
       }
     }
-
 
     // Store original format as attribute
     if (var_format != NULL && strcmp(var_format, "") != 0) {
@@ -370,7 +375,8 @@ public:
     return READSTAT_HANDLER_OK;
   }
 
-  void setValue(int obs_index, readstat_variable_t *variable, readstat_value_t value) {
+  void setValue(
+      int obs_index, readstat_variable_t* variable, readstat_value_t value) {
     int var_index = readstat_variable_get_index_after_skipping(variable);
 
     VarType var_type = var_types_[var_index];
@@ -380,16 +386,16 @@ public:
     if (obs_index >= nrows_)
       nrows_ = obs_index + 1;
 
-    switch(value.type) {
+    switch (value.type) {
     case READSTAT_TYPE_STRING_REF:
-    case READSTAT_TYPE_STRING:
-    {
+    case READSTAT_TYPE_STRING: {
       cpp11::writable::strings col(output_[var_index]);
       const char* str_value = readstat_string_value(value);
 
       if (readstat_value_is_tagged_missing(value)) {
         col[obs_index] = NA_STRING;
-      } else if (!user_na_ && readstat_value_is_defined_missing(value, variable)) {
+      } else if (
+          !user_na_ && readstat_value_is_defined_missing(value, variable)) {
         col[obs_index] = NA_STRING;
       } else if (readstat_value_is_system_missing(value)) {
         col[obs_index] = NA_STRING;
@@ -404,8 +410,7 @@ public:
     case READSTAT_TYPE_INT16:
     case READSTAT_TYPE_INT32:
     case READSTAT_TYPE_FLOAT:
-    case READSTAT_TYPE_DOUBLE:
-    {
+    case READSTAT_TYPE_DOUBLE: {
       cpp11::writable::doubles col(output_[var_index]);
       double val = haven_double_value_udm(value, variable, user_na_);
       col[obs_index] = adjustDatetimeToR(vendor_, var_type, val);
@@ -414,12 +419,12 @@ public:
     }
   }
 
-  void setValueLabels(const char *val_labels, readstat_value_t value,
-                     const char *label) {
+  void setValueLabels(
+      const char* val_labels, readstat_value_t value, const char* label) {
     LabelSet& label_set = label_sets_[val_labels];
     std::string label_s(label);
 
-    switch(value.type) {
+    switch (value.type) {
     case READSTAT_TYPE_STRING:
       // Encoded to utf-8 on output
       label_set.add(readstat_string_value(value), label_s);
@@ -470,7 +475,8 @@ public:
 
       if (hasLabel(i)) {
         if (Rf_getAttrib(col, R_ClassSymbol) == R_NilValue) {
-          col.attr("class") = {"haven_labelled", "vctrs_vctr", Rf_type2char(TYPEOF(col))};
+          col.attr("class") = {
+              "haven_labelled", "vctrs_vctr", Rf_type2char(TYPEOF(col))};
         }
         col.attr("labels") = label_sets_[val_labels_[i]].labels();
       }
@@ -491,48 +497,61 @@ public:
 
     static cpp11::function as_tibble = cpp11::package("tibble")["as_tibble"];
     using namespace cpp11::literals;
-    return SEXP(as_tibble(output_, ".rows"_nm = nrows_, ".name_repair"_nm = cpp11::r_string("none")));
+    return SEXP(as_tibble(
+        output_,
+        ".rows"_nm = nrows_,
+        ".name_repair"_nm = cpp11::r_string("none")));
   }
 };
 
-int dfreader_metadata(readstat_metadata_t *metadata, void *ctx) {
-  ((DfReader*) ctx)->setInfo(
-      readstat_get_row_count(metadata),
-      readstat_get_var_count(metadata)
-  );
-  ((DfReader*) ctx)->setMetadata(readstat_get_file_label(metadata));
-  ((DfReader*) ctx)->setTimestamp(readstat_get_creation_time(metadata), readstat_get_modified_time(metadata));
+int dfreader_metadata(readstat_metadata_t* metadata, void* ctx) {
+  ((DfReader*)ctx)
+      ->setInfo(
+          readstat_get_row_count(metadata), readstat_get_var_count(metadata));
+  ((DfReader*)ctx)->setMetadata(readstat_get_file_label(metadata));
+  ((DfReader*)ctx)
+      ->setTimestamp(
+          readstat_get_creation_time(metadata),
+          readstat_get_modified_time(metadata));
   return 0;
 }
 
-int dfreader_note(int note_index, const char *note, void *ctx) {
-  ((DfReader*) ctx)->setNote(note_index, note);
+int dfreader_note(int note_index, const char* note, void* ctx) {
+  ((DfReader*)ctx)->setNote(note_index, note);
   return 0;
 }
 
-int dfreader_variable(int index, readstat_variable_t *variable,
-                      const char *val_labels, void *ctx) {
-  return ((DfReader*) ctx)->createVariable(index, variable, val_labels);
+int dfreader_variable(
+    int index,
+    readstat_variable_t* variable,
+    const char* val_labels,
+    void* ctx) {
+  return ((DfReader*)ctx)->createVariable(index, variable, val_labels);
 }
-int dfreader_value(int obs_index, readstat_variable_t *variable,
-                   readstat_value_t value, void *ctx) {
+int dfreader_value(
+    int obs_index,
+    readstat_variable_t* variable,
+    readstat_value_t value,
+    void* ctx) {
   // Check for user interrupts every 10,000 rows or cols
   if ((obs_index + 1) % 10000 == 0 || (variable->index + 1) % 10000 == 0)
     cpp11::check_user_interrupt();
 
-  ((DfReader*) ctx)->setValue(obs_index, variable, value);
+  ((DfReader*)ctx)->setValue(obs_index, variable, value);
   return 0;
 }
-int dfreader_value_label(const char *val_labels, readstat_value_t value,
-                         const char *label, void *ctx) {
-  ((DfReader*) ctx)->setValueLabels(val_labels, value, label);
+int dfreader_value_label(
+    const char* val_labels,
+    readstat_value_t value,
+    const char* label,
+    void* ctx) {
+  ((DfReader*)ctx)->setValueLabels(val_labels, value, label);
   return 0;
 }
 
 void print_error(const char* error_message, void* ctx) {
   Rprintf("%s\n", error_message);
 }
-
 
 // IO handling -----------------------------------------------------------
 
@@ -542,33 +561,41 @@ public:
 
   virtual int open(void* io_ctx) = 0;
   virtual int close(void* io_ctx) = 0;
-  virtual readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence, void *io_ctx) = 0;
-  virtual ssize_t read(void *buf, size_t nbyte, void *io_ctx) = 0;
-  virtual std::string source() const = 0; // human readable description of input source
+  virtual readstat_off_t
+  seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) = 0;
+  virtual ssize_t read(void* buf, size_t nbyte, void* io_ctx) = 0;
+  virtual std::string
+  source() const = 0; // human readable description of input source
   std::string encoding;
 };
 
-template <typename Stream>
-class DfReaderInputStream : public DfReaderInput {
+template <typename Stream> class DfReaderInputStream : public DfReaderInput {
 protected:
   Stream file_;
 
 public:
-  readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence, void *io_ctx) {
+  readstat_off_t
+  seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) {
     std::ios_base::seekdir dir;
-    switch(whence) {
-    case READSTAT_SEEK_SET: dir = file_.beg; break;
-    case READSTAT_SEEK_CUR: dir = file_.cur; break;
+    switch (whence) {
+    case READSTAT_SEEK_SET:
+      dir = file_.beg;
+      break;
+    case READSTAT_SEEK_CUR:
+      dir = file_.cur;
+      break;
     case READSTAT_SEEK_END:
-    default:                dir = file_.end; break;
+    default:
+      dir = file_.end;
+      break;
     }
 
     file_.seekg(offset, dir);
     return file_.tellg(); // returns -1 if failed
   }
 
-  ssize_t read(void *buf, size_t nbyte, void *io_ctx) {
-    file_.read((char*) buf, nbyte);
+  ssize_t read(void* buf, size_t nbyte, void* io_ctx) {
+    file_.read((char*)buf, nbyte);
     return (file_.good() || file_.eof()) ? file_.gcount() : -1;
   }
 };
@@ -582,9 +609,7 @@ public:
     this->encoding = encoding;
   }
 
-  std::string source() const {
-    return filename_;
-  }
+  std::string source() const { return filename_; }
 
   int open(void* io_ctx) {
     file_.open(filename_.c_str(), std::ifstream::binary);
@@ -600,38 +625,36 @@ public:
 class DfReaderInputRaw : public DfReaderInputStream<std::istringstream> {
 public:
   DfReaderInputRaw(cpp11::raws raw_data, std::string encoding = "") {
-    std::string string_data((char*) RAW(raw_data), Rf_length(raw_data));
+    std::string string_data((char*)RAW(raw_data), Rf_length(raw_data));
     file_.str(string_data);
     this->encoding = encoding;
   }
 
-  std::string source() const {
-    return "file";
-  }
+  std::string source() const { return "file"; }
 
-  int open(void* io_ctx) {
-    return 0;
-  }
+  int open(void* io_ctx) { return 0; }
 
-  int close(void* io_ctx) {
-    return 0;
-  }
+  int close(void* io_ctx) { return 0; }
 };
 
-
-int dfreader_open(const char* path, void *io_ctx) {
-  return ((DfReaderInput*) io_ctx)->open(io_ctx);
+int dfreader_open(const char* path, void* io_ctx) {
+  return ((DfReaderInput*)io_ctx)->open(io_ctx);
 }
-int dfreader_close(void *io_ctx) {
-  return ((DfReaderInput*) io_ctx)->close(io_ctx);
+int dfreader_close(void* io_ctx) {
+  return ((DfReaderInput*)io_ctx)->close(io_ctx);
 }
-readstat_off_t dfreader_seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) {
-  return ((DfReaderInput*) io_ctx)->seek(offset, whence, io_ctx);
+readstat_off_t
+dfreader_seek(readstat_off_t offset, readstat_io_flags_t whence, void* io_ctx) {
+  return ((DfReaderInput*)io_ctx)->seek(offset, whence, io_ctx);
 }
 ssize_t dfreader_read(void* buf, size_t nbyte, void* io_ctx) {
-  return ((DfReaderInput*) io_ctx)->read(buf, nbyte, io_ctx);
+  return ((DfReaderInput*)io_ctx)->read(buf, nbyte, io_ctx);
 }
-readstat_error_t dfreader_update(long file_size, readstat_progress_handler progress_handler, void *user_ctx, void *io_ctx) {
+readstat_error_t dfreader_update(
+    long file_size,
+    readstat_progress_handler progress_handler,
+    void* user_ctx,
+    void* io_ctx) {
   return READSTAT_OK;
 }
 
@@ -654,13 +677,12 @@ void haven_init_io(readstat_parser_t* parser, DfReaderInput& builder_input) {
   readstat_set_seek_handler(parser, dfreader_seek);
   readstat_set_read_handler(parser, dfreader_read);
   readstat_set_update_handler(parser, dfreader_update);
-  readstat_set_io_ctx(parser, (void*) &builder_input);
+  readstat_set_io_ctx(parser, (void*)&builder_input);
   // Always set the encoding (NULL clears it) since the parser is reused
   // across the catalog and data file parses.
   readstat_set_file_character_encoding(
-    parser,
-    builder_input.encoding == "" ? NULL : builder_input.encoding.c_str()
-  );
+      parser,
+      builder_input.encoding == "" ? NULL : builder_input.encoding.c_str());
 }
 
 void haven_set_row_limit(readstat_parser_t* parser, long n) {
@@ -668,20 +690,37 @@ void haven_set_row_limit(readstat_parser_t* parser, long n) {
   readstat_set_row_limit(parser, n == 0 ? 1 : n);
 }
 
-template<FileExt ext>
-void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfReader* builder) {
+template <FileExt ext>
+void haven_parse(
+    readstat_parser_t* parser,
+    DfReaderInput& builder_input,
+    DfReader* builder) {
   haven_init_io(parser, builder_input);
 
   readstat_error_t result;
-  switch(ext) {
+  switch (ext) {
   // the path for readstat_parse_* is baked into the io context (DfReaderInput)
-  case HAVEN_SAS7BDAT: result = readstat_parse_sas7bdat(parser, "", builder); break;
-  case HAVEN_SAS7BCAT: result = readstat_parse_sas7bcat(parser, "", builder); break;
-  case HAVEN_XPT:      result = readstat_parse_xport(parser, "", builder); break;
-  case HAVEN_DTA:      result = readstat_parse_dta(parser, "", builder); break;
-  case HAVEN_SAV:      result = readstat_parse_sav(parser, "", builder); break;
-  case HAVEN_POR:      result = readstat_parse_por(parser, "", builder); break;
-  default:             result = READSTAT_ERROR_PARSE; break;
+  case HAVEN_SAS7BDAT:
+    result = readstat_parse_sas7bdat(parser, "", builder);
+    break;
+  case HAVEN_SAS7BCAT:
+    result = readstat_parse_sas7bcat(parser, "", builder);
+    break;
+  case HAVEN_XPT:
+    result = readstat_parse_xport(parser, "", builder);
+    break;
+  case HAVEN_DTA:
+    result = readstat_parse_dta(parser, "", builder);
+    break;
+  case HAVEN_SAV:
+    result = readstat_parse_sav(parser, "", builder);
+    break;
+  case HAVEN_POR:
+    result = readstat_parse_por(parser, "", builder);
+    break;
+  default:
+    result = READSTAT_ERROR_PARSE;
+    break;
   }
 
   if (result != READSTAT_OK) {
@@ -694,7 +733,8 @@ void haven_parse(readstat_parser_t* parser, DfReaderInput& builder_input, DfRead
 
 // SAS catalogs typically don't record their encoding (header byte is 0), in
 // which case ReadStat falls back to WINDOWS-1252. Since catalogs are usually
-// written alongside their data file, the data file's encoding is a better guess.
+// written alongside their data file, the data file's encoding is a better
+// guess.
 // TODO: once https://github.com/WizardMac/ReadStat/pull/404 is merged and
 // vendored here, detect this via readstat_get_file_encoding() instead.
 bool sas_encoding_unspecified(DfReaderInput& input) {
@@ -703,18 +743,19 @@ bool sas_encoding_unspecified(DfReaderInput& input) {
 
   if (input.open(&input) != 0)
     return false;
-  bool ok = input.seek(SAS_ENCODING_OFFSET, READSTAT_SEEK_SET, &input) == SAS_ENCODING_OFFSET &&
-    input.read(&code, 1, &input) == 1;
+  bool ok = input.seek(SAS_ENCODING_OFFSET, READSTAT_SEEK_SET, &input) ==
+                SAS_ENCODING_OFFSET &&
+            input.read(&code, 1, &input) == 1;
   input.seek(0, READSTAT_SEEK_SET, &input);
   input.close(&input);
 
   return ok && code == 0;
 }
 
-int sas_encoding_metadata(readstat_metadata_t *metadata, void *ctx) {
+int sas_encoding_metadata(readstat_metadata_t* metadata, void* ctx) {
   const char* encoding = readstat_get_file_encoding(metadata);
   if (encoding != NULL) {
-    *((std::string*) ctx) = encoding;
+    *((std::string*)ctx) = encoding;
   }
   return READSTAT_HANDLER_ABORT;
 }
@@ -731,22 +772,29 @@ std::string sas_file_encoding(DfReaderInput& input) {
   return encoding;
 }
 
-std::unique_ptr<DfReaderInput> make_input(SEXP spec, const std::string& encoding) {
+std::unique_ptr<DfReaderInput>
+make_input(SEXP spec, const std::string& encoding) {
   switch (TYPEOF(spec)) {
-  case STRSXP: return std::unique_ptr<DfReaderInput>(new DfReaderInputFile(spec, encoding));
-  case RAWSXP: return std::unique_ptr<DfReaderInput>(new DfReaderInputRaw(spec, encoding));
-  default:     cpp11::stop("This kind of input is not handled.");
+  case STRSXP:
+    return std::unique_ptr<DfReaderInput>(
+        new DfReaderInputFile(spec, encoding));
+  case RAWSXP:
+    return std::unique_ptr<DfReaderInput>(new DfReaderInputRaw(spec, encoding));
+  default:
+    cpp11::stop("This kind of input is not handled.");
   }
 }
 
-template<FileExt ext>
-cpp11::list df_parse(SEXP spec, cpp11::integers cols_skip,
-              const long& n_max = -1, const long& rows_skip = 0,
-              const std::string& encoding = "",
-              const bool& user_na = false,
-              SEXP catalog_spec = R_NilValue,
-              const std::string& catalog_encoding = ""
-              ) {
+template <FileExt ext>
+cpp11::list df_parse(
+    SEXP spec,
+    cpp11::integers cols_skip,
+    const long& n_max = -1,
+    const long& rows_skip = 0,
+    const std::string& encoding = "",
+    const bool& user_na = false,
+    SEXP catalog_spec = R_NilValue,
+    const std::string& catalog_encoding = "") {
   DfReader builder(ext, user_na);
   builder.skipCols(cols_skip);
   builder.setQuiet(n_max == 0);
@@ -758,7 +806,8 @@ cpp11::list df_parse(SEXP spec, cpp11::integers cols_skip,
   std::unique_ptr<DfReaderInput> input = make_input(spec, encoding);
 
   if (ext == HAVEN_SAS7BDAT && catalog_spec != R_NilValue) {
-    std::unique_ptr<DfReaderInput> cat_input = make_input(catalog_spec, catalog_encoding);
+    std::unique_ptr<DfReaderInput> cat_input =
+        make_input(catalog_spec, catalog_encoding);
     if (catalog_encoding == "" && sas_encoding_unspecified(*cat_input)) {
       cat_input->encoding = sas_file_encoding(*input);
     }
@@ -788,13 +837,20 @@ struct ReaderOptions {
 
   ReaderOptions(cpp11::list opts) {
     SEXP x;
-    if ((x = opts["encoding"]) != R_NilValue) encoding = cpp11::as_cpp<std::string>(x);
-    if ((x = opts["catalog_encoding"]) != R_NilValue) catalog_encoding = cpp11::as_cpp<std::string>(x);
-    if ((x = opts["catalog_file"]) != R_NilValue) catalog_spec = x;
-    if ((x = opts["user_na"]) != R_NilValue) user_na = cpp11::as_cpp<bool>(x);
-    if ((x = opts["cols_skip"]) != R_NilValue) cols_skip = cpp11::as_cpp<cpp11::integers>(x);
-    if ((x = opts["n_max"]) != R_NilValue) n_max = cpp11::as_cpp<long>(x);
-    if ((x = opts["rows_skip"]) != R_NilValue) rows_skip = cpp11::as_cpp<long>(x);
+    if ((x = opts["encoding"]) != R_NilValue)
+      encoding = cpp11::as_cpp<std::string>(x);
+    if ((x = opts["catalog_encoding"]) != R_NilValue)
+      catalog_encoding = cpp11::as_cpp<std::string>(x);
+    if ((x = opts["catalog_file"]) != R_NilValue)
+      catalog_spec = x;
+    if ((x = opts["user_na"]) != R_NilValue)
+      user_na = cpp11::as_cpp<bool>(x);
+    if ((x = opts["cols_skip"]) != R_NilValue)
+      cols_skip = cpp11::as_cpp<cpp11::integers>(x);
+    if ((x = opts["n_max"]) != R_NilValue)
+      n_max = cpp11::as_cpp<long>(x);
+    if ((x = opts["rows_skip"]) != R_NilValue)
+      rows_skip = cpp11::as_cpp<long>(x);
   }
 };
 
@@ -804,15 +860,37 @@ cpp11::list read(SEXP spec, cpp11::list options) {
   std::string vendor = cpp11::as_cpp<std::string>(options["vendor"]);
 
   if (vendor == "sas7bdat") {
-    return df_parse<HAVEN_SAS7BDAT>(spec, opts.cols_skip, opts.n_max, opts.rows_skip, opts.encoding, false, opts.catalog_spec, opts.catalog_encoding);
+    return df_parse<HAVEN_SAS7BDAT>(
+        spec,
+        opts.cols_skip,
+        opts.n_max,
+        opts.rows_skip,
+        opts.encoding,
+        false,
+        opts.catalog_spec,
+        opts.catalog_encoding);
   } else if (vendor == "xpt") {
-    return df_parse<HAVEN_XPT>(spec, opts.cols_skip, opts.n_max, opts.rows_skip);
+    return df_parse<HAVEN_XPT>(
+        spec, opts.cols_skip, opts.n_max, opts.rows_skip);
   } else if (vendor == "dta") {
-    return df_parse<HAVEN_DTA>(spec, opts.cols_skip, opts.n_max, opts.rows_skip, opts.encoding);
+    return df_parse<HAVEN_DTA>(
+        spec, opts.cols_skip, opts.n_max, opts.rows_skip, opts.encoding);
   } else if (vendor == "sav") {
-    return df_parse<HAVEN_SAV>(spec, opts.cols_skip, opts.n_max, opts.rows_skip, opts.encoding, opts.user_na);
+    return df_parse<HAVEN_SAV>(
+        spec,
+        opts.cols_skip,
+        opts.n_max,
+        opts.rows_skip,
+        opts.encoding,
+        opts.user_na);
   } else if (vendor == "por") {
-    return df_parse<HAVEN_POR>(spec, opts.cols_skip, opts.n_max, opts.rows_skip, opts.encoding, opts.user_na);
+    return df_parse<HAVEN_POR>(
+        spec,
+        opts.cols_skip,
+        opts.n_max,
+        opts.rows_skip,
+        opts.encoding,
+        opts.user_na);
   } else {
     cpp11::stop("Unknown vendor: %s", vendor.c_str());
   }
