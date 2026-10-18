@@ -61,7 +61,8 @@ test_that("formats roundtrip", {
   expect_equal(df2$a, df$a)
   expect_equal(df2$b, df$b)
   expect_equal(df2$c, df$c)
-  expect_equal(df2$d, df$d)
+  # ReadStat now sets the string format width to match the stored width
+  expect_equal(df2$d, structure(df$d, format.spss = "A4"))
 })
 
 test_that("widths roundtrip", {

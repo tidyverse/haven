@@ -1195,7 +1195,7 @@ static readstat_error_t dta_handle_value_labels(dta_ctx_t *ctx) {
             if (txtlen > MAX_VALUE_LABEL_LEN+1)
                 utf8_buffer_len = 4*MAX_VALUE_LABEL_LEN+1;
 
-            utf8_buffer = realloc(utf8_buffer, utf8_buffer_len);
+            utf8_buffer = readstat_realloc(utf8_buffer, utf8_buffer_len);
             /* Much bigger than we need but whatever */
             if (utf8_buffer == NULL) {
                 retval = READSTAT_ERROR_MALLOC;

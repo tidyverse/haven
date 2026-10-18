@@ -749,11 +749,12 @@ static readstat_error_t sas7bdat_construct_format(char *dst, size_t dst_len,
         return retval;
 
     size_t len = strlen(dst);
-    if (width) {
-        len += snprintf(dst + len, dst_len - len, "%d", width);
+    if (width && len < dst_len - 1) {
+        snprintf(dst + len, dst_len - len, "%d", width);
+        len = strlen(dst);
     }
-    if (len && digits) {
-        len += snprintf(dst + len, dst_len - len, ".%d", digits);
+    if (len && digits && len < dst_len - 1) {
+        snprintf(dst + len, dst_len - len, ".%d", digits);
     }
     return READSTAT_OK;
 }

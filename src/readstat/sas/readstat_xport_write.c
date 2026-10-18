@@ -556,15 +556,13 @@ static readstat_error_t xport_metadata_ok(void *writer_ctx) {
         return READSTAT_ERROR_UNSUPPORTED_FILE_FORMAT_VERSION;
 
     if (writer->table_name[0]) {
-        if (writer->version == 8) {
-            return sas_validate_name(writer->table_name, 32);
-        }
-        if (writer->version == 5) {
-            return sas_validate_name(writer->table_name, 8);
-        }
+        readstat_error_t retval = sas_validate_name(writer->table_name,
+                writer->version == 8 ? 32 : 8);
+        if (retval != READSTAT_OK)
+            return retval;
     }
 
-    return READSTAT_OK;
+    return sas_validate_unique_names(writer);
 }
 
 static readstat_error_t xport_v5_validate_variable(const readstat_variable_t *variable) {

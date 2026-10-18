@@ -140,5 +140,8 @@ const char *readstat_error_message(readstat_error_t error_code) {
     if (error_code == READSTAT_ERROR_UNUSED_STRING_REF)
         return "A registered string reference was never inserted into any row";
 
+    if (error_code == READSTAT_ERROR_DUPLICATE_VARIABLE_NAME)
+        return "Two or more variables have the same name";
+
     return "Unknown error";
 }

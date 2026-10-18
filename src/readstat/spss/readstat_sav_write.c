@@ -1408,9 +1408,18 @@ static sav_varnames_t *sav_varnames_init(readstat_writer_t *writer) {
             continue;
 
         varnames[i].ghostnames = calloc(n_segments, sizeof(varnames[0].shortname));
+        /* SPSS only reassembles a very long string if its segments are named
+         * after the first five characters of the long variable name, e.g.
+         * LongString2 -> LONGS0, LONGS1, ... regardless of the short name. */
         char stem[6];
-        snprintf(stem, sizeof(stem), "%.5s", varnames[i].shortname);
-        unsigned int segment_counter = 1;
+        size_t stem_len = sav_utf8_truncate(r_variable->name, strlen(r_variable->name), sizeof(stem)-1);
+        memcpy(stem, r_variable->name, stem_len);
+        stem[stem_len] = '\0';
+        for (k=0; stem[k]; k++) { // upcase ASCII only
+            if (stem[k] >= 'a' && stem[k] <= 'z')
+                stem[k] = stem[k] - 'a' + 'A';
+        }
+        unsigned int segment_counter = 0;
         for (k=1; k<n_segments; k++) {
             char *ghostname = &varnames[i].ghostnames[k * sizeof(varnames[0].shortname)];
             sav_generate_unique_name(ghostname, sizeof(varnames[0].shortname), stem, &segment_counter, table);
