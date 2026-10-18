@@ -82,14 +82,21 @@ void print_error(const char* error_message, void* ctx) {
   Rprintf("%s\n", error_message);
 }
 
-readstat_parser_t* haven_init_parser() {
-  readstat_parser_t* parser = readstat_parser_init();
-  readstat_set_metadata_handler(parser, reader_metadata);
-  readstat_set_note_handler(parser, reader_note);
-  readstat_set_variable_handler(parser, reader_variable);
-  readstat_set_value_handler(parser, reader_value);
-  readstat_set_value_label_handler(parser, reader_value_label);
-  readstat_set_error_handler(parser, print_error);
+struct ParserDeleter {
+  void operator()(readstat_parser_t* parser) const {
+    readstat_parser_free(parser);
+  }
+};
+typedef std::unique_ptr<readstat_parser_t, ParserDeleter> Parser;
+
+Parser haven_init_parser() {
+  Parser parser(readstat_parser_init());
+  readstat_set_metadata_handler(parser.get(), reader_metadata);
+  readstat_set_note_handler(parser.get(), reader_note);
+  readstat_set_variable_handler(parser.get(), reader_variable);
+  readstat_set_value_handler(parser.get(), reader_value);
+  readstat_set_value_label_handler(parser.get(), reader_value_label);
+  readstat_set_error_handler(parser.get(), print_error);
   return parser;
 }
 
@@ -112,9 +119,11 @@ void haven_set_row_limit(readstat_parser_t* parser, long n) {
   readstat_set_row_limit(parser, n == 0 ? 1 : n);
 }
 
-template <FileExt ext>
 void haven_parse(
-    readstat_parser_t* parser, ReaderInput& builder_input, Reader* builder) {
+    FileExt ext,
+    readstat_parser_t* parser,
+    ReaderInput& builder_input,
+    Reader* builder) {
   haven_init_io(parser, builder_input);
 
   readstat_error_t result;
@@ -145,7 +154,6 @@ void haven_parse(
 
   if (result != READSTAT_OK) {
     std::string source = builder_input.source();
-    readstat_parser_free(parser);
     std::string msg(readstat_error_message(result));
     cpp11::stop("Failed to parse %s: %s.", source.c_str(), msg.c_str());
   }
@@ -183,11 +191,10 @@ int sas_encoding_metadata(readstat_metadata_t* metadata, void* ctx) {
 std::string sas_file_encoding(ReaderInput& input) {
   std::string encoding;
 
-  readstat_parser_t* parser = readstat_parser_init();
-  readstat_set_metadata_handler(parser, sas_encoding_metadata);
-  haven_init_io(parser, input);
-  readstat_parse_sas7bdat(parser, "", &encoding);
-  readstat_parser_free(parser);
+  Parser parser(readstat_parser_init());
+  readstat_set_metadata_handler(parser.get(), sas_encoding_metadata);
+  haven_init_io(parser.get(), input);
+  readstat_parse_sas7bdat(parser.get(), "", &encoding);
 
   return encoding;
 }
@@ -204,48 +211,10 @@ make_input(SEXP spec, const std::string& encoding) {
   }
 }
 
-template <FileExt ext>
-cpp11::list df_parse(
-    SEXP spec,
-    cpp11::integers cols_skip,
-    const long& n_max = -1,
-    const long& rows_skip = 0,
-    const std::string& encoding = "",
-    const bool& user_na = false,
-    SEXP catalog_spec = R_NilValue,
-    const std::string& catalog_encoding = "") {
-  Reader builder(ext, user_na);
-  builder.skipCols(cols_skip);
-  builder.setQuiet(n_max == 0);
-
-  readstat_parser_t* parser = haven_init_parser();
-  haven_set_row_limit(parser, n_max);
-  readstat_set_row_offset(parser, rows_skip);
-
-  std::unique_ptr<ReaderInput> input = make_input(spec, encoding);
-
-  if (ext == HAVEN_SAS7BDAT && catalog_spec != R_NilValue) {
-    std::unique_ptr<ReaderInput> cat_input =
-        make_input(catalog_spec, catalog_encoding);
-    if (catalog_encoding == "" && sas_encoding_unspecified(*cat_input)) {
-      cat_input->encoding = sas_file_encoding(*input);
-    }
-    haven_parse<HAVEN_SAS7BCAT>(parser, *cat_input, &builder);
-  }
-
-  haven_parse<ext>(parser, *input, &builder);
-  readstat_parser_free(parser);
-
-  if (n_max >= 0) {
-    builder.limitRows(n_max); // must enforce n_max = 0
-  }
-
-  return builder.output();
-}
-
 // # nocov start
 
 struct ReaderOptions {
+  std::string vendor;
   std::string encoding = "";
   std::string catalog_encoding = "";
   SEXP catalog_spec = R_NilValue;
@@ -255,6 +224,8 @@ struct ReaderOptions {
   long rows_skip = 0;
 
   ReaderOptions(cpp11::list opts) {
+    vendor = cpp11::as_cpp<std::string>(opts["vendor"]);
+
     SEXP x;
     if ((x = opts["encoding"]) != R_NilValue)
       encoding = cpp11::as_cpp<std::string>(x);
@@ -273,48 +244,60 @@ struct ReaderOptions {
   }
 };
 
+FileExt parseExt(const std::string& vendor) {
+  if (vendor == "sas7bdat")
+    return HAVEN_SAS7BDAT;
+  if (vendor == "xpt")
+    return HAVEN_XPT;
+  if (vendor == "dta")
+    return HAVEN_DTA;
+  if (vendor == "sav")
+    return HAVEN_SAV;
+  if (vendor == "por")
+    return HAVEN_POR;
+  cpp11::stop("Unknown vendor: %s", vendor.c_str());
+}
+
+// # nocov end
+
+cpp11::list df_parse(FileExt ext, SEXP spec, const ReaderOptions& opts) {
+  // Not every option applies to every format
+  bool user_na = opts.user_na && extVendor(ext) == HAVEN_SPSS;
+  std::string encoding = ext == HAVEN_XPT ? "" : opts.encoding;
+  bool has_catalog = ext == HAVEN_SAS7BDAT && opts.catalog_spec != R_NilValue;
+
+  Reader builder(ext, user_na);
+  builder.skipCols(opts.cols_skip);
+  builder.setQuiet(opts.n_max == 0);
+
+  Parser parser = haven_init_parser();
+  haven_set_row_limit(parser.get(), opts.n_max);
+  readstat_set_row_offset(parser.get(), opts.rows_skip);
+
+  std::unique_ptr<ReaderInput> input = make_input(spec, encoding);
+
+  if (has_catalog) {
+    std::unique_ptr<ReaderInput> cat_input =
+        make_input(opts.catalog_spec, opts.catalog_encoding);
+    if (opts.catalog_encoding == "" && sas_encoding_unspecified(*cat_input)) {
+      cat_input->encoding = sas_file_encoding(*input);
+    }
+    haven_parse(HAVEN_SAS7BCAT, parser.get(), *cat_input, &builder);
+  }
+
+  haven_parse(ext, parser.get(), *input, &builder);
+
+  if (opts.n_max >= 0) {
+    builder.limitRows(opts.n_max); // must enforce n_max = 0
+  }
+
+  return builder.output();
+}
+
 } // namespace
 
 [[cpp11::register]]
 cpp11::list read(SEXP spec, cpp11::list options) {
   ReaderOptions opts(options);
-  std::string vendor = cpp11::as_cpp<std::string>(options["vendor"]);
-
-  if (vendor == "sas7bdat") {
-    return df_parse<HAVEN_SAS7BDAT>(
-        spec,
-        opts.cols_skip,
-        opts.n_max,
-        opts.rows_skip,
-        opts.encoding,
-        false,
-        opts.catalog_spec,
-        opts.catalog_encoding);
-  } else if (vendor == "xpt") {
-    return df_parse<HAVEN_XPT>(
-        spec, opts.cols_skip, opts.n_max, opts.rows_skip);
-  } else if (vendor == "dta") {
-    return df_parse<HAVEN_DTA>(
-        spec, opts.cols_skip, opts.n_max, opts.rows_skip, opts.encoding);
-  } else if (vendor == "sav") {
-    return df_parse<HAVEN_SAV>(
-        spec,
-        opts.cols_skip,
-        opts.n_max,
-        opts.rows_skip,
-        opts.encoding,
-        opts.user_na);
-  } else if (vendor == "por") {
-    return df_parse<HAVEN_POR>(
-        spec,
-        opts.cols_skip,
-        opts.n_max,
-        opts.rows_skip,
-        opts.encoding,
-        opts.user_na);
-  } else {
-    cpp11::stop("Unknown vendor: %s", vendor.c_str());
-  }
+  return df_parse(parseExt(opts.vendor), spec, opts);
 }
-
-// # nocov end
