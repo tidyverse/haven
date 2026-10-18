@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "DfReaderLabelSet.h"
+#include "RVectorBuilder.h"
 #include "haven_types.h"
 #include "readstat.h"
 
@@ -83,18 +84,11 @@ public:
 
   void setTimestamp(time_t c_time, time_t m_time) {
     if (c_time != 0) {
-      output_.attr("creation_timestamp") = timestamp(c_time);
+      output_.attr("creation_timestamp") = make_timestamp(c_time);
     }
     if (m_time != 0) {
-      output_.attr("modified_timestamp") = timestamp(m_time);
+      output_.attr("modified_timestamp") = make_timestamp(m_time);
     }
-  }
-
-  cpp11::writable::doubles timestamp(time_t time) {
-    cpp11::writable::doubles out({(double)time});
-    out.attr("class") = {"POSIXct", "POSIXt"};
-    out.attr("tzone") = "UTC";
-    return out;
   }
 
   void setNote(int note_index, const char* note) {
@@ -105,165 +99,29 @@ public:
 
   int createVariable(
       int index, readstat_variable_t* variable, const char* val_labels) {
-
-    const char* name = readstat_variable_get_name(variable);
-
     if (colsSkip_.count(index) > 0) {
       return READSTAT_HANDLER_SKIP_VARIABLE;
     }
 
+    const char* name = readstat_variable_get_name(variable);
     int var_index = readstat_variable_get_index_after_skipping(variable);
-
-    names_[var_index] = name;
-
-    switch (readstat_variable_get_type(variable)) {
-    case READSTAT_TYPE_STRING_REF:
-    case READSTAT_TYPE_STRING:
-      output_[var_index] = cpp11::writable::strings(nrowsAlloc_);
-      break;
-    case READSTAT_TYPE_INT8:
-    case READSTAT_TYPE_INT16:
-    case READSTAT_TYPE_INT32:
-    case READSTAT_TYPE_FLOAT:
-    case READSTAT_TYPE_DOUBLE:
-      output_[var_index] = cpp11::writable::doubles(nrowsAlloc_);
-      break;
-    }
-
-    cpp11::sexp col(output_[var_index]);
-
-    const char* var_label = readstat_variable_get_label(variable);
-    if (var_label != NULL && strcmp(var_label, "") != 0) {
-      col.attr("label") = var_label;
-    }
-
-    if (val_labels != NULL)
-      val_labels_[var_index] = val_labels;
-
     const char* var_format = readstat_variable_get_format(variable);
-
     VarType var_type = numType(vendor_, var_format);
     // Rcout << name << ": " << var_format << " [" << var_type << "]\n";
+
+    names_[var_index] = name;
+    if (val_labels != NULL)
+      val_labels_[var_index] = val_labels;
     var_types_[var_index] = var_type;
-    // Files have been observed in the wild with a date format applied to a
-    // string variable. This should not be possible, so we throw a warning,
-    // don't apply a class and continue.
-    if (var_type != HAVEN_DEFAULT &&
-        readstat_variable_get_type_class(variable) ==
-            READSTAT_TYPE_CLASS_STRING) {
-      if (!quiet_)
-        Rf_warning(
-            "String variable '%s' has incompatible format '%s' and will "
-            "be returned as a regular string variable.",
-            name,
-            var_format);
-    } else {
-      switch (var_type) {
-      case HAVEN_DATE:
-        col.attr("class") = "Date";
-        break;
-      case HAVEN_TIME:
-        col.attr("class") = {"hms", "difftime"};
-        col.attr("units") = "secs";
-        break;
-      case HAVEN_DATETIME:
-        col.attr("class") = {"POSIXct", "POSIXt"};
-        col.attr("tzone") = "UTC";
-        break;
-      default:
-        break;
-      }
-    }
 
+    output_[var_index] = make_variable_vector(variable, nrowsAlloc_);
+    cpp11::sexp col(output_[var_index]);
+
+    set_format_class(col, variable, var_type, quiet_);
+    set_metadata_attributes(col, variable, vendor_);
     // User defined missing values
-    int n_ranges = readstat_variable_get_missing_ranges_count(variable);
-    if (user_na_ && n_ranges > 0) {
-      switch (readstat_variable_get_type(variable)) {
-      case READSTAT_TYPE_STRING_REF:
-      case READSTAT_TYPE_STRING: {
-        cpp11::writable::strings na_values(R_xlen_t(0));
-        cpp11::writable::strings na_range(2);
-        bool has_range = false;
-
-        for (int i = 0; i < n_ranges; ++i) {
-          readstat_value_t lo_value = readstat_variable_get_missing_range_lo(
-                               variable, i),
-                           hi_value = readstat_variable_get_missing_range_hi(
-                               variable, i);
-
-          const char* lo = readstat_string_value(lo_value);
-          const char* hi = readstat_string_value(hi_value);
-
-          if (lo == hi) {
-            // single value
-            na_values.push_back(
-                lo == NULL ? cpp11::r_string(NA_STRING) : cpp11::r_string(lo));
-          } else {
-            has_range = true;
-            // Can only ever be one range
-            na_range[0] = lo;
-            na_range[1] = hi;
-          }
-        }
-
-        if (na_values.size() > 0)
-          col.attr("na_values") = na_values;
-        if (has_range)
-          col.attr("na_range") = na_range;
-
-        col.attr("class") = {
-            "haven_labelled_spss", "haven_labelled", "vctrs_vctr", "character"};
-        break;
-      }
-      case READSTAT_TYPE_INT8:
-      case READSTAT_TYPE_INT16:
-      case READSTAT_TYPE_INT32:
-      case READSTAT_TYPE_FLOAT:
-      case READSTAT_TYPE_DOUBLE: {
-        std::vector<double> na_values;
-        cpp11::writable::doubles na_range(2);
-        bool has_range = false;
-
-        for (int i = 0; i < n_ranges; ++i) {
-          readstat_value_t lo_value = readstat_variable_get_missing_range_lo(
-                               variable, i),
-                           hi_value = readstat_variable_get_missing_range_hi(
-                               variable, i);
-
-          double lo = readstat_double_value(lo_value),
-                 hi = readstat_double_value(hi_value);
-
-          if (lo == hi) {
-            // Single value
-            na_values.push_back(lo);
-          } else {
-            has_range = true;
-            // Can only ever be one range
-            na_range[0] = lo;
-            na_range[1] = hi;
-          }
-        }
-
-        if (na_values.size() > 0)
-          col.attr("na_values") = na_values;
-        if (has_range)
-          col.attr("na_range") = na_range;
-
-        col.attr("class") = {
-            "haven_labelled_spss", "haven_labelled", "vctrs_vctr", "double"};
-      }
-      }
-    }
-
-    // Store original format as attribute
-    if (var_format != NULL && strcmp(var_format, "") != 0) {
-      col.attr(formatAttribute(vendor_)) = var_format;
-    }
-
-    // Store original display width as attribute if it differs from the default
-    int display_width = readstat_variable_get_display_width(variable);
-    if (vendor_ == HAVEN_SPSS && display_width != 8) {
-      col.attr("display_width") = Rf_ScalarInteger(display_width);
+    if (user_na_) {
+      set_user_na_attributes(col, variable);
     }
 
     return READSTAT_HANDLER_OK;
