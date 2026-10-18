@@ -7,6 +7,10 @@
 #include <cpp11/strings.hpp>
 #include <string>
 
+// cpp11 includes this file in the generated cpp11.cpp, just before
+// cpp11/declarations.hpp. CPP11_PARTIAL stops that from including all of
+// cpp11.hpp, so the headers above must cover the types used in the
+// registered function signatures.
 #define CPP11_PARTIAL
 
 enum FileVendor { HAVEN_SPSS, HAVEN_STATA, HAVEN_SAS };

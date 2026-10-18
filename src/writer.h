@@ -60,11 +60,8 @@ public:
   }
 
   ~Writer() {
-    try {
-      fclose(pOut_);
-      readstat_writer_free(writer_);
-    } catch (...) {
-    };
+    fclose(pOut_);
+    readstat_writer_free(writer_);
   }
 
   void setCompression(readstat_compress_t version) {
