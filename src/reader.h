@@ -9,7 +9,6 @@
 #include "datetime.h"
 #include "haven_types.h"
 #include "reader_attributes.h"
-#include "reader_labels.h"
 #include "readstat.h"
 #include "tagged_na.h"
 
