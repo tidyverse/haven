@@ -45,6 +45,16 @@ test_that("date times are converted into corresponding R types", {
   expect_equal(df$VAR5[1], hms::hms(52932))
 })
 
+test_that("dates after year 4000 match SAS's calendar (#728)", {
+  df <- read_xpt(test_path("sas/far-future-dates.xpt"))
+  dates <- as.Date(c("2022-08-10", "7777-07-07", "9999-09-09"))
+  expect_equal(zap_formats(df$date), dates)
+  expect_equal(
+    zap_formats(df$datetime),
+    as.POSIXct(paste(dates, "12:00"), tz = "UTC")
+  )
+})
+
 test_that("tagged missings are read correctly", {
   x <- read_sas(
     test_path("sas/tagged-na.sas7bdat"),
@@ -220,6 +230,14 @@ test_that("can roundtrip date times", {
 
   attr(x2, "label") <- "abc"
   expect_equal(attr(roundtrip_var(x2, "xpt"), "label"), "abc")
+})
+
+test_that("can roundtrip dates after year 4000 (#728)", {
+  x1 <- as.Date(c("3999-12-31", "4000-03-01", "8000-03-01", "9999-12-31"))
+  expect_equal(roundtrip_var(x1, "xpt"), x1)
+
+  x2 <- .POSIXct(as.numeric(x1) * 86400 + 45296, tz = "UTC")
+  expect_equal(roundtrip_var(x2, "xpt"), x2)
 })
 
 test_that("can roundtrip tagged NAs", {
