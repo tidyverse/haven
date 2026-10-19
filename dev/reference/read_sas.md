@@ -1,7 +1,13 @@
-# Read SAS files
+# Read and write SAS files
 
 `read_sas()` supports both sas7bdat files and the accompanying sas7bcat
-files that SAS uses to record value labels.
+files that SAS uses to record value labels. `write_sas()` creates
+sas7bdat files; it does not write value labels.
+
+The sas7bdat format is closed and undocumented, so if you need an open
+format, instead consider
+[`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md),
+the SAS transport format.
 
 ## Usage
 
@@ -14,9 +20,10 @@ read_sas(
   col_select = NULL,
   skip = 0L,
   n_max = Inf,
-  cols_only = deprecated(),
   .name_repair = "unique"
 )
+
+write_sas(data, path)
 ```
 
 ## Arguments
@@ -56,11 +63,6 @@ read_sas(
 
   Maximum number of lines to read.
 
-- cols_only:
-
-  **\[deprecated\]** `cols_only` is no longer supported; use
-  `col_select` instead.
-
 - .name_repair:
 
   Treatment of problematic column names:
@@ -88,6 +90,14 @@ read_sas(
   [`vctrs::vec_as_names()`](https://vctrs.r-lib.org/reference/vec_as_names.html).
   See there for more details on these terms and the strategies used to
   enforce them.
+
+- data:
+
+  Data frame to write.
+
+- path:
+
+  Path to file where the data will be written.
 
 ## Value
 
@@ -127,4 +137,22 @@ read_sas(path)
 #>  9          4.4         2.9          1.4         0.2 setosa 
 #> 10          4.9         3.1          1.5         0.1 setosa 
 #> # ℹ 140 more rows
+
+tmp <- tempfile(fileext = ".sas7bdat")
+write_sas(mtcars, tmp)
+read_sas(tmp)
+#> # A tibble: 32 × 11
+#>      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
+#>    <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+#>  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
+#>  2  21       6  160    110  3.9   2.88  17.0     0     1     4     4
+#>  3  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1
+#>  4  21.4     6  258    110  3.08  3.22  19.4     1     0     3     1
+#>  5  18.7     8  360    175  3.15  3.44  17.0     0     0     3     2
+#>  6  18.1     6  225    105  2.76  3.46  20.2     1     0     3     1
+#>  7  14.3     8  360    245  3.21  3.57  15.8     0     0     3     4
+#>  8  24.4     4  147.    62  3.69  3.19  20       1     0     4     2
+#>  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2
+#> 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4
+#> # ℹ 22 more rows
 ```

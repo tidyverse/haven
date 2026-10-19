@@ -91,6 +91,9 @@
   fixes failures and garbled value labels when reading UTF-8 catalogs
   ([\#836](https://github.com/tidyverse/haven/issues/836)).
 - [`read_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
+  no longer accepts the `cols_only` argument, which was deprecated in
+  haven 2.2.0 (released 2019-11-08); use `col_select` instead.
+- [`read_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
   and
   [`read_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
   now supports all datetime, date and time formats
@@ -132,6 +135,9 @@
 - [`write_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md)
   now errors when `strl_threshold` is outside 0-2045, instead of
   silently clamping it to 2045.
+- [`write_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
+  is no longer deprecated. ReadStat now computes the header checksum
+  correctly, so SAS can read the files it produces.
 - [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
   character limit checks now check for the number of bytes instead of
   the number of characters
@@ -183,7 +189,7 @@ CRAN release: 2023-02-28
     ([\#707](https://github.com/tidyverse/haven/issues/707)).
 
 - The experimental
-  [`write_sas()`](https://haven.tidyverse.org/dev/reference/write_sas.md)
+  [`write_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
   function has been deprecated
   ([\#224](https://github.com/tidyverse/haven/issues/224)). The sas7bdat
   file format is complex and undocumented, and as such writing SAS files
@@ -981,7 +987,7 @@ CRAN release: 2016-09-23
   ([\#217](https://github.com/tidyverse/haven/issues/217)).
 
 - New
-  [`write_sas()`](https://haven.tidyverse.org/dev/reference/write_sas.md)
+  [`write_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
   allows you to write data frames out to `sas7bdat` files. This is still
   somewhat experimental.
 

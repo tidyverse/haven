@@ -7,7 +7,8 @@
   [`write_dta()`](https://haven.tidyverse.org/dev/reference/read_dta.md)
   : Read and write Stata DTA files
 - [`read_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
-  : Read SAS files
+  [`write_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
+  : Read and write SAS files
 - [`read_sav()`](https://haven.tidyverse.org/dev/reference/read_spss.md)
   [`read_por()`](https://haven.tidyverse.org/dev/reference/read_spss.md)
   [`write_sav()`](https://haven.tidyverse.org/dev/reference/read_spss.md)
