@@ -39,6 +39,10 @@
     ([\#754](https://github.com/tidyverse/haven/issues/754)).
   - XPT V8 writer now supports long variable labels
     ([\#784](https://github.com/tidyverse/haven/issues/784)).
+- SAS dates and date-times on or after 4000-03-01 are now read and
+  written correctly; previously they were off by one day (two days on or
+  after 8000-03-01) because SAS doesn’t treat years divisible by 4000 as
+  leap years ([\#728](https://github.com/tidyverse/haven/issues/728)).
 - `col_select` in the `read_*()` functions now correctly implements the
   tidyselect interface. Columns will be returned in the order specified
   in `col_select` and can be renamed, e.g. `col_select = c(new = old)`

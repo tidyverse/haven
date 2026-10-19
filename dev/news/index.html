@@ -72,6 +72,7 @@
 <li>XPT V8 reader no longer drops trailing rows that contain only empty strings or missing values (<a href="https://github.com/tidyverse/haven/issues/754" class="external-link">#754</a>).</li>
 <li>XPT V8 writer now supports long variable labels (<a href="https://github.com/tidyverse/haven/issues/784" class="external-link">#784</a>).</li>
 </ul></li>
+<li>SAS dates and date-times on or after 4000-03-01 are now read and written correctly; previously they were off by one day (two days on or after 8000-03-01) because SAS doesn’t treat years divisible by 4000 as leap years (<a href="https://github.com/tidyverse/haven/issues/728" class="external-link">#728</a>).</li>
 <li>
 <code>col_select</code> in the <code>read_*()</code> functions now correctly implements the tidyselect interface. Columns will be returned in the order specified in <code>col_select</code> and can be renamed, e.g. <code>col_select = c(new = old)</code> (<a href="https://github.com/tidyverse/haven/issues/685" class="external-link">#685</a>).</li>
 <li>
