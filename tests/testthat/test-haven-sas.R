@@ -150,14 +150,6 @@ test_that("catalog without encoding uses data file encoding (#836)", {
   expect_equal(names(attr(df$x, "labels")), c("\u00c1ple", "Zebra"))
 })
 
-test_that("using cols_only warns about deprecation, but works", {
-  expect_warning(
-    out <- read_sas(test_path("sas/hadley.sas7bdat"), cols_only = "id"),
-    "is deprecated"
-  )
-  expect_named(out, "id")
-})
-
 # read_xpt ----------------------------------------------------------------
 
 test_that("can read date/times", {

@@ -1,7 +1,12 @@
-#' Read SAS files
+#' Read and write SAS files
 #'
+#' @description
 #' `read_sas()` supports both sas7bdat files and the accompanying sas7bcat files
-#' that SAS uses to record value labels.
+#' that SAS uses to record value labels. `write_sas()` creates sas7bdat files;
+#' it does not write value labels.
+#'
+#' The sas7bdat format is closed and undocumented, so if you need an open
+#' format, instead consider [write_xpt()], the SAS transport format.
 #'
 #' @param data_file,catalog_file Data and catalog files. Each can be a path,
 #'   a URL, a connection, or a raw vector.
@@ -12,13 +17,15 @@
 #'   the encoding of `data_file` is used.
 #' @inheritParams tibble::as_tibble
 #' @inheritParams read_spss
-#' @param cols_only `r lifecycle::badge("deprecated")` `cols_only` is no longer
-#'   supported; use `col_select` instead.
 #' @inherit labelled-output return
 #' @export
 #' @examples
 #' path <- system.file("examples", "iris.sas7bdat", package = "haven")
 #' read_sas(path)
+#'
+#' tmp <- tempfile(fileext = ".sas7bdat")
+#' write_sas(mtcars, tmp)
+#' read_sas(tmp)
 read_sas <- function(
   data_file,
   catalog_file = NULL,
@@ -27,27 +34,12 @@ read_sas <- function(
   col_select = NULL,
   skip = 0L,
   n_max = Inf,
-  cols_only = deprecated(),
   .name_repair = "unique"
 ) {
   check_string(encoding, allow_null = TRUE)
   check_string(catalog_encoding, allow_null = TRUE)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
-
-  if (lifecycle::is_present(cols_only)) {
-    lifecycle::deprecate_warn(
-      "2.2.0",
-      "read_sas(cols_only)",
-      "read_sas(col_select)"
-    )
-    # used to only work with a char vector
-    if (!is.character(cols_only)) {
-      cli_abort("{.arg cols_only} must be a character vector.")
-    }
-    # not correct, but we're going to deprecate this soon anyway
-    col_select <- cols_only
-  }
 
   encoding <- encoding %||% ""
   catalog_encoding <- catalog_encoding %||% ""
@@ -75,25 +67,11 @@ read_sas <- function(
   output_cols(data, cols)
 }
 
-#' Write SAS files
-#'
-#' @description
-#' `r lifecycle::badge("deprecated")`
-#'
-#' `write_sas()` creates sas7bdat files. Unfortunately the SAS file format is
-#' complex and undocumented, so `write_sas()` is unreliable and in most cases
-#' SAS will not read files that it produces.
-#'
-#' [write_xpt()] writes files in the open SAS transport format, which has
-#' limitations but will be reliably read by SAS.
-#'
 #' @param data Data frame to write.
 #' @param path Path to file where the data will be written.
-#' @keywords internal
+#' @rdname read_sas
 #' @export
 write_sas <- function(data, path) {
-  lifecycle::deprecate_warn("2.5.2", "write_sas()", "write_xpt()")
-
   check_data_frame(data)
   check_string(path)
 

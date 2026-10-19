@@ -25,6 +25,7 @@
 * `read_*()` functions now warn and treat a string variable with a date and/or time format as a plain string instead of throwing an error (#747). This should not normally occur, but has been observed in files produced by 3rd party software.
 * `read_dta()`, `read_sav()`, `read_por()`, `read_sas()`, and `read_xpt()` now attach file metadata as attributes: `creation_timestamp` and `modified_timestamp` (as POSIXct, in UTC) (#733, @SInginc).
 * `read_sas()` now uses the data file's encoding for a catalog file that doesn't specify its own encoding, rather than assuming WINDOWS-1252. This fixes failures and garbled value labels when reading UTF-8 catalogs (#836).
+* `read_sas()` no longer accepts the `cols_only` argument, which was deprecated in haven 2.2.0; use `col_select` instead.
 * `read_sas()` and `read_xpt()` now supports all datetime, date and time formats (#780) and correctly recognises DATEAMPM as datetime (#789).
 * `tagged_na()` and `is_tagged_na()` now silently convert tagged `NA` values to lower case. These are case insensitive when reading and writing, so forcing lower case removes any potential ambiguity.
 * `write_*()` functions now take into account the width of value labels when calculating string variable widths. Previously it was possible to create value label sets with values that were wider than the string variable, causing issues when reading files (#537).
@@ -33,6 +34,7 @@
 * `write_dta()` now gives an informative error when value labels are outside the range that Stata can store (-2,147,483,647 to 2,147,483,620). Previously, very large labels failed with "missing value where TRUE/FALSE needed" and labels just below 2^31 were silently converted to missing values (#739).
 * `write_dta()` now stores numeric columns using the smallest Stata storage type (`byte`, `int`, `long`, or `double`) that can exactly represent every value, like Stata's `compress`. This can substantially reduce file sizes (#651). Integers too large for Stata's `long` are now stored as `double` rather than failing to write.
 * `write_dta()` now errors when `strl_threshold` is outside 0-2045, instead of silently clamping it to 2045.
+* `write_sas()` is no longer deprecated. ReadStat now computes the header checksum correctly, so SAS can read the files it produces.
 * `write_xpt()` character limit checks now check for the number of bytes instead of the number of characters (#746).
 * `write_xpt()` now errors if variable names are too long for the XPT version: 8 bytes for version 5, 32 bytes for version 8. Previously, long names were silently truncated for version 5 and error messaging was inconsistent (#771).
 * `write_xpt()` no longer fails when writing tagged `NA` values (#755).
