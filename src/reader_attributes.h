@@ -19,12 +19,14 @@
 // Allocates a vector of the appropriate R type for a readstat variable
 inline cpp11::sexp
 make_variable_vector(readstat_variable_t* variable, R_xlen_t n) {
+  // The explicit SEXP casts avoid an ambiguous conversion under C++14, the
+  // default for R 4.2. They can be dropped once we no longer support R 4.2.
   switch (readstat_variable_get_type(variable)) {
   case READSTAT_TYPE_STRING_REF:
   case READSTAT_TYPE_STRING:
-    return cpp11::sexp(cpp11::writable::strings(n));
+    return cpp11::sexp(static_cast<SEXP>(cpp11::writable::strings(n)));
   default:
-    return cpp11::sexp(cpp11::writable::doubles(n));
+    return cpp11::sexp(static_cast<SEXP>(cpp11::writable::doubles(n)));
   }
 }
 
