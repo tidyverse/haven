@@ -98,8 +98,9 @@ Parser haven_init_parser(long n_max) {
   // With n_max = 0 we only need the header. n_max = -1 means read all rows
   if (n_max != 0) {
     readstat_set_value_handler(parser.get(), reader_value);
-  } else if (n_max > 0) {
-    readstat_set_row_limit(parser.get(), std::max<long>(n_max, 1));
+  }
+  if (n_max > 0) {
+    readstat_set_row_limit(parser.get(), n_max);
   }
   readstat_set_value_label_handler(parser.get(), reader_value_label);
   readstat_set_error_handler(parser.get(), print_error);
