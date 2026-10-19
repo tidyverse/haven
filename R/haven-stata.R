@@ -75,7 +75,6 @@ read_dta <- function(
   check_string(encoding, allow_null = TRUE)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
-  check_bool(progress, allow_null = TRUE)
   progress <- local_progress_bar(progress)
 
   encoding <- encoding %||% ""

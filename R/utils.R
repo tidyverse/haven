@@ -99,6 +99,7 @@ defer <- function(expr, env = parent.frame(), after = FALSE) {
 # in interactive sessions (unless disabled via the `haven.show_progress`
 # option). Returns the bar id, or `NULL` if no bar is shown.
 local_progress_bar <- function(show, frame = parent.frame()) {
+  check_bool(show, allow_null = TRUE, arg = "progress", call = frame)
   show <- show %||%
     (isTRUE(getOption("haven.show_progress", TRUE)) &&
       is_interactive() &&

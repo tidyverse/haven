@@ -60,7 +60,6 @@ read_sav <- function(
   check_bool(user_na)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
-  check_bool(progress, allow_null = TRUE)
   progress <- local_progress_bar(progress)
 
   encoding <- encoding %||% ""
@@ -96,7 +95,6 @@ read_por <- function(
   check_bool(user_na)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
-  check_bool(progress, allow_null = TRUE)
   progress <- local_progress_bar(progress)
 
   spec <- datasource(file)
