@@ -1,6 +1,7 @@
 #ifndef HAVEN_READER_H
 #define HAVEN_READER_H
 
+#include <algorithm>
 #include <map>
 #include <set>
 #include <string>
@@ -62,6 +63,7 @@ class Reader {
 
   std::set<int> colsSkip_;
   bool quiet_;
+  long n_max_;
 
 public:
   Reader(FileExt ext, bool user_na = false)
@@ -70,10 +72,13 @@ public:
         ncols_(0),
         output_(static_cast<R_xlen_t>(0)),
         user_na_(user_na),
-        quiet_(false) {}
+        quiet_(false),
+        n_max_(-1) {}
 
   // Suppress metadata warnings, e.g. when only reading the header
   void setQuiet(bool quiet) { quiet_ = quiet; }
+
+  void setMaxRows(long n) { n_max_ = n; }
 
   void skipCols(cpp11::integers cols) {
     std::set<int> cols_set(cols.begin(), cols.end());
@@ -81,13 +86,12 @@ public:
   }
 
   void setInfo(int obs_count, int var_count) {
-    if (obs_count < 0) {
-      // If unknown, start with 1e5, and use doubling strategy
-      nrowsAlloc_ = 1e5;
-      nrows_ = 0;
-    } else {
-      nrowsAlloc_ = nrows_ = obs_count;
-    }
+    // If unknown, start with 1e5, and use doubling strategy
+    nrowsAlloc_ = obs_count < 0 ? 1e5 : obs_count;
+    nrows_ = obs_count < 0 ? 0 : obs_count;
+    // Never allocate more rows than readstat will deliver
+    if (n_max_ >= 0 && n_max_ < nrowsAlloc_)
+      nrowsAlloc_ = n_max_;
 
     if (var_count < 1) {
       return; // sas7bcat has var_count = 0
