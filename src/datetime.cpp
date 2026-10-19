@@ -91,6 +91,32 @@ int daysOffset(FileVendor vendor) {
   return 0;
 }
 
+// SAS doesn't treat years divisible by 4000 as leap years, so from 1 March
+// of each such year, R's day count is one day ahead of SAS's. We only
+// correct 4000 and 8000; later years are beyond what R can parse from strings.
+// https://blogs.sas.com/content/sasdummy/2024/02/15/calculate-leap-year-in-sas/
+//
+// Day counts of 1 March computed in R:
+//   r <- as.numeric(as.Date(c("4000-03-01", "8000-03-01")))
+//   r         # R calendar:   741502 2202472
+//   r - 1:2   # SAS calendar: 741501 2202470
+
+// Skipped leap days before `days`, a SAS day count since 1970-01-01.
+// 4000-03-01 and 8000-03-01 are days 741501 and 2202470 in SAS's calendar.
+int sasSkippedDaysToR(FileVendor vendor, double days) {
+  if (vendor != HAVEN_SAS)
+    return 0;
+  return (days >= 741501) + (days >= 2202470);
+}
+
+// Skipped leap days before `days`, an R day count since 1970-01-01.
+// 4000-03-01 and 8000-03-01 are days 741502 and 2202472 in R's calendar.
+int sasSkippedDaysFromR(FileVendor vendor, double days) {
+  if (vendor != HAVEN_SAS)
+    return 0;
+  return (days >= 741502) + (days >= 2202472);
+}
+
 } // namespace
 
 // Format classification ------------------------------------------------------
@@ -150,10 +176,12 @@ double adjustDatetimeToR(FileVendor vendor, VarType type, double value) {
   case HAVEN_DATETIME:
     if (vendor == HAVEN_STATA) // stored in milliseconds
       value /= 1000;
+    offset -= sasSkippedDaysToR(vendor, std::floor(value / 86400) - offset);
     return value - offset * 86400;
   case HAVEN_DATE:
     if (vendor == HAVEN_SPSS) // stored in seconds
       value /= 86400;
+    offset -= sasSkippedDaysToR(vendor, std::floor(value) - offset);
     return value - offset;
   default:
     return value;
@@ -168,11 +196,13 @@ double adjustDatetimeFromR(FileVendor vendor, VarType type, double value) {
 
   switch (type) {
   case HAVEN_DATETIME:
+    offset -= sasSkippedDaysFromR(vendor, std::floor(value / 86400));
     value += offset * 86400;
     if (vendor == HAVEN_STATA) // stored in milliseconds
       value *= 1000;
     return value;
   case HAVEN_DATE:
+    offset -= sasSkippedDaysFromR(vendor, std::floor(value));
     value += offset;
     if (vendor == HAVEN_SPSS) // stored in seconds
       value *= 86400;
