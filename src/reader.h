@@ -1,6 +1,7 @@
 #ifndef HAVEN_READER_H
 #define HAVEN_READER_H
 
+#include <algorithm>
 #include <map>
 #include <set>
 #include <string>
@@ -49,7 +50,8 @@ inline double haven_double_value(readstat_value_t value) {
 class Reader {
   FileVendor vendor_;
 
-  int nrows_, nrowsAlloc_;
+  int nrows_;      // number of rows read so far
+  int nrowsAlloc_; // number of rows currently allocated in output vectors
   int ncols_;
   cpp11::writable::list output_;
   cpp11::writable::strings names_;
@@ -62,18 +64,23 @@ class Reader {
 
   std::set<int> colsSkip_;
   bool quiet_;
+  long n_max_;
 
 public:
   Reader(FileExt ext, bool user_na = false)
       : vendor_(extVendor(ext)),
         nrows_(0),
+        nrowsAlloc_(0),
         ncols_(0),
         output_(static_cast<R_xlen_t>(0)),
         user_na_(user_na),
-        quiet_(false) {}
+        quiet_(false),
+        n_max_(-1) {}
 
   // Suppress metadata warnings, e.g. when only reading the header
   void setQuiet(bool quiet) { quiet_ = quiet; }
+
+  void setMaxRows(long n) { n_max_ = n; }
 
   void skipCols(cpp11::integers cols) {
     std::set<int> cols_set(cols.begin(), cols.end());
@@ -81,13 +88,11 @@ public:
   }
 
   void setInfo(int obs_count, int var_count) {
-    if (obs_count < 0) {
-      // If unknown, start with 1e5, and use doubling strategy
-      nrowsAlloc_ = 1e5;
-      nrows_ = 0;
-    } else {
-      nrowsAlloc_ = nrows_ = obs_count;
-    }
+    // If unknown, start with 1e5, and use doubling strategy
+    nrowsAlloc_ = obs_count < 0 ? 1e5 : obs_count;
+    // But never allocate more rows than what we request
+    if (n_max_ >= 0 && n_max_ < nrowsAlloc_)
+      nrowsAlloc_ = n_max_;
 
     if (var_count < 1) {
       return; // sas7bcat has var_count = 0
@@ -158,8 +163,9 @@ public:
 
     VarType var_type = var_types_[var_index];
 
+    // Grow by doubling, always ensuring progress
     if (obs_index >= nrowsAlloc_)
-      resizeCols(nrowsAlloc_ * 2);
+      resizeCols((obs_index + 1) * 2);
     if (obs_index >= nrows_)
       nrows_ = obs_index + 1;
 
@@ -234,12 +240,6 @@ public:
       cpp11::sexp copy(Rf_lengthgets(output_[i], n));
       Rf_copyMostAttrib(output_[i], copy);
       output_[i] = copy;
-    }
-  }
-
-  void limitRows(long n) {
-    if (nrows_ > n) {
-      nrows_ = n;
     }
   }
 

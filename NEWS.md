@@ -1,6 +1,7 @@
 # haven (development version)
 
 * haven no longer depends on readr (#834). As a consequence, the `read_*()` functions no longer read compressed (`.gz`, `.bz2`, `.xz`, `.zip`) files; decompress them before reading.
+* All `read_*()` functions with small `n_max` no longer pre-allocate more rows than needed, greatly reducing memory usage of header-only reads (#845).
 * Updated to ReadStat dev (0dc2aee).
   * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
   * SAS catalog reader now correctly reads big-endian files.

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <memory>
 #include <string>
 
@@ -89,12 +90,18 @@ struct ParserDeleter {
 };
 typedef std::unique_ptr<readstat_parser_t, ParserDeleter> Parser;
 
-Parser haven_init_parser() {
+Parser haven_init_parser(long n_max) {
   Parser parser(readstat_parser_init());
   readstat_set_metadata_handler(parser.get(), reader_metadata);
   readstat_set_note_handler(parser.get(), reader_note);
   readstat_set_variable_handler(parser.get(), reader_variable);
-  readstat_set_value_handler(parser.get(), reader_value);
+  // With n_max = 0 we only need the header. n_max = -1 means read all rows
+  if (n_max != 0) {
+    readstat_set_value_handler(parser.get(), reader_value);
+  }
+  if (n_max > 0) {
+    readstat_set_row_limit(parser.get(), n_max);
+  }
   readstat_set_value_label_handler(parser.get(), reader_value_label);
   readstat_set_error_handler(parser.get(), print_error);
   return parser;
@@ -112,11 +119,6 @@ void haven_init_io(readstat_parser_t* parser, ReaderInput& builder_input) {
   readstat_set_file_character_encoding(
       parser,
       builder_input.encoding == "" ? NULL : builder_input.encoding.c_str());
-}
-
-void haven_set_row_limit(readstat_parser_t* parser, long n) {
-  // readstat uses 0 to specify "all rows" but what we want is "minimal rows"
-  readstat_set_row_limit(parser, n == 0 ? 1 : n);
 }
 
 void haven_parse(
@@ -269,9 +271,9 @@ cpp11::list df_parse(FileExt ext, SEXP spec, const ReaderOptions& opts) {
   Reader builder(ext, user_na);
   builder.skipCols(opts.cols_skip);
   builder.setQuiet(opts.n_max == 0);
+  builder.setMaxRows(opts.n_max);
 
-  Parser parser = haven_init_parser();
-  haven_set_row_limit(parser.get(), opts.n_max);
+  Parser parser = haven_init_parser(opts.n_max);
   readstat_set_row_offset(parser.get(), opts.rows_skip);
 
   std::unique_ptr<ReaderInput> input = make_input(spec, encoding);
@@ -286,10 +288,6 @@ cpp11::list df_parse(FileExt ext, SEXP spec, const ReaderOptions& opts) {
   }
 
   haven_parse(ext, parser.get(), *input, &builder);
-
-  if (opts.n_max >= 0) {
-    builder.limitRows(opts.n_max); // must enforce n_max = 0
-  }
 
   return builder.output();
 }
