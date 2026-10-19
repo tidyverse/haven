@@ -329,6 +329,7 @@ test_that("can write single character variable names in older versions", {
 })
 
 test_that("progress bar is closed when parsing fails", {
+  skip_on_cran()
   local_options(
     cli.progress_show_after = 0,
     cli.progress_handlers_only = "logger"
@@ -338,7 +339,9 @@ test_that("progress bar is closed when parsing fails", {
   bytes <- readBin(path, "raw", file.size(path))
   writeBin(bytes[seq_len(length(bytes) - 100)], path)
 
-  out <- capture.output(try(read_dta(path, progress = TRUE), silent = TRUE))
+  out <- capture.output(
+    . <- try(read_dta(path, progress = TRUE), silent = TRUE)
+  )
   expect_match(out, "terminated", fixed = TRUE, all = FALSE)
 })
 

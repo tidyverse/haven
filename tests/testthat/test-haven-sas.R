@@ -106,16 +106,17 @@ test_that("can limit the number of rows to read", {
 })
 
 test_that("progress controls the progress bar", {
+  skip_on_cran()
   local_options(
     cli.progress_show_after = 0,
     cli.progress_handlers_only = "logger"
   )
   path <- test_path("sas/hadley.sas7bdat")
 
-  out <- capture.output(df <- read_sas(path, progress = TRUE))
+  out <- capture.output(. <- read_sas(path, progress = TRUE))
   expect_match(out, "terminated (done)", fixed = TRUE, all = FALSE)
 
-  out <- capture.output(df <- read_sas(path, progress = FALSE))
+  out <- capture.output(. <- read_sas(path, progress = FALSE))
   expect_equal(out, character())
 })
 
