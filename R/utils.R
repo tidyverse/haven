@@ -108,7 +108,7 @@ local_progress_bar <- function(show, frame = parent.frame()) {
     .envir = frame
   )
   # TODO: cli doesn't export a way to get the bar object from its id
-  getFromNamespace("clienv", "cli")$progress[[id]]
+  utils::getFromNamespace("clienv", "cli")$progress[[id]]
 }
 
 adjust_tz <- function(df) {
