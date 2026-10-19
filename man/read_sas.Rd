@@ -2,7 +2,8 @@
 % Please edit documentation in R/haven-sas.R
 \name{read_sas}
 \alias{read_sas}
-\title{Read SAS files}
+\alias{write_sas}
+\title{Read and write SAS files}
 \usage{
 read_sas(
   data_file,
@@ -12,9 +13,10 @@ read_sas(
   col_select = NULL,
   skip = 0L,
   n_max = Inf,
-  cols_only = deprecated(),
   .name_repair = "unique"
 )
+
+write_sas(data, path)
 }
 \arguments{
 \item{data_file, catalog_file}{Data and catalog files. Each can be a path,
@@ -39,9 +41,6 @@ Predicates using \code{\link[tidyselect:where]{where()}} are not supported.}
 
 \item{n_max}{Maximum number of lines to read.}
 
-\item{cols_only}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} \code{cols_only} is no longer
-supported; use \code{col_select} instead.}
-
 \item{.name_repair}{Treatment of problematic column names:
 \itemize{
 \item \code{"minimal"}: No name repair or checks, beyond basic existence,
@@ -59,6 +58,10 @@ for names in the style of base R).
 This argument is passed on as \code{repair} to \code{\link[vctrs:vec_as_names]{vctrs::vec_as_names()}}.
 See there for more details on these terms and the strategies used
 to enforce them.}
+
+\item{data}{Data frame to write.}
+
+\item{path}{Path to file where the data will be written.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
@@ -75,9 +78,17 @@ details.
 }
 \description{
 \code{read_sas()} supports both sas7bdat files and the accompanying sas7bcat files
-that SAS uses to record value labels.
+that SAS uses to record value labels. \code{write_sas()} creates sas7bdat files;
+it does not write value labels.
+
+The sas7bdat format is closed and undocumented, so if you need an open
+format, instead consider \code{\link[=write_xpt]{write_xpt()}}, the SAS transport format.
 }
 \examples{
 path <- system.file("examples", "iris.sas7bdat", package = "haven")
 read_sas(path)
+
+tmp <- tempfile(fileext = ".sas7bdat")
+write_sas(mtcars, tmp)
+read_sas(tmp)
 }
