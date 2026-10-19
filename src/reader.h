@@ -2,6 +2,7 @@
 #define HAVEN_READER_H
 
 #include <algorithm>
+#include <cmath>
 #include <map>
 #include <set>
 #include <string>
@@ -22,6 +23,8 @@
 
 #include "cpp11/function.hpp"
 #include "cpp11/protect.hpp"
+
+#include <cli/progress.h>
 
 // Converts a readstat double to an R double, handling user-defined missings:
 // tagged missings become tagged NAs, and defined/system missings become
@@ -74,6 +77,9 @@ class Reader {
   std::set<int> colsSkip_;
   bool quiet_;
   long n_max_;
+
+  cpp11::sexp progressBar_ = R_NilValue;
+  double lastInterruptCheck_ = 0;
 
 public:
   Reader(FileExt ext, bool user_na = false)
@@ -450,6 +456,23 @@ public:
       cpp11::sexp copy(Rf_lengthgets(output_[i], n));
       Rf_copyMostAttrib(output_[i], copy);
       output_[i] = copy;
+    }
+  }
+
+  // The progress bar is owned by R (created with `cli::cli_progress_bar()`
+  // and cleaned up with `on.exit()`); we just update it here.
+  void setProgressBar(SEXP bar) { progressBar_ = bar; }
+
+  // `progress` is the fraction of the file that has been read so far.
+  void updateProgress(double progress) {
+    // Check for user interrupts every 0.1% of the file
+    if (std::abs(progress - lastInterruptCheck_) >= 0.001) {
+      cpp11::check_user_interrupt();
+      lastInterruptCheck_ = progress;
+    }
+
+    if (CLI_SHOULD_TICK && !Rf_isNull(progressBar_)) {
+      cpp11::safe[cli_progress_set](progressBar_, progress * 100);
     }
   }
 

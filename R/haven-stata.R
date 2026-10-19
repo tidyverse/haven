@@ -69,11 +69,14 @@ read_dta <- function(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_string(encoding, allow_null = TRUE)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
+  progress <- local_progress_bar(progress)
 
   encoding <- encoding %||% ""
 
@@ -86,7 +89,8 @@ read_dta <- function(
     encoding = encoding,
     cols_skip = cols$skip,
     n_max = n_max,
-    rows_skip = skip
+    rows_skip = skip,
+    progress = progress
   )
   data <- read(spec, options)
   output_cols(data, cols)

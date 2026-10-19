@@ -34,12 +34,15 @@ read_sas <- function(
   col_select = NULL,
   skip = 0L,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_string(encoding, allow_null = TRUE)
   check_string(catalog_encoding, allow_null = TRUE)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
+  progress <- local_progress_bar(progress)
 
   encoding <- encoding %||% ""
   catalog_encoding <- catalog_encoding %||% ""
@@ -61,7 +64,8 @@ read_sas <- function(
     catalog_encoding = catalog_encoding,
     cols_skip = cols$skip,
     n_max = n_max,
-    rows_skip = skip
+    rows_skip = skip,
+    progress = progress
   )
   data <- read(spec_data, options)
   output_cols(data, cols)
@@ -125,10 +129,13 @@ read_xpt <- function(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
+  progress <- local_progress_bar(progress)
 
   spec <- datasource(file)
   header <- read(spec, df_parse_options("xpt"))
@@ -138,7 +145,8 @@ read_xpt <- function(
     "xpt",
     cols_skip = cols$skip,
     n_max = n_max,
-    rows_skip = skip
+    rows_skip = skip,
+    progress = progress
   )
   data <- read(spec, options)
 

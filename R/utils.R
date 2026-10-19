@@ -88,6 +88,29 @@ check_n_max <- function(n, arg = caller_arg(n), call = caller_env()) {
   as.integer(n)
 }
 
+# Inlined from purrr:::defer()
+defer <- function(expr, env = parent.frame(), after = FALSE) {
+  thunk <- as.call(list(function() expr))
+  do.call(on.exit, list(thunk, TRUE, after), envir = env)
+}
+
+# Creates a cli progress bar that is cleaned up when the calling frame exits.
+# `show` is the user-supplied `progress` argument: `NULL` shows the bar only
+# in interactive sessions (unless disabled via the `haven.show_progress`
+# option). Returns the bar id, or `NULL` if no bar is shown.
+local_progress_bar <- function(show, frame = parent.frame()) {
+  show <- show %||%
+    (isTRUE(getOption("haven.show_progress", TRUE)) &&
+      is_interactive() &&
+      !isTRUE(getOption("rstudio.notebook.executing")))
+  if (!show) {
+    return(NULL)
+  }
+  id <- cli::cli_progress_bar(total = 100)
+  defer(cli::cli_progress_done(id), env = frame)
+  id
+}
+
 adjust_tz <- function(df) {
   datetime <- vapply(df, inherits, "POSIXt", FUN.VALUE = logical(1))
   df[datetime] <- lapply(df[datetime], force_utc)

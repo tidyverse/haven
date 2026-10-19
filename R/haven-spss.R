@@ -30,6 +30,9 @@
 #'
 #'   Set to 0 to return data frame containing correctly typed (but empty)
 #'   columns along with all data frame and variable metadata.
+#' @param progress Display a progress bar? The default, `NULL`, only displays
+#'   it in an interactive session. The automatic progress bar can be disabled
+#'   with `options(haven.show_progress = FALSE)`.
 #' @inherit labelled-output return
 #' @name read_spss
 #' @examples
@@ -50,12 +53,15 @@ read_sav <- function(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_string(encoding, allow_null = TRUE)
   check_bool(user_na)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
+  progress <- local_progress_bar(progress)
 
   encoding <- encoding %||% ""
 
@@ -69,7 +75,8 @@ read_sav <- function(
     user_na = user_na,
     cols_skip = cols$skip,
     n_max = n_max,
-    rows_skip = skip
+    rows_skip = skip,
+    progress = progress
   )
   data <- read(spec, options)
   output_cols(data, cols)
@@ -83,11 +90,14 @@ read_por <- function(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_bool(user_na)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
+  progress <- local_progress_bar(progress)
 
   spec <- datasource(file)
   header <- read(spec, df_parse_options("por"))
@@ -98,7 +108,8 @@ read_por <- function(
     user_na = user_na,
     cols_skip = cols$skip,
     n_max = n_max,
-    rows_skip = skip
+    rows_skip = skip,
+    progress = progress
   )
   data <- read(spec, options)
 
@@ -180,11 +191,13 @@ read_spss <- function(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 ) {
   check_bool(user_na)
   check_number_whole(skip, min = 0)
   n_max <- check_n_max(n_max)
+  check_bool(progress, allow_null = TRUE)
 
   ext <- tolower(tools::file_ext(file))
 
@@ -196,6 +209,7 @@ read_spss <- function(
       col_select = {{ col_select }},
       n_max = n_max,
       skip = skip,
+      progress = progress,
       .name_repair = .name_repair
     ),
     zsav = read_sav(
@@ -204,6 +218,7 @@ read_spss <- function(
       col_select = {{ col_select }},
       n_max = n_max,
       skip = skip,
+      progress = progress,
       .name_repair = .name_repair
     ),
     por = read_por(
@@ -212,6 +227,7 @@ read_spss <- function(
       col_select = {{ col_select }},
       n_max = n_max,
       skip = skip,
+      progress = progress,
       .name_repair = .name_repair
     ),
     cli_abort("Unknown extension {.file .{ext}}.")

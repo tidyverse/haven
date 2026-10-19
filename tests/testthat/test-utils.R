@@ -51,3 +51,16 @@ test_that("select_cols() repairs names before selecting", {
     c(a...2 = 2L)
   )
 })
+
+test_that("local_progress_bar() respects option and interactivity", {
+  expect_null(local_progress_bar(FALSE))
+
+  local_options(rlang_interactive = TRUE)
+  expect_type(local_progress_bar(NULL), "character")
+
+  local_options(haven.show_progress = FALSE)
+  expect_null(local_progress_bar(NULL))
+
+  local_options(haven.show_progress = TRUE, rlang_interactive = FALSE)
+  expect_null(local_progress_bar(NULL))
+})
