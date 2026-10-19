@@ -88,10 +88,11 @@ public:
   void setInfo(int obs_count, int var_count) {
     // If unknown, start with 1e5, and use doubling strategy
     nrowsAlloc_ = obs_count < 0 ? 1e5 : obs_count;
-    nrows_ = obs_count < 0 ? 0 : obs_count;
-    // Never allocate more rows than readstat will deliver
+    // But never allocate more rows than what we request
     if (n_max_ >= 0 && n_max_ < nrowsAlloc_)
       nrowsAlloc_ = n_max_;
+
+    nrows_ = obs_count < 0 ? 0 : obs_count;
 
     if (var_count < 1) {
       return; // sas7bcat has var_count = 0
