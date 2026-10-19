@@ -5,14 +5,14 @@
 #include "cpp11/declarations.hpp"
 #include <R_ext/Visibility.h>
 
-// DfReader.cpp
+// reader.cpp
 cpp11::list read(SEXP spec, cpp11::list options);
 extern "C" SEXP _haven_read(SEXP spec, SEXP options) {
   BEGIN_CPP11
     return cpp11::as_sexp(read(cpp11::as_cpp<cpp11::decay_t<SEXP>>(spec), cpp11::as_cpp<cpp11::decay_t<cpp11::list>>(options)));
   END_CPP11
 }
-// DfWriter.cpp
+// writer.cpp
 void write_sav_(cpp11::list data, cpp11::strings path, std::string compress);
 extern "C" SEXP _haven_write_sav_(SEXP data, SEXP path, SEXP compress) {
   BEGIN_CPP11
@@ -20,7 +20,7 @@ extern "C" SEXP _haven_write_sav_(SEXP data, SEXP path, SEXP compress) {
     return R_NilValue;
   END_CPP11
 }
-// DfWriter.cpp
+// writer.cpp
 void write_dta_(cpp11::list data, cpp11::strings path, int version, cpp11::sexp label, int strl_threshold);
 extern "C" SEXP _haven_write_dta_(SEXP data, SEXP path, SEXP version, SEXP label, SEXP strl_threshold) {
   BEGIN_CPP11
@@ -28,7 +28,7 @@ extern "C" SEXP _haven_write_dta_(SEXP data, SEXP path, SEXP version, SEXP label
     return R_NilValue;
   END_CPP11
 }
-// DfWriter.cpp
+// writer.cpp
 void write_sas_(cpp11::list data, cpp11::strings path);
 extern "C" SEXP _haven_write_sas_(SEXP data, SEXP path) {
   BEGIN_CPP11
@@ -36,7 +36,7 @@ extern "C" SEXP _haven_write_sas_(SEXP data, SEXP path) {
     return R_NilValue;
   END_CPP11
 }
-// DfWriter.cpp
+// writer.cpp
 void write_xpt_(cpp11::list data, cpp11::strings path, int version, std::string name, cpp11::sexp label);
 extern "C" SEXP _haven_write_xpt_(SEXP data, SEXP path, SEXP version, SEXP name, SEXP label) {
   BEGIN_CPP11

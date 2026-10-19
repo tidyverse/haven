@@ -1,14 +1,7 @@
-#ifndef __HAVEN_TYPES__
-#define __HAVEN_TYPES__
+#ifndef HAVEN_TYPES_H
+#define HAVEN_TYPES_H
 
-#include <cmath>
-#include <cpp11/R.hpp>
-#include <cpp11/integers.hpp>
-#include <cpp11/list.hpp>
-#include <cpp11/strings.hpp>
 #include <string>
-
-#define CPP11_PARTIAL
 
 enum FileVendor { HAVEN_SPSS, HAVEN_STATA, HAVEN_SAS };
 
@@ -23,17 +16,6 @@ enum FileExt {
 
 FileVendor extVendor(FileExt ext);
 
-enum VarType { HAVEN_DEFAULT, HAVEN_DATE, HAVEN_TIME, HAVEN_DATETIME };
-
 std::string formatAttribute(FileVendor vendor);
-bool hasPrefix(std::string x, std::string prefix);
-VarType numType(SEXP x);
-VarType numType(FileVendor vendor, const char* var_format);
-
-// Value conversion -----------------------------------------------------------
-
-int daysOffset(FileVendor vendor);
-double adjustDatetimeToR(FileVendor vendor, VarType var, double value);
-double adjustDatetimeFromR(FileVendor vendor, SEXP col, double value);
 
 #endif
