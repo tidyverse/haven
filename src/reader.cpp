@@ -289,10 +289,6 @@ cpp11::list df_parse(FileExt ext, SEXP spec, const ReaderOptions& opts) {
 
   haven_parse(ext, parser.get(), *input, &builder);
 
-  if (opts.n_max >= 0) {
-    builder.limitRows(opts.n_max); // must enforce n_max = 0
-  }
-
   return builder.output();
 }
 

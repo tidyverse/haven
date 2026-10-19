@@ -50,7 +50,8 @@ inline double haven_double_value(readstat_value_t value) {
 class Reader {
   FileVendor vendor_;
 
-  int nrows_, nrowsAlloc_;
+  int nrows_;      // number of rows read so far
+  int nrowsAlloc_; // number of rows currently allocated in output vectors
   int ncols_;
   cpp11::writable::list output_;
   cpp11::writable::strings names_;
@@ -69,6 +70,7 @@ public:
   Reader(FileExt ext, bool user_na = false)
       : vendor_(extVendor(ext)),
         nrows_(0),
+        nrowsAlloc_(0),
         ncols_(0),
         output_(static_cast<R_xlen_t>(0)),
         user_na_(user_na),
@@ -91,8 +93,6 @@ public:
     // But never allocate more rows than what we request
     if (n_max_ >= 0 && n_max_ < nrowsAlloc_)
       nrowsAlloc_ = n_max_;
-
-    nrows_ = obs_count < 0 ? 0 : obs_count;
 
     if (var_count < 1) {
       return; // sas7bcat has var_count = 0
@@ -163,8 +163,9 @@ public:
 
     VarType var_type = var_types_[var_index];
 
+    // Grow by doubling, always ensuring progress
     if (obs_index >= nrowsAlloc_)
-      resizeCols(nrowsAlloc_ * 2);
+      resizeCols((obs_index + 1) * 2);
     if (obs_index >= nrows_)
       nrows_ = obs_index + 1;
 
@@ -239,12 +240,6 @@ public:
       cpp11::sexp copy(Rf_lengthgets(output_[i], n));
       Rf_copyMostAttrib(output_[i], copy);
       output_[i] = copy;
-    }
-  }
-
-  void limitRows(long n) {
-    if (nrows_ > n) {
-      nrows_ = n;
     }
   }
 
