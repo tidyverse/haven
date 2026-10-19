@@ -459,9 +459,15 @@ public:
     }
   }
 
-  // The progress bar is owned by R (created with `cli::cli_progress_bar()`
-  // and cleaned up with `on.exit()`); we just update it here.
-  void setProgressBar(SEXP bar) { progressBar_ = bar; }
+  // The progress bar is owned by R (see `local_progress_bar()`); we just
+  // update it here. `CLI_SHOULD_TICK` is always false until the timer has
+  // been initialised in this compilation unit.
+  void setProgressBar(SEXP bar) {
+    progressBar_ = bar;
+    if (!Rf_isNull(bar)) {
+      cli_progress_init_timer();
+    }
+  }
 
   // `progress` is the fraction of the file that has been read so far.
   void updateProgress(double progress) {

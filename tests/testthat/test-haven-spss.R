@@ -644,6 +644,18 @@ test_that("write_sav checks its inputs", {
   })
 })
 
+test_that("progress bar is updated while reading", {
+  local_options(cli.progress_handlers_only = "logger")
+  path <- tempfile(fileext = ".sav")
+  write_sav(mtcars, path)
+
+  out <- capture.output(
+    cli::cli_with_progress_ticks(read_sav(path, progress = TRUE))
+  )
+  expect_match(out, "updated", fixed = TRUE, all = FALSE)
+  expect_match(out, "terminated (done)", fixed = TRUE, all = FALSE)
+})
+
 test_that("progress bar is closed when parsing fails", {
   local_options(
     cli.progress_show_after = 0,
