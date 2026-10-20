@@ -29,7 +29,6 @@ Imports:
     vctrs (>= 0.3.0)
 Suggests: 
     covr,
-    crayon,
     fs,
     knitr,
     pillar (>= 1.4.0),

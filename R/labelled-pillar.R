@@ -4,7 +4,7 @@ pillar_shaft.haven_labelled <- function(
   show_labels = getOption("haven.show_pillar_labels", TRUE),
   ...
 ) {
-  if (!isTRUE(show_labels) | !pillar_print_pkgs_available()) {
+  if (!isTRUE(show_labels)) {
     return(pillar::pillar_shaft(unclass(x)))
   }
 
@@ -66,7 +66,7 @@ num_disp_components <- function(x, pillar, width) {
   # Sometimes there's an extra leading space from pillar
   display <- trim_ws_lhs(display)
   # exponent notation formatting hinders stripping white space in NAs
-  display[is.na(unclass(x))] <- crayon::strip_style(display[is.na(unclass(x))])
+  display[is.na(unclass(x))] <- cli::ansi_strip(display[is.na(unclass(x))])
 
   display_untrimmed_wid <- pillar::get_extent(display)
   display_max_wid <- max(display_untrimmed_wid)
@@ -194,7 +194,7 @@ str_trunc <- function(x, widths, subtle = FALSE) {
   }
 
   truncated <- Map(x[too_wide], widths[too_wide], f = function(item, wid) {
-    paste0(crayon::col_substr(item, 1, wid - 1), continue_symbol)
+    paste0(cli::ansi_substr(item, 1, wid - 1), continue_symbol)
   })
   truncated <- as.vector(truncated, "character")
   x[too_wide] <- truncated
@@ -220,10 +220,4 @@ paste_with_align <- function(x, y, lhs_ws, rhs_ws) {
   rhs_ws <- added_chars - (y_wid - rhs_ws)
 
   paste0(pad_space(lhs_ws), x, y, pad_space(rhs_ws))
-}
-
-pillar_print_pkgs_available <- function() {
-  requireNamespace("crayon", quietly = TRUE) &&
-    requireNamespace("cli", quietly = TRUE) &&
-    requireNamespace("utf8", quietly = TRUE)
 }
