@@ -102,12 +102,8 @@ local_progress_bar <- function(show, frame = parent.frame()) {
   if (!show) {
     return(NULL)
   }
-  id <- cli::cli_progress_bar(
-    total = 100,
-    auto_terminate = FALSE,
-    .envir = frame
-  )
-  # TODO: cli doesn't export a way to get the bar object from its id
+  id <- cli::cli_progress_bar(total = 100, .envir = frame)
+  # TODO: Remove once https://github.com/r-lib/cli/issues/850 is fixed
   utils::getFromNamespace("clienv", "cli")$progress[[id]]
 }
 
