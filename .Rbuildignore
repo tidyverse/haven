@@ -28,4 +28,3 @@
 ^\.vscode$
 ^AGENTS\.md$
 ^src/.clang-format$
-^plan.md$
