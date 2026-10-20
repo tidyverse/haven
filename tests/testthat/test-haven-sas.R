@@ -196,6 +196,25 @@ test_that("date/times with character data throw a warning (#747)", {
 
 # write_xpt ---------------------------------------------------------------
 
+test_that("width roundtrips through xpt (#782)", {
+  df <- data.frame(date = as.Date("2025-01-02"))
+  meta(df$date, "sas")@format <- "DATE9."
+  meta(df$date, "sas")@width <- 9L
+
+  out <- roundtrip_file(df, "xpt")
+  expect_equal(meta(out$date)@width, 9L)
+
+  # stable on re-write
+  out2 <- roundtrip_file(out, "xpt")
+  expect_equal(meta(out2$date)@width, 9L)
+
+  df <- data.frame(x = 1.5)
+  meta(df$x, "sas")@format <- "DATETIME20.2"
+
+  out <- roundtrip_file(df, "xpt")
+  expect_equal(meta(out$x), meta_var_sas(format = "DATETIME20.2", width = 20L))
+})
+
 test_that("can roundtrip basic types", {
   x <- runif(10)
   expect_equal(roundtrip_var(x, "xpt"), x)
@@ -332,7 +351,7 @@ test_that("can roundtrip format attribute", {
 test_that("write_xpt() roundtrips metadata", {
   created <- as.POSIXct("2020-01-01 10:00:00", tz = "UTC")
   df <- tibble(x = 1, y = "abc")
-  meta(df$x) <- meta_var_sas(format = "DATE9", informat = "DATE9", width = 4)
+  meta(df$x) <- meta_var_sas(format = "DATE9", informat = "DATE9", width = 9)
   meta(df$y) <- meta_var_sas(format = "$CHAR10", width = 10)
   meta(df) <- meta_df_sas(
     created = created,
@@ -356,7 +375,15 @@ test_that("sas7bdat metadata carries over to xpt", {
   df <- read_sas(system.file("examples", "iris.sas7bdat", package = "haven"))
   out <- roundtrip_file(df, "xpt")
 
-  expect_equal(lapply(out, meta), lapply(df, meta))
+  # XPT reports the format width rather than the storage width
+  num <- meta_var_sas(format = "BEST12", informat = "BEST32", width = 12)
+  for (var in c("Sepal_Length", "Sepal_Width", "Petal_Length", "Petal_Width")) {
+    expect_equal(meta(out[[var]]), num)
+  }
+  expect_equal(
+    meta(out$Species),
+    meta_var_sas(format = "$6", informat = "$6", width = 6)
+  )
   expect_equal(meta(out)@table_name, meta(df)@table_name)
   expect_equal(meta(out)@created, meta(df)@created)
 })

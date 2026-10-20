@@ -235,7 +235,13 @@ public:
       if (!is_empty(informat)) {
         meta.set("informat", informat);
       }
-      if (width > 0) {
+      // For XPT files, display_width is the format width (namestr nfl), which
+      // is what SAS users think of as the variable width. sas7bdat doesn't
+      // set display_width, so fall back to the storage width.
+      int display_width = readstat_variable_get_display_width(variable);
+      if (display_width > 0) {
+        meta.set("width", display_width);
+      } else if (width > 0) {
         meta.set("width", width);
       }
       break;
