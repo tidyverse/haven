@@ -75,6 +75,10 @@ labels, not a regular R factor. Convert labelled categorical variables
 with \code{\link[=as_factor]{as_factor()}}, or remove value labels with \code{\link[=zap_labels]{zap_labels()}} if you
 need plain R vectors for analysis. See \code{vignette("semantics")} for more
 details.
+
+The data frame and each variable also carry metadata read from the file;
+access it with \code{\link[=meta]{meta()}}. See \code{\link[=meta_var_sas]{meta_var_sas()}}, \code{\link[=meta_var_spss]{meta_var_spss()}}, and
+\code{\link[=meta_var_stata]{meta_var_stata()}} for the format-specific fields.
 }
 \description{
 \code{read_sas()} supports both sas7bdat files and the accompanying sas7bcat files

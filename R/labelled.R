@@ -432,6 +432,10 @@ vec_math.haven_labelled <- function(.fn, .x, ...) {
 #'   with [as_factor()], or remove value labels with [zap_labels()] if you
 #'   need plain R vectors for analysis. See `vignette("semantics")` for more
 #'   details.
+#'
+#'   The data frame and each variable also carry metadata read from the file;
+#'   access it with [meta()]. See [meta_var_sas()], [meta_var_spss()], and
+#'   [meta_var_stata()] for the format-specific fields.
 #' @name labelled-output
 #' @keywords internal
 NULL

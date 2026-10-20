@@ -108,6 +108,10 @@ write_sas <- function(data, path) {
 #'   If a dataset label is defined, it will be stored in the "label" attribute
 #'   of the tibble.
 #'
+#'   The data frame and each variable also carry metadata read from the file;
+#'   access it with [meta()] and see [meta_var_sas()] for the available
+#'   fields.
+#'
 #'   `write_xpt()` returns the input `data` invisibly.
 #' @export
 #' @examples

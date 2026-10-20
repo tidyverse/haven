@@ -99,6 +99,10 @@ It is not printed on the console, but the RStudio viewer will show it.
 If a dataset label is defined, it will be stored in the "label" attribute
 of the tibble.
 
+The data frame and each variable also carry metadata read from the file;
+access it with \code{\link[=meta]{meta()}} and see \code{\link[=meta_var_sas]{meta_var_sas()}} for the available
+fields.
+
 \code{write_xpt()} returns the input \code{data} invisibly.
 }
 \description{
