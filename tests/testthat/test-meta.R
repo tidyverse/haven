@@ -132,6 +132,45 @@ test_that("legacy vendor mismatch is an error", {
   expect_snapshot(meta(x, "stata"), error = TRUE)
 })
 
+test_that("meta<- strips stale legacy attributes", {
+  x <- structure(1, format.sas = "DATE9.", width = 8)
+  meta(x) <- meta_var_sas(format = "DATE10.")
+  expect_null(attr(x, "format.sas"))
+  expect_null(attr(x, "width"))
+  expect_equal(meta(x), meta_var_sas(format = "DATE10."))
+})
+
+test_that("meta(x) <- NULL removes all metadata", {
+  time <- as.POSIXct("2020-01-01", tz = "UTC")
+  df <- structure(
+    data.frame(x = 1),
+    notes = "a note",
+    creation_timestamp = time
+  )
+  meta(df) <- NULL
+  expect_null(meta(df))
+
+  x <- structure(1, format.stata = "%9.0g")
+  meta(x) <- NULL
+  expect_null(meta(x))
+})
+
+test_that("meta<- strips legacy attributes for all vendors", {
+  x <- structure(1, format.sas = "DATE9.", format.stata = "%9.0g")
+  meta(x) <- meta_var_stata()
+  expect_null(attr(x, "format.stata"))
+  expect_null(attr(x, "format.sas"))
+
+  df <- structure(
+    data.frame(x = 1),
+    notes = "a note",
+    creation_timestamp = as.POSIXct("2020-01-01", tz = "UTC")
+  )
+  meta(df) <- meta_df_sas()
+  expect_null(attr(df, "notes"))
+  expect_null(attr(df, "creation_timestamp"))
+})
+
 test_that("haven_meta takes precedence over legacy attributes", {
   x <- structure(1, format.sas = "DATE9.")
   meta(x) <- meta_var_sas(format = "DATE10.")

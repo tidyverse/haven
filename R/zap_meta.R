@@ -35,20 +35,12 @@ zap_meta <- function(x) {
 #' @export
 zap_meta.default <- function(x) {
   attr(x, "haven_meta") <- NULL
-  attr(x, "format.sas") <- NULL
-  attr(x, "format.spss") <- NULL
-  attr(x, "format.stata") <- NULL
-  attr(x, "display_width") <- NULL
-  attr(x, "width") <- NULL
-  x
+  strip_legacy_attrs(x)
 }
 
 #' @export
 zap_meta.data.frame <- function(x) {
   x[] <- lapply(x, zap_meta)
   attr(x, "haven_meta") <- NULL
-  attr(x, "notes") <- NULL
-  attr(x, "creation_timestamp") <- NULL
-  attr(x, "modified_timestamp") <- NULL
-  x
+  strip_legacy_attrs(x)
 }

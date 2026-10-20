@@ -1,6 +1,6 @@
 # haven (development version)
 
-* `meta<-` now removes the legacy `format.*`, `display_width`, `width`, `notes`, and `*_timestamp` attributes for the relevant vendor, so stale metadata can't resurface after setting new metadata or `NULL`.
+* `meta<-` now removes the legacy `format.*`, `display_width`, `width`, `notes`, and `*_timestamp` attributes so stale metadata can't resurface after setting new metadata or `NULL`.
 * haven no longer depends on readr (#834). As a consequence, the `read_*()` functions no longer read compressed (`.gz`, `.bz2`, `.xz`, `.zip`) files; decompress them before reading.
 * All `read_*()` functions with small `n_max` no longer pre-allocate more rows than needed, greatly reducing memory usage of header-only reads (#845).
 * Updated to ReadStat dev (0dc2aee).

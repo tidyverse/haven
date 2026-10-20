@@ -298,7 +298,9 @@ meta_class <- function(vendor, df) {
 #' @param vendor If supplied, one of `"sas"`, `"spss"`, or `"stata"`.
 #'   Returns an empty object of the appropriate class if no metadata is
 #'   present, and errors if the existing metadata belongs to another vendor.
-#' @param value `NULL` or a metadata object of the appropriate class.
+#' @param value `NULL` or a metadata object of the appropriate class. Setting
+#'   metadata (including `NULL`) also removes the legacy attributes, so they
+#'   can't resurface later.
 #' @return `meta()` returns an S7 object inheriting from `meta_var` (for
 #'   vectors) or `meta_df` (for data frames), or `NULL`.
 #' @examples
@@ -364,7 +366,25 @@ meta <- function(x, vendor = NULL) {
     }
   }
 
+  x <- strip_legacy_attrs(x)
   attr(x, "haven_meta") <- value
+  x
+}
+
+# Strips the legacy attributes that legacy_meta() reads, so they can't
+# resurface once haven_meta has been set (or removed with `meta(x) <- NULL`).
+strip_legacy_attrs <- function(x) {
+  if (is.data.frame(x)) {
+    attr(x, "notes") <- NULL
+    attr(x, "creation_timestamp") <- NULL
+    attr(x, "modified_timestamp") <- NULL
+  } else {
+    attr(x, "format.sas") <- NULL
+    attr(x, "format.spss") <- NULL
+    attr(x, "format.stata") <- NULL
+    attr(x, "display_width") <- NULL
+    attr(x, "width") <- NULL
+  }
   x
 }
 

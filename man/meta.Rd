@@ -16,7 +16,9 @@ meta(x, vendor = NULL) <- value
 Returns an empty object of the appropriate class if no metadata is
 present, and errors if the existing metadata belongs to another vendor.}
 
-\item{value}{\code{NULL} or a metadata object of the appropriate class.}
+\item{value}{\code{NULL} or a metadata object of the appropriate class. Setting
+metadata (including \code{NULL}) also removes the legacy attributes, so they
+can't resurface later.}
 }
 \value{
 \code{meta()} returns an S7 object inheriting from \code{meta_var} (for
