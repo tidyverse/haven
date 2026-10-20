@@ -343,21 +343,11 @@ meta <- function(x, vendor = NULL) {
   if (!is.null(value)) {
     if (is.data.frame(x)) {
       if (!S7::S7_inherits(value, meta_df)) {
-        stop_input_type(
-          value,
-          "a <meta_df> object or `NULL`",
-          arg = "value",
-          call = current_env()
-        )
+        stop_input_type(value, "a <meta_df> object or `NULL`", arg = "value")
       }
     } else {
       if (!S7::S7_inherits(value, meta_var)) {
-        stop_input_type(
-          value,
-          "a <meta_var> object or `NULL`",
-          arg = "value",
-          call = current_env()
-        )
+        stop_input_type(value, "a <meta_var> object or `NULL`", arg = "value")
       }
     }
 
