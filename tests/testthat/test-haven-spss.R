@@ -6,8 +6,8 @@ test_that("variable label stored as attributes", {
 })
 
 test_that("value labels stored as labelled class", {
-  num <- zap_formats(read_spss(test_path("spss/labelled-num.sav")))
-  str <- zap_formats(read_spss(test_path("spss/labelled-str.sav")))
+  num <- zap_meta(read_spss(test_path("spss/labelled-num.sav")))
+  str <- zap_meta(read_spss(test_path("spss/labelled-str.sav")))
 
   expect_equal(num[[1]], labelled(1, c("This is one" = 1)))
   expect_equal(str[[1]], labelled(c("M", "F"), c(Female = "F", Male = "M")))
@@ -58,11 +58,11 @@ test_that("formats roundtrip", {
   write_sav(df, tmp)
   df2 <- read_sav(tmp)
 
-  expect_equal(df2$a, df$a)
-  expect_equal(df2$b, df$b)
-  expect_equal(df2$c, df$c)
-  # ReadStat now sets the string format width to match the stored width
-  expect_equal(df2$d, structure(df$d, format.spss = "A4"))
+  expect_equal(
+    lapply(df2, \(x) meta(x)@format),
+    # ReadStat now sets the string format width to match the stored width
+    list(a = "F1.0", b = "F2.1", c = "N2", d = "A4")
+  )
 })
 
 test_that("widths roundtrip", {
@@ -73,12 +73,41 @@ test_that("widths roundtrip", {
     d = structure(c("Text", "Text", ""), display_width = 10)
   )
 
-  df2 <- roundtrip_sav(df)
+  tmp <- tempfile()
+  on.exit(unlink(tmp))
 
-  expect_equal(df2$a, df$a)
-  expect_equal(df2$b, df$b)
-  expect_equal(df2$c, df$c)
-  expect_equal(df2$d, df$d)
+  write_sav(df, tmp)
+  df2 <- read_sav(tmp)
+
+  expect_equal(
+    lapply(df2, \(x) meta(x)@display_width),
+    list(a = 10L, b = 11L, c = 12L, d = 10L)
+  )
+})
+
+test_that("write_sav() roundtrips metadata", {
+  created <- as.POSIXct("2020-01-01 10:00:00", tz = "UTC")
+  df <- tibble::tibble(x = c(1, 2), y = c("a", "b"))
+  meta(df$x) <- meta_var_spss(
+    format = "F8.2",
+    display_width = 12,
+    measure = "ordinal",
+    alignment = "center"
+  )
+  meta(df$y) <- meta_var_spss(
+    format = "A20",
+    width = 20,
+    display_width = 15,
+    measure = "nominal",
+    alignment = "left"
+  )
+  meta(df) <- meta_df_spss(created = created, notes = c("note 1", "note 2"))
+
+  out <- roundtrip_file(df, "sav")
+  expect_equal(meta(out$x), meta(df$x))
+  expect_equal(meta(out$y), meta(df$y))
+  expect_equal(meta(out)@created, created)
+  expect_equal(meta(out)@notes, c("note 1", "note 2"))
 })
 
 test_that("long string ghost names don't collide with real variables", {
@@ -157,7 +186,106 @@ test_that("system missings read as NA", {
 })
 
 
+# read_por ----------------------------------------------------------------
+
+# sample.por from https://github.com/Roche/pyreadstat/blob/master/test_data/basic/sample.por
+
+test_that("read_por reads data and labels", {
+  df <- read_por(test_path("spss/sample.por"))
+
+  expect_equal(dim(df), c(5, 7))
+  expect_equal(attr(df$MYCHAR, "label"), "character")
+  expect_equal(attr(df$MYLABL, "labels"), c(Male = 1, Female = 2))
+  expect_s3_class(df$MYDATE, "Date")
+  expect_s3_class(df$DTIME, "POSIXct")
+  expect_s3_class(df$MYTIME, "hms")
+})
+
+test_that("read_por captures variable metadata", {
+  df <- read_por(test_path("spss/sample.por"))
+
+  expect_equal(
+    meta(df$MYCHAR),
+    meta_var_spss(format = "A1", display_width = 1, width = 1)
+  )
+  expect_equal(
+    meta(df$MYNUM),
+    meta_var_spss(format = "F8.2", display_width = 8)
+  )
+})
+
+test_that("read_por captures file metadata", {
+  df <- read_por(test_path("spss/sample.por"))
+
+  meta <- meta(df)
+  expect_s3_class(meta, "haven::meta_df_spss")
+  # File timestamps are wall-clock times that readstat interprets in the
+  # local time zone
+  expect_equal(
+    meta@created,
+    as.POSIXct("2018-12-16 17:28:21", tz = Sys.timezone()),
+    ignore_attr = "tzone"
+  )
+  expect_equal(
+    meta@notes[1],
+    "some test text as notes"
+  )
+})
+
+test_that("read_spss dispatches to read_por for .por files", {
+  expect_equal(
+    read_spss(test_path("spss/sample.por")),
+    read_por(test_path("spss/sample.por"))
+  )
+})
+
+# Multiple response sets ----------------------------------------------------
+
+# multiple-response-sets.sav from
+# https://github.com/Roche/pyreadstat/blob/master/test_data/multiple_response/simple_alltypes.sav
+
+test_that("read_sav captures multiple response sets", {
+  df <- read_sav(test_path("spss/multiple-response-sets.sav"))
+
+  mr_sets <- meta(df)@mr_sets
+  expect_equal(
+    mr_sets,
+    list(
+      # SPSS prefixes multiple response set names with "$"
+      `$categorical_array` = list(
+        label = "",
+        type = "category",
+        counted_value = NULL,
+        variables = c("ca_subvar_1", "ca_subvar_2", "ca_subvar_3")
+      ),
+      `$mymrset` = list(
+        label = "My multiple response set",
+        type = "dichotomy",
+        counted_value = "1",
+        variables = c("bool1", "bool2", "bool3")
+      )
+    )
+  )
+})
+
+test_that("files without mr sets have NULL mr_sets", {
+  df <- read_sav(test_path("spss/datetime.sav"))
+  expect_null(meta(df)@mr_sets)
+})
+
 # write_sav ---------------------------------------------------------------
+
+test_that("write_sav() writes file label", {
+  df <- structure(tibble(x = 1), label = "abc")
+  expect_equal(attr(roundtrip_sav(df), "label"), "abc")
+  expect_equal(attr(roundtrip_sav(df, label = "def"), "label"), "def")
+  expect_null(attr(roundtrip_sav(df, label = NULL), "label"))
+
+  expect_snapshot(
+    write_sav(df, tempfile(), label = strrep("a", 65)),
+    error = TRUE
+  )
+})
 
 test_that("can roundtrip basic types", {
   x <- runif(10)
@@ -467,6 +595,22 @@ test_that("all compression types roundtrip successfully", {
 
 # File metadata -----------------------------------------------------------
 
+test_that("read_sav captures variable metadata", {
+  out <- read_sav(test_path("spss/labelled-str.sav"))
+
+  expect_equal(
+    meta(out[[1]]),
+    meta_var_spss(
+      format = "A1",
+      display_width = 8,
+      width = 1,
+      measure = "nominal",
+      alignment = "left"
+    )
+  )
+  expect_null(attr(out[[1]], "format.spss"))
+})
+
 test_that("read_sav attaches file timestamps", {
   df <- tibble(x = 1:3)
   before <- Sys.time()
@@ -475,8 +619,8 @@ test_that("read_sav attaches file timestamps", {
   write_sav(df, path)
   out <- read_sav(path)
 
-  created <- attr(out, "creation_timestamp")
-  modified <- attr(out, "modified_timestamp")
+  created <- meta(out)@created
+  modified <- meta(out)@modified
   expect_s3_class(created, "POSIXct")
   expect_s3_class(modified, "POSIXct")
   expect_true(created >= before - 60 && created <= Sys.time() + 60)

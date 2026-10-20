@@ -26,7 +26,13 @@ read_por(
   .name_repair = "unique"
 )
 
-write_sav(data, path, compress = c("byte", "none", "zsav"), adjust_tz = TRUE)
+write_sav(
+  data,
+  path,
+  compress = c("byte", "none", "zsav"),
+  adjust_tz = TRUE,
+  label = attr(data, "label")
+)
 
 read_spss(
   file,
@@ -60,7 +66,10 @@ Predicates using \code{\link[tidyselect:where]{where()}} are not supported.}
 
 \item{skip}{Number of lines to skip before reading data.}
 
-\item{n_max}{Maximum number of lines to read.}
+\item{n_max}{Maximum number of lines to read.
+
+Set to 0 to return data frame containing correctly typed (but empty)
+columns along with all data frame and variable metadata.}
 
 \item{.name_repair}{Treatment of problematic column names:
 \itemize{
@@ -80,7 +89,9 @@ This argument is passed on as \code{repair} to \code{\link[vctrs:vec_as_names]{v
 See there for more details on these terms and the strategies used
 to enforce them.}
 
-\item{data}{Data frame to write.}
+\item{data}{Data frame to write. File and variable metadata stored with
+\code{\link[=meta]{meta()}} is used where possible; see \code{\link[=meta_df_spss]{meta_df_spss()}} and
+\code{\link[=meta_var_spss]{meta_var_spss()}} for the fields that affect the output.}
 
 \item{path}{Path to a file where the data will be written.}
 
@@ -109,6 +120,9 @@ preserving between-time-point differences is critical.
 e.g. \code{"2010-01-01 09:00:00 NZDT"} will be written as
 \code{"2009-12-31 20:00:00"}.
 }}
+
+\item{label}{Dataset label to use, or \code{NULL}. Defaults to the value stored in
+the "label" attribute of \code{data}. Must be <= 64 bytes.}
 }
 \value{
 A tibble, data frame variant with nice defaults.
@@ -122,6 +136,10 @@ labels, not a regular R factor. Convert labelled categorical variables
 with \code{\link[=as_factor]{as_factor()}}, or remove value labels with \code{\link[=zap_labels]{zap_labels()}} if you
 need plain R vectors for analysis. See \code{vignette("semantics")} for more
 details.
+
+The data frame and each variable also carry metadata read from the file;
+access it with \code{\link[=meta]{meta()}}. See \code{\link[=meta_var_sas]{meta_var_sas()}}, \code{\link[=meta_var_spss]{meta_var_spss()}}, and
+\code{\link[=meta_var_stata]{meta_var_stata()}} for the format-specific fields.
 }
 \description{
 \code{read_sav()} reads both \code{.sav} and \code{.zsav} files; \code{write_sav()} creates

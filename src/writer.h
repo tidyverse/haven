@@ -33,6 +33,7 @@ class Writer {
   FileVendor vendor_;
 
   cpp11::list x_;
+  cpp11::list var_meta_;
   readstat_writer_t* writer_;
   FILE* pOut_;
 
@@ -40,10 +41,11 @@ class Writer {
   VariableDefiner definer_;
 
 public:
-  Writer(FileExt ext, cpp11::list x, cpp11::strings pathEnc)
+  Writer(FileExt ext, cpp11::list x, cpp11::strings pathEnc, cpp11::list meta)
       : ext_(ext),
         vendor_(extVendor(ext)),
         x_(x),
+        var_meta_(meta["vars"]),
         writer_(readstat_writer_init()),
         pOut_(NULL),
         definer_(writer_, ext, &string_ref_) {
@@ -57,6 +59,20 @@ public:
     }
 
     checkStatus(readstat_set_data_writer(writer_, data_writer));
+
+    SEXP df_meta = meta["df"];
+    SEXP created = list_get(df_meta, "created");
+    if (TYPEOF(created) == REALSXP && R_finite(REAL(created)[0])) {
+      checkStatus(readstat_writer_set_file_timestamp(
+          writer_, (time_t)REAL(created)[0]));
+    }
+
+    SEXP notes = list_get(df_meta, "notes");
+    if (TYPEOF(notes) == STRSXP) {
+      for (int i = 0; i < Rf_length(notes); ++i) {
+        readstat_add_note(writer_, string_utf8(notes, i));
+      }
+    }
   }
 
   ~Writer() {
@@ -137,7 +153,7 @@ public:
       types.push_back(varTypeFromR(cols[j]));
       const char* name = string_utf8(names, j);
 
-      status = definer_.defineVariable(cols[j], types[j], name);
+      status = definer_.defineVariable(cols[j], types[j], name, var_meta_[j]);
       if (status) {
         cpp11::stop(
             "Failed to create column `%s`: %s.",

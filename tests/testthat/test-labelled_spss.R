@@ -291,6 +291,27 @@ test_that("combining picks label from the left", {
   )
 })
 
+test_that("combining picks haven_meta from the left", {
+  left <- labelled_spss()
+  meta(left) <- meta_var_spss(format = "A")
+  right <- labelled_spss()
+  meta(right) <- meta_var_spss(format = "B")
+
+  expect_identical(meta(vec_c(left, right))@format, "A")
+  expect_identical(meta(vec_c(left, 1))@format, "A")
+  expect_identical(meta(vec_c(1, right))@format, "B")
+})
+
+test_that("casting picks haven_meta from the first input", {
+  x <- labelled_spss(1, labels = c(a = 1))
+  meta(x) <- meta_var_spss(format = "A")
+  to <- labelled_spss(labels = c(a = 1, b = 2))
+  meta(to) <- meta_var_spss(format = "B")
+
+  expect_identical(meta(vec_cast(x, to))@format, "A")
+  expect_identical(meta(vec_cast(1, to))@format, "B")
+})
+
 test_that("combining with bare vectors results in a labelled_spss()", {
   expect_identical(vec_c(labelled_spss(), 1.1), labelled_spss(1.1))
   expect_identical(vec_c(labelled_spss(integer()), 1.1), labelled_spss(1.1))

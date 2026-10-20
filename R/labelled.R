@@ -225,7 +225,8 @@ vec_ptype2.double.haven_labelled <- function(x, y, ...) {
   new_labelled(
     data_type,
     labels = vec_cast_named(attr(y, "labels"), data_type),
-    label = attr(y, "label", exact = TRUE)
+    label = attr(y, "label", exact = TRUE),
+    haven_meta = attr(y, "haven_meta", exact = TRUE)
   )
 }
 #' @export
@@ -268,7 +269,16 @@ vec_ptype2.haven_labelled.haven_labelled <- function(
   # Prefer labels from LHS
   label <- attr(x, "label", exact = TRUE) %||% attr(y, "label", exact = TRUE)
 
-  new_labelled(data_type, labels = labels, label = label)
+  # Prefer metadata from LHS
+  haven_meta <- attr(x, "haven_meta", exact = TRUE) %||%
+    attr(y, "haven_meta", exact = TRUE)
+
+  new_labelled(
+    data_type,
+    labels = labels,
+    label = label,
+    haven_meta = haven_meta
+  )
 }
 
 
@@ -317,6 +327,10 @@ vec_cast.haven_labelled.haven_labelled <- function(
     labels = out_labels,
     label = attr(x, "label", exact = TRUE)
   )
+
+  # Prefer metadata from `x`
+  attr(out, "haven_meta") <- attr(x, "haven_meta", exact = TRUE) %||%
+    attr(to, "haven_meta", exact = TRUE)
 
   # do we lose tagged na values?
   if (is.double(x) && !is.double(out)) {
@@ -418,6 +432,10 @@ vec_math.haven_labelled <- function(.fn, .x, ...) {
 #'   with [as_factor()], or remove value labels with [zap_labels()] if you
 #'   need plain R vectors for analysis. See `vignette("semantics")` for more
 #'   details.
+#'
+#'   The data frame and each variable also carry metadata read from the file;
+#'   access it with [meta()]. See [meta_var_sas()], [meta_var_spss()], and
+#'   [meta_var_stata()] for the format-specific fields.
 #' @name labelled-output
 #' @keywords internal
 NULL

@@ -12,3 +12,7 @@
 #' @importFrom tibble tibble
 ## usethis namespace: end
 NULL
+
+# Enable `@` for S7 objects in R < 4.3.0
+#' @rawNamespace if (getRversion() < "4.3.0") importFrom("S7", "@")
+NULL

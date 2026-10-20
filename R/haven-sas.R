@@ -67,7 +67,9 @@ read_sas <- function(
   output_cols(data, cols)
 }
 
-#' @param data Data frame to write.
+#' @param data Data frame to write. File and variable metadata stored with
+#'   [meta()] is used where possible; see [meta_df_sas()] and [meta_var_sas()]
+#'   for the fields that affect the output.
 #' @param path Path to file where the data will be written.
 #' @rdname read_sas
 #' @export
@@ -76,7 +78,11 @@ write_sas <- function(data, path) {
   check_string(path)
 
   data_out <- adjust_tz(data)
-  write_sas_(data_out, normalizePath(path, mustWork = FALSE))
+  write_sas_(
+    data_out,
+    normalizePath(path, mustWork = FALSE),
+    meta = writer_meta(data_out, "sas")
+  )
 
   invisible(data)
 }
@@ -103,6 +109,10 @@ write_sas <- function(data, path) {
 #'
 #'   If a dataset label is defined, it will be stored in the "label" attribute
 #'   of the tibble.
+#'
+#'   The data frame and each variable also carry metadata read from the file;
+#'   access it with [meta()] and see [meta_var_sas()] for the available
+#'   fields.
 #'
 #'   `write_xpt()` returns the input `data` invisibly.
 #' @export
@@ -138,7 +148,10 @@ read_xpt <- function(
 #' @export
 #' @rdname read_xpt
 #' @param version Version of transport file specification to use: either 5 or 8.
-#' @param name Member name to record in file. Defaults to file name sans
+#'   Defaults to the version recorded in the metadata of `data` (if it was read
+#'   with [read_xpt()]), otherwise 8.
+#' @param name Member name to record in file. Defaults to the table name
+#'   recorded in the metadata of `data`, otherwise the file name sans
 #'   extension. Must be <= 8 characters for version 5, and <= 32 characters
 #'   for version 8.
 #' @param label Dataset label to use, or `NULL`. Defaults to the value stored in
@@ -146,6 +159,9 @@ read_xpt <- function(
 #'
 #'   Note that although SAS itself supports dataset labels up to 256 characters
 #'   long, dataset labels in SAS transport files must be <= 40 characters.
+#' @param data Data frame to write. File and variable metadata stored with
+#'   [meta()] is used where possible; see [meta_df_sas()] and [meta_var_sas()]
+#'   for the fields that affect the output.
 #' @param adjust_tz Stata, SPSS and SAS do not have a concept of time zone,
 #'   and all [date-time] variables are treated as UTC. `adjust_tz` controls
 #'   how the timezone of date-time values is treated when writing.
@@ -161,16 +177,19 @@ read_xpt <- function(
 write_xpt <- function(
   data,
   path,
-  version = 8,
+  version = NULL,
   name = NULL,
   label = attr(data, "label"),
   adjust_tz = TRUE
 ) {
   check_data_frame(data)
   check_string(path)
+  version <- version %||% meta_df_field(data, "sas", "xpt_version") %||% 8
   check_xpt_version(version)
 
-  name <- name %||% tools::file_path_sans_ext(basename(path))
+  name <- name %||%
+    meta_df_field(data, "sas", "table_name") %||%
+    tools::file_path_sans_ext(basename(path))
   check_xpt_name(name, version)
   check_xpt_label(label)
   check_bool(adjust_tz)
@@ -186,7 +205,8 @@ write_xpt <- function(
     normalizePath(path, mustWork = FALSE),
     version = version,
     name = name,
-    label = label
+    label = label,
+    meta = writer_meta(data, "sas")
   )
   invisible(data)
 }

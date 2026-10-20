@@ -1,5 +1,6 @@
 # haven (development version)
 
+* `meta<-` now removes the legacy `format.*`, `display_width`, `width`, `notes`, and `*_timestamp` attributes so stale metadata can't resurface after setting new metadata or `NULL`.
 * haven no longer depends on readr (#834). As a consequence, the `read_*()` functions no longer read compressed (`.gz`, `.bz2`, `.xz`, `.zip`) files; decompress them before reading.
 * All `read_*()` functions with small `n_max` no longer pre-allocate more rows than needed, greatly reducing memory usage of header-only reads (#845).
 * Updated to ReadStat dev (0dc2aee).
@@ -21,6 +22,11 @@
 * `col_select` works correctly when combined with `.name_repair` for files with duplicate column names (#687).
 * `labelled_spss()` vectors that contain `NA` can now be cast to a different `na_range` without failing with "missing value where TRUE/FALSE needed", which affected `rbind()` and `dplyr::bind_rows()` (#761, @taekop).
 * `median()` method for `haven_labelled` vectors now forwards the `na.rm` argument instead of always using `na.rm = TRUE`.
+* New `meta()` accessor and S7 metadata classes (`meta_var_sas()` and friends) store file and variable metadata when reading, and use it when writing, improving roundtrip fidelity. Compared to the legacy `format.*`, `width`, `display_width`, `notes`, and `*_timestamp` attributes (which are still read as a fallback), the round-tripped metadata is:
+  * SAS: variable format, informat (new), and width; file creation/modification timestamps, table name (new), and transport file version (new).
+  * SPSS: variable format, width, display width, measure level (new), and alignment (new); file creation/modification timestamps, notes, and multiple response sets (readonly, new).
+  * Stata: variable format and storage type (new); file creation/modification timestamps, notes, and file version (new).
+  New `zap_meta()` removes this metadata, and `zap_formats()` and `zap_widths()` are deprecated in its favour.
 * `read_*()` documentation now more clearly explains that labelled vectors are an intermediate representation, and points users to `as_factor()` and `zap_labels()` when preparing imported categorical variables for analysis (#741).
 * `read_*()` functions now correctly load from non-file connections when using `col_select` (#720).
 * The `read_*()` and `write_*()` functions now use rlang's standard argument checkers, giving clearer error messages when arguments have the wrong type (#737).
@@ -29,6 +35,7 @@
 * `read_sas()` now uses the data file's encoding for a catalog file that doesn't specify its own encoding, rather than assuming WINDOWS-1252. This fixes failures and garbled value labels when reading UTF-8 catalogs (#836).
 * `read_sas()` no longer accepts the `cols_only` argument, which was deprecated in haven 2.2.0 (released 2019-11-08); use `col_select` instead.
 * `read_sas()` and `read_xpt()` now supports all datetime, date and time formats (#780) and correctly recognises DATEAMPM as datetime (#789).
+* `read_xpt()` now returns the format width in `meta()@width`, so width metadata now round-trips through `write_xpt()` (#782).
 * `tagged_na()` and `is_tagged_na()` now silently convert tagged `NA` values to lower case. These are case insensitive when reading and writing, so forcing lower case removes any potential ambiguity.
 * `write_*()` functions now take into account the width of value labels when calculating string variable widths. Previously it was possible to create value label sets with values that were wider than the string variable, causing issues when reading files (#537).
 * `write_dta()` no longer rejects single character variable names (e.g. `x`) when `version` is 13 or earlier.

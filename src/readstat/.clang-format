@@ -1,0 +1,2 @@
+# Vendored upstream code: do not reformat (see AGENTS.md)
+DisableFormat: true

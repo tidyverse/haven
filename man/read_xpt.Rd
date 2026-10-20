@@ -16,7 +16,7 @@ read_xpt(
 write_xpt(
   data,
   path,
-  version = 8,
+  version = NULL,
   name = NULL,
   label = attr(data, "label"),
   adjust_tz = TRUE
@@ -37,7 +37,10 @@ Predicates using \code{\link[tidyselect:where]{where()}} are not supported.}
 
 \item{skip}{Number of lines to skip before reading data.}
 
-\item{n_max}{Maximum number of lines to read.}
+\item{n_max}{Maximum number of lines to read.
+
+Set to 0 to return data frame containing correctly typed (but empty)
+columns along with all data frame and variable metadata.}
 
 \item{.name_repair}{Treatment of problematic column names:
 \itemize{
@@ -57,13 +60,18 @@ This argument is passed on as \code{repair} to \code{\link[vctrs:vec_as_names]{v
 See there for more details on these terms and the strategies used
 to enforce them.}
 
-\item{data}{Data frame to write.}
+\item{data}{Data frame to write. File and variable metadata stored with
+\code{\link[=meta]{meta()}} is used where possible; see \code{\link[=meta_df_sas]{meta_df_sas()}} and \code{\link[=meta_var_sas]{meta_var_sas()}}
+for the fields that affect the output.}
 
 \item{path}{Path to a file where the data will be written.}
 
-\item{version}{Version of transport file specification to use: either 5 or 8.}
+\item{version}{Version of transport file specification to use: either 5 or 8.
+Defaults to the version recorded in the metadata of \code{data} (if it was read
+with \code{\link[=read_xpt]{read_xpt()}}), otherwise 8.}
 
-\item{name}{Member name to record in file. Defaults to file name sans
+\item{name}{Member name to record in file. Defaults to the table name
+recorded in the metadata of \code{data}, otherwise the file name sans
 extension. Must be <= 8 characters for version 5, and <= 32 characters
 for version 8.}
 
@@ -95,6 +103,10 @@ It is not printed on the console, but the RStudio viewer will show it.
 
 If a dataset label is defined, it will be stored in the "label" attribute
 of the tibble.
+
+The data frame and each variable also carry metadata read from the file;
+access it with \code{\link[=meta]{meta()}} and see \code{\link[=meta_var_sas]{meta_var_sas()}} for the available
+fields.
 
 \code{write_xpt()} returns the input \code{data} invisibly.
 }

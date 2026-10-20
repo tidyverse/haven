@@ -16,6 +16,4 @@ enum FileExt {
 
 FileVendor extVendor(FileExt ext);
 
-std::string formatAttribute(FileVendor vendor);
-
 #endif

@@ -7,6 +7,7 @@
 # Adapted from https://github.com/tidyverse/hms/blob/master/R/zzz.R
 .onLoad <- function(...) {
   register_s3_method("pillar", "pillar_shaft", "haven_labelled")
+  S7::methods_register()
 
   invisible()
 }

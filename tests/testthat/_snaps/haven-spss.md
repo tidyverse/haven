@@ -1,3 +1,11 @@
+# write_sav() writes file label
+
+    Code
+      write_sav(df, tempfile(), label = strrep("a", 65))
+    Condition
+      Error in `write_sav()`:
+      ! `label` must be 64 bytes or fewer.
+
 # string variables can't have missing value ranges
 
     Code

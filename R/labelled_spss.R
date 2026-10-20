@@ -45,7 +45,7 @@ labelled_spss <- function(
   )
 }
 
-new_labelled_spss <- function(x, labels, na_values, na_range, label) {
+new_labelled_spss <- function(x, labels, na_values, na_range, label, ...) {
   if (!is.null(na_values) && any(is.na(na_values))) {
     cli_abort("{.arg na_values} can not contain missing values.")
   }
@@ -72,6 +72,7 @@ new_labelled_spss <- function(x, labels, na_values, na_range, label) {
     label = label,
     na_values = na_values,
     na_range = na_range,
+    ...,
     class = "haven_labelled_spss"
   )
 }
@@ -134,7 +135,8 @@ vec_ptype2.double.haven_labelled_spss <- function(x, y, ...) {
     labels = vec_cast_named(attr(y, "labels"), data_type),
     na_values = vec_cast(attr(y, "na_values"), data_type),
     na_range = attr(y, "na_range"),
-    label = attr(y, "label", exact = TRUE)
+    label = attr(y, "label", exact = TRUE),
+    haven_meta = attr(y, "haven_meta", exact = TRUE)
   )
 }
 #' @export
@@ -179,6 +181,10 @@ vec_ptype2.haven_labelled_spss.haven_labelled_spss <- function(
   # Prefer labels from LHS
   label <- attr(x, "label", exact = TRUE) %||% attr(y, "label", exact = TRUE)
 
+  # Prefer metadata from LHS
+  haven_meta <- attr(x, "haven_meta", exact = TRUE) %||%
+    attr(y, "haven_meta", exact = TRUE)
+
   x_na_values <- vec_cast(attr(x, "na_values"), data_type, x_arg = x_arg)
   y_na_values <- vec_cast(attr(y, "na_values"), data_type, x_arg = y_arg)
 
@@ -188,14 +194,20 @@ vec_ptype2.haven_labelled_spss.haven_labelled_spss <- function(
     !identical(x_na_values, y_na_values) ||
       !identical(attr(x, "na_range"), attr(y, "na_range"))
   ) {
-    new_labelled(data_type, labels = labels, label = label)
+    new_labelled(
+      data_type,
+      labels = labels,
+      label = label,
+      haven_meta = haven_meta
+    )
   } else {
     new_labelled_spss(
       data_type,
       labels = labels,
       na_values = x_na_values,
       na_range = attr(x, "na_range"),
-      label = label
+      label = label,
+      haven_meta = haven_meta
     )
   }
 }
@@ -261,6 +273,10 @@ vec_cast.haven_labelled_spss.haven_labelled_spss <- function(
     na_range = to_na_range,
     label = attr(x, "label", exact = TRUE)
   )
+
+  # Prefer metadata from `x`
+  attr(out, "haven_meta") <- attr(x, "haven_meta", exact = TRUE) %||%
+    attr(to, "haven_meta", exact = TRUE)
 
   # do we lose tagged na values?
   if (is.double(x) && !is.double(out)) {

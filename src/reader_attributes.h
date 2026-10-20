@@ -16,6 +16,58 @@
 
 // Helpers for constructing the R vectors and attributes that Reader produces.
 
+inline bool is_empty(const char* x) { return x == NULL || strcmp(x, "") == 0; }
+
+// Maps Stata file format to the version used by write_dta()
+inline int stata_version(int format) {
+  switch (format) {
+  case 113:
+    return 8;
+  case 114:
+    return 10;
+  case 115:
+    return 12;
+  case 117:
+    return 13;
+  case 118:
+    return 14;
+  case 119:
+    return 15;
+  default:
+    return 0;
+  }
+}
+
+inline const char* vendorName(FileVendor vendor) {
+  switch (vendor) {
+  case HAVEN_SAS:
+    return "sas";
+  case HAVEN_SPSS:
+    return "spss";
+  case HAVEN_STATA:
+    return "stata";
+  }
+  return "";
+}
+
+// Builds an S7 metadata object by setting property attributes on a copy of an
+// empty prototype. This skips S7's validation, which is too slow for files
+// with many columns.
+class MetaBuilder {
+  cpp11::sexp obj_;
+  bool empty_;
+
+public:
+  MetaBuilder(SEXP proto) : obj_(Rf_shallow_duplicate(proto)), empty_(true) {}
+
+  template <typename T> void set(const char* name, T value) {
+    obj_.attr(name) = value;
+    empty_ = false;
+  }
+
+  SEXP get() const { return empty_ ? R_NilValue : static_cast<SEXP>(obj_); }
+};
+
 // Allocates a vector of the appropriate R type for a readstat variable
 inline cpp11::sexp
 make_variable_vector(readstat_variable_t* variable, R_xlen_t n) {
@@ -30,24 +82,12 @@ make_variable_vector(readstat_variable_t* variable, R_xlen_t n) {
   }
 }
 
-// Sets the variable label, original format, and display width attributes
+// Sets the variable label attribute
 inline void set_metadata_attributes(
     cpp11::sexp col, readstat_variable_t* variable, FileVendor vendor) {
   const char* var_label = readstat_variable_get_label(variable);
-  if (var_label != NULL && strcmp(var_label, "") != 0) {
+  if (!is_empty(var_label)) {
     col.attr("label") = var_label;
-  }
-
-  // Store original format as attribute
-  const char* var_format = readstat_variable_get_format(variable);
-  if (var_format != NULL && strcmp(var_format, "") != 0) {
-    col.attr(formatAttribute(vendor)) = var_format;
-  }
-
-  // Store original display width as attribute if it differs from the default
-  int display_width = readstat_variable_get_display_width(variable);
-  if (vendor == HAVEN_SPSS && display_width != 8) {
-    col.attr("display_width") = Rf_ScalarInteger(display_width);
   }
 }
 
