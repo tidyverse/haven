@@ -120,6 +120,16 @@ test_that("progress controls the progress bar", {
   expect_equal(out, character())
 })
 
+test_that("n_max = 0 returns correctly typed empty columns with metadata", {
+  full <- read_sas(test_path("sas/hadley.sas7bdat"))
+  empty <- read_sas(test_path("sas/hadley.sas7bdat"), n_max = 0)
+
+  expect_equal(nrow(empty), 0)
+  expect_equal(lapply(empty, class), lapply(full, class))
+  expect_equal(lapply(empty, attr, "label"), lapply(full, attr, "label"))
+  expect_equal(attr(empty, "haven_meta"), attr(full, "haven_meta"))
+})
+
 test_that("throws informative error on bad row limit", {
   rows_with_limit <- function(n) {
     nrow(read_sas(test_path("sas/hadley.sas7bdat"), n_max = n))
@@ -207,6 +217,16 @@ test_that("date/times with character data throw a warning (#747)", {
     structure(c("20424", "20487"), label = "Date")
   )
   expect_equal(meta(out$date)@format, "DATE")
+})
+
+test_that("n_max = 0 returns correctly typed empty columns with metadata (xpt)", {
+  full <- read_xpt(test_path("sas/far-future-dates.xpt"))
+  empty <- read_xpt(test_path("sas/far-future-dates.xpt"), n_max = 0)
+
+  expect_equal(nrow(empty), 0)
+  expect_equal(lapply(empty, class), lapply(full, class))
+  expect_equal(lapply(empty, attr, "label"), lapply(full, attr, "label"))
+  expect_equal(attr(empty, "haven_meta"), attr(full, "haven_meta"))
 })
 
 # write_xpt ---------------------------------------------------------------

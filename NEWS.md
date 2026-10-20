@@ -3,7 +3,8 @@
 * haven no longer depends on crayon, using cli instead.
 * `meta<-` now removes the legacy `format.*`, `display_width`, `width`, `notes`, and `*_timestamp` attributes so stale metadata can't resurface after setting new metadata or `NULL`.
 * haven no longer depends on readr (#834). As a consequence, the `read_*()` functions no longer read compressed (`.gz`, `.bz2`, `.xz`, `.zip`) files; decompress them before reading.
-* All `read_*()` functions with small `n_max` no longer pre-allocate more rows than needed, greatly reducing memory usage of header-only reads (#845).
+* All `read_*()` functions with `n_max = 0` now stop parsing after the file header instead of scanning every row, making header-only reads much faster.
+* All `read_*()` functions with `n_max` set no longer pre-allocate more rows than needed. (#845).
 * Updated to ReadStat dev (0dc2aee).
   * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
   * SAS catalog reader now correctly reads big-endian files.

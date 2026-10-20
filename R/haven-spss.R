@@ -28,8 +28,8 @@
 #' @param skip Number of lines to skip before reading data.
 #' @param n_max Maximum number of lines to read.
 #'
-#'   Set to 0 to return data frame containing correctly typed (but empty)
-#'   columns along with all data frame and variable metadata.
+#'   Set to 0 to return just metadata, i.e. data frame containing correctly
+#'   typed (but empty) columns along with all data frame and variable metadata.
 #' @param progress Display a progress bar? The default, `NULL`, only displays
 #'   it in an interactive session. The automatic progress bar can be disabled
 #'   with `options(haven.show_progress = FALSE)`.

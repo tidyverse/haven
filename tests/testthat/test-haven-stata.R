@@ -90,6 +90,16 @@ test_that("can limit the number of rows to read", {
   expect_equal(rows_with_limit(-1), n)
 })
 
+test_that("n_max = 0 returns correctly typed empty columns with metadata", {
+  full <- read_dta(test_path("stata/notes.dta"))
+  empty <- read_dta(test_path("stata/notes.dta"), n_max = 0)
+
+  expect_equal(nrow(empty), 0)
+  expect_equal(lapply(empty, class), lapply(full, class))
+  expect_equal(lapply(empty, attr, "label"), lapply(full, attr, "label"))
+  expect_equal(attr(empty, "haven_meta"), attr(full, "haven_meta"))
+})
+
 # write_dta ---------------------------------------------------------------
 
 test_that("can roundtrip basic types", {

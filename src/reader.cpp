@@ -99,17 +99,31 @@ struct ParserDeleter {
 };
 typedef std::unique_ptr<readstat_parser_t, ParserDeleter> Parser;
 
+int reader_value_noop(
+    int obs_index,
+    readstat_variable_t* variable,
+    readstat_value_t value,
+    void* ctx) {
+  return READSTAT_OK;
+}
+
 Parser haven_init_parser(long n_max) {
   Parser parser(readstat_parser_init());
   readstat_set_metadata_handler(parser.get(), reader_metadata);
   readstat_set_note_handler(parser.get(), reader_note);
   readstat_set_variable_handler(parser.get(), reader_variable);
   // With n_max = 0 we only need the header. n_max = -1 means read all rows
-  if (n_max != 0) {
+  if (n_max == 0) {
+    // ReadStat only counts rows when a value handler is installed, and the
+    // row limit only takes effect once a row has been counted. Install a
+    // no-op handler so a row limit of 1 stops the parse after the first row.
+    readstat_set_value_handler(parser.get(), reader_value_noop);
+    readstat_set_row_limit(parser.get(), 1);
+  } else {
     readstat_set_value_handler(parser.get(), reader_value);
-  }
-  if (n_max > 0) {
-    readstat_set_row_limit(parser.get(), n_max);
+    if (n_max > 0) {
+      readstat_set_row_limit(parser.get(), n_max);
+    }
   }
   readstat_set_value_label_handler(parser.get(), reader_value_label);
   readstat_set_progress_handler(parser.get(), reader_progress);
