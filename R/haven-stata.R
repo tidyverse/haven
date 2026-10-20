@@ -98,6 +98,9 @@ read_stata <- read_dta
 
 #' @export
 #' @rdname read_dta
+#' @param data Data frame to write. File and variable metadata stored with
+#'   [meta()] is used where possible; see [meta_df_stata()] and
+#'   [meta_var_stata()] for the fields that affect the output.
 #' @param version File version to use. Supports versions 8-15. Defaults to
 #'   the version recorded in the metadata of `data` (if it was read with
 #'   [read_dta()]), otherwise 14. See the "Stata versions" section below for

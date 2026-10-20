@@ -104,6 +104,9 @@ read_por <- function(
 
 #' @export
 #' @rdname read_spss
+#' @param data Data frame to write. File and variable metadata stored with
+#'   [meta()] is used where possible; see [meta_df_spss()] and
+#'   [meta_var_spss()] for the fields that affect the output.
 #' @param compress Compression type to use:
 #'
 #'   * "byte": the default, uses byte compression.

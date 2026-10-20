@@ -67,7 +67,9 @@ read_sas <- function(
   output_cols(data, cols)
 }
 
-#' @param data Data frame to write.
+#' @param data Data frame to write. File and variable metadata stored with
+#'   [meta()] is used where possible; see [meta_df_sas()] and [meta_var_sas()]
+#'   for the fields that affect the output.
 #' @param path Path to file where the data will be written.
 #' @rdname read_sas
 #' @export
@@ -157,6 +159,9 @@ read_xpt <- function(
 #'
 #'   Note that although SAS itself supports dataset labels up to 256 characters
 #'   long, dataset labels in SAS transport files must be <= 40 characters.
+#' @param data Data frame to write. File and variable metadata stored with
+#'   [meta()] is used where possible; see [meta_df_sas()] and [meta_var_sas()]
+#'   for the fields that affect the output.
 #' @param adjust_tz Stata, SPSS and SAS do not have a concept of time zone,
 #'   and all [date-time] variables are treated as UTC. `adjust_tz` controls
 #'   how the timezone of date-time values is treated when writing.

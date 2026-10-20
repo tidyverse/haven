@@ -72,7 +72,9 @@ This argument is passed on as \code{repair} to \code{\link[vctrs:vec_as_names]{v
 See there for more details on these terms and the strategies used
 to enforce them.}
 
-\item{data}{Data frame to write.}
+\item{data}{Data frame to write. File and variable metadata stored with
+\code{\link[=meta]{meta()}} is used where possible; see \code{\link[=meta_df_stata]{meta_df_stata()}} and
+\code{\link[=meta_var_stata]{meta_var_stata()}} for the fields that affect the output.}
 
 \item{path}{Path to a file where the data will be written.}
 
