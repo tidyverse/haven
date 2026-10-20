@@ -88,6 +88,25 @@ check_n_max <- function(n, arg = caller_arg(n), call = caller_env()) {
   as.integer(n)
 }
 
+# Creates a cli progress bar that is cleaned up when the calling frame exits.
+# `show` is the user-supplied `progress` argument: `NULL` shows the bar only
+# in interactive sessions (unless disabled via the `haven.show_progress`
+# option). Returns the bar object (as needed by cli's C API), or `NULL` if no
+# bar is shown.
+local_progress_bar <- function(show, frame = parent.frame()) {
+  check_bool(show, allow_null = TRUE, arg = "progress", call = frame)
+  show <- show %||%
+    (isTRUE(getOption("haven.show_progress", TRUE)) &&
+      is_interactive() &&
+      !isTRUE(getOption("rstudio.notebook.executing")))
+  if (!show) {
+    return(NULL)
+  }
+  id <- cli::cli_progress_bar(total = 100, .envir = frame)
+  # TODO: Remove once https://github.com/r-lib/cli/issues/850 is fixed
+  utils::getFromNamespace("clienv", "cli")$progress[[id]]
+}
+
 adjust_tz <- function(df) {
   datetime <- vapply(df, inherits, "POSIXt", FUN.VALUE = logical(1))
   df[datetime] <- lapply(df[datetime], force_utc)

@@ -643,3 +643,23 @@ test_that("write_sav checks its inputs", {
     write_sav(mtcars, path, adjust_tz = "yes")
   })
 })
+
+test_that("progress bar is closed when parsing fails", {
+  skip_on_cran()
+  local_options(
+    cli.progress_show_after = 0,
+    cli.progress_handlers_only = "logger"
+  )
+  # .sav ticks the progress bar as it reads, then fails on the short read
+  # (other formats fail before any progress ticks)
+  df <- do.call(rbind, replicate(100, mtcars, simplify = FALSE))
+  path <- tempfile(fileext = ".sav")
+  write_sav(df, path)
+  bytes <- readBin(path, "raw", file.size(path))
+  writeBin(bytes[seq_len(length(bytes) - 100)], path)
+
+  out <- capture.output(
+    . <- try(read_sav(path, progress = TRUE), silent = TRUE)
+  )
+  expect_match(out, "terminated", fixed = TRUE, all = FALSE)
+})

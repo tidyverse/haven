@@ -21,6 +21,7 @@ public:
   virtual readstat_off_t
   seek(readstat_off_t offset, readstat_io_flags_t whence) = 0;
   virtual ssize_t read(void* buf, size_t nbyte) = 0;
+  virtual readstat_off_t tell() = 0;
   virtual std::string
   source() const = 0; // human readable description of input source
   std::string encoding;
@@ -29,6 +30,8 @@ public:
 template <typename Stream> class ReaderInputStream : public ReaderInput {
 protected:
   Stream file_;
+  // Track the position ourselves because tellg() is too slow to call per row
+  readstat_off_t pos_ = 0;
 
 public:
   readstat_off_t seek(readstat_off_t offset, readstat_io_flags_t whence) {
@@ -47,13 +50,22 @@ public:
     }
 
     file_.seekg(offset, dir);
-    return file_.tellg(); // returns -1 if failed
+    pos_ = file_.tellg(); // returns -1 if failed
+    return pos_;
   }
 
   ssize_t read(void* buf, size_t nbyte) {
     file_.read((char*)buf, nbyte);
-    return (file_.good() || file_.eof()) ? file_.gcount() : -1;
+    if (!file_.good() && !file_.eof()) {
+      return -1;
+    }
+    if (pos_ >= 0) {
+      pos_ += file_.gcount();
+    }
+    return file_.gcount();
   }
+
+  readstat_off_t tell() { return pos_; }
 };
 
 class ReaderInputFile : public ReaderInputStream<std::ifstream> {

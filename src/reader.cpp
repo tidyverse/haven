@@ -31,6 +31,19 @@ readstat_error_t reader_update(
     readstat_progress_handler progress_handler,
     void* user_ctx,
     void* io_ctx) {
+  if (progress_handler == NULL || file_size <= 0) {
+    return READSTAT_OK;
+  }
+
+  readstat_off_t offset = ((ReaderInput*)io_ctx)->tell();
+  if (offset < 0) {
+    // e.g. after a short read at the end of the file; not worth failing for
+    return READSTAT_OK;
+  }
+
+  if (progress_handler((double)offset / file_size, user_ctx)) {
+    return READSTAT_ERROR_USER_ABORT;
+  }
   return READSTAT_OK;
 }
 
@@ -59,10 +72,6 @@ int reader_value(
     readstat_variable_t* variable,
     readstat_value_t value,
     void* ctx) {
-  // Check for user interrupts every 10,000 rows or cols
-  if ((obs_index + 1) % 10000 == 0 || (variable->index + 1) % 10000 == 0)
-    cpp11::check_user_interrupt();
-
   ((Reader*)ctx)->setValue(obs_index, variable, value);
   return 0;
 }
@@ -72,6 +81,10 @@ int reader_value_label(
     const char* label,
     void* ctx) {
   ((Reader*)ctx)->setValueLabels(val_labels, value, label);
+  return 0;
+}
+int reader_progress(double progress, void* ctx) {
+  ((Reader*)ctx)->updateProgress(progress);
   return 0;
 }
 
@@ -99,6 +112,7 @@ Parser haven_init_parser(long n_max) {
     readstat_set_row_limit(parser.get(), n_max);
   }
   readstat_set_value_label_handler(parser.get(), reader_value_label);
+  readstat_set_progress_handler(parser.get(), reader_progress);
   readstat_set_error_handler(parser.get(), print_error);
   return parser;
 }
@@ -220,6 +234,7 @@ struct ReaderOptions {
   cpp11::integers cols_skip = cpp11::integers();
   long n_max = 0;
   long rows_skip = 0;
+  SEXP progress = R_NilValue;
 
   ReaderOptions(cpp11::list opts) {
     vendor = cpp11::as_cpp<std::string>(opts["vendor"]);
@@ -239,6 +254,7 @@ struct ReaderOptions {
       n_max = cpp11::as_cpp<long>(x);
     if ((x = opts["rows_skip"]) != R_NilValue)
       rows_skip = cpp11::as_cpp<long>(x);
+    progress = opts["progress"];
   }
 };
 
@@ -283,6 +299,7 @@ cpp11::list df_parse(FileExt ext, SEXP spec, const ReaderOptions& opts) {
     haven_parse(HAVEN_SAS7BCAT, parser.get(), *cat_input, &builder);
   }
 
+  builder.setProgressBar(opts.progress);
   haven_parse(ext, parser.get(), *input, &builder);
 
   return builder.output();

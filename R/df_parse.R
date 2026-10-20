@@ -6,7 +6,8 @@ df_parse_options <- function(
   user_na = FALSE,
   cols_skip = integer(),
   n_max = 0L,
-  rows_skip = 0L
+  rows_skip = 0L,
+  progress = NULL
 ) {
   list(
     vendor = vendor,
@@ -16,6 +17,7 @@ df_parse_options <- function(
     user_na = user_na,
     cols_skip = cols_skip,
     n_max = n_max,
-    rows_skip = rows_skip
+    rows_skip = rows_skip,
+    progress = progress
   )
 }
