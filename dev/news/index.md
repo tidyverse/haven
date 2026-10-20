@@ -2,6 +2,7 @@
 
 ## haven (development version)
 
+- haven no longer depends on crayon, using cli instead.
 - `meta<-` now removes the legacy `format.*`, `display_width`, `width`,
   `notes`, and `*_timestamp` attributes so stale metadata can’t
   resurface after setting new metadata or `NULL`.
