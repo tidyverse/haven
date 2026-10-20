@@ -24,7 +24,7 @@
 * `median()` method for `haven_labelled` vectors now forwards the `na.rm` argument instead of always using `na.rm = TRUE`.
 * New `meta()` accessor and S7 metadata classes (`meta_var_sas()` and friends) store file and variable metadata when reading, and use it when writing, improving roundtrip fidelity. Compared to the legacy `format.*`, `width`, `display_width`, `notes`, and `*_timestamp` attributes (which are still read as a fallback), the round-tripped metadata is:
   * SAS: variable format, informat (new), and width; file creation/modification timestamps, table name (new), and transport file version (new).
-  * SPSS: variable format, width, display width, measure level (new), and alignment (new); file creation/modification timestamps, notes, and multiple response sets (new).
+  * SPSS: variable format, width, display width, measure level (new), and alignment (new); file creation/modification timestamps, notes, and multiple response sets (readonly, new).
   * Stata: variable format and storage type (new); file creation/modification timestamps, notes, and file version (new).
   New `zap_meta()` removes this metadata, and `zap_formats()` and `zap_widths()` are deprecated in its favour.
 * `read_*()` documentation now more clearly explains that labelled vectors are an intermediate representation, and points users to `as_factor()` and `zap_labels()` when preparing imported categorical variables for analysis (#741).
