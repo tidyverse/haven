@@ -21,6 +21,7 @@
 * `col_select` works correctly when combined with `.name_repair` for files with duplicate column names (#687).
 * `labelled_spss()` vectors that contain `NA` can now be cast to a different `na_range` without failing with "missing value where TRUE/FALSE needed", which affected `rbind()` and `dplyr::bind_rows()` (#761, @taekop).
 * `median()` method for `haven_labelled` vectors now forwards the `na.rm` argument instead of always using `na.rm = TRUE`.
+* New `meta()` accessor and S7 metadata classes (`haven_meta` and friends) store file and variable metadata (formats, display widths) when reading, and use it when writing, improving roundtrip fidelity. New `zap_meta()` removes this metadata, and `zap_formats()` and `zap_widths()` are deprecated in its favour.
 * `read_*()` documentation now more clearly explains that labelled vectors are an intermediate representation, and points users to `as_factor()` and `zap_labels()` when preparing imported categorical variables for analysis (#741).
 * `read_*()` functions now correctly load from non-file connections when using `col_select` (#720).
 * The `read_*()` and `write_*()` functions now use rlang's standard argument checkers, giving clearer error messages when arguments have the wrong type (#737).
