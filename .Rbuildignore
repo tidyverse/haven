@@ -28,3 +28,4 @@
 ^\.vscode$
 ^AGENTS\.md$
 ^src/.clang-format$
+^src/readstat/.clang-format$
