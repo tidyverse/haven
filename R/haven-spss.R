@@ -27,6 +27,9 @@
 #'   Predicates using [`where()`][tidyselect::where] are not supported.
 #' @param skip Number of lines to skip before reading data.
 #' @param n_max Maximum number of lines to read.
+#'
+#'   Set to 0 to return data frame containing correctly typed (but empty)
+#'   columns along with all data frame and variable metadata.
 #' @inherit labelled-output return
 #' @name read_spss
 #' @examples

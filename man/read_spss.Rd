@@ -66,7 +66,10 @@ Predicates using \code{\link[tidyselect:where]{where()}} are not supported.}
 
 \item{skip}{Number of lines to skip before reading data.}
 
-\item{n_max}{Maximum number of lines to read.}
+\item{n_max}{Maximum number of lines to read.
+
+Set to 0 to return data frame containing correctly typed (but empty)
+columns along with all data frame and variable metadata.}
 
 \item{.name_repair}{Treatment of problematic column names:
 \itemize{
