@@ -94,6 +94,8 @@
 <code>read_*()</code> documentation now more clearly explains that labelled vectors are an intermediate representation, and points users to <code><a href="../reference/as_factor.html">as_factor()</a></code> and <code><a href="../reference/zap_labels.html">zap_labels()</a></code> when preparing imported categorical variables for analysis (<a href="https://github.com/tidyverse/haven/issues/741" class="external-link">#741</a>).</li>
 <li>
 <code>read_*()</code> functions now correctly load from non-file connections when using <code>col_select</code> (<a href="https://github.com/tidyverse/haven/issues/720" class="external-link">#720</a>).</li>
+<li>
+<code>read_*()</code> functions gain a <code>progress</code> argument that displays a progress bar when reading large files. Like readr, it is shown by default in interactive sessions and can be turned off with <code>options(haven.show_progress = FALSE)</code> (<a href="https://github.com/tidyverse/haven/issues/730" class="external-link">#730</a>).</li>
 <li>The <code>read_*()</code> and <code>write_*()</code> functions now use rlang’s standard argument checkers, giving clearer error messages when arguments have the wrong type (<a href="https://github.com/tidyverse/haven/issues/737" class="external-link">#737</a>).</li>
 <li>
 <code>read_*()</code> functions now warn and treat a string variable with a date and/or time format as a plain string instead of throwing an error (<a href="https://github.com/tidyverse/haven/issues/747" class="external-link">#747</a>). This should not normally occur, but has been observed in files produced by 3rd party software.</li>

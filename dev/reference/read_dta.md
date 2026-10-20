@@ -18,6 +18,7 @@ read_dta(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 )
 
@@ -27,6 +28,7 @@ read_stata(
   col_select = NULL,
   skip = 0,
   n_max = Inf,
+  progress = NULL,
   .name_repair = "unique"
 )
 
@@ -76,6 +78,12 @@ write_dta(
 
   Set to 0 to return data frame containing correctly typed (but empty)
   columns along with all data frame and variable metadata.
+
+- progress:
+
+  Display a progress bar? The default, `NULL`, only displays it in an
+  interactive session. The automatic progress bar can be disabled with
+  `options(haven.show_progress = FALSE)`.
 
 - .name_repair:
 

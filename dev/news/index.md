@@ -99,6 +99,11 @@
 - `read_*()` functions now correctly load from non-file connections when
   using `col_select`
   ([\#720](https://github.com/tidyverse/haven/issues/720)).
+- `read_*()` functions gain a `progress` argument that displays a
+  progress bar when reading large files. Like readr, it is shown by
+  default in interactive sessions and can be turned off with
+  `options(haven.show_progress = FALSE)`
+  ([\#730](https://github.com/tidyverse/haven/issues/730)).
 - The `read_*()` and `write_*()` functions now use rlang’s standard
   argument checkers, giving clearer error messages when arguments have
   the wrong type
