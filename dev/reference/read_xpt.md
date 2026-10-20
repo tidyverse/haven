@@ -17,7 +17,7 @@ read_xpt(
 write_xpt(
   data,
   path,
-  version = 8,
+  version = NULL,
   name = NULL,
   label = attr(data, "label"),
   adjust_tz = TRUE
@@ -53,6 +53,9 @@ write_xpt(
 
   Maximum number of lines to read.
 
+  Set to 0 to return data frame containing correctly typed (but empty)
+  columns along with all data frame and variable metadata.
+
 - .name_repair:
 
   Treatment of problematic column names:
@@ -83,7 +86,13 @@ write_xpt(
 
 - data:
 
-  Data frame to write.
+  Data frame to write. File and variable metadata stored with
+  [`meta()`](https://haven.tidyverse.org/dev/reference/meta.md) is used
+  where possible; see
+  [`meta_df_sas()`](https://haven.tidyverse.org/dev/reference/meta_var_sas.md)
+  and
+  [`meta_var_sas()`](https://haven.tidyverse.org/dev/reference/meta_var_sas.md)
+  for the fields that affect the output.
 
 - path:
 
@@ -92,12 +101,15 @@ write_xpt(
 - version:
 
   Version of transport file specification to use: either 5 or 8.
+  Defaults to the version recorded in the metadata of `data` (if it was
+  read with `read_xpt()`), otherwise 8.
 
 - name:
 
-  Member name to record in file. Defaults to file name sans extension.
-  Must be \<= 8 characters for version 5, and \<= 32 characters for
-  version 8.
+  Member name to record in file. Defaults to the table name recorded in
+  the metadata of `data`, otherwise the file name sans extension. Must
+  be \<= 8 characters for version 5, and \<= 32 characters for version
+  8.
 
 - label:
 
@@ -135,6 +147,12 @@ is not printed on the console, but the RStudio viewer will show it.
 
 If a dataset label is defined, it will be stored in the "label"
 attribute of the tibble.
+
+The data frame and each variable also carry metadata read from the file;
+access it with
+[`meta()`](https://haven.tidyverse.org/dev/reference/meta.md) and see
+[`meta_var_sas()`](https://haven.tidyverse.org/dev/reference/meta_var_sas.md)
+for the available fields.
 
 `write_xpt()` returns the input `data` invisibly.
 

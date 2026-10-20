@@ -132,8 +132,12 @@ class provides a natural representaion in R.
   [`as_factor(`*`<haven_labelled>`*`)`](https://haven.tidyverse.org/dev/reference/as_factor.md)
   [`as_factor(`*`<labelled>`*`)`](https://haven.tidyverse.org/dev/reference/as_factor.md)
   : Convert labelled vectors to factors
+- [`zap_label()`](https://haven.tidyverse.org/dev/reference/zap_label.md)
+  : Zap variable labels
+- [`zap_labels()`](https://haven.tidyverse.org/dev/reference/zap_labels.md)
+  : Zap value labels
 
-## Tagged missing values
+## Missing values
 
 Both SAS and Stata supported tagged missing values, where a missing
 value can have multiple “types”, given by an letter from A through Z.
@@ -147,25 +151,37 @@ in R by taking advantage of the binary representation of `NA`.
   [`format_tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md)
   [`print_tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md)
   : "Tagged" missing values
-
-## Remove attributes
-
-There are a number of SPSS/SAS/Stata features that have no direct
-equivalent in R. Haven preserves them so you can choose what do with
-them. To simply eliminate them, use one of the zap functions.
-
-- [`zap_empty()`](https://haven.tidyverse.org/dev/reference/zap_empty.md)
-  : Convert empty strings into missing values
-- [`zap_formats()`](https://haven.tidyverse.org/dev/reference/zap_formats.md)
-  : Remove format attributes
-- [`zap_label()`](https://haven.tidyverse.org/dev/reference/zap_label.md)
-  : Zap variable labels
-- [`zap_labels()`](https://haven.tidyverse.org/dev/reference/zap_labels.md)
-  : Zap value labels
 - [`zap_missing()`](https://haven.tidyverse.org/dev/reference/zap_missing.md)
   : Zap special missings to regular R missings
+- [`zap_empty()`](https://haven.tidyverse.org/dev/reference/zap_empty.md)
+  : Convert empty strings into missing values
+
+## Metadata
+
+- [`meta()`](https://haven.tidyverse.org/dev/reference/meta.md)
+  [`` `meta<-`() ``](https://haven.tidyverse.org/dev/reference/meta.md)
+  : File metadata
+- [`meta_var_sas()`](https://haven.tidyverse.org/dev/reference/meta_var_sas.md)
+  [`meta_df_sas()`](https://haven.tidyverse.org/dev/reference/meta_var_sas.md)
+  : SAS metadata
+- [`meta_var_spss()`](https://haven.tidyverse.org/dev/reference/meta_var_spss.md)
+  [`meta_df_spss()`](https://haven.tidyverse.org/dev/reference/meta_var_spss.md)
+  : SPSS metadata
+- [`meta_var_stata()`](https://haven.tidyverse.org/dev/reference/meta_var_stata.md)
+  [`meta_df_stata()`](https://haven.tidyverse.org/dev/reference/meta_var_stata.md)
+  : Stata metadata
+- [`zap_meta()`](https://haven.tidyverse.org/dev/reference/zap_meta.md)
+  : Remove metadata
+
+## Deprecated
+
+- [`zap_formats()`](https://haven.tidyverse.org/dev/reference/zap_formats.md)
+  **\[deprecated\]** : Remove format attributes
 - [`zap_widths()`](https://haven.tidyverse.org/dev/reference/zap_widths.md)
-  : Remove display width attributes
+  **\[deprecated\]** : Remove display width attributes
+- [`read_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
+  [`write_sas()`](https://haven.tidyverse.org/dev/reference/read_sas.md)
+  : Read and write SAS files
 
 # Articles
 

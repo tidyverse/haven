@@ -17,6 +17,10 @@
 <url><loc>https://haven.tidyverse.org/dev/reference/labelled-output.html</loc></url>
 <url><loc>https://haven.tidyverse.org/dev/reference/labelled.html</loc></url>
 <url><loc>https://haven.tidyverse.org/dev/reference/labelled_spss.html</loc></url>
+<url><loc>https://haven.tidyverse.org/dev/reference/meta.html</loc></url>
+<url><loc>https://haven.tidyverse.org/dev/reference/meta_var_sas.html</loc></url>
+<url><loc>https://haven.tidyverse.org/dev/reference/meta_var_spss.html</loc></url>
+<url><loc>https://haven.tidyverse.org/dev/reference/meta_var_stata.html</loc></url>
 <url><loc>https://haven.tidyverse.org/dev/reference/print_labels.html</loc></url>
 <url><loc>https://haven.tidyverse.org/dev/reference/read_dta.html</loc></url>
 <url><loc>https://haven.tidyverse.org/dev/reference/read_sas.html</loc></url>
@@ -28,6 +32,7 @@
 <url><loc>https://haven.tidyverse.org/dev/reference/zap_formats.html</loc></url>
 <url><loc>https://haven.tidyverse.org/dev/reference/zap_label.html</loc></url>
 <url><loc>https://haven.tidyverse.org/dev/reference/zap_labels.html</loc></url>
+<url><loc>https://haven.tidyverse.org/dev/reference/zap_meta.html</loc></url>
 <url><loc>https://haven.tidyverse.org/dev/reference/zap_missing.html</loc></url>
 <url><loc>https://haven.tidyverse.org/dev/reference/zap_widths.html</loc></url>
 </urlset>

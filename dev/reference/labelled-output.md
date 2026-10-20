@@ -20,3 +20,12 @@ or remove value labels with
 if you need plain R vectors for analysis. See
 [`vignette("semantics")`](https://haven.tidyverse.org/dev/articles/semantics.md)
 for more details.
+
+The data frame and each variable also carry metadata read from the file;
+access it with
+[`meta()`](https://haven.tidyverse.org/dev/reference/meta.md). See
+[`meta_var_sas()`](https://haven.tidyverse.org/dev/reference/meta_var_sas.md),
+[`meta_var_spss()`](https://haven.tidyverse.org/dev/reference/meta_var_spss.md),
+and
+[`meta_var_stata()`](https://haven.tidyverse.org/dev/reference/meta_var_stata.md)
+for the format-specific fields.

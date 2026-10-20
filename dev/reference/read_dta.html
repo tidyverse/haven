@@ -96,7 +96,7 @@ be stored as the appropriate <code>str#</code>.</p>
 <span><span class="fu">write_dta</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">path</span>,</span>
-<span>  version <span class="op">=</span> <span class="fl">14</span>,</span>
+<span>  version <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">data</span>, <span class="st">"label"</span><span class="op">)</span>,</span>
 <span>  strl_threshold <span class="op">=</span> <span class="fl">2045</span>,</span>
 <span>  adjust_tz <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -133,7 +133,9 @@ selection language.</p>
 
 
 <dt id="arg-n-max">n_max<a class="anchor" aria-label="anchor" href="#arg-n-max"></a></dt>
-<dd><p>Maximum number of lines to read.</p></dd>
+<dd><p>Maximum number of lines to read.</p>
+<p>Set to 0 to return data frame containing correctly typed (but empty)
+columns along with all data frame and variable metadata.</p></dd>
 
 
 <dt id="arg--name-repair">.name_repair<a class="anchor" aria-label="anchor" href="#arg--name-repair"></a></dt>
@@ -153,7 +155,9 @@ to enforce them.</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>Data frame to write.</p></dd>
+<dd><p>Data frame to write. File and variable metadata stored with
+<code><a href="meta.html">meta()</a></code> is used where possible; see <code><a href="meta_var_stata.html">meta_df_stata()</a></code> and
+<code><a href="meta_var_stata.html">meta_var_stata()</a></code> for the fields that affect the output.</p></dd>
 
 
 <dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
@@ -161,8 +165,10 @@ to enforce them.</p></dd>
 
 
 <dt id="arg-version">version<a class="anchor" aria-label="anchor" href="#arg-version"></a></dt>
-<dd><p>File version to use. Supports versions 8-15. See the
-"Stata versions" section below for details on compatibility.</p></dd>
+<dd><p>File version to use. Supports versions 8-15. Defaults to
+the version recorded in the metadata of <code>data</code> (if it was read with
+<code>read_dta()</code>), otherwise 14. See the "Stata versions" section below for
+details on compatibility.</p></dd>
 
 
 <dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
@@ -203,6 +209,9 @@ labels, not a regular R factor. Convert labelled categorical variables
 with <code><a href="as_factor.html">as_factor()</a></code>, or remove value labels with <code><a href="zap_labels.html">zap_labels()</a></code> if you
 need plain R vectors for analysis. See <code><a href="../articles/semantics.html">vignette("semantics")</a></code> for more
 details.</p>
+<p>The data frame and each variable also carry metadata read from the file;
+access it with <code><a href="meta.html">meta()</a></code>. See <code><a href="meta_var_sas.html">meta_var_sas()</a></code>, <code><a href="meta_var_spss.html">meta_var_spss()</a></code>, and
+<code><a href="meta_var_stata.html">meta_var_stata()</a></code> for the format-specific fields.</p>
     </div>
     <div class="section level2">
     <h2 id="character-encoding">Character encoding<a class="anchor" aria-label="anchor" href="#character-encoding"></a></h2>

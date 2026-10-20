@@ -33,7 +33,7 @@ read_stata(
 write_dta(
   data,
   path,
-  version = 14,
+  version = NULL,
   label = attr(data, "label"),
   strl_threshold = 2045,
   adjust_tz = TRUE
@@ -74,6 +74,9 @@ write_dta(
 
   Maximum number of lines to read.
 
+  Set to 0 to return data frame containing correctly typed (but empty)
+  columns along with all data frame and variable metadata.
+
 - .name_repair:
 
   Treatment of problematic column names:
@@ -104,7 +107,13 @@ write_dta(
 
 - data:
 
-  Data frame to write.
+  Data frame to write. File and variable metadata stored with
+  [`meta()`](https://haven.tidyverse.org/dev/reference/meta.md) is used
+  where possible; see
+  [`meta_df_stata()`](https://haven.tidyverse.org/dev/reference/meta_var_stata.md)
+  and
+  [`meta_var_stata()`](https://haven.tidyverse.org/dev/reference/meta_var_stata.md)
+  for the fields that affect the output.
 
 - path:
 
@@ -112,8 +121,10 @@ write_dta(
 
 - version:
 
-  File version to use. Supports versions 8-15. See the "Stata versions"
-  section below for details on compatibility.
+  File version to use. Supports versions 8-15. Defaults to the version
+  recorded in the metadata of `data` (if it was read with `read_dta()`),
+  otherwise 14. See the "Stata versions" section below for details on
+  compatibility.
 
 - label:
 
@@ -165,6 +176,15 @@ or remove value labels with
 if you need plain R vectors for analysis. See
 [`vignette("semantics")`](https://haven.tidyverse.org/dev/articles/semantics.md)
 for more details.
+
+The data frame and each variable also carry metadata read from the file;
+access it with
+[`meta()`](https://haven.tidyverse.org/dev/reference/meta.md). See
+[`meta_var_sas()`](https://haven.tidyverse.org/dev/reference/meta_var_sas.md),
+[`meta_var_spss()`](https://haven.tidyverse.org/dev/reference/meta_var_spss.md),
+and
+[`meta_var_stata()`](https://haven.tidyverse.org/dev/reference/meta_var_stata.md)
+for the format-specific fields.
 
 ## Character encoding
 

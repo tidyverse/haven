@@ -88,7 +88,13 @@ file extension.</p>
 <span>  .name_repair <span class="op">=</span> <span class="st">"unique"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">write_sav</span><span class="op">(</span><span class="va">data</span>, <span class="va">path</span>, compress <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"byte"</span>, <span class="st">"none"</span>, <span class="st">"zsav"</span><span class="op">)</span>, adjust_tz <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu">write_sav</span><span class="op">(</span></span>
+<span>  <span class="va">data</span>,</span>
+<span>  <span class="va">path</span>,</span>
+<span>  compress <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"byte"</span>, <span class="st">"none"</span>, <span class="st">"zsav"</span><span class="op">)</span>,</span>
+<span>  adjust_tz <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">data</span>, <span class="st">"label"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">read_spss</span><span class="op">(</span></span>
 <span>  <span class="va">file</span>,</span>
@@ -136,7 +142,9 @@ selection language.</p>
 
 
 <dt id="arg-n-max">n_max<a class="anchor" aria-label="anchor" href="#arg-n-max"></a></dt>
-<dd><p>Maximum number of lines to read.</p></dd>
+<dd><p>Maximum number of lines to read.</p>
+<p>Set to 0 to return data frame containing correctly typed (but empty)
+columns along with all data frame and variable metadata.</p></dd>
 
 
 <dt id="arg--name-repair">.name_repair<a class="anchor" aria-label="anchor" href="#arg--name-repair"></a></dt>
@@ -156,7 +164,9 @@ to enforce them.</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>Data frame to write.</p></dd>
+<dd><p>Data frame to write. File and variable metadata stored with
+<code><a href="meta.html">meta()</a></code> is used where possible; see <code><a href="meta_var_spss.html">meta_df_spss()</a></code> and
+<code><a href="meta_var_spss.html">meta_var_spss()</a></code> for the fields that affect the output.</p></dd>
 
 
 <dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
@@ -186,6 +196,11 @@ e.g. <code>"2010-01-01 09:00:00 NZDT"</code> will be written as
 <code>"2009-12-31 20:00:00"</code>.</p></li>
 </ul></dd>
 
+
+<dt id="arg-label">label<a class="anchor" aria-label="anchor" href="#arg-label"></a></dt>
+<dd><p>Dataset label to use, or <code>NULL</code>. Defaults to the value stored in
+the "label" attribute of <code>data</code>. Must be &lt;= 64 bytes.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -198,6 +213,9 @@ labels, not a regular R factor. Convert labelled categorical variables
 with <code><a href="as_factor.html">as_factor()</a></code>, or remove value labels with <code><a href="zap_labels.html">zap_labels()</a></code> if you
 need plain R vectors for analysis. See <code><a href="../articles/semantics.html">vignette("semantics")</a></code> for more
 details.</p>
+<p>The data frame and each variable also carry metadata read from the file;
+access it with <code><a href="meta.html">meta()</a></code>. See <code><a href="meta_var_sas.html">meta_var_sas()</a></code>, <code><a href="meta_var_spss.html">meta_var_spss()</a></code>, and
+<code><a href="meta_var_stata.html">meta_var_stata()</a></code> for the format-specific fields.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

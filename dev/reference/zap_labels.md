@@ -43,6 +43,7 @@ Other zappers:
 [`zap_empty()`](https://haven.tidyverse.org/dev/reference/zap_empty.md),
 [`zap_formats()`](https://haven.tidyverse.org/dev/reference/zap_formats.md),
 [`zap_label()`](https://haven.tidyverse.org/dev/reference/zap_label.md),
+[`zap_meta()`](https://haven.tidyverse.org/dev/reference/zap_meta.md),
 [`zap_widths()`](https://haven.tidyverse.org/dev/reference/zap_widths.md)
 
 ## Examples

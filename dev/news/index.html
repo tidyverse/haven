@@ -55,7 +55,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="haven-development-version">haven (development version)<a class="anchor" aria-label="anchor" href="#haven-development-version"></a></h2>
-<ul><li>haven no longer depends on readr (<a href="https://github.com/tidyverse/haven/issues/834" class="external-link">#834</a>). As a consequence, the <code>read_*()</code> functions no longer read compressed (<code>.gz</code>, <code>.bz2</code>, <code>.xz</code>, <code>.zip</code>) files; decompress them before reading.</li>
+<ul><li>
+<code>meta&lt;-</code> now removes the legacy <code>format.*</code>, <code>display_width</code>, <code>width</code>, <code>notes</code>, and <code>*_timestamp</code> attributes so stale metadata can’t resurface after setting new metadata or <code>NULL</code>.</li>
+<li>haven no longer depends on readr (<a href="https://github.com/tidyverse/haven/issues/834" class="external-link">#834</a>). As a consequence, the <code>read_*()</code> functions no longer read compressed (<code>.gz</code>, <code>.bz2</code>, <code>.xz</code>, <code>.zip</code>) files; decompress them before reading.</li>
 <li>All <code>read_*()</code> functions with small <code>n_max</code> no longer pre-allocate more rows than needed, greatly reducing memory usage of header-only reads (<a href="https://github.com/tidyverse/haven/issues/845" class="external-link">#845</a>).</li>
 <li>Updated to ReadStat dev (0dc2aee).
 <ul><li>
@@ -82,6 +84,11 @@
 <code><a href="../reference/labelled_spss.html">labelled_spss()</a></code> vectors that contain <code>NA</code> can now be cast to a different <code>na_range</code> without failing with “missing value where TRUE/FALSE needed”, which affected <code><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind()</a></code> and <code>dplyr::bind_rows()</code> (<a href="https://github.com/tidyverse/haven/issues/761" class="external-link">#761</a>, <a href="https://github.com/taekop" class="external-link">@taekop</a>).</li>
 <li>
 <code><a href="https://rdrr.io/r/stats/median.html" class="external-link">median()</a></code> method for <code>haven_labelled</code> vectors now forwards the <code>na.rm</code> argument instead of always using <code>na.rm = TRUE</code>.</li>
+<li>New <code><a href="../reference/meta.html">meta()</a></code> accessor and S7 metadata classes (<code><a href="../reference/meta_var_sas.html">meta_var_sas()</a></code> and friends) store file and variable metadata when reading, and use it when writing, improving roundtrip fidelity. Compared to the legacy <code>format.*</code>, <code>width</code>, <code>display_width</code>, <code>notes</code>, and <code>*_timestamp</code> attributes (which are still read as a fallback), the round-tripped metadata is:
+<ul><li>SAS: variable format, informat (new), and width; file creation/modification timestamps, table name (new), and transport file version (new).</li>
+<li>SPSS: variable format, width, display width, measure level (new), and alignment (new); file creation/modification timestamps, notes, and multiple response sets (readonly, new).</li>
+<li>Stata: variable format and storage type (new); file creation/modification timestamps, notes, and file version (new). New <code><a href="../reference/zap_meta.html">zap_meta()</a></code> removes this metadata, and <code><a href="../reference/zap_formats.html">zap_formats()</a></code> and <code><a href="../reference/zap_widths.html">zap_widths()</a></code> are deprecated in its favour.</li>
+</ul></li>
 <li>
 <code>read_*()</code> documentation now more clearly explains that labelled vectors are an intermediate representation, and points users to <code><a href="../reference/as_factor.html">as_factor()</a></code> and <code><a href="../reference/zap_labels.html">zap_labels()</a></code> when preparing imported categorical variables for analysis (<a href="https://github.com/tidyverse/haven/issues/741" class="external-link">#741</a>).</li>
 <li>
@@ -97,6 +104,8 @@
 <code><a href="../reference/read_sas.html">read_sas()</a></code> no longer accepts the <code>cols_only</code> argument, which was deprecated in haven 2.2.0 (released 2019-11-08); use <code>col_select</code> instead.</li>
 <li>
 <code><a href="../reference/read_sas.html">read_sas()</a></code> and <code><a href="../reference/read_xpt.html">read_xpt()</a></code> now supports all datetime, date and time formats (<a href="https://github.com/tidyverse/haven/issues/780" class="external-link">#780</a>) and correctly recognises DATEAMPM as datetime (<a href="https://github.com/tidyverse/haven/issues/789" class="external-link">#789</a>).</li>
+<li>
+<code><a href="../reference/read_xpt.html">read_xpt()</a></code> now returns the format width in <code>meta()@width</code>, so width metadata now round-trips through <code><a href="../reference/read_xpt.html">write_xpt()</a></code> (<a href="https://github.com/tidyverse/haven/issues/782" class="external-link">#782</a>).</li>
 <li>
 <code><a href="../reference/tagged_na.html">tagged_na()</a></code> and <code><a href="../reference/tagged_na.html">is_tagged_na()</a></code> now silently convert tagged <code>NA</code> values to lower case. These are case insensitive when reading and writing, so forcing lower case removes any potential ambiguity.</li>
 <li>

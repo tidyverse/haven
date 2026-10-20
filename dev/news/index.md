@@ -2,6 +2,9 @@
 
 ## haven (development version)
 
+- `meta<-` now removes the legacy `format.*`, `display_width`, `width`,
+  `notes`, and `*_timestamp` attributes so stale metadata can’t
+  resurface after setting new metadata or `NULL`.
 - haven no longer depends on readr
   ([\#834](https://github.com/tidyverse/haven/issues/834)). As a
   consequence, the `read_*()` functions no longer read compressed
@@ -63,6 +66,28 @@
 - [`median()`](https://rdrr.io/r/stats/median.html) method for
   `haven_labelled` vectors now forwards the `na.rm` argument instead of
   always using `na.rm = TRUE`.
+- New [`meta()`](https://haven.tidyverse.org/dev/reference/meta.md)
+  accessor and S7 metadata classes
+  ([`meta_var_sas()`](https://haven.tidyverse.org/dev/reference/meta_var_sas.md)
+  and friends) store file and variable metadata when reading, and use it
+  when writing, improving roundtrip fidelity. Compared to the legacy
+  `format.*`, `width`, `display_width`, `notes`, and `*_timestamp`
+  attributes (which are still read as a fallback), the round-tripped
+  metadata is:
+  - SAS: variable format, informat (new), and width; file
+    creation/modification timestamps, table name (new), and transport
+    file version (new).
+  - SPSS: variable format, width, display width, measure level (new),
+    and alignment (new); file creation/modification timestamps, notes,
+    and multiple response sets (readonly, new).
+  - Stata: variable format and storage type (new); file
+    creation/modification timestamps, notes, and file version (new). New
+    [`zap_meta()`](https://haven.tidyverse.org/dev/reference/zap_meta.md)
+    removes this metadata, and
+    [`zap_formats()`](https://haven.tidyverse.org/dev/reference/zap_formats.md)
+    and
+    [`zap_widths()`](https://haven.tidyverse.org/dev/reference/zap_widths.md)
+    are deprecated in its favour.
 - `read_*()` documentation now more clearly explains that labelled
   vectors are an intermediate representation, and points users to
   [`as_factor()`](https://haven.tidyverse.org/dev/reference/as_factor.md)
@@ -107,6 +132,11 @@
   ([\#780](https://github.com/tidyverse/haven/issues/780)) and correctly
   recognises DATEAMPM as datetime
   ([\#789](https://github.com/tidyverse/haven/issues/789)).
+- [`read_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
+  now returns the format width in `meta()@width`, so width metadata now
+  round-trips through
+  [`write_xpt()`](https://haven.tidyverse.org/dev/reference/read_xpt.md)
+  ([\#782](https://github.com/tidyverse/haven/issues/782)).
 - [`tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md)
   and
   [`is_tagged_na()`](https://haven.tidyverse.org/dev/reference/tagged_na.md)

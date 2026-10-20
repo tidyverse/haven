@@ -126,45 +126,6 @@
 
         </dt>
         <dd>Convert labelled vectors to factors</dd>
-      </dl></div><div class="section level2">
-      <h2 id="tagged-missing-values">Tagged missing values<a class="anchor" aria-label="anchor" href="#tagged-missing-values"></a></h2>
-
-      <div class="section-desc"><p>Both SAS and Stata supported tagged missing values, where a missing value can have multiple “types”, given by an letter from A through Z. <code><a href="../reference/tagged_na.html">tagged_na()</a></code> provides a convenient way of representing these types of missing values in R by taking advantage of the binary representation of <code>NA</code>.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="tagged_na.html">tagged_na()</a></code> <code><a href="tagged_na.html">na_tag()</a></code> <code><a href="tagged_na.html">is_tagged_na()</a></code> <code><a href="tagged_na.html">format_tagged_na()</a></code> <code><a href="tagged_na.html">print_tagged_na()</a></code>
-
-        </dt>
-        <dd>"Tagged" missing values</dd>
-      </dl></div><div class="section level2">
-      <h2 id="remove-attributes">Remove attributes<a class="anchor" aria-label="anchor" href="#remove-attributes"></a></h2>
-
-      <div class="section-desc"><p>There are a number of SPSS/SAS/Stata features that have no direct equivalent in R. Haven preserves them so you can choose what do with them. To simply eliminate them, use one of the zap functions.</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="zap_empty.html">zap_empty()</a></code>
-
-        </dt>
-        <dd>Convert empty strings into missing values</dd>
-
-        <dt>
-
-          <code><a href="zap_formats.html">zap_formats()</a></code>
-
-        </dt>
-        <dd>Remove format attributes</dd>
 
         <dt>
 
@@ -179,6 +140,22 @@
 
         </dt>
         <dd>Zap value labels</dd>
+      </dl></div><div class="section level2">
+      <h2 id="missing-values">Missing values<a class="anchor" aria-label="anchor" href="#missing-values"></a></h2>
+
+      <div class="section-desc"><p>Both SAS and Stata supported tagged missing values, where a missing value can have multiple “types”, given by an letter from A through Z. <code><a href="../reference/tagged_na.html">tagged_na()</a></code> provides a convenient way of representing these types of missing values in R by taking advantage of the binary representation of <code>NA</code>.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="tagged_na.html">tagged_na()</a></code> <code><a href="tagged_na.html">na_tag()</a></code> <code><a href="tagged_na.html">is_tagged_na()</a></code> <code><a href="tagged_na.html">format_tagged_na()</a></code> <code><a href="tagged_na.html">print_tagged_na()</a></code>
+
+        </dt>
+        <dd>"Tagged" missing values</dd>
 
         <dt>
 
@@ -189,10 +166,84 @@
 
         <dt>
 
-          <code><a href="zap_widths.html">zap_widths()</a></code>
+          <code><a href="zap_empty.html">zap_empty()</a></code>
 
         </dt>
+        <dd>Convert empty strings into missing values</dd>
+      </dl></div><div class="section level2">
+      <h2 id="metadata">Metadata<a class="anchor" aria-label="anchor" href="#metadata"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="meta.html">meta()</a></code> <code><a href="meta.html">`meta&lt;-`()</a></code>
+
+        </dt>
+        <dd>File metadata</dd>
+
+        <dt>
+
+          <code><a href="meta_var_sas.html">meta_var_sas()</a></code> <code><a href="meta_var_sas.html">meta_df_sas()</a></code>
+
+        </dt>
+        <dd>SAS metadata</dd>
+
+        <dt>
+
+          <code><a href="meta_var_spss.html">meta_var_spss()</a></code> <code><a href="meta_var_spss.html">meta_df_spss()</a></code>
+
+        </dt>
+        <dd>SPSS metadata</dd>
+
+        <dt>
+
+          <code><a href="meta_var_stata.html">meta_var_stata()</a></code> <code><a href="meta_var_stata.html">meta_df_stata()</a></code>
+
+        </dt>
+        <dd>Stata metadata</dd>
+
+        <dt>
+
+          <code><a href="zap_meta.html">zap_meta()</a></code>
+
+        </dt>
+        <dd>Remove metadata</dd>
+      </dl></div><div class="section level2">
+      <h2 id="deprecated">Deprecated<a class="anchor" aria-label="anchor" href="#deprecated"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="zap_formats.html">zap_formats()</a></code>
+          <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
+        </dt>
+        <dd>Remove format attributes</dd>
+
+        <dt>
+
+          <code><a href="zap_widths.html">zap_widths()</a></code>
+          <span class="badge lifecycle lifecycle-deprecated">deprecated</span>
+        </dt>
         <dd>Remove display width attributes</dd>
+
+        <dt>
+
+          <code><a href="read_sas.html">read_sas()</a></code> <code><a href="read_sas.html">write_sas()</a></code>
+
+        </dt>
+        <dd>Read and write SAS files</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
