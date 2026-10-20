@@ -1,5 +1,25 @@
 # haven (development version)
 
+## Lifecycle
+
+* `read_*()` no longer read compressed (`.gz`, `.bz2`, `.xz`, `.zip`) files; decompress them before reading (#834).
+* `read_*()` no longer attach the `format.*`, `width`, `display_width`, or `notes` attributes; use `meta()` to access this metadata instead.
+* `read_sas()` no longer accepts the `cols_only` argument, which was deprecated in haven 2.2.0 (released 2019-11-08); use `col_select` instead.
+* `write_sas()` is no longer deprecated. ReadStat now computes the header checksum correctly, so SAS can read the files it produces.
+* `zap_formats()` and `zap_widths()` are deprecated in favour of `zap_meta()`.
+
+## New features
+
+* New `meta()` accessor and S7 metadata classes (`meta_var_sas()` and friends) store file and variable metadata when reading and use it when writing, improving roundtrip fidelity. Compared to the legacy `format.*`, `width`, `display_width`, `notes`, and `*_timestamp` attributes, the round-tripped metadata is:
+  * SAS: variable format, informat (new), and width; file creation/modification timestamps, table name (new), and transport file version (new).
+  * SPSS: variable format, width, display width, measure level (new), and alignment (new); file creation/modification timestamps, notes, and multiple response sets (read-only, new).
+  * Stata: variable format and storage type (new); file creation/modification timestamps, notes, and file version (new).
+* New `zap_meta()` removes all haven metadata.
+* `read_*()` gain a `progress` argument that displays a progress bar when reading large files. Like readr, it is shown by default in interactive sessions and can be turned off with `options(haven.show_progress = FALSE)` (#730).
+* `read_*()` with `n_max = 0` now stop parsing after the file header instead of scanning every row, making header-only reads much faster. This is now the documented way to retrieve just metadata for a file.
+
+## Minor improvements and bug fixes
+
 * haven no longer depends on crayon or readr (#834).
 * Updated to ReadStat dev (0dc2aee).
   * `write_sav()` no longer produces files that `read_sav()` reads back incorrectly when a long string variable's internal segment name collides with another variable name (#798).
@@ -17,37 +37,26 @@
   * XPT V8 writer now supports long variable labels (#784).
 * `labelled_spss()` vectors that contain `NA` can now be cast to a different `na_range` without failing with "missing value where TRUE/FALSE needed", which affected `rbind()` and `dplyr::bind_rows()` (#761, @taekop).
 * `median()` method for `haven_labelled` vectors now forwards the `na.rm` argument instead of always using `na.rm = TRUE`.
-* New `meta()` accessor and S7 metadata classes (`meta_var_sas()` and friends) store file and variable metadata when reading and use it when writing, improving roundtrip fidelity. Compared to the legacy `format.*`, `width`, `display_width`, `notes`, and `*_timestamp` attributes (which are still read as a fallback), the round-tripped metadata is:
-  * SAS: variable format, informat (new), and width; file creation/modification timestamps, table name (new), and transport file version (new).
-  * SPSS: variable format, width, display width, measure level (new), and alignment (new); file creation/modification timestamps, notes, and multiple response sets (read-only, new).
-  * Stata: variable format and storage type (new); file creation/modification timestamps, notes, and file version (new).
 * `read_*(col_select)` now correctly implements the tidyselect interface. This means that columns will be returned in the order specified in `col_select` and can be renamed, e.g. `col_select = c(new = old)` (#685). It also works correctly when combined with `.name_repair` for files with duplicate column names (#687).
-* `read_*()` functions with `n_max = 0` now stop parsing after the file header instead of scanning every row, making header-only reads much faster.
-* `read_*()` functions with `n_max` set no longer pre-allocate more rows than needed (#845).
-* `read_*()` functions no longer read compressed (`.gz`, `.bz2`, `.xz`, `.zip`) files; decompress them before reading (#834).
+* `read_*()` with `n_max` set no longer pre-allocate more rows than needed (#845).
 * `read_*()` documentation now more clearly explains that labelled vectors are an intermediate representation and points users to `as_factor()` and `zap_labels()` when preparing imported categorical variables for analysis (#741).
-* `read_*()` functions now correctly load from non-file connections when using `col_select` (#720).
-* `read_*()` functions gain a `progress` argument that displays a progress bar when reading large files. Like readr, it is shown by default in interactive sessions and can be turned off with `options(haven.show_progress = FALSE)` (#730).
-* The `read_*()` and `write_*()` functions now use rlang's standard argument checkers, giving clearer error messages when arguments have the wrong type (#737).
-* `read_*()` functions now warn and treat a string variable with a date and/or time format as a plain string instead of throwing an error (#747). This should not normally occur, but has been observed in files produced by third-party software.
-* `read_dta()`, `read_sav()`, `read_por()`, `read_sas()`, and `read_xpt()` now attach file metadata as attributes: `creation_timestamp` and `modified_timestamp` (as POSIXct, in UTC) (#733, @SInginc).
-* `read_sas()` now uses the data file's encoding for a catalog file that doesn't specify its own encoding, rather than assuming WINDOWS-1252. This fixes failures and garbled value labels when reading UTF-8 catalogs (#836).
-* `read_sas()` no longer accepts the `cols_only` argument, which was deprecated in haven 2.2.0 (released 2019-11-08); use `col_select` instead.
-* `read_sas()` and `write_sas()` now correctly read and write dates and date-times on or after 4000-03-01; previously they were off by one day (two days on or after 8000-03-01) because SAS doesn't treat years divisible by 4000 as leap years (#728).
+* `read_*()` now correctly load from non-file connections when using `col_select` (#720).
+* `read_*()` and `write_*()` now use rlang's standard argument checkers, giving clearer error messages when arguments have the wrong type (#737).
+* `read_*()` now warn and treat a string variable with a date and/or time format as a plain string instead of throwing an error (#747). This should not normally occur, but has been observed in files produced by third-party software.
 * `read_sas()` and `read_xpt()` now support all datetime, date, and time formats (#780) and correctly recognize DATEAMPM as datetime (#789).
+* `read_sas()` now uses the data file's encoding for a catalog file that doesn't specify its own encoding, rather than assuming WINDOWS-1252. This fixes failures and garbled value labels when reading UTF-8 catalogs (#836).
+* `read_sas()` and `write_sas()` now correctly read and write dates and date-times on or after 4000-03-01; previously they were off by one day (two days on or after 8000-03-01) because SAS doesn't treat years divisible by 4000 as leap years (#728).
 * `read_xpt()` now returns the format width in `meta()@width`, so width metadata now round-trips through `write_xpt()` (#782).
 * `tagged_na()` and `is_tagged_na()` now silently convert tagged `NA` values to lower case. These are case-insensitive when reading and writing, so forcing lower case removes any potential ambiguity.
-* `write_*()` functions now take into account the width of value labels when calculating string variable widths. Previously it was possible to create value label sets with values that were wider than the string variable, causing issues when reading files (#537).
+* `write_*()` now take into account the width of value labels when calculating string variable widths. Previously it was possible to create value label sets with values that were wider than the string variable, causing issues when reading files (#537).
 * `write_dta()` now allows single-character variable names (e.g. `x`) when `version` is 13 or earlier.
 * `write_dta()` no longer fails when writing `NA` in a long string (strL) variable; missing values are written as empty strings, which is how Stata represents missing strings (#760).
 * `write_dta()` now gives an informative error when value labels are outside the range that Stata can store (-2,147,483,647 to 2,147,483,620). Previously, very large labels failed with "missing value where TRUE/FALSE needed" and labels just below 2^31 were silently converted to missing values (#739).
 * `write_dta()` now stores numeric columns using the smallest Stata storage type (`byte`, `int`, `long`, or `double`) that can exactly represent every value, like Stata's `compress`. This can substantially reduce file sizes (#651). Integers too large for Stata's `long` are now stored as `double` rather than failing to write.
 * `write_dta()` now errors when `strl_threshold` is not between 0 and 2045, instead of silently clamping it to 2045.
-* `write_sas()` is no longer deprecated. ReadStat now computes the header checksum correctly, so SAS can read the files it produces.
 * `write_xpt()` character limit checks now use the number of bytes instead of the number of characters (#746).
 * `write_xpt()` now errors if variable names are too long for the XPT version: 8 bytes for version 5, 32 bytes for version 8. Previously, long names were silently truncated for version 5 and error messaging was inconsistent (#771).
 * `write_xpt()` no longer fails when writing tagged `NA` values (#755).
-* New `zap_meta()` removes all haven metadata, and `zap_formats()` and `zap_widths()` are deprecated in its favour.
 
 # haven 2.5.5
 
