@@ -1,6 +1,5 @@
 # haven (development version)
 
-* `meta()` objects now print with a custom method that displays timestamps as human-readable date-times instead of S7's default property summaries.
 * haven no longer depends on readr (#834). As a consequence, the `read_*()` functions no longer read compressed (`.gz`, `.bz2`, `.xz`, `.zip`) files; decompress them before reading.
 * All `read_*()` functions with small `n_max` no longer pre-allocate more rows than needed, greatly reducing memory usage of header-only reads (#845).
 * Updated to ReadStat dev (0dc2aee).
