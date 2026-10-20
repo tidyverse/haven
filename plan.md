@@ -103,7 +103,7 @@ SAS sort information (#719) and Stata characteristics other than notes (ReadStat
 
 ### vctrs
 
-- [ ] Carry `haven_meta` through `vec_ptype2()`/`vec_cast()` for `haven_labelled` and `haven_labelled_spss` (first input wins), with tests.
+- [x] Carry `haven_meta` through `vec_ptype2()`/`vec_cast()` for `haven_labelled` and `haven_labelled_spss` (first input wins), with tests.
 
 ### Documentation and release notes
 
