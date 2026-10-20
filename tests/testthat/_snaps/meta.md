@@ -1,3 +1,23 @@
+# metadata prints nicely
+
+    Code
+      meta(df)
+    Output
+      <haven::meta_df_sas>
+      @created   : 2016-06-08 22:38:50 UTC
+      @modified  : 2016-06-08 22:38:50 UTC
+      @table_name: "IRIS"
+
+---
+
+    Code
+      meta(df$Species)
+    Output
+      <haven::meta_var_sas>
+      @format  : "$6"
+      @informat: "$6"
+      @width   : 6
+
 # properties are validated
 
     Code

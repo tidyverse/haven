@@ -17,6 +17,12 @@ test_that("integer properties accept whole doubles", {
   expect_identical(meta_df_sas(xpt_version = 5)@xpt_version, 5L)
 })
 
+test_that("metadata prints nicely", {
+  df <- read_sas(system.file("examples", "iris.sas7bdat", package = "haven"))
+  expect_snapshot(meta(df))
+  expect_snapshot(meta(df$Species))
+})
+
 test_that("properties are validated", {
   expect_snapshot(error = TRUE, {
     meta_var_sas(format = c("a", "b"))

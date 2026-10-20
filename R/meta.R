@@ -229,6 +229,36 @@ meta_df_stata <- S7::new_class(
   )
 )
 
+# Printing -------------------------------------------------------------------
+
+S7::method(print, meta_df) <- function(x, ...) print_meta(x)
+S7::method(print, meta_var) <- function(x, ...) print_meta(x)
+
+print_meta <- function(x) {
+  cat_line("<", S7_class_name(S7::S7_class(x)), ">")
+
+  props <- compact(S7::props(x))
+  names <- format(paste0("@", names(props)), justify = "left")
+  for (i in seq_along(props)) {
+    cat_line(names[[i]], ": ", format_meta_prop(props[[i]]))
+  }
+  invisible(x)
+}
+
+format_meta_prop <- function(x) {
+  if (is.null(x)) {
+    "NULL"
+  } else if (inherits(x, "POSIXct")) {
+    format(x, usetz = TRUE)
+  } else if (is.character(x)) {
+    paste0(encodeString(x, quote = '"'), collapse = " ")
+  } else if (is.atomic(x)) {
+    paste0(format(x), collapse = " ")
+  } else {
+    paste0("<", class(x)[[1]], ">")
+  }
+}
+
 meta_class <- function(vendor, df) {
   if (df) {
     switch(
