@@ -219,7 +219,13 @@ test_that("read_por captures file metadata", {
 
   meta <- meta(df)
   expect_s3_class(meta, "haven::meta_df_spss")
-  expect_equal(meta@created, as.POSIXct("2018-12-16 23:28:21", tz = "UTC"))
+  # File timestamps are wall-clock times that readstat interprets in the
+  # local time zone
+  expect_equal(
+    meta@created,
+    as.POSIXct("2018-12-16 17:28:21", tz = Sys.timezone()),
+    ignore_attr = "tzone"
+  )
   expect_equal(
     meta@notes[1],
     "some test text as notes"
