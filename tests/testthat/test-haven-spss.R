@@ -186,6 +186,87 @@ test_that("system missings read as NA", {
 })
 
 
+# read_por ----------------------------------------------------------------
+
+# sample.por from https://github.com/Roche/pyreadstat/blob/master/test_data/basic/sample.por
+
+test_that("read_por reads data and labels", {
+  df <- read_por(test_path("spss/sample.por"))
+
+  expect_equal(dim(df), c(5, 7))
+  expect_equal(attr(df$MYCHAR, "label"), "character")
+  expect_equal(attr(df$MYLABL, "labels"), c(Male = 1, Female = 2))
+  expect_s3_class(df$MYDATE, "Date")
+  expect_s3_class(df$DTIME, "POSIXct")
+  expect_s3_class(df$MYTIME, "hms")
+})
+
+test_that("read_por captures variable metadata", {
+  df <- read_por(test_path("spss/sample.por"))
+
+  expect_equal(
+    meta(df$MYCHAR),
+    meta_var_spss(format = "A1", display_width = 1, width = 1)
+  )
+  expect_equal(
+    meta(df$MYNUM),
+    meta_var_spss(format = "F8.2", display_width = 8)
+  )
+})
+
+test_that("read_por captures file metadata", {
+  df <- read_por(test_path("spss/sample.por"))
+
+  meta <- meta(df)
+  expect_s3_class(meta, "haven::meta_df_spss")
+  expect_equal(meta@created, as.POSIXct("2018-12-16 23:28:21", tz = "UTC"))
+  expect_equal(
+    meta@notes[1],
+    "some test text as notes"
+  )
+})
+
+test_that("read_spss dispatches to read_por for .por files", {
+  expect_equal(
+    read_spss(test_path("spss/sample.por")),
+    read_por(test_path("spss/sample.por"))
+  )
+})
+
+# Multiple response sets ----------------------------------------------------
+
+# multiple-response-sets.sav from
+# https://github.com/Roche/pyreadstat/blob/master/test_data/multiple_response/simple_alltypes.sav
+
+test_that("read_sav captures multiple response sets", {
+  df <- read_sav(test_path("spss/multiple-response-sets.sav"))
+
+  mr_sets <- meta(df)@mr_sets
+  expect_equal(
+    mr_sets,
+    list(
+      # SPSS prefixes multiple response set names with "$"
+      `$categorical_array` = list(
+        label = "",
+        type = "category",
+        counted_value = NULL,
+        variables = c("ca_subvar_1", "ca_subvar_2", "ca_subvar_3")
+      ),
+      `$mymrset` = list(
+        label = "My multiple response set",
+        type = "dichotomy",
+        counted_value = "1",
+        variables = c("bool1", "bool2", "bool3")
+      )
+    )
+  )
+})
+
+test_that("files without mr sets have NULL mr_sets", {
+  df <- read_sav(test_path("spss/datetime.sav"))
+  expect_null(meta(df)@mr_sets)
+})
+
 # write_sav ---------------------------------------------------------------
 
 test_that("write_sav() writes file label", {
