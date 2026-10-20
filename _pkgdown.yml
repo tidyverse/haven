@@ -60,6 +60,10 @@ reference:
 
 - title: Metadata
   contents:
+  - meta
+  - meta_var_sas
+  - meta_var_spss
+  - meta_var_stata
   - zap_meta
 
 - title: Deprecated

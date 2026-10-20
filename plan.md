@@ -51,11 +51,11 @@ R wrappers flatten each column's metadata into a simple per-column list passed t
 
 ### Documentation
 
-* `?meta`: accessor, setter, the `meta_var`/`meta_df` parents, legacy fallback, and `zap_meta()` cross-link. Links to each vendor's class topic (`?meta_sas`, `?meta_spss`, `?meta_stata`).
-* One topic per vendor documenting the column and data frame classes together: `?meta_sas` (`meta_var_sas`, `meta_df_sas`), `?meta_spss`, `?meta_stata`. Each has a table of fields × which reader populates it and which writer honours it (e.g. sas7bdat vs xpt; sav vs por), since support differs by file type.
+* `?meta`: accessor, setter, the `meta_var`/`meta_df` parents, legacy fallback, and `zap_meta()` cross-link. Links to each vendor's class topic (`?meta_var_sas`, `?meta_var_spss`, `?meta_var_stata`).
+* One topic per vendor documenting the column and data frame classes together: `?meta_var_sas` (`meta_var_sas`, `meta_df_sas`), `?meta_var_spss`, `?meta_var_stata`. Each has a table of fields × which reader populates it and which writer honours it (e.g. sas7bdat vs xpt; sav vs por), since support differs by file type.
 * `read_*()`/`write_*()` docs get a short paragraph linking to the relevant `?meta_*` topic instead of describing attributes inline.
 * Reorganise the pkgdown reference index, dropping the "Remove attributes" section so each zapper lives next to the thing it removes:
-  * New "Metadata" section: `meta`, `meta_sas`, `meta_spss`, `meta_stata`, `zap_meta`.
+  * New "Metadata" section: `meta`, `meta_var_sas`, `meta_var_spss`, `meta_var_stata`, `zap_meta`.
   * "Labelled vectors" gains `zap_label` and `zap_labels`.
   * "Tagged missing values" is renamed to "Missing values" and gains `zap_missing` and `zap_empty`.
   * New "Deprecated" section at the end: `zap_formats`, `zap_widths`, `write_sas`.
@@ -107,12 +107,14 @@ SAS sort information (#719) and Stata characteristics other than notes (ReadStat
 
 ### Documentation and release notes
 
-- [ ] Roxygen for `?meta` (linking to each class topic), `?meta_sas`, `?meta_spss`, `?meta_stata` (support tables), `?zap_meta`.
-- [ ] Update `read_*()`/`write_*()` docs to link to metadata topics.
+Documentation deferred for now; will be done before release.
+
+- [x] Minimal roxygen stubs for `?meta`, `?meta_var_sas`, `?meta_var_spss`, `?meta_var_stata` (full docs with support tables deferred).
+- [-] ~~Update `read_*()`/`write_*()` docs to link to metadata topics.~~ Skipped.
 - [x] Reorganise `_pkgdown.yml` (Metadata, Labelled vectors, Missing values, Deprecated sections as above); run `devtools::document()` and `pkgdown::check_pkgdown()`. (Done with Zapping; Metadata section currently only has `zap_meta`.)
-- [ ] Add `meta`, `meta_sas`, `meta_spss`, `meta_stata` to the Metadata section of `_pkgdown.yml`.
-- [ ] NEWS bullets: new metadata system, new fields, legacy attributes no longer set by readers, `write_sav(label)`, `zap_meta()`, deprecations.
-- [ ] Run `air format .` and `devtools::check()`.
+- [x] Add `meta`, `meta_var_sas`, `meta_var_spss`, `meta_var_stata` to the Metadata section of `_pkgdown.yml`.
+- [-] ~~NEWS bullets: new metadata system, new fields, legacy attributes no longer set by readers, `write_sav(label)`, `zap_meta()`, deprecations.~~ Skipped.
+- [x] Run `air format .` and `devtools::check()` (passes with 0 errors/warnings/notes).
 - [ ] Coordinate with xportr/metatools maintainers (revdep check).
 
 ## Open questions
