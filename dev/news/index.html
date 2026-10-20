@@ -59,7 +59,8 @@
 <li>
 <code>meta&lt;-</code> now removes the legacy <code>format.*</code>, <code>display_width</code>, <code>width</code>, <code>notes</code>, and <code>*_timestamp</code> attributes so stale metadata can’t resurface after setting new metadata or <code>NULL</code>.</li>
 <li>haven no longer depends on readr (<a href="https://github.com/tidyverse/haven/issues/834" class="external-link">#834</a>). As a consequence, the <code>read_*()</code> functions no longer read compressed (<code>.gz</code>, <code>.bz2</code>, <code>.xz</code>, <code>.zip</code>) files; decompress them before reading.</li>
-<li>All <code>read_*()</code> functions with small <code>n_max</code> no longer pre-allocate more rows than needed, greatly reducing memory usage of header-only reads (<a href="https://github.com/tidyverse/haven/issues/845" class="external-link">#845</a>).</li>
+<li>All <code>read_*()</code> functions with <code>n_max = 0</code> now stop parsing after the file header instead of scanning every row, making header-only reads much faster.</li>
+<li>All <code>read_*()</code> functions with <code>n_max</code> set no longer pre-allocate more rows than needed. (<a href="https://github.com/tidyverse/haven/issues/845" class="external-link">#845</a>).</li>
 <li>Updated to ReadStat dev (0dc2aee).
 <ul><li>
 <code><a href="../reference/read_spss.html">write_sav()</a></code> no longer produces files that <code><a href="../reference/read_spss.html">read_sav()</a></code> reads back incorrectly when a long string variable’s internal segment name collides with another variable name (<a href="https://github.com/tidyverse/haven/issues/798" class="external-link">#798</a>).</li>

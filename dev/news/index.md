@@ -10,9 +10,12 @@
   ([\#834](https://github.com/tidyverse/haven/issues/834)). As a
   consequence, the `read_*()` functions no longer read compressed
   (`.gz`, `.bz2`, `.xz`, `.zip`) files; decompress them before reading.
-- All `read_*()` functions with small `n_max` no longer pre-allocate
-  more rows than needed, greatly reducing memory usage of header-only
-  reads ([\#845](https://github.com/tidyverse/haven/issues/845)).
+- All `read_*()` functions with `n_max = 0` now stop parsing after the
+  file header instead of scanning every row, making header-only reads
+  much faster.
+- All `read_*()` functions with `n_max` set no longer pre-allocate more
+  rows than needed.
+  ([\#845](https://github.com/tidyverse/haven/issues/845)).
 - Updated to ReadStat dev (0dc2aee).
   - [`write_sav()`](https://haven.tidyverse.org/dev/reference/read_spss.md)
     no longer produces files that

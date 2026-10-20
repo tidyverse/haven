@@ -54,8 +54,9 @@ write_xpt(
 
   Maximum number of lines to read.
 
-  Set to 0 to return data frame containing correctly typed (but empty)
-  columns along with all data frame and variable metadata.
+  Set to 0 to return just metadata, i.e. data frame containing correctly
+  typed (but empty) columns along with all data frame and variable
+  metadata.
 
 - progress:
 
