@@ -15,14 +15,32 @@ bool hasAnyPrefix(const std::string& x, const Prefixes& prefixes) {
   return false;
 }
 
+// Like hasAnyPrefix(), but the prefix must be followed by a format width
+// (`DAY2`), a decimal point, or nothing. Used for short format names that
+// user-defined formats can plausibly start with (e.g. the custom format
+// DAYSV must not match the built-in DAY).
+bool hasAnyStrictPrefix(const std::string& x, const Prefixes& prefixes) {
+  for (const std::string& prefix : prefixes) {
+    if (x.compare(0, prefix.size(), prefix) != 0)
+      continue;
+    if (x.size() == prefix.size())
+      return true;
+    const char next = x[prefix.size()];
+    if (next == '.' || (next >= '0' && next <= '9'))
+      return true;
+  }
+  return false;
+}
+
 VarType matchFormat(
     const std::string& format,
     const Prefixes& datetime,
     const Prefixes& date,
+    const Prefixes& date_strict,
     const Prefixes& time) {
   if (hasAnyPrefix(format, datetime))
     return HAVEN_DATETIME;
-  if (hasAnyPrefix(format, date))
+  if (hasAnyPrefix(format, date) || hasAnyStrictPrefix(format, date_strict))
     return HAVEN_DATE;
   if (hasAnyPrefix(format, time))
     return HAVEN_TIME;
@@ -51,10 +69,42 @@ const Prefixes sas_datetime = {
     "E8601DZ",
     "E8601LX"};
 const Prefixes sas_date = {
-    "DATE",   "NLDATE", "DOWNAME", "IS8601DA", "B8601DA", "E8601DA",
-    "DAY",    "WEEK",   "MON",     "QTR",      "YEAR",    "MMDDYY",
-    "DDMMYY", "YYMMDD", "MMYY",    "YYMM",     "YY",      "WORDDAT",
-    "NENGO",  "JULIAN", "JULDAY",  "PDJULG",   "PDJULI"};
+    "DATE",
+    "NLDATE",
+    "DOWNAME",
+    "IS8601DA",
+    "B8601DA",
+    "E8601DA",
+    "MMDDYY",
+    "DDMMYY",
+    "YYMMDD",
+    "MMYY",
+    "YYMM",
+    "YY",
+    "WORDDAT",
+    "NENGO",
+    "JULIAN",
+    "JULDAY",
+    "PDJULG",
+    "PDJULI"};
+// Short date format names that user-defined formats may start with, so they
+// only match when followed by a width or decimal point (e.g. DAY2 matches,
+// but the custom format DAYSV does not).
+const Prefixes sas_date_strict = {
+    "DAY",
+    "WEEKDATE",
+    "WEEKDATX",
+    "WEEKDAY",
+    "WEEKU",
+    "WEEKV",
+    "WEEKW",
+    "MONNAME",
+    "MONTH",
+    "MONYY",
+    "MON",
+    "QTR",
+    "QTRR",
+    "YEAR"};
 const Prefixes sas_time = {
     "TIME",
     "TIMEAMPM",
@@ -140,11 +190,14 @@ VarType varTypeFromFormat(FileVendor vendor, const char* format) {
   std::string format_s(format);
   switch (vendor) {
   case HAVEN_SAS:
-    return matchFormat(format_s, sas_datetime, sas_date, sas_time);
+    return matchFormat(
+        format_s, sas_datetime, sas_date, sas_date_strict, sas_time);
   case HAVEN_SPSS:
-    return matchFormat(format_s, spss_datetime, spss_date, spss_time);
+    return matchFormat(
+        format_s, spss_datetime, spss_date, spss_date, spss_time);
   case HAVEN_STATA:
-    return matchFormat(format_s, stata_datetime, stata_date, stata_time);
+    return matchFormat(
+        format_s, stata_datetime, stata_date, stata_date, stata_time);
   }
 
   return HAVEN_DEFAULT;

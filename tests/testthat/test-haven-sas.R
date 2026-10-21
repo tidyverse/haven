@@ -383,6 +383,28 @@ test_that("can roundtrip format attribute", {
   expect_identical(zap_meta(out), zap_meta(df))
 })
 
+test_that("user-defined formats that start with date format names stay numeric", {
+  df <- tibble(
+    custom = structure(19000, format.sas = "DAYSV"),
+    day = structure(19000, format.sas = "DAY"),
+    weekdate = structure(19000, format.sas = "WEEKDATE"),
+    monyy = structure(19000, format.sas = "MONYY7"),
+    qtr = structure(19000, format.sas = "QTR2"),
+    year = structure(19000, format.sas = "YEAR")
+  )
+
+  path <- tempfile(fileext = ".sas7bdat")
+  write_sas(df, path)
+  out <- read_sas(path)
+
+  expect_type(out$custom, "double")
+  expect_s3_class(out$day, "Date")
+  expect_s3_class(out$weekdate, "Date")
+  expect_s3_class(out$monyy, "Date")
+  expect_s3_class(out$qtr, "Date")
+  expect_s3_class(out$year, "Date")
+})
+
 test_that("write_xpt() roundtrips metadata", {
   created <- as.POSIXct("2020-01-01 10:00:00", tz = "UTC")
   df <- tibble(x = 1, y = "abc")
